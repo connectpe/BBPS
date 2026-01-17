@@ -22,64 +22,114 @@ class AuthController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6|confirmed',
             'rolename' => 'required|string|max:50',
-            'business_name'=> 'required|string',
-            'business_pan'=> 'required|string',
-            'business_type'=> 'required|string',
-            'aadhar_name'=> 'required|string',
-            'aadhar_number'=> 'required|string',
-            'gst_number'=> 'required|string',
-            'pan_owner_name'=> 'required|string',
-            'pan_number'=> 'required|string',
-            'address'=> 'required|string',
-            'ciy'=> 'required|string',
-            'state'=> 'required|string',
-            'pincode'=> 'required|integer',
- 
         ]);
 
         $role = Role::where('slug',$request->rolename)->select('id')->first();
         // dd( $role);
         $user = User::create([
             'name' => $request->name,
-            'email' => $request->email,
-            
+            'email' => $request->email,           
             'role_id' => $role->id,
             'password' => bcrypt($request->password),
         ]);
-        $categoryId = null;
-        if(!empty($request->business_type)){
-            $data = BusinessInfo::where('slug',$request->business_type)->select('id')->first();
-            $categoryId = $data->id;
-
-        }
-        BusinessInfo::create([
-            'user_id'=>$user->id,
-            'business_category_id'=>$categoryId,
-            'business_name'=>$request->business_name,
-            'business_pan_number'=>$request->business_pan,
-            'business_pan_name'=>$request->business_pan,
-            
-            'aadhar_name'=>$request->aadhar_name,
-            'gst_number'=>$request->gst_number,
-            'pan_owner_name'=>$request->pan_owner_name,
-            'pan_number'=>$request->pan_number,
-            'aadhar_number'=>$request->aadhar_number,
-            'address'=>$request->address,
-            'city'=>$request->city,
-            'state'=>$request->state,
-            'pincode'=>$request->pincode,
-            'bank_id'=>$bankId,
-            
-
-
-        ]);
-
+        
         return response()->json([
             'status' => true,
-            'message' => 'User created successfully',
+            'message' => 'User updated successfully',
             'user' => $user
         ], 201);
     }
+
+
+public function completeProfile(Request $request)
+{
+    DB::beginTransaction();
+    $userId = Auth::id();
+    try {
+
+        
+        $request->validate([
+            'name'              => 'required|string|max:255',
+            'email'             => 'required|email|max:255|unique:users,email',
+            'password'          => 'required|string|min:6|confirmed',
+            'rolename'          => 'required|string|max:50',
+
+            'business_name'     => 'required|string',
+            'business_pan'      => 'required|string',
+            'business_type'     => 'required|string',
+
+            'aadhar_name'       => 'required|string',
+            'aadhar_number'     => 'required|string',
+            'gst_number'        => 'required|string',
+
+            'pan_owner_name'    => 'required|string',
+            'pan_number'        => 'required|string',
+
+            'address'           => 'required|string',
+            'city'              => 'required|string',
+            'state'             => 'required|string',
+            'pincode'           => 'required|string',
+
+            'baneficiary_name'  => 'required|string',
+            'bank_name'         => 'required|string',
+            'account_number'    => 'required|string',
+            'ifsc_code'         => 'required|string',
+        ]);
+
+        $categoryId = null;
+        if ($request->filled('business_type')) {
+            $category = BusinessCategory::where('slug', $request->business_type)->first();
+            $categoryId = $category?->id;
+        }
+
+       
+        $businessInfo = BusinessInfo::create([
+            'user_id'                => $userId,
+            'business_category_id'   => $categoryId,
+            'business_name'          => $request->business_name,
+            'business_pan_number'    => $request->business_pan,
+            'business_pan_name'      => $request->pan_owner_name,
+            'aadhar_name'            => $request->aadhar_name,
+            'aadhar_number'          => $request->aadhar_number,
+            'gst_number'             => $request->gst_number,
+            'pan_owner_name'         => $request->pan_owner_name,
+            'pan_number'             => $request->pan_number,
+            'address'                => $request->address,
+            'city'                   => $request->city,
+            'state'                  => $request->state,
+            'pincode'                => $request->pincode,
+        ]);
+
+     
+        UsersBank::create([
+            'user_id'            => $userId,
+            'business_info_id'   => $businessInfo->id,
+            'baneficiary_name'   => $request->baneficiary_name,
+            'bank_name'          => $request->bank_name,
+            'account_number'     => $request->account_number,
+            'ifsc_code'          => $request->ifsc_code,
+        ]);
+
+       
+        DB::commit();
+
+        return response()->json([
+            'status'  => true,
+            'message' => 'Profile completed successfully',
+            'user'    => $user,
+        ], 201);
+
+    } catch (\Exception $e) {
+
+       
+        DB::rollBack();
+
+        return response()->json([
+            'status'  => false,
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+}
     public function login(Request $request)
     {
         $credentials = $request->validate([

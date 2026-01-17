@@ -29,6 +29,9 @@ Route::group(['middleware' => ['auth']], function () {
 
 
         Route::post('change-password',[AuthController::class,'passwordReset'])->name('password.reset');
+        Route::post('complete-profile',[AuthController::class,'completeProfile'])->name('admin.complete-profile');
+
+        
 
         Route::get('profile', [AdminController::class, 'adminProfile'])->name('admin_profile');
 
