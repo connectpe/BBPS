@@ -410,10 +410,9 @@
                             <input type="text" class="form-control" placeholder="Enter mobile number">
                         </div>
 
-
                         <div class="col-md-6">
                             <label class="form-label">
-                               Profile Pic
+                                Profile Pic
                             </label>
                             <input type="file" class="form-control" accept=".jpg,.jpeg,.png">
                         </div>

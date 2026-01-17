@@ -7,7 +7,7 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('Front\user-register');
 });
 
 
@@ -16,7 +16,8 @@ Route::get('/dashboard', function () {
 })->name('dashboard');
 
 
-// Admin  Related Route 
+
+// Admin  Related Route
 Route::get('profile', [AdminController::class, 'adminProfile'])->name('admin_profile');
 
 
