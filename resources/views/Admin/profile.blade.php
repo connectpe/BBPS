@@ -174,6 +174,9 @@
             <li class="nav-item" role="presentation">
                 <button class="nav-link fw-bold text-dark" id="activity-tab" data-bs-toggle="tab" data-bs-target="#activity" type="button" role="tab" aria-controls="activity" aria-selected="false">Activity Log</button>
             </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold text-dark" id="integration-tab" data-bs-toggle="tab" data-bs-target="#integration" type="button" role="tab" aria-controls="integration" aria-selected="false">Key Intergration</button>
+            </li>
         </ul>
 
         <!-- Tabs content -->
@@ -338,6 +341,45 @@
                     <div class="col-md-4 fw-bold">10-Jan-2026 11:15 AM:</div>
                     <div class="col-md-8">Updated profile information</div>
                 </div>
+            </div>
+
+            <div class="tab-pane fade" id="integration" role="tabpanel" aria-labelledby="integration-tab">
+
+                <div class="text-end mb-3">
+                    <button class="btn buttonColor" data-bs-toggle="modal" data-bs-target="#serviceModal">
+                        Generate Key
+                    </button>
+                </div>
+
+
+                @php
+                $keys = [
+                [
+                'clientId' => '454v54545v656556brtyty657ht',
+                'clientKey' => 'key_1234567890',
+                ],
+                [
+                'clientId' => '984hfghf76876ghfgh',
+                'clientKey' => 'key_9876543210',
+                ],
+                ];
+                @endphp
+                <div class="row mb-2">
+                    @foreach($keys as $key)
+                    <div class="col-md-12 mb-2">
+                        <div class="border rounded p-3">
+                            <div class="row">
+                                <div class="col-12">
+                                    <strong>Client ID:</strong> {{ maskValue($key['clientId']) }} <br />
+                                    <strong>Client Key:</strong> {{ maskValue($key['clientKey']) }} <br />
+                                    <strong>Generated at:</strong> Jan-17-2025 05:45 pm <br />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+
             </div>
         </div>
     </div>
@@ -615,6 +657,35 @@
 </div>
 
 
+<!-- Generate Key Modal  -->
+<div class="modal fade" id="serviceModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form id="serviceForm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Select Service</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <select class="form-select" id="service" required>
+                        <option value="">-- Select Service --</option>
+                        <option value="payment">Payment</option>
+                        <option value="sms">SMS</option>
+                        <option value="email">Email</option>
+                    </select>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn buttonColor">Submit</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
 <script>
     function showInitials(img) {
         const name = "User"; // Replace dynamically from backend
@@ -697,6 +768,110 @@
         showStep(currentStep);
     });
 </script>
+
+
+<script>
+    $(document).ready(function() {
+
+        $('#serviceForm').on('submit', function(e) {
+            e.preventDefault();
+
+            const service = $('#service').val();
+            if (!service) return;
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'Do you want to create key & Id for this service?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, submit',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    submitForm(service);
+                }
+            });
+        });
+
+    });
+
+    function submitForm(service) {
+        // $.ajax({
+        //     url: '/create-client',
+        //     type: 'POST',
+        //     contentType: 'application/json',
+        //     data: JSON.stringify({
+        //         service
+        //     }),
+        //     success: function() {
+
+
+        //     }
+        // });
+
+        const response = {
+            success: true,
+            client_id: 'CID-123456',
+            client_key: 'CK-ABCDEF-987654'
+        };
+
+        if (response.success) {
+            showCredentials(response.client_id, response.client_key);
+        }
+    }
+
+    function showCredentials(clientId, clientKey) {
+        Swal.fire({
+            title: 'Client key & Id Generated Successfully',
+            html: `
+            <div class="text-start">
+                <p>
+                    <strong>Client ID:</strong>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" id="clientId" value="${clientId}" readonly>
+                        <span class="input-group-text copy-icon" onclick="copyText('clientId')" style="cursor:pointer">
+                            <i class="bi bi-clipboard"></i>
+                        </span>
+                    </div>
+                </p>
+
+                <p>
+                    <strong>Client Key:</strong>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" id="clientKey" value="${clientKey}" readonly>
+                        <span class="input-group-text copy-icon" onclick="copyText('clientKey')" style="cursor:pointer">
+                            <i class="bi bi-clipboard"></i>
+                        </span>
+                    </div>
+                </p>
+            </div>
+        `,
+            confirmButtonText: 'Close'
+        }).then(() => {
+            const serviceModalEl = document.getElementById('serviceModal');
+            const serviceModal = bootstrap.Modal.getInstance(serviceModalEl);
+            serviceModal.hide();
+        });
+    }
+
+    function copyText(id) {
+        const input = document.getElementById(id);
+        input.select();
+        navigator.clipboard.writeText(input.value);
+
+        const icon = input.nextElementSibling.querySelector('i');
+        icon.classList.remove('bi-clipboard');
+        icon.classList.add('bi-clipboard-check');
+
+        setTimeout(() => {
+            icon.classList.remove('bi-clipboard-check');
+            icon.classList.add('bi-clipboard');
+        }, 1500);
+    }
+</script>
+
 
 
 @endsection

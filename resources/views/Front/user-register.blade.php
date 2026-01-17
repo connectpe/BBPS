@@ -114,23 +114,6 @@
                 display: none;
             }
         }
-
-        /* Default button */
-        /* .toggle-btn {
-            background-color: #f5f5f5;
-            color: #667eea;
-            font-weight: 500;
-            border-radius: 25px;
-            padding: 8px 25px;
-            transition: all 0.3s ease;
-        } */
-
-        /* Active button highlight */
-        /* .toggle-btn.active {
-            background: linear-gradient(135deg, #667eea, #7a5ba2);
-            color: #fff;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-        } */
     </style>
 </head>
 
@@ -157,8 +140,6 @@
 
                 <!-- Form Container -->
                 <div class="form-container w-100" style="max-width:400px;">
-
-
 
                     <!-- Login Form -->
                     <form id="loginForm">
@@ -220,14 +201,8 @@
                         </p>
                     </form>
 
-                    <!-- <div id="toggleButtons" class="d-flex justify-content-center mb-4">
-                        <button id="loginBtn" class="btn btn-light text-primary px-4 me-2 toggle-btn active">Login</button>
-                        <button id="signupBtn" class="btn btn-light text-primary toggle-btn px-4">SignUp</button>
-                    </div> -->
-
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -294,7 +269,7 @@
                 showLogin();
             });
 
-             // Already have a account
+            // Already have a account
             switchLogin.addEventListener('click', (e) => {
                 e.preventDefault();
                 showLogin();
