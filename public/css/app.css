@@ -1,0 +1,57 @@
+/* Global font for entire dashboard */
+body,
+html,
+input,
+select,
+textarea,
+button {
+    font-family: 'Inter', 'Roboto', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #333;
+}
+
+/* Headings */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: 'Inter', 'Roboto', sans-serif;
+    font-weight: 600;
+    /* color: #222; */
+}
+
+/* Labels and small text */
+label,
+.small,
+.form-label {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* Card headings */
+.card-title {
+    font-weight: 600;
+}
+
+/* Buttons */
+.btn {
+    font-family: 'Inter', 'Roboto', sans-serif;
+    font-weight: 500;
+}
+
+
+.accordion-button:not(.collapsed) {
+    background-color: #fff;
+    /* or your theme color */
+    color: inherit;
+    box-shadow: none;
+}
+
+
+.sidebar {
+    flex-shrink: 0;
+    /* prevents shrinking */
+}
