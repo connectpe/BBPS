@@ -92,8 +92,8 @@
 
                         <!-- Button -->
                         <div class="col-12">
-                            <button type="button" class="btn w-100 font-semibold text-white rounded hover:opacity-90 transition"
-                                style="background-color:#6b83ec;">
+                            <button type="button" class="btn w-100 font-semibold rounded hover:opacity-90 transition buttonColor">
+
                                 Search
                             </button>
                         </div>
@@ -149,8 +149,8 @@
 
                         <!-- Buttons -->
                         <div class="col-12 mt-2 d-flex gap-2">
-                            <button type="button" class="btn w-100 font-semibold text-white rounded hover:opacity-90 transition"
-                                style="background-color:#6b83ec;">
+                            <button type="button" class="btn w-100 font-semibold rounded hover:opacity-90 transition buttonColor">
+
                                 Search
                             </button>
                         </div>

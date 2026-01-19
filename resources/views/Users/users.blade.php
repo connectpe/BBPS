@@ -33,7 +33,8 @@
                     </div>
                     <div class="col-md-3 d-flex gap-2">
                         <!-- Buttons aligned with input fields -->
-                        <button class="btn btn-primary " id="applyFilter"> Filter</button>
+                        <button class="btn buttonColor " id="applyFilter"> Filter</button>
+
                         <button class="btn btn-secondary" id="resetFilter">Reset</button>
                     </div>
                 </div>
@@ -92,12 +93,13 @@
             buttons: [{
                     extend: 'excelHtml5',
                     text: 'Excel',
-                    className: 'btn btn-primary btn-sm'
+                    className: 'btn buttonColor btn-sm'
+
                 },
                 {
                     extend: 'pdfHtml5',
                     text: 'PDF',
-                    className: 'btn btn-primary btn-sm'
+className: 'btn buttonColor btn-sm'
                 }
             ],
             language: {

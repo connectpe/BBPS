@@ -7,31 +7,25 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-use Laravel\Sanctum\HasApiTokens;
-
-
 class User extends Authenticatable
 {
-    /** @use HasFactory<\\Database\\Factories\\UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $fillable = [
         'name',
         'email',
         'password',
-        'role_id',
-        'status',
     ];
 
     /**
      * The attributes that should be hidden for serialization.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $hidden = [
         'password',
@@ -49,31 +43,5 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
-    }
-
-    // protected $hidden = ['password'];
-
-    // Sanctum provides token management via HasApiTokens
-
-
-
-    public function role()
-    {
-        return $this->belongsTo(Role::class);
-    }
-
-    public function business()
-    {
-        return $this->hasOne(BusinessInfo::class);
-    }
-
-    public function transactions()
-    {
-        return $this->hasMany(Transaction::class);
-    }
-
-    public function logs()
-    {
-        return $this->hasMany(UserLog::class);
     }
 }

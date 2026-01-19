@@ -56,9 +56,9 @@
                 </li>
 
                 <li>
-                    <form method="POST" action="{{route('admin.logout')}}">
+                    <form method="POST" action="javascript:void(0)">
                         @csrf
-                        <button class="dropdown-item text-danger" >Logout</button>
+                        <button class="dropdown-item text-danger" onclick="logoutConfirmation()">Logout</button>
                     </form>
                 </li>
             </ul>

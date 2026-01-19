@@ -70,11 +70,10 @@
 
                             <!-- Row 3: Search Button -->
                             <div class="col-12 col-md-12">
-                                <button type="submit" class="btn text-white w-100" style="background-color:#6b83ec;">
+<button type="submit" class="btn buttonColor w-100">
                                     Register Complaint
                                 </button>
                             </div>
-
                         </div>
                     </form>
                 </div>

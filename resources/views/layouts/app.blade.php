@@ -113,6 +113,16 @@
             flex-wrap: wrap;
             /* wrap for very small screens */
         }
+
+        .buttonColor {
+            background-color: #3c5be4;
+            color: white;
+        }
+
+        .buttonColor:hover {
+            background-color: #3c5be4;
+            color: white;
+        }
     </style>
 </head>
 

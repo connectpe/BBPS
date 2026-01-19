@@ -78,7 +78,8 @@
                 <div></div>
 
                 <!-- Heading -->
-                <h5 class="fw-bold mb-4 text-center">Welcome {{Auth::user()->name}} </h5>
+                <h5 class="fw-bold mb-4 text-center">Welcome User</h5>
+
 
                 <!-- User Profile Image -->
                 <img src="{{asset('assets\image\user.jpg')}}" alt="User Profile"
@@ -90,16 +91,8 @@
                     <div class="col-6 opacity-75">User Type</div>
                     <div class="col-6 fw-semibold">E-mail</div>
 
-                    <div class="col-6 opacity-75">
-                        @if(Auth::user()->role_id == '1')
-                            <span>Admin</span>
-                        @else
-                            <span>User</span>
-
-                        @endif
-
-                    </div>
-                    <div class="col-6 fw-semibold">{{Auth::user()->email}}</div>
+<div class="col-6 opacity-75">Retailer</div>
+                    <div class="col-6 fw-semibold">User@gmail.com</div>
 
                     <div class="col-6 opacity-75">Entity Type</div>
                     <div class="col-6 fw-semibold">Contact</div>
