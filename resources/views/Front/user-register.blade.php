@@ -142,16 +142,23 @@
                 <div class="form-container w-100" style="max-width:400px;">
 
                     <!-- Login Form -->
-                    <form id="loginForm">
+                    <form id="loginForm" action="{{route('admin.login')}}" method="POST">
+                        @csrf
                         <h3 class="text-center mb-2" style="color:#667eea;">Login to your account</h3>
                         <p class="text-center text-muted mb-4">Login to access your panel</p>
                         <div class="mb-3 form-floating">
-                            <input type="email" class="form-control" id="loginEmail" placeholder="Email">
+                            <input type="email" name="email" class="form-control" id="loginEmail" placeholder="Email">
                             <label for="loginEmail">Email</label>
+                            @error('email')
+                            <span class="text-danger" style="font-size: 0.875em;">{{ $message }}</span>
+                            @enderror
                         </div>
                         <div class="mb-4 form-floating">
-                            <input type="password" class="form-control" id="loginPassword" placeholder="Password">
+                            <input type="password" name="password" class="form-control" id="loginPassword" placeholder="Password">
                             <label for="loginPassword">Password</label>
+                            @error('password')
+                            <span class="text-danger" style="font-size: 0.875em;">{{ $message }}</span>
+                            @enderror   
                         </div>
                         <button type="submit" class="btn bbps-btn w-100">Login</button>
                         <p class="text-center mt-3 text-muted">

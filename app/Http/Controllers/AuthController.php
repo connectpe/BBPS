@@ -9,6 +9,15 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\UsersLog;
+use App\Helpers\SendingMail;
+use App\Models\BusinessInfo;
+use App\Models\BusinessCategory;
+use App\Models\UsersBank;
+use App\Models\EmailVerification;
+use Carbon\Carbon;
+
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 
 
@@ -16,29 +25,99 @@ class AuthController extends Controller
 {
 
     public function signup(Request $request)
-    {
+{
+    DB::beginTransaction();
+
+    try {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6|confirmed',
             'rolename' => 'required|string|max:50',
         ]);
 
-        $role = Role::where('slug',$request->rolename)->select('id')->first();
-        // dd( $role);
+        $role = Role::where('slug', $request->rolename)->firstOrFail();
+
+        $otp = rand(1000, 9999);
+
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,           
-            'role_id' => $role->id,
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'role_id'  => $role->id,
             'password' => bcrypt($request->password),
         ]);
-        
+
+        $isSend = SendingMail::sendMail([
+            'name'    => $request->name,
+            'email'   => $request->email,
+            'otp'     => $otp,
+            'subject' => 'Email Verification'
+        ]);
+
+        if (!$isSend) {
+            throw new \Exception('Mail not sent');
+        }
+
+        EmailVerification::updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'user_id'   => $user->id,
+                'otp'       => $otp,
+                'expire_at' => Carbon::now()->addMinutes(10),
+            ]
+        );
+
+        DB::commit();
+
         return response()->json([
-            'status' => true,
-            'message' => 'User updated successfully',
-            'user' => $user
+            'status'  => true,
+            'message' => 'User signup successfully',
+            'user'    => $user
         ], 201);
+
+    } catch (\Exception $e) {
+
+        DB::rollBack();
+
+        \Log::error('Signup failed', [
+            'error' => $e->getMessage()
+        ]);
+
+        return response()->json([
+            'status'  => false,
+            'message' => 'Something went wrong',
+        ], 500);
     }
+}
+
+
+public function verifyOtp(Request $request)
+{
+    $request->validate([
+        
+        'otp'   => 'required|digits:4',
+    ]);
+    $sessionEmail = session('user_email');
+    $otpData = EmailVerification::where('email', $sessionEmail)
+        ->where('otp', $request->otp)
+        ->where('expire_at', '>', Carbon::now())
+        ->first();
+
+    if (!$otpData) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Invalid or expired OTP',
+        ], 401);
+    }
+
+    // OTP verified → delete record
+    $otpData->delete();
+
+    return response()->json([
+        'status' => true,
+        'message' => 'OTP verified successfully',
+    ]);
+}
 
 
 public function completeProfile(Request $request)

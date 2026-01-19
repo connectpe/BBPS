@@ -287,9 +287,13 @@
 
 
         <li class="nav-item">
-            <a href="javascript:void(0)" class="nav-link text-white" onclick="logoutConfirmation()">
-                <i class="bi bi-box-arrow-right me-2"></i> Logout
-            </a>
+           <form action="{{ route('admin.logout') }}" method="POST">
+                @csrf
+                <button type="submit" class="btn btn-link nav-link text-white p-0 m-0 align-middle">
+                    Logout
+                </button>
+            </form>
+            
         </li>
 
     </ul>
