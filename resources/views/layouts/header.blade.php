@@ -10,8 +10,19 @@
         </button>
 
 
+
+
         <h2 class="mb-4">@yield('page-title')</h1>
             <!-- <h6 class="mb-0">Dashboard</h6> -->
+
+            @auth
+                @if (auth()->user()->role_id = 1)
+                    <button class="btn btn-primary mb-2 ms-5" data-bs-toggle="modal" data-bs-target="#serviceModal">
+                        ADD
+                    </button>
+                @endif
+            @endauth
+
     </div>
 
     <div class="d-flex align-items-center gap-3">
@@ -48,7 +59,7 @@
                     <hr class="dropdown-divider">
                 </li>
 
-                <li><a class="dropdown-item" href="{{route('admin_profile')}}">My Profile</a></li>
+                <li><a class="dropdown-item" href="{{ route('admin_profile') }}">My Profile</a></li>
                 <li><a class="dropdown-item" href="javascript:void(0)">Wallet Statement</a></li>
                 <li><a class="dropdown-item" href="javascript:void(0)">AEPS Statement</a></li>
                 <li>

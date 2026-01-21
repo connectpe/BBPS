@@ -140,6 +140,15 @@
                                     <i class="bi bi-info-circle-fill me-2"></i> Complaint Status
                                 </a>
                             </li>
+
+
+                            <li class="nav-item">
+                                <a href="{{ route('transaction.report') }}"
+                                    class="nav-link text-white {{ Route::currentRouteName() == 'transaction_complaint' ? 'sidebar-active' : '' }}">
+                                    <i class="bi bi-exclamation-triangle-fill me-2"></i> <!-- Icon for Utility -->
+                                    Transaction Report
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </li>
