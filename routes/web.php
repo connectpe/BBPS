@@ -49,11 +49,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('generate/client-credentials', [UserController::class, 'generateClientCredentials'])->name('generate_client_credentials');
 
     Route::post('fetch/{type}/{id?}/{returntype?}', [CommonController::class, 'fetchData']);
-    Route::post('/service/request', [ServiceController::class, 'raiseRequest'])
-        ->name('service.request');
-    Route::post('/admin/service-request/{id}/approve',
-        [AdminController::class, 'approve']
-    )->name('admin.service.approve');
 
 });
 
