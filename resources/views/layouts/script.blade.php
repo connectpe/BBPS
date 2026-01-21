@@ -66,6 +66,24 @@
         });
     }
 
+
+    function changeStatus(route, text = 'This Record') {
+        Swal.fire({
+            title: 'Are you sure to change status of ' + text + '?',
+            // text: "You will be logged out from your account!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = route;
+            }
+        });
+    }
+
     function showImage(src, title = "Image Preview") {
         $('#previewImage').attr('src', src);
         $('#image-title').html(title);

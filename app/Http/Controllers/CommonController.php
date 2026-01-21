@@ -9,11 +9,11 @@ use Illuminate\Support\Facades\DB;
 
 class CommonController extends Controller
 {
-    public function fetchData(Request $request, $type, $id = 0, $returnType = "all")
+	public function fetchData(Request $request, $type, $id = 0, $returnType = "all")
 	{
-        // dd($this->authrize('isUser'));
+		// dd($this->authrize('isUser'));
 
-	   
+
 		$request['return'] = 'all';
 		$request->orderIdArray = [];
 		$request->serviceIdArray = [];
@@ -23,10 +23,8 @@ class CommonController extends Controller
 		$parentData = session('parentData');
 		$request['where'] = 0;
 		$request['type'] = $type;
-        
+
 		switch ($type) {
-			
-			
 
 			case 'users':
 				$request['table'] = '\App\Models\User';
@@ -38,15 +36,15 @@ class CommonController extends Controller
 
 				if (isset($orderIndex) && count($orderIndex)) {
 					$columnsIndex = $request->get('columns');
-					$columnIndex = $orderIndex[0]['column']; 
-					$columnName = $columnsIndex[$columnIndex]['data']; 
-					$columnSortOrder = $orderIndex[0]['dir']; 
+					$columnIndex = $orderIndex[0]['column'];
+					$columnName = $columnsIndex[$columnIndex]['data'];
+					$columnSortOrder = $orderIndex[0]['dir'];
 					if ($columnName == 'new_created_at') {
 						$columnName = 'created_at';
 					}
 					if ($columnName == '0') {
 						$columnName = 'created_at';
-						$columnSortOrder = 'DESC'; 
+						$columnSortOrder = 'DESC';
 					}
 					$request['order'] = [$columnName, $columnSortOrder];
 				} else {
@@ -56,8 +54,8 @@ class CommonController extends Controller
 				$request['whereIn'] = 'id';
 				$request['parentData'] = [$request->id];
 
-                
-                if (Auth::user()->role_id == '1') {
+
+				if (Auth::user()->role_id == '1') {
 					$request['parentData'] = 'all';
 				} else {
 					$request['whereIn'] = 'user_id';
@@ -65,11 +63,49 @@ class CommonController extends Controller
 				}
 
 				break;
-			
-				
-			
+
+			case 'global-service':
+				$request['table'] = '\App\Models\GlobalService';
+				$request['searchData'] = ['id', 'service_name', 'created_at'];
+				$request['select'] = 'all';
+				// $request['with'] = ['business'];
+
+				$orderIndex = $request->get('order');
+
+				if (isset($orderIndex) && count($orderIndex)) {
+					$columnsIndex = $request->get('columns');
+					$columnIndex = $orderIndex[0]['column'];
+					$columnName = $columnsIndex[$columnIndex]['data'];
+					$columnSortOrder = $orderIndex[0]['dir'];
+					if ($columnName == 'new_created_at') {
+						$columnName = 'created_at';
+					}
+					if ($columnName == '0') {
+						$columnName = 'created_at';
+						$columnSortOrder = 'DESC';
+					}
+					$request['order'] = [$columnName, $columnSortOrder];
+				} else {
+					$request['order'] = ['id', 'DESC'];
+				}
+
+				$request['whereIn'] = 'id';
+				$request['parentData'] = [$request->id];
+
+
+				if (Auth::user()->role_id == '1') {
+					$request['parentData'] = 'all';
+				} else {
+					$request['whereIn'] = 'user_id';
+					$request['parentData'] = [Auth::user()->id];
+				}
+
+
+				break;
+
+
 				$request['table'] = '\App\Models\Insurance';
-				$request['searchData'] = ['name','email','mobile','pan','agentId','status','created_at'];
+				$request['searchData'] = ['name', 'email', 'mobile', 'pan', 'agentId', 'status', 'created_at'];
 				$request['select'] = 'all';
 				$request['with'] = ['user'];
 				if (!isset($request['from']) && empty($request['from'])) {
@@ -83,7 +119,7 @@ class CommonController extends Controller
 				if (isset($orderIndex) && count($orderIndex)) {
 					$columnsIndex = $request->get('columns');
 					$columnIndex = $orderIndex[0]['column']; // Column index
-					$columnName = $columnsIndex[$columnIndex]['data']; 
+					$columnName = $columnsIndex[$columnIndex]['data'];
 					$columnSortOrder = $orderIndex[0]['dir']; // asc or desc
 					if ($columnName == 'new_created_at') {
 						$columnName = 'created_at';
@@ -104,6 +140,7 @@ class CommonController extends Controller
 					$request['parentData'] = [Auth::user()->id];
 				}
 				break;
+
 
 				case 'transactions':
 					$request['table'] = '\App\Models\Transaction';
@@ -200,13 +237,13 @@ class CommonController extends Controller
 				break;
 
 
+
 		}
 
 		try {
 			$totalData = $this->getData($request, 'count');
 		} catch (\Exception $e) {
 			$totalData = 0;
-
 		}
 		if (isset($request->search['value'])) {
 			$request->searchText = $request->search['value'];
@@ -276,69 +313,69 @@ class CommonController extends Controller
 	}
 
 
-protected function getData($request, $type = 'data')
-{
-    $model = $request['table'];
+	protected function getData($request, $type = 'data')
+	{
+		$model = $request['table'];
 
-    // Start query
-    $query = $model::query();
+		// Start query
+		$query = $model::query();
 
-    
-    if (isset($request['whereIn']) && isset($request['parentData'])) {
-        if ($request['parentData'] !== 'all') {
-            $query->whereIn($request['whereIn'], (array) $request['parentData']);
-        }
-    }
 
-  
-    if (
-        isset($request['where']) &&
-        $request['where'] == 1 &&
-        isset($request->searchText) &&
-        !empty($request->searchText)
-    ) {
-        $query->where(function ($q) use ($request) {
-            foreach ($request['searchData'] as $column) {
-                $q->orWhere($column, 'LIKE', '%' . $request->searchText . '%');
-            }
-        });
-    }
+		if (isset($request['whereIn']) && isset($request['parentData'])) {
+			if ($request['parentData'] !== 'all') {
+				$query->whereIn($request['whereIn'], (array) $request['parentData']);
+			}
+		}
 
-  
-    if (!empty($request['from']) && !empty($request['to'])) {
-        $query->whereBetween(DB::raw('DATE(created_at)'), [
-            $request['from'],
-            $request['to']
-        ]);
-    }
 
-   
-    if ($type === 'count') {
-        return $query->count();
-    }
+		if (
+			isset($request['where']) &&
+			$request['where'] == 1 &&
+			isset($request->searchText) &&
+			!empty($request->searchText)
+		) {
+			$query->where(function ($q) use ($request) {
+				foreach ($request['searchData'] as $column) {
+					$q->orWhere($column, 'LIKE', '%' . $request->searchText . '%');
+				}
+			});
+		}
 
-    
-    if (isset($request['order'])) {
-        $query->orderBy($request['order'][0], $request['order'][1]);
-    }
 
-    
-    if (isset($request['length']) && $request['length'] != -1) {
-        $query->offset($request['start'])->limit($request['length']);
-    }
+		if (!empty($request['from']) && !empty($request['to'])) {
+			$query->whereBetween(DB::raw('DATE(created_at)'), [
+				$request['from'],
+				$request['to']
+			]);
+		}
 
-    
-    if (isset($request['with'])) {
-        $query->with($request['with']);
-    }
 
-    
-    if (isset($request['select']) && $request['select'] !== 'all') {
-        $query->select($request['select']);
-    }
+		if ($type === 'count') {
+			return $query->count();
+		}
 
-    return $query->get();
-}
+
+		if (isset($request['order'])) {
+			$query->orderBy($request['order'][0], $request['order'][1]);
+		}
+
+
+		if (isset($request['length']) && $request['length'] != -1) {
+			$query->offset($request['start'])->limit($request['length']);
+		}
+
+
+		if (isset($request['with'])) {
+			$query->with($request['with']);
+		}
+
+
+		if (isset($request['select']) && $request['select'] !== 'all') {
+			$query->select($request['select']);
+		}
+
+		return $query->get();
+	}
 	/**
 	 * Undocumented function
 	 *

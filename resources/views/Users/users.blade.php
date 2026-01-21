@@ -59,7 +59,7 @@
                             <th>Email</th>
                             <th>PanNO.</th>
                             <th>Aadhar NO.</th>
-                            <th>Aadhaar No</th>  
+                            <th>Aadhaar No</th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -76,11 +76,11 @@
             processing: true,
             serverSide: true,
             ajax: {
-                
+
                 url: "{{url('fetch')}}/users/0",
                 type: 'POST',
-                
-                
+
+
                 data: function(d) {
                     d._token = $('meta[name="csrf-token"]').attr('content');
                     d.name = $('#filterName').val();
@@ -109,17 +109,31 @@
             language: {
                 searchPlaceholder: "Search users..."
             },
-            
+
             columns: [{
                     data: 'id'
                 },
                 {
-                    data: 'business.business_name'
+                    data: 'business.business_name',
+                    render: function(data, type, row) {
+                        let url = "{{route('view_user',['id' => 'id'])}}".replace('id', row.id);
+                        return `
+                        <a href="${url}" class="text-primary fw-semibold text-decoration-none">
+                            ${data ?? '----'}
+                        </a>
+                    `;
+                    }
                 },
-                
                 {
                     data: 'name',
-                    
+                    render: function(data, type, row) {
+                        let url = "{{route('view_user',['id' => 'id'])}}".replace('id', row.id);
+                        return `
+                        <a href="${url}" class="text-primary fw-semibold text-decoration-none">
+                            ${data}
+                        </a>
+                    `;
+                    }
                 },
                 {
                     data: 'email'
@@ -130,8 +144,6 @@
                 {
                     data: 'business.aadhar_number'
                 },
-                
-                
                 {
                     data: 'created_at'
                 },
@@ -145,8 +157,6 @@
                     orderable: false,
                     searchable: false
                 },
-               
-
             ]
         });
 
