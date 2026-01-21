@@ -819,7 +819,7 @@
 
     function submitForm(service) {
 
-        data = [];
+        let data = [];
         
         $.ajax({
             url: "{{ route('generate_client_credentials') }}",
@@ -831,18 +831,18 @@
                 _token: $('meta[name="csrf-token"]').attr('content'),
             }),
             success: function(response) {
-                console.log(response);
+                console.log(response.data.client_id);
+                console.log(response.data.client_secret);
                 // Handle success if needed
-              let  data = [
-                    response.client_id,
-                    response.client_key
+                data = [
+                    response.data.client_id,
+                    response.data.client_key
                 ];
+
                 console.log(data);
             },
             error: function() {
                 // Handle error if needed
-
-
             }
         });
 
@@ -851,6 +851,8 @@
             client_id: data[0] || '',
             client_key: data[1] || ''
         };
+
+        console.log(response);
 
         if (response.success) {
             showCredentials(response.client_id, response.client_key);

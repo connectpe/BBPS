@@ -105,6 +105,100 @@ class CommonController extends Controller
 				}
 				break;
 
+				case 'transactions':
+					$request['table'] = '\App\Models\Transaction';
+					$request['searchData'] = ['id', 'amount', 'reference_number','created_at'];
+					$request['select'] = 'all';
+					// $request['with'] = ['business'];
+					$orderIndex = $request->get('order');
+					if (isset($orderIndex) && count($orderIndex)) {
+						$columnsIndex = $request->get('columns');
+						$columnIndex = $orderIndex[0]['column']; 
+						$columnName = $columnsIndex[$columnIndex]['data']; 
+						$columnSortOrder = $orderIndex[0]['dir']; 
+						if ($columnName == 'new_created_at') {
+							$columnName = 'created_at';
+						}
+						if ($columnName == '0') {
+							$columnName = 'created_at';
+							$columnSortOrder = 'DESC'; 
+						}
+						$request['order'] = [$columnName, $columnSortOrder];
+					} else {
+						$request['order'] = ['id', 'DESC'];
+					}
+					$request['whereIn'] = 'id';
+					$request['parentData'] = [$request->id];
+					if (Auth::user()->role_id == '1') {
+						$request['parentData'] = 'all';
+					} else {
+						$request['whereIn'] = 'user_id';
+						$request['parentData'] = [Auth::user()->id];
+					}
+				break;
+				case 'serviceRequest':
+					$request['table'] = '\App\Models\UserService';
+					$request['searchData'] = ['user_id', 'is_active', 'service_id'];
+					$request['select'] = 'all';
+					// $request['with'] = ['business'];
+					$orderIndex = $request->get('order');
+					if (isset($orderIndex) && count($orderIndex)) {
+						$columnsIndex = $request->get('columns');
+						$columnIndex = $orderIndex[0]['column']; 
+						$columnName = $columnsIndex[$columnIndex]['data']; 
+						$columnSortOrder = $orderIndex[0]['dir']; 
+						if ($columnName == 'new_created_at') {
+							$columnName = 'created_at';
+						}
+						if ($columnName == '0') {
+							$columnName = 'created_at';
+							$columnSortOrder = 'DESC'; 
+						}
+						$request['order'] = [$columnName, $columnSortOrder];
+					} else {
+						$request['order'] = ['id', 'DESC'];
+					}
+					$request['whereIn'] = 'id';
+					$request['parentData'] = [$request->id];
+					if (Auth::user()->role_id == '1') {
+						$request['parentData'] = 'all';
+					} else {
+						$request['whereIn'] = 'user_id';
+						$request['parentData'] = [Auth::user()->id];
+					}
+				break;
+				case 'serviceRequest':
+					$request['table'] = '\App\Models\UserService';
+					$request['searchData'] = ['user_id', 'is_active', 'service_id'];
+					$request['select'] = 'all';
+					// $request['with'] = ['business'];
+					$orderIndex = $request->get('order');
+					if (isset($orderIndex) && count($orderIndex)) {
+						$columnsIndex = $request->get('columns');
+						$columnIndex = $orderIndex[0]['column']; 
+						$columnName = $columnsIndex[$columnIndex]['data']; 
+						$columnSortOrder = $orderIndex[0]['dir']; 
+						if ($columnName == 'new_created_at') {
+							$columnName = 'created_at';
+						}
+						if ($columnName == '0') {
+							$columnName = 'created_at';
+							$columnSortOrder = 'DESC'; 
+						}
+						$request['order'] = [$columnName, $columnSortOrder];
+					} else {
+						$request['order'] = ['id', 'DESC'];
+					}
+					$request['whereIn'] = 'id';
+					$request['parentData'] = [$request->id];
+					if (Auth::user()->role_id == '1') {
+						$request['parentData'] = 'all';
+					} else {
+						$request['whereIn'] = 'user_id';
+						$request['parentData'] = [Auth::user()->id];
+					}
+				break;
+
 
 		}
 

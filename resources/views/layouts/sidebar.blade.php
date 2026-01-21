@@ -13,11 +13,11 @@
     </div>
 
 
-    <h5 class="text-center mb-4">BBPS PANEL</h5>
+    <h5 class="text-center mb-4">BBPS PANEL </h5>
 
     @php
 
-    $role = 1// 1 for the admin and 2 for the user
+    $role = Auth::user()->role_id;
 
     @endphp
 
