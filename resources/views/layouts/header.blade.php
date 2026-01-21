@@ -1,4 +1,4 @@
-<header class="bg-white shadow-sm p-3 d-flex justify-content-between align-items-center">
+<header class="bg-white shadow-sm p-3 d-flex justify-content-between align-items-center border">
     <div class="d-flex align-items-center">
         <!-- Sidebar Toggle -->
         <!-- <button id="sidebarToggle" class="btn btn-outline-secondary me-3">
@@ -56,9 +56,9 @@
                 </li>
 
                 <li>
-                    <form method="POST" action="javascript:void(0)">
+                    <form action="{{ route('admin.logout') }}" method="POST">
                         @csrf
-                        <button class="dropdown-item text-danger" onclick="logoutConfirmation()">Logout</button>
+                        <button class="dropdown-item text-danger">Logout</button>
                     </form>
                 </li>
             </ul>

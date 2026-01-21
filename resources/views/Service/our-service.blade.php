@@ -1,0 +1,231 @@
+@extends('layouts.app')
+
+@section('title', 'Our Services')
+@section('page-title', 'Our Services')
+
+@section('content')
+
+<style>
+    .cursor-pointer {
+        cursor: pointer !important;
+    }
+</style>
+
+<div class="row align-items-center mb-2">
+    <div class="col-auto ms-auto">
+        <button type="button" class="btn buttonColor" data-bs-toggle="modal" data-bs-target="#serviceModal">
+            <i class="bi bi-plus fs-6 me-1"></i> Service
+        </button>
+    </div>
+</div>
+
+
+<div class="accordion mb-3" id="filterAccordion">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingFilter">
+            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
+                Our Services
+            </button>
+        </h2>
+        <div id="collapseFilter" class="accordion-collapse collapse" aria-labelledby="headingFilter" data-bs-parent="#filterAccordion">
+            <div class="accordion-body">
+                <div class="col-12 col-md-10 col-lg-12">
+                    <div class="card shadow-sm">
+
+                        <div class="card-body pt-4">
+                            <div class="table-responsive">
+                                <table id="servicesTable" class="table table-striped table-bordered table-hover w-100">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Service Name</th>
+                                            <th>Slug</th>
+                                            <th>Service Type</th>
+                                            <th>Activation Allowed</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="serviceModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <form id="serviceForm">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Create Service</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+
+                                <div class="modal-body">
+                                    <div class="row g-3">
+                                        <div class="col-md-12">
+                                            <label for="service_name">Service Name</label>
+                                            <input type="text" class="form-control" name="service_name" id="service_name" value="{{old('service_name')}}" placeholder="Service Name">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn buttonColor">Submit</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="accordion mb-3" id="userServiceAccordion">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingFilter">
+            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseUserAccordion" aria-expanded="false" aria-controls="collapseUserAccordion">
+                Users Services
+            </button>
+        </h2>
+        <div id="collapseUserAccordion" class="accordion-collapse" aria-labelledby="headingFilter" data-bs-parent="#userServiceAccordion">
+            <div class="accordion-body">
+                <div class="row g-3 align-items-end">
+
+                    <div class="col-md-3">
+                        <label for="filterStatus" class="form-label">Business Name</label>
+                        <select class="form-select" id="filterStatus">
+                            <option value="">All</option>
+                            <option value="Active">Business 1 </option>
+                            <option value="Inactive">Business 2</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="filterName" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="filterName" placeholder="Enter name">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="filterEmail" class="form-label">Email</label>
+                        <input type="text" class="form-control" id="filterEmail" placeholder="Enter email">
+                    </div>
+
+                    <div class="col-md-3 d-flex gap-2">
+                        <button class="btn buttonColor " id="applyFilterServicesTable"> Filter</button>
+                        <button class="btn btn-secondary" id="resetFilterServicesTable">Reset</button>
+                    </div>
+                </div>
+
+                <div class="table-responsive mt-3">
+                    <table id="userServicesTable" class="table table-striped table-bordered table-hover w-100">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Business Name</th>
+                                <th>Services</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    $(document).ready(function() {
+
+        var table = $('#servicesTable').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: "{{url('fetch')}}/global-service/0",
+                type: 'POST',
+                data: function(d) {
+                    d._token = $('meta[name="csrf-token"]').attr('content');
+                }
+            },
+            pageLength: 10,
+            lengthMenu: [5, 10, 25, 50],
+            responsive: false,
+            dom: "<'row mb-2'<'col-sm-4'l><'col-sm-4'f><'col-sm-4 text-end'B>>" +
+                "<'row'<'col-12'tr>>" +
+                "<'row mt-2'<'col-sm-6'i><'col-sm-6'p>>",
+            buttons: [{
+                    extend: 'excelHtml5',
+                    text: 'Excel',
+                    className: 'btn buttonColor btn-sm'
+
+                },
+                {
+                    extend: 'pdfHtml5',
+                    text: 'PDF',
+                    className: 'btn buttonColor btn-sm'
+                }
+            ],
+            language: {
+                searchPlaceholder: "Search services..."
+            },
+
+            columns: [{
+                    data: 'id'
+                },
+                {
+                    data: 'service_name'
+                },
+                {
+                    data: 'slug',
+                },
+                {
+                    data: 'service_type'
+                },
+                {
+                    data: 'is_activation_allowed',
+                    render: function(data, type, row) {
+                        let checked = data == '1' ? 'checked' : ''; // toggle state
+                        let route = `/service/status/${row.id}`; // dummy route to change the status
+                        return `
+                            <div class="form-check form-switch">
+                                <input class="form-check-input cursor-pointer" type="checkbox" ${checked}
+                                    onchange="changeStatus('${route}', 'This Record')">
+                            </div>
+                        `;
+                    },
+                    orderable: false,
+                    searchable: false
+                },
+                {
+                    data: 'is_active',
+                    render: function(data, type, row) {
+                        let checked = data == '1' ? 'checked' : ''; // toggle state
+                        let route = `/service/status/${row.id}`; // dummy route to change the status
+                        return `
+                            <div class="form-check form-switch">
+                                <input class="form-check-input cursor-pointer" type="checkbox" ${checked}
+                                    onchange="changeStatus('${route}', 'Service')">
+                            </div>
+                        `;
+                    },
+                    orderable: false,
+                    searchable: false
+                }
+            ]
+        });
+
+        // $('#applyFilterServicesTable').on('click', function() {
+        //     table.ajax.reload();
+        // });
+
+        // $('#resetFilterServicesTable').on('click', function() {
+        //     $('#filterName').val('');
+        //     $('#filterEmail').val('');
+        //     $('#filterStatus').val('');
+        //     table.ajax.reload();
+        // });
+    });
+</script>
+
+@endsection

@@ -23,19 +23,19 @@ class UserController extends Controller
 
         DB::beginTransaction();
 
-            $service = GlobalService::where('user_id', auth()->id())
-            ->where(['slug'=>$request->service,'is_active' => '1'])
+        $service = GlobalService::where('user_id', auth()->id())
+            ->where(['slug' => $request->service, 'is_active' => '1'])
             ->select('id')
             ->first();
 
         try {
 
-            $userId = auth()->id(); 
-           
-            $clientId = 'RAFI'.strtoupper($request->service) . '_' . Str::random(16);
+            $userId = auth()->id();
+
+            $clientId = 'RAFI' . strtoupper($request->service) . '_' . Str::random(16);
             $clientSecret = hash('sha256', Str::random(32) . now());
 
-            
+
             $credential = OauthUser::create([
                 'user_id'       => $userId,
                 'service_id'     => $service->id,
@@ -54,7 +54,6 @@ class UserController extends Controller
                     'client_secret' => $credential->client_secret,
                 ],
             ], 201);
-
         } catch (\Exception $e) {
 
             DB::rollBack();
@@ -69,5 +68,15 @@ class UserController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function bbpsUsers()
+    {
+        return view('Users.users');
+    }
+
+    public function viewSingleUsers()
+    {
+        return view('Users.view-user');
     }
 }

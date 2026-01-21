@@ -75,9 +75,273 @@
     } */
 </style>
 
-@php 
-    $user = Auth::user();
+@php
+$user = Auth::user();
+$role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 @endphp
+
+@if($role == 1)
+
+<div class="row align-items-center border rounded p-2 shadow-sm">
+    <!-- User Image -->
+    <div class="col">
+        <!-- Profile Image -->
+        <img id="userImage" src="path/to/user-image.jpg" alt="User Image" class="rounded-circle border border-1 border-primary" width="100" height="100" onerror="showInitials(this)">
+    </div>
+
+    <!-- User Info -->
+    <div class="col">
+        <h4 class="mb-1">{{$user->name}}</h4>
+        <p class="mb-0 text-muted">{{$user->email}}</p>
+
+        <!-- Badges -->
+        <!-- <div class="mt-2">
+            <span class="badge bg-success me-1">Active</span>
+            <span class="badge bg-info text-dark me-1">Verified</span>
+            <span class="badge bg-warning text-dark">Premium User</span>
+        </div> -->
+    </div>
+
+</div>
+
+<div class="row mt-3 g-3">
+
+    <!-- Card 1: Completed Transaction -->
+
+    <div class="col-md-3">
+        <div class="card shadow-lg text-center p-3 card-hover">
+            <div class="card-body">
+                <i class="bi bi-check-circle-fill fs-4 text-success mb-2"></i>
+                <h6 class="card-title mb-1">Completed Transaction</h6>
+                <p class="card-text fs-6 fw-bold">{{ number_format(2345) }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 2: Total Spent -->
+    <div class="col-md-3">
+        <div class="card shadow-lg text-center p-3 card-hover">
+            <div class="card-body">
+                <i class="bi bi-currency-dollar fs-4 text-primary mb-2"></i>
+                <h6 class="card-title mb-1">Total Spent</h6>
+                <p class="card-text fs-6 fw-bold">{{ number_format(1245) }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 3: Wallet Balance -->
+    <div class="col-md-3">
+        <div class="card shadow-lg text-center p-3 card-hover">
+            <div class="card-body">
+                <i class="bi bi-wallet2 fs-4 text-warning mb-2"></i>
+                <h6 class="card-title mb-1">Wallet Balance</h6>
+                <p class="card-text fs-6 fw-bold">{{ number_format(4567) }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 4: Member Since -->
+    <div class="col-md-3">
+        <div class="card shadow-lg text-center p-3 card-hover">
+            <div class="card-body">
+                <i class="bi bi-calendar-check fs-4 text-info mb-2"></i>
+                <h6 class="card-title mb-1">Member Since</h6>
+                <p class="card-text fs-6 fw-bold">{{ number_format(2012) }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row mt-3">
+    <div class="col-12">
+        <!-- Tabs nav -->
+        <ul class="nav nav-tabs" id="profileTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold text-dark active" id="personal-tab" data-bs-toggle="tab" data-bs-target="#personal" type="button" role="tab" aria-controls="personal" aria-selected="true">Personal Information</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold text-dark" id="security-tab" data-bs-toggle="tab" data-bs-target="#security" type="button" role="tab" aria-controls="security" aria-selected="false">Security Setting</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold text-dark" id="activity-tab" data-bs-toggle="tab" data-bs-target="#activity" type="button" role="tab" aria-controls="activity" aria-selected="false">Activity Log</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold text-dark" id="serviceRequest-tab" data-bs-toggle="tab" data-bs-target="#serviceRequest" type="button" role="tab" aria-controls="serviceRequest" aria-selected="false">Service Request</button>
+            </li>
+        </ul>
+        <!-- Tabs content -->
+        <div class="tab-content border p-3" id="profileTabContent">
+
+            <!-- Personal Information Tab -->
+            <div class="tab-pane fade show active" id="personal" role="tabpanel" aria-labelledby="personal-tab">
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-semibold">Full Name:</div>
+                    <div class="col-md-8">{{$user->name}}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-semibold">Email Address:</div>
+                    <div class="col-md-8">{{$user->email}}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-semibold">Phone Number:</div>
+                    <div class="col-md-8">{{$user->mobile}}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-semibold">Date of Birth:</div>
+                    <div class="col-md-8">01-Jan-1990</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-semibold">Gender:</div>
+                    <div class="col-md-8">Male</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-semibold">City:</div>
+                    <div class="col-md-8">New York, USA</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-semibold">Address:</div>
+                    <div class="col-md-8">123 Main Street, NY 10001</div>
+                </div>
+            </div>
+
+            <!-- Security Setting -->
+            <div class="tab-pane fade" id="security" role="tabpanel" aria-labelledby="security-tab">
+                <!-- Last Login Info -->
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-semibold">Last Login:</div>
+                    <div class="col-md-8">15-Jan-2026 10:45 AM</div>
+                </div>
+
+                <!-- Change Password Form -->
+                <form id="changePasswordForm">
+                    @csrf
+
+                    <div class="mb-3 row">
+                        <label class="col-md-4 col-form-label fw-semibold">
+                            Old Password:<span class="text-danger">*</span>
+                        </label>
+                        <div class="col-md-8">
+                            <input type="password" class="form-control" name="current_password" placeholder="Current Password">
+                            <small class="text-danger error-current_password"></small>
+                        </div>
+                    </div>
+
+                    <div class="mb-3 row">
+                        <label class="col-md-4 col-form-label fw-semibold">
+                            New Password:<span class="text-danger">*</span>
+                        </label>
+                        <div class="col-md-8">
+                            <input type="password" class="form-control" name="new_password" placeholder="New Password">
+                            <small class="text-danger error-new_password"></small>
+                        </div>
+                    </div>
+
+                    <div class="mb-3 row">
+                        <label class="col-md-4 col-form-label fw-semibold">
+                            Confirm Password:<span class="text-danger">*</span>
+                        </label>
+                        <div class="col-md-8">
+                            <input type="password" class="form-control" name="new_password_confirmation" placeholder="Confirm Password">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-8 offset-md-4">
+                            <button type="submit" class="btn buttonColor">
+                                Change Password
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+
+
+            <!-- Activity Log -->
+            <div class="tab-pane fade" id="activity" role="tabpanel" aria-labelledby="activity-tab">
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">01-Jan-2026 09:00 AM:</div>
+                    <div class="col-md-8">Logged in from IP 192.168.1.1</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">05-Jan-2026 03:30 PM:</div>
+                    <div class="col-md-8">Completed a transaction of $500</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">10-Jan-2026 11:15 AM:</div>
+                    <div class="col-md-8">Updated profile information</div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="serviceRequest" role="tabpanel" aria-labelledby="serviceRequest-tab">
+
+                @php
+                $serviceRequests = [
+                [
+                'serviceName' => 'Payin',
+                'businessName' => 'Business Name 1',
+                ],
+                [
+                'serviceName' => 'Payout',
+                'businessName' => 'Business Name 2',
+                ],
+                ];
+
+
+                $faker = Faker\Factory::create();
+                $randomName = $faker->name;
+                @endphp
+                <div class="row mb-2">
+                    @foreach($serviceRequests as $request)
+                    <div class="col-md-12 mb-2">
+                        <div class="border rounded p-3">
+                            <div class="row">
+                                <div class="col-12">
+                                    <strong>Service Name:</strong> {{ $request['serviceName'] }} <br />
+                                    <strong>Business Name:</strong> {{ $request['businessName'] }} [{{$randomName}}] <br />
+                                    <strong>Date:</strong> Jan-17-2025 05:45 pm <br />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function showInitials(img) {
+        const name = "{{$user->name}}"; // Replace dynamically from backend
+        const initial = name.charAt(0).toUpperCase();
+
+        // Create a circle div
+        const div = document.createElement('div');
+        div.textContent = initial;
+        div.style.width = '92px';
+        div.style.height = '92px';
+        div.style.backgroundColor = '#6b83ec'; // Bootstrap primary color
+        div.style.color = 'white';
+        div.style.borderRadius = '50%';
+        div.style.display = 'flex';
+        div.style.alignItems = 'center';
+        div.style.justifyContent = 'center';
+        div.style.fontSize = '2rem';
+        div.style.fontWeight = 'bold';
+        div.style.border = '2px solid #6b83ec';
+
+        // Replace image with div
+        img.replaceWith(div);
+    }
+</script>
+
+
+@elseif($role == 2)
+
 <div class="row align-items-center border rounded p-2 shadow-sm">
     <!-- User Image -->
     <div class="col">
@@ -104,9 +368,6 @@
         <button type="button" class="btn buttonColor" data-bs-toggle="modal" data-bs-target="#completeProfileModal">
             <i class="bi bi-pencil-square me-1"></i> Complete Profile
         </button>
-        <!-- <a href="/edit-profile" class="btn text-white" style="background-color: #6b83ec;">
-            <i class="bi bi-pencil-square me-1"></i> Edit
-        </a> -->
     </div>
 
 </div>
@@ -177,6 +438,9 @@
                 <button class="nav-link fw-bold text-dark" id="activity-tab" data-bs-toggle="tab" data-bs-target="#activity" type="button" role="tab" aria-controls="activity" aria-selected="false">Activity Log</button>
             </li>
             <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold text-dark" id="banking-tab" data-bs-toggle="tab" data-bs-target="#banking" type="button" role="tab" aria-controls="banking" aria-selected="false">Banking</button>
+            </li>
+            <li class="nav-item" role="presentation">
                 <button class="nav-link fw-bold text-dark" id="integration-tab" data-bs-toggle="tab" data-bs-target="#integration" type="button" role="tab" aria-controls="integration" aria-selected="false">Key Intergration</button>
             </li>
         </ul>
@@ -228,46 +492,44 @@
                 <form id="changePasswordForm">
                     @csrf
 
-                <div class="mb-3 row">
-                    <label class="col-md-4 col-form-label fw-semibold">
-                        Old Password:<span class="text-danger">*</span>
-                    </label>
-                    <div class="col-md-8">
-                        <input type="password" class="form-control" name="current_password">
-                        <small class="text-danger error-current_password"></small>
+                    <div class="mb-3 row">
+                        <label class="col-md-4 col-form-label fw-semibold">
+                            Old Password:<span class="text-danger">*</span>
+                        </label>
+                        <div class="col-md-8">
+                            <input type="password" class="form-control" name="current_password" placeholder="Current Password">
+                            <small class="text-danger error-current_password"></small>
+                        </div>
                     </div>
-                </div>
 
-                <div class="mb-3 row">
-                    <label class="col-md-4 col-form-label fw-semibold">
-                        New Password:<span class="text-danger">*</span>
-                    </label>
-                    <div class="col-md-8">
-                        <input type="password" class="form-control" name="new_password">
-                        <small class="text-danger error-new_password"></small>
+                    <div class="mb-3 row">
+                        <label class="col-md-4 col-form-label fw-semibold">
+                            New Password:<span class="text-danger">*</span>
+                        </label>
+                        <div class="col-md-8">
+                            <input type="password" class="form-control" name="new_password" placeholder="New Password">
+                            <small class="text-danger error-new_password"></small>
+                        </div>
                     </div>
-                </div>
 
-                <div class="mb-3 row">
-                    <label class="col-md-4 col-form-label fw-semibold">
-                        Confirm Password:<span class="text-danger">*</span>
-                    </label>
-                    <div class="col-md-8">
-                        <input type="password" class="form-control" name="new_password_confirmation">
+                    <div class="mb-3 row">
+                        <label class="col-md-4 col-form-label fw-semibold">
+                            Confirm Password:<span class="text-danger">*</span>
+                        </label>
+                        <div class="col-md-8">
+                            <input type="password" class="form-control" name="new_password_confirmation" placeholder="Confirm Password">
+                        </div>
                     </div>
-                </div>
 
-                <div class="row">
-                    <div class="col-md-8 offset-md-4">
-                        <button type="submit" class="btn buttonColor">
-                            Change Password
-                        </button>
+                    <div class="row">
+                        <div class="col-md-8 offset-md-4">
+                            <button type="submit" class="btn buttonColor">
+                                Change Password
+                            </button>
+                        </div>
                     </div>
-                </div>
-            </form>
-
+                </form>
             </div>
-
 
             <!-- KYC Details -->
             <div class="tab-pane fade" id="kyc" role="tabpanel" aria-labelledby="kyc-tab">
@@ -358,6 +620,70 @@
                 </div>
             </div>
 
+            <div class="tab-pane fade" id="banking" role="tabpanel" aria-labelledby="banking-tab">
+                <div class="row mb-3 g-3">
+
+                    <!-- Bank Details Card -->
+                    <div class="col-lg-6">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body">
+                                <h6 class="fw-bold mb-3">
+                                    <i class="bi bi-bank me-1"></i> Bank Account Details
+                                </h6>
+
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="fw-semibold">Account Holder Name:</span>
+                                    <span class="text-muted">John Doe</span>
+                                </div>
+
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="fw-semibold">Account Number:</span>
+                                    <span class="text-muted">****5678</span>
+                                </div>
+
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="fw-semibold">IFSC Code:</span>
+                                    <span class="text-muted">HDFC0001234</span>
+                                </div>
+
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="fw-semibold">Branch Name:</span>
+                                    <span class="text-muted">Andheri East</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bank Document Card -->
+                    <div class="col-lg-6">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body">
+                                <h6 class="fw-bold mb-3">
+                                    <i class="bi bi-file-earmark-text me-1"></i> Bank Document
+                                </h6>
+
+                                <div class="d-flex align-items-center justify-content-between border rounded p-3">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <!-- <i class="bi bi-file-earmark-pdf text-danger fs-4"></i> -->
+                                        <div>
+                                            <div class="fw-semibold">Bank Proof</div>
+                                            <small class="text-muted">Cancelled cheque / Passbook</small>
+                                        </div>
+                                    </div>
+
+                                    <a href="javascript:void(0)" class="btn btn-outline-primary btn-sm" onclick="showImage('','Bank Document')">
+                                        <i class="bi bi-eye me-1"></i> View
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+
             <div class="tab-pane fade" id="integration" role="tabpanel" aria-labelledby="integration-tab">
 
                 <div class="text-end mb-3">
@@ -396,6 +722,8 @@
                 </div>
 
             </div>
+
+
         </div>
     </div>
 </div>
@@ -454,24 +782,24 @@
                     <div class="row g-2">
                         <div class="col-md-6">
                             <label class="form-label">Full Name</label>
-                            <input type="text" class="form-control" placeholder="Enter full name">
+                            <input type="text" class="form-control" placeholder="Enter full name" value="{{$user->name}}" disabled>
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">Email</label>
-                            <input type="email" class="form-control" placeholder="Enter email">
+                            <input type="email" class="form-control" placeholder="Enter email" value="{{$user->email}}" disabled>
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">Mobile Number</label>
-                            <input type="text" class="form-control" placeholder="Enter mobile number">
+                            <input type="text" class="form-control" name="mobile" placeholder="Enter mobile number" value="{{$user->mobile ?? ''}}">
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">
                                 Profile Pic
                             </label>
-                            <input type="file" class="form-control" accept=".jpg,.jpeg,.png">
+                            <input type="file" class="form-control" accept=".jpg,.jpeg,.png" name="profile_Pic">
                         </div>
                     </div>
                 </div>
@@ -483,12 +811,12 @@
 
                         <div class="col-md-6">
                             <label class="form-label">Business Name</label>
-                            <input type="text" class="form-control" placeholder="Enter business name">
+                            <input type="text" class="form-control" placeholder="Enter business name" name="business_name" id="business_name">
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">Business Type</label>
-                            <select class="form-select">
+                            <select class="form-select" name="business_type" id="business_type">
                                 <option value="">--Select Business Type--</option>
                                 <option>Individual</option>
                                 <option>Proprietorship</option>
@@ -619,17 +947,6 @@
                     <h6 class="mb-3">Banking Details</h6>
 
                     <div class="row g-2">
-                        <div class="col-md-6">
-                            <label class="form-label">Bank Name</label>
-                            <select class="form-select">
-                                <option value="">Select Bank</option>
-                                <option>SBI</option>
-                                <option>Canara Bank</option>
-                                <option>HDFC Bank</option>
-                                <option>ICICI Bank</option>
-                                <option>Axis Bank</option>
-                            </select>
-                        </div>
 
                         <div class="col-md-6">
                             <label class="form-label">Account Holder Name</label>
@@ -685,14 +1002,9 @@
                 <div class="modal-body">
                     <select class="form-select" name="service" id="service" required>
                         <option value="">-- Select Service --</option>
-                        
-                            @foreach($activeService as $service)
-                
-                                <option value="{{ $service->slug }}">{{ $service->service_name }}</option>
-                            @endforeach
-
-                        
-                       
+                        @foreach($activeService as $service)
+                        <option value="{{ $service->slug }}">{{ $service->service_name }}</option>
+                        @endforeach
                     </select>
                 </div>
 
@@ -705,10 +1017,9 @@
 </div>
 
 
-
 <script>
     function showInitials(img) {
-        const name = "User"; // Replace dynamically from backend
+        const name = "{{$user->name}}"; // Replace dynamically from backend
         const initial = name.charAt(0).toUpperCase();
 
         // Create a circle div
@@ -773,6 +1084,8 @@
         } else {
             alert('Profile Completed Successfully!');
             $('#completeProfileModal').modal('hide');
+
+
         }
     });
 
@@ -786,6 +1099,7 @@
     $('#completeProfileModal').on('shown.bs.modal', function() {
         currentStep = 1;
         showStep(currentStep);
+        $('#nextStep').removeClass('submitProfileButton')
     });
 </script>
 
@@ -820,11 +1134,11 @@
     function submitForm(service) {
 
         data = [];
-        
+
         $.ajax({
             url: "{{ route('generate_client_credentials') }}",
             type: 'POST',
-            
+
             contentType: 'application/json',
             data: JSON.stringify({
                 service,
@@ -833,7 +1147,7 @@
             success: function(response) {
                 console.log(response);
                 // Handle success if needed
-              let  data = [
+                let data = [
                     response.client_id,
                     response.client_key
                 ];
@@ -841,7 +1155,6 @@
             },
             error: function() {
                 // Handle error if needed
-
 
             }
         });
@@ -908,49 +1221,49 @@
 </script>
 
 
+@endif
+
+
 <script>
-$('#changePasswordForm').on('submit', function(e) {
-    e.preventDefault();
+    $('#changePasswordForm').on('submit', function(e) {
+        e.preventDefault();
 
-    $('.text-danger').text('');
+        $('.text-danger').text('');
 
-    $.ajax({
-        url: "{{ route('admin.change_password') }}",
-        type: "POST",
-        data: $(this).serialize(),
-        success: function(response) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Success',
-                text: response.message,
-                confirmButtonColor: '#3085d6'
-            });
+        $.ajax({
+            url: "{{ route('admin.change_password') }}",
+            type: "POST",
+            data: $(this).serialize(),
+            success: function(response) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: response.message,
+                    confirmButtonColor: '#3085d6'
+                });
 
-            $('#changePasswordForm')[0].reset();
-        },
-        error: function(xhr) {
+                $('#changePasswordForm')[0].reset();
+            },
+            error: function(xhr) {
 
-            if (xhr.status === 422) {
-                let errors = xhr.responseJSON.errors;
+                if (xhr.status === 422) {
+                    let errors = xhr.responseJSON.errors;
 
-                if (errors) {
-                    $.each(errors, function(key, value) {
-                        $('.error-' + key).text(value[0]);
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: xhr.responseJSON.message
-                    });
+                    if (errors) {
+                        $.each(errors, function(key, value) {
+                            $('.error-' + key).text(value[0]);
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: xhr.responseJSON.message
+                        });
+                    }
                 }
             }
-        }
+        });
     });
-});
 </script>
-
-
-
 
 @endsection

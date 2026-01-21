@@ -3,7 +3,7 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\TransactionController;
-use App\Http\Controllers\users\UserController;
+use App\Http\Controllers\Users\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommonController;
 
@@ -24,14 +24,13 @@ Route::group(['middleware' => ['auth']], function () {
             return view('dashboard');
         })->name('dashboard');
 
-
         Route::post('logout', [AuthController::class, 'logout'])->name('admin.logout');
     });
 
     Route::post('change-password', [AuthController::class, 'passwordReset'])->name('admin.change_password');
     Route::post('completeProfile', [AuthController::class, 'completeProfile'])->name('admin.complete_profile');
 
-        // Admin  Related Route
+    // Admin  Related Route
     Route::get('profile', [AdminController::class, 'adminProfile'])->name('admin_profile');
 
 
@@ -39,10 +38,12 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/utility-service', [ServiceController::class, 'utilityService'])->name('utility_service');
     Route::get('/recharge-service', [ServiceController::class, 'rechargeService'])->name('recharge_service');
     Route::get('/banking-service', [ServiceController::class, 'bankingService'])->name('banking_service');
+    Route::get('our-services', [ServiceController::class, 'ourService'])->name('our_services');
+
 
     // Users Related Route 
     Route::get('/users', [UserController::class, 'bbpsUsers'])->name('users');
-    Route::get('/users/ajax', [UserController::class, 'ajaxBbpsUsers'])->name('users_ajax');
+    Route::get('/view-user/{id}', [UserController::class, 'viewSingleUsers'])->name('view_user');
 
     // Transaction Related Route 
     Route::get('/transaction-status', [TransactionController::class, 'transactionStatus'])->name('transaction_status');
@@ -52,11 +53,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('generate/client-credentials', [UserController::class, 'generateClientCredentials'])->name('generate_client_credentials');
 
     Route::post('fetch/{type}/{id?}/{returntype?}', [CommonController::class, 'fetchData']);
-
 });
 
-Route::prefix('admin',function(){
-	Route::get('me', [AuthController::class, 'me']);
+Route::prefix('admin', function () {
+    Route::get('me', [AuthController::class, 'me']);
 });
-
-

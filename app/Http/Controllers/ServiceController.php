@@ -24,4 +24,11 @@ class ServiceController extends Controller
         return view('Service.banking');
     }
 
+
+    public function ourService()
+    {
+        return view('Service.our-service');
+    }
+
+    
 }
