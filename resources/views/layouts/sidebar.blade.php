@@ -17,7 +17,7 @@
 
     @php
 
-    $role = 2 // 1 for the admin and 2 for the user
+    $role = 1// 1 for the admin and 2 for the user
 
     @endphp
 
@@ -154,9 +154,13 @@
         </li>
 
         <li class="nav-item">
-            <a href="javascript:void(0)" class="nav-link text-white" onclick="logoutConfirmation()">
-                <i class="bi bi-box-arrow-right me-2"></i> Logout
-            </a>
+           <form action="{{ route('admin.logout') }}" method="POST">
+                @csrf
+                <button type="submit" class="btn btn-link nav-link text-white p-0 m-0 align-middle">
+                    Logout
+                </button>
+            </form>
+            
         </li>
 
     </ul>
@@ -178,9 +182,9 @@
                 @php
                 // Array of child route names for the Services dropdown
                 $serviceRoute = [
-                'utility_service',
-                'recharge_service',
-                'banking_service',
+                    'utility_service',
+                    'recharge_service',
+                    'banking_service',
                 ];
 
                 // Check if the current route is in the array

@@ -3,8 +3,10 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\TransactionController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\users\UserController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CommonController;
+
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -26,7 +28,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('logout', [AuthController::class, 'logout'])->name('admin.logout');
     });
 
-    Route::post('change-password', [AuthController::class, 'changePassword'])->name('admin.change_password');
+    Route::post('change-password', [AuthController::class, 'passwordReset'])->name('admin.change_password');
     Route::post('completeProfile', [AuthController::class, 'completeProfile'])->name('admin.complete_profile');
 
         // Admin  Related Route
@@ -46,6 +48,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/transaction-status', [TransactionController::class, 'transactionStatus'])->name('transaction_status');
     Route::get('/transaction-complaint', [TransactionController::class, 'transactionComplaint'])->name('transaction_complaint');
     Route::get('/complaint-status', [TransactionController::class, 'complaintStatus'])->name('complaint_status');
+
+    Route::post('generate/client-credentials', [UserController::class, 'generateClientCredentials'])->name('generate_client_credentials');
+
+    Route::post('fetch/{type}/{id?}/{returntype?}', [CommonController::class, 'fetchData']);
 
 });
 

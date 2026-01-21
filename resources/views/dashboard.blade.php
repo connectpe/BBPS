@@ -73,12 +73,14 @@
             style="background: linear-gradient(to top, #6b83ec, #485050);">
 
             <div class="card-body d-flex flex-column align-items-center justify-content-between py-4">
-
+                @php
+                    $user = Auth::user();
+                @endphp
                 <!-- Top Spacer -->
                 <div></div>
 
                 <!-- Heading -->
-                <h5 class="fw-bold mb-4 text-center">Welcome User</h5>
+                <h5 class="fw-bold mb-4 text-center">Welcome <strong class="text-success">{{$user->name}}</strong></h5>
 
 
                 <!-- User Profile Image -->
@@ -87,18 +89,19 @@
                     style="width:75px; height:75px; object-fit:cover;">
 
                 <!-- Profile Details -->
+               
                 <div class="row g-2 small w-100" style="max-width: 300px;">
                     <div class="col-6 opacity-75">User Type</div>
                     <div class="col-6 fw-semibold">E-mail</div>
 
-<div class="col-6 opacity-75">Retailer</div>
-                    <div class="col-6 fw-semibold">User@gmail.com</div>
+                    <div class="col-6 opacity-75">User</div>
+                    <div class="col-6 fw-semibold">{{$user->email}}</div>
 
                     <div class="col-6 opacity-75">Entity Type</div>
                     <div class="col-6 fw-semibold">Contact</div>
 
                     <div class="col-6 opacity-75">Individual</div>
-                    <div class="col-6 fw-semibold">9876543210</div>
+                    <div class="col-6 fw-semibold">{{$user->email ?? ''}}</div>
                 </div>
 
                 <!-- Bottom Spacer -->

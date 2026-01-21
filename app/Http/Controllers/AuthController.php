@@ -270,8 +270,8 @@ public function completeProfile(Request $request)
             $user->save();
 
 
-            return redirect()->back()->with([
-                'data'=>'userPassUpdated',
+            return response()->json([
+                
                 'status' => true,
                 'message' => 'Password updated successfully'
             ]);

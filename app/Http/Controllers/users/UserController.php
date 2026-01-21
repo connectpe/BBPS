@@ -19,6 +19,8 @@ class UserController extends Controller
             'service' => 'required|string|max:50',
         ]);
 
+        // dd($request->all());
+
         DB::beginTransaction();
 
             $service = GlobalService::where('user_id', auth()->id())
@@ -64,6 +66,7 @@ class UserController extends Controller
             return response()->json([
                 'status'  => false,
                 'message' => 'Something went wrong while generating credentials',
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

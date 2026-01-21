@@ -54,13 +54,12 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <!-- <th>Organization Name</th> -->
-                            <th>Contact Name</th>
+                            <th>Organization Name</th>
+                            <th>Name</th>
                             <th>Email</th>
-                            <th>Mobile</th>
-                            <th>Gender</th>
-                            <th>Aadhaar No</th>
-                            <th>Pan No</th>
+                            <th>PanNO.</th>
+                            <th>Aadhar NO.</th>
+                            <th>Aadhaar No</th>  
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -77,8 +76,13 @@
             processing: true,
             serverSide: true,
             ajax: {
-                url: "{{ route('users_ajax') }}",
+                
+                url: "{{url('fetch')}}/users/0",
+                type: 'POST',
+                
+                
                 data: function(d) {
+                    d._token = $('meta[name="csrf-token"]').attr('content');
                     d.name = $('#filterName').val();
                     d.email = $('#filterEmail').val();
                     d.status = $('#filterStatus').val();
@@ -99,43 +103,50 @@
                 {
                     extend: 'pdfHtml5',
                     text: 'PDF',
-className: 'btn buttonColor btn-sm'
+                    className: 'btn buttonColor btn-sm'
                 }
             ],
             language: {
                 searchPlaceholder: "Search users..."
             },
+            
             columns: [{
                     data: 'id'
                 },
                 {
-                    data: 'contact_name'
+                    data: 'business.business_name'
+                },
+                
+                {
+                    data: 'name',
+                    
                 },
                 {
                     data: 'email'
                 },
                 {
-                    data: 'mobile'
+                    data: 'business.pan_number'
                 },
                 {
-                    data: 'gender'
+                    data: 'business.aadhar_number'
                 },
+                
+                
                 {
-                    data: 'aadhaar'
-                },
-                {
-                    data: 'pan'
+                    data: 'created_at'
                 },
                 {
                     data: 'status',
                     render: function(data) {
-                        return data == 'Active' ?
+                        return data == '1' ?
                             '<span class="fw-bold text-success">ACTIVE</span>' :
                             '<span class="fw-bold text-danger">INACTIVE</span>';
                     },
                     orderable: false,
                     searchable: false
-                }
+                },
+               
+
             ]
         });
 

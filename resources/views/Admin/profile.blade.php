@@ -75,7 +75,9 @@
     } */
 </style>
 
-
+@php 
+    $user = Auth::user();
+@endphp
 <div class="row align-items-center border rounded p-2 shadow-sm">
     <!-- User Image -->
     <div class="col">
@@ -85,8 +87,8 @@
 
     <!-- User Info -->
     <div class="col">
-        <h4 class="mb-1">User</h4>
-        <p class="mb-0 text-muted">user@example.com</p>
+        <h4 class="mb-1">{{$user->name}}</h4>
+        <p class="mb-0 text-muted">{{$user->email}}</p>
 
         <!-- Badges -->
         <div class="mt-2">
@@ -186,15 +188,15 @@
             <div class="tab-pane fade show active" id="personal" role="tabpanel" aria-labelledby="personal-tab">
                 <div class="row mb-2">
                     <div class="col-md-4 fw-semibold">Full Name:</div>
-                    <div class="col-md-8">John Doe</div>
+                    <div class="col-md-8">{{$user->name}}</div>
                 </div>
                 <div class="row mb-2">
                     <div class="col-md-4 fw-semibold">Email Address:</div>
-                    <div class="col-md-8">john.doe@example.com</div>
+                    <div class="col-md-8">{{$user->email}}</div>
                 </div>
                 <div class="row mb-2">
                     <div class="col-md-4 fw-semibold">Phone Number:</div>
-                    <div class="col-md-8">+1 234 567 890</div>
+                    <div class="col-md-8">{{$user->mobile}}</div>
                 </div>
                 <div class="row mb-2">
                     <div class="col-md-4 fw-semibold">Date of Birth:</div>
@@ -223,34 +225,47 @@
                 </div>
 
                 <!-- Change Password Form -->
-                <form>
-                    <div class="mb-3 row">
-                        <label for="oldPassword" class="col-md-4 col-form-label fw-semibold">Old Password:<span class="text-danger">*</span></label>
-                        <div class="col-md-8">
-                            <input type="password" class="form-control" id="oldPassword" placeholder="Enter old password">
-                        </div>
-                    </div>
+                <form id="changePasswordForm">
+                    @csrf
 
-                    <div class="mb-3 row">
-                        <label for="newPassword" class="col-md-4 col-form-label fw-semibold">New Password:<span class="text-danger">*</span></label>
-                        <div class="col-md-8">
-                            <input type="password" class="form-control" id="newPassword" placeholder="Enter new password">
-                        </div>
+                <div class="mb-3 row">
+                    <label class="col-md-4 col-form-label fw-semibold">
+                        Old Password:<span class="text-danger">*</span>
+                    </label>
+                    <div class="col-md-8">
+                        <input type="password" class="form-control" name="current_password">
+                        <small class="text-danger error-current_password"></small>
                     </div>
+                </div>
 
-                    <div class="mb-3 row">
-                        <label for="confirmPassword" class="col-md-4 col-form-label fw-semibold">Confirm Password:<span class="text-danger">*</span></label>
-                        <div class="col-md-8">
-                            <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm new password">
-                        </div>
+                <div class="mb-3 row">
+                    <label class="col-md-4 col-form-label fw-semibold">
+                        New Password:<span class="text-danger">*</span>
+                    </label>
+                    <div class="col-md-8">
+                        <input type="password" class="form-control" name="new_password">
+                        <small class="text-danger error-new_password"></small>
                     </div>
+                </div>
 
-                    <div class="row">
-                        <div class="col-md-8 offset-md-4">
-                            <button type="submit" class="btn buttonColor">Change Password</button>
-                        </div>
+                <div class="mb-3 row">
+                    <label class="col-md-4 col-form-label fw-semibold">
+                        Confirm Password:<span class="text-danger">*</span>
+                    </label>
+                    <div class="col-md-8">
+                        <input type="password" class="form-control" name="new_password_confirmation">
                     </div>
-                </form>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-8 offset-md-4">
+                        <button type="submit" class="btn buttonColor">
+                            Change Password
+                        </button>
+                    </div>
+                </div>
+            </form>
+
             </div>
 
 
@@ -668,11 +683,16 @@
                 </div>
 
                 <div class="modal-body">
-                    <select class="form-select" id="service" required>
+                    <select class="form-select" name="service" id="service" required>
                         <option value="">-- Select Service --</option>
-                        <option value="payment">Payment</option>
-                        <option value="sms">SMS</option>
-                        <option value="email">Email</option>
+                        
+                            @foreach($activeService as $service)
+                
+                                <option value="{{ $service->slug }}">{{ $service->service_name }}</option>
+                            @endforeach
+
+                        
+                       
                     </select>
                 </div>
 
@@ -798,23 +818,38 @@
     });
 
     function submitForm(service) {
-        // $.ajax({
-        //     url: '/create-client',
-        //     type: 'POST',
-        //     contentType: 'application/json',
-        //     data: JSON.stringify({
-        //         service
-        //     }),
-        //     success: function() {
+
+        data = [];
+        
+        $.ajax({
+            url: "{{ route('generate_client_credentials') }}",
+            type: 'POST',
+            
+            contentType: 'application/json',
+            data: JSON.stringify({
+                service,
+                _token: $('meta[name="csrf-token"]').attr('content'),
+            }),
+            success: function(response) {
+                console.log(response);
+                // Handle success if needed
+              let  data = [
+                    response.client_id,
+                    response.client_key
+                ];
+                console.log(data);
+            },
+            error: function() {
+                // Handle error if needed
 
 
-        //     }
-        // });
+            }
+        });
 
         const response = {
             success: true,
-            client_id: 'CID-123456',
-            client_key: 'CK-ABCDEF-987654'
+            client_id: data[0] || '',
+            client_key: data[1] || ''
         };
 
         if (response.success) {
@@ -871,6 +906,50 @@
         }, 1500);
     }
 </script>
+
+
+<script>
+$('#changePasswordForm').on('submit', function(e) {
+    e.preventDefault();
+
+    $('.text-danger').text('');
+
+    $.ajax({
+        url: "{{ route('admin.change_password') }}",
+        type: "POST",
+        data: $(this).serialize(),
+        success: function(response) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: response.message,
+                confirmButtonColor: '#3085d6'
+            });
+
+            $('#changePasswordForm')[0].reset();
+        },
+        error: function(xhr) {
+
+            if (xhr.status === 422) {
+                let errors = xhr.responseJSON.errors;
+
+                if (errors) {
+                    $.each(errors, function(key, value) {
+                        $('.error-' + key).text(value[0]);
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: xhr.responseJSON.message
+                    });
+                }
+            }
+        }
+    });
+});
+</script>
+
 
 
 
