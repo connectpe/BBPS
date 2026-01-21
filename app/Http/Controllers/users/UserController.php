@@ -122,10 +122,7 @@ class UserController extends Controller
         }
     }
 
-    public function bbpsUsers()
-    {
-        return view('Users.users');
-    }
+    
 
     public function viewSingleUsers()
     {

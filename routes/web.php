@@ -3,7 +3,7 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\TransactionController;
-use App\Http\Controllers\Users\UserController;
+use App\Http\Controllers\users\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommonController;
 
