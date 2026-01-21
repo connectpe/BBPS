@@ -13,7 +13,9 @@ use App\Models\GlobalService;
 
 class UserController extends Controller
 {
+
     public function bbpsUsers()
+
     {
         return view('Users.users');
     }
@@ -65,6 +67,7 @@ class UserController extends Controller
             'data' => array_values($users),
         ]);
     }
+
     public function generateClientCredentials(Request $request)
     {
         $request->validate([

@@ -273,7 +273,9 @@
                             <li class="nav-item">
                                 <a href="{{ route('transaction_complaint') }}"
                                     class="nav-link text-white {{ Route::currentRouteName() == 'transaction_complaint' ? 'sidebar-active' : '' }}">
+
                                     <i class="bi bi-exclamation-triangle-fill me-2"></i>
+
                                     Transaction Complaint
                                 </a>
                             </li>

@@ -22,5 +22,9 @@ class TransactionController extends Controller
     {
         return view('Transaction.complaint-status');
     }
+
+    public function transaction_Report(){
+        return view('Transaction.transaction-report');
+    }
 }
 
