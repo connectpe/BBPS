@@ -16,7 +16,7 @@
             <!-- <h6 class="mb-0">Dashboard</h6> -->
 
 
-            <button class="btn btn-primary mb-2 ms-5" data-bs-toggle="modal" data-bs-target="#serviceModall">
+            <button class="btn btn-primary ms-2 mb-3" data-bs-toggle="modal" data-bs-target="#serviceModall">
                 <i class="fa-solid fa-table-list"></i> Services
             </button>
 
