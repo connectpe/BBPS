@@ -15,8 +15,6 @@ class ServiceRequestController extends Controller
         $request->validate([
             'service_id' => 'required|exists:global_services,id',
         ]);
-
-        // Prevent duplicate request for same service
         $alreadyRequested = ServiceRequest::where('user_id', auth()->id())
             ->where('service_id', $request->service_id)
             ->exists();
@@ -40,19 +38,14 @@ class ServiceRequestController extends Controller
         return back()->with('success', 'Service request sent successfully');
     }
 
-    /**
-     * Approve service request (ADMIN)
-     */
+
     public function approve($id)
     {
-        // Authorization check (Admin only)
         if (!auth()->check() || auth()->user()->role_id !== 1) {
             abort(403, 'Unauthorized action');
         }
 
         $serviceRequest = ServiceRequest::findOrFail($id);
-
-        // Prevent re-approving
         if ($serviceRequest->status === 'approved') {
             return back()->with('info', 'Service already activated');
         }
@@ -63,10 +56,6 @@ class ServiceRequestController extends Controller
 
         return back()->with('success', 'Service activated successfully');
     }
-
-    /**
-     * Reject service request (ADMIN - optional)
-     */
     public function reject($id)
     {
         if (!auth()->check() || auth()->user()->role_id !== 1) {
