@@ -706,15 +706,16 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                 ];
                 @endphp
                 <div class="row mb-2">
-                    @foreach($keys as $key)
+                    @foreach($saltKeys  as $key)
                     <div class="col-md-12 mb-2">
                         <div class="border rounded p-3">
                             <div class="row">
+                                
                                 <div class="col-12">
-                                    <strong>Client ID:</strong> {{ maskValue($key['clientId']) }} <br />
-                                    <strong>Client Key:</strong> {{ maskValue($key['clientKey']) }} <br />
-                                    <strong>Generated at:</strong> Jan-17-2025 05:45 pm <br />
+                                    <strong>Client ID:</strong> {{ $key['client_id'] }} <br />
+                                    <strong>Client Key:</strong> {{ maskValue($key['client_secret']) }} <br />
                                 </div>
+                               
                             </div>
                         </div>
                     </div>
@@ -1134,48 +1135,54 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
     function submitForm(service) {
 
 
-        data = [];
+        let data = [];
 
 
         $.ajax({
-            url: "{{ route('generate_client_credentials') }}",
-            type: 'POST',
+    url: "{{ route('generate_client_credentials') }}",
+    type: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify({
+        service: service,
+        _token: $('meta[name="csrf-token"]').attr('content'),
+    }),
+    success: function(response) {
 
-            contentType: 'application/json',
-            data: JSON.stringify({
-                service,
-                _token: $('meta[name="csrf-token"]').attr('content'),
-            }),
-            success: function(response) {
-                console.log(response.data.client_id);
-                console.log(response.data.client_secret);
-                // Handle success if needed
+        const client_id  = response.data.client_id;
+        const client_key = response.data.client_secret;
 
-                let data = [
-                    response.client_id,
-                    response.client_key
+        console.log(client_id);
+        console.log(client_key);
 
-                ];
-
-                console.log(data);
-            },
-            error: function() {
-                // Handle error if needed
-
-            }
-        });
-
-        const response = {
+        const result = {
             success: true,
-            client_id: data[0] || '',
-            client_key: data[1] || ''
+            client_id: client_id,
+            client_key: client_key
         };
 
-        console.log(response);
+        console.log(result);
 
-        if (response.success) {
-            showCredentials(response.client_id, response.client_key);
+        if (result.success) {
+            showCredentials(result.client_id, result.client_key);
         }
+    },
+    error: function(xhr) {
+        console.error(xhr.responseText);
+    }
+});
+
+
+        // const response = {
+        //     success: true,
+        //     client_id: data[0] || '',
+        //     client_key: data[1] || ''
+        // };
+
+        // console.log(response);
+
+        // if (response.success) {
+        //     showCredentials(response.client_id, response.client_key);
+        // }
     }
 
     function showCredentials(clientId, clientKey) {

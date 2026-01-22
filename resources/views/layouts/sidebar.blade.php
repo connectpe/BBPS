@@ -19,8 +19,6 @@
 
     $role = Auth::user()->role_id;
 
-
-   
     @endphp
 
     @if($role == 1)
@@ -89,64 +87,69 @@
                 @php
                 // Array of child route names for the Services dropdown
                 $transactionRoute = [
-                'banking_service',
-                'utility_service',
-                'recharge_service',
+                    'banking_service',
+                    'utility_service',
+                    'recharge_service',
                 ];
 
                 // Check if the current route is in the array
                 $servicesActive = in_array(Route::currentRouteName(), $transactionRoute);
                 @endphp
 
-                <li class="nav-item">
-                    <a class="nav-link text-white d-flex justify-content-between align-items-center {{ $servicesActive ? '' : 'collapsed' }} {{ $servicesActive ? 'sidebar-active' : '' }}"
+                
+
+            </ul>
+        </li>
+
+        <li class="nav-item">
+                    <a class="nav-link text-white d-flex justify-content-between align-items-center {{ $userActive ? '' : 'collapsed' }} {{ $userActive ? 'sidebar-active' : '' }}"
                         data-bs-toggle="collapse"
-                        href="#bankingServices"
+                        href="#transactionManagement"
                         role="button"
-                        aria-expanded="{{ $servicesActive ? 'true' : 'false' }}"
-                        aria-controls="bankingServices">
-                        <span><i class="bi bi-grid-1x2 me-2"></i></i> Transaction Manager</span>
+                        aria-expanded="{{ $userActive ? 'true' : 'false' }}"
+                        aria-controls="userManagement">
+                        <span><i class="bi bi-grid-1x2 me-2"></i></i>Transactions</span>
                         <i class="bi bi-chevron-down small"></i>
                     </a>
 
-                    <div class="collapse {{ $servicesActive ? 'show' : '' }} ms-3" id="bankingServices">
+                    <div class="collapse {{ $userActive ? 'show' : '' }} ms-3" id="transactionManagement">
                         <ul class="nav flex-column">
-
                             <li class="nav-item">
-                                <a href="{{route('banking_service')}}"
-                                    class="nav-link text-white {{ Route::currentRouteName() == 'banking_service' ? 'sidebar-active' : '' }}">
-                                    <i class="bi bi-bank me-2"></i>
-                                    Banking
-                                </a>
-                            </li>
-
-
-                            <li class="nav-item">
-                                <a href="{{route('utility_service')}}"
-                                    class="nav-link text-white {{ Route::currentRouteName() == 'utility_service' ? 'sidebar-active' : '' }}">
-                                    <i class="bi bi-lightning-charge-fill me-2"></i>
-                                    Utility
+                                <a href="{{route('recharge_report')}}"
+                                    class="nav-link text-white {{ Route::currentRouteName() == 'users' ? 'sidebar-active' : '' }}">
+                                    <i class="bi bi-people-fill me-2"></i>
+                                    Recharge
                                 </a>
                             </li>
 
                             <li class="nav-item">
-                                <a href="{{route('recharge_service')}}"
-                                    class="nav-link text-white {{ Route::currentRouteName() == 'recharge_service' ? 'sidebar-active' : '' }}">
-                                    <i class="bi bi-phone-fill me-2"></i> Recharge
-                                </a>
+                                <a href="{{route('banking_report')}}"
+                                    class="nav-link text-white">
+                                    <i class="bi bi-bank me-2"></i> <!-- Icon for Banking -->
+                                    Banking </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{route('utility_report')}}"
+                                    class="nav-link text-white">
+                                    <i class="bi bi-bank me-2"></i> <!-- Icon for Banking -->
+                                    Utility </a>
                             </li>
                         </ul>
                     </div>
                 </li>
 
-            </ul>
+        <li class="nav-item">
+            <a href="{{route('our_servicess')}}"
+                class="nav-link text-white {{ Route::currentRouteName() == 'our_services' ? 'sidebar-active' : '' }}">
+                <i class="bi bi-bank me-2"></i> <!-- Icon for Banking -->
+                Ladger </a>
         </li>
 
         <li class="nav-item">
             <a href="{{route('our_servicess')}}"
                 class="nav-link text-white {{ Route::currentRouteName() == 'our_services' ? 'sidebar-active' : '' }}">
                 <i class="bi bi-bank me-2"></i> <!-- Icon for Banking -->
-                Our Services </a>
+                Complaint Report </a>
         </li>
 
         <li class="nav-item">
@@ -262,6 +265,26 @@
 
                     <div class="collapse {{ $transactionActive ? 'show' : '' }} ms-3" id="transaction">
                         <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a href="{{route('recharge_report')}}"
+                                    class="nav-link text-white {{ Route::currentRouteName() == 'users' ? 'sidebar-active' : '' }}">
+                                    <i class="bi bi-people-fill me-2"></i>
+                                    Recharge
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href="{{route('banking_report')}}"
+                                    class="nav-link text-white">
+                                    <i class="bi bi-bank me-2"></i> <!-- Icon for Banking -->
+                                    Banking </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{route('utility_report')}}"
+                                    class="nav-link text-white">
+                                    <i class="bi bi-bank me-2"></i> <!-- Icon for Banking -->
+                                    Utility </a>
+                            </li>
                             <li class="nav-item">
                                 <a href="{{route('transaction_status')}}"
                                     class="nav-link text-white {{ Route::currentRouteName() == 'transaction_status' ? 'sidebar-active' : '' }}">

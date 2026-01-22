@@ -14,4 +14,11 @@ class OauthUser extends Model
         'is_active',
         
     ];
+
+    public $timestamps = true;
+
+    public function globalServices()
+    {
+        return $this->hasOne(GlobalService::class, 'id', 'service_id');
+    }
 }

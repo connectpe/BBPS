@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommonController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\users\ReportController;
 use App\Http\Controllers\users\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -14,7 +15,7 @@ Route::get('/', function () {
 
 Route::post('admin/login', [AuthController::class, 'login'])->name('admin.login');
 Route::post('verify-otp', [AuthController::class, 'verifyOtp'])->name('verify_otp');
-Route::post('signup', [AuthController::class, 'signup'])->name('signup');
+Route::post('signup', [AuthController::class, 'signup'])->name('admin.signup');
 
 Route::group(['middleware' => ['auth']], function () {
     Route::prefix('admin')->group(function () {
@@ -26,7 +27,7 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
     Route::post('change-password', [AuthController::class, 'passwordReset'])->name('admin.change_password');
-    Route::post('completeProfile', [AuthController::class, 'completeProfile'])->name('admin.complete_profile');
+    Route::post('completeProfile', [UserController::class, 'completeProfile'])->name('admin.complete_profile');
 
     // Admin  Related Route
     Route::get('profile', [AdminController::class, 'adminProfile'])->name('admin_profile');
@@ -40,6 +41,10 @@ Route::group(['middleware' => ['auth']], function () {
 
     // Users Related Route
     Route::get('/users', [UserController::class, 'bbpsUsers'])->name('users');
+    Route::get('recharge-report', [ReportController::class, 'RechargeReport'])->name('recharge_report');
+    Route::get('banking-report',[ReportController::class,'BankingTransactionReport'])->name('banking_report');
+    Route::get('utility-report',[ReportController::class,'UtilityTransactionReport'])->name('utility_report');
+
     Route::get('/view-user/{id}', [UserController::class, 'viewSingleUsers'])->name('view_user');
 
     // Transaction Related Route

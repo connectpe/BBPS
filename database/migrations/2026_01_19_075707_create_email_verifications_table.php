@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('email_verifications', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('email')->constrained('users')->onDelete('cascade')->unique();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->unique();
             $table->string('otp');
             $table->timestamp('expire_at')->nullable();
             $table->timestamps();

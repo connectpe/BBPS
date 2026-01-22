@@ -32,11 +32,13 @@ class AuthController extends Controller
             $request->validate([
                 'name'     => 'required|string|max:255',
                 'email'    => 'required|string|email|max:255|unique:users',
+                'mobile'   => 'required|string|max:10',
                 'password' => 'required|string|min:6|confirmed',
-                'rolename' => 'required|string|max:50',
+                
             ]);
+            $role = 'user';
 
-            $role = Role::where('slug', $request->rolename)->firstOrFail();
+            $role = Role::where('slug', $role)->firstOrFail();
 
             $otp = rand(1000, 9999);
 
@@ -85,6 +87,7 @@ class AuthController extends Controller
             return response()->json([
                 'status'  => false,
                 'message' => 'Something went wrong',
+                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -93,11 +96,22 @@ class AuthController extends Controller
     public function verifyOtp(Request $request)
     {
         $request->validate([
-
+            'email' => 'required|email',
             'otp'   => 'required|digits:4',
         ]);
-        $sessionEmail = session('user_email');
-        $otpData = EmailVerification::where('email', $sessionEmail)
+
+        // Get user by email
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'User not found',
+            ], 404);
+        }
+
+        // Get OTP verification record
+        $otpData = EmailVerification::where('user_id', $user->id)
             ->where('otp', $request->otp)
             ->where('expire_at', '>', Carbon::now())
             ->first();
@@ -109,7 +123,12 @@ class AuthController extends Controller
             ], 401);
         }
 
-        // OTP verified → delete record
+        
+        $user->email_verified_at  = Carbon::now();
+
+        $user->save();
+
+        
         $otpData->delete();
 
         return response()->json([
@@ -119,89 +138,7 @@ class AuthController extends Controller
     }
 
 
-    public function completeProfile(Request $request)
-    {
-        DB::beginTransaction();
-        $userId = Auth::id();
-        try {
-
-            $request->validate([
-                
-                'business_name'     => 'required|string',
-                'business_pan'      => 'required|string',
-                'business_type'     => 'required|string',
-
-                'aadhar_name'       => 'required|string',
-                'aadhar_number'     => 'required|string',
-                'gst_number'        => 'required|string',
-
-                'pan_owner_name'    => 'required|string',
-                'pan_number'        => 'required|string',
-
-                'address'           => 'required|string',
-                'city'              => 'required|string',
-                'state'             => 'required|string',
-                'pincode'           => 'required|string',
-
-                'baneficiary_name'  => 'required|string',
-                'bank_name'         => 'required|string',
-                'account_number'    => 'required|string',
-                'ifsc_code'         => 'required|string',
-            ]);
-
-            $categoryId = null;
-            if ($request->filled('business_type')) {
-                $category = BusinessCategory::where('slug', $request->business_type)->first();
-                $categoryId = $category?->id;
-            }
-
-
-            $businessInfo = BusinessInfo::create([
-                'user_id'                => $userId,
-                'business_category_id'   => $categoryId,
-                'business_name'          => $request->business_name,
-                'business_pan_number'    => $request->business_pan,
-                'business_pan_name'      => $request->pan_owner_name,
-                'aadhar_name'            => $request->aadhar_name,
-                'aadhar_number'          => $request->aadhar_number,
-                'gst_number'             => $request->gst_number,
-                'pan_owner_name'         => $request->pan_owner_name,
-                'pan_number'             => $request->pan_number,
-                'address'                => $request->address,
-                'city'                   => $request->city,
-                'state'                  => $request->state,
-                'pincode'                => $request->pincode,
-            ]);
-
-
-            UsersBank::create([
-                'user_id'            => $userId,
-                'business_info_id'   => $businessInfo->id,
-                'baneficiary_name'   => $request->baneficiary_name,
-                'bank_name'          => $request->bank_name,
-                'account_number'     => $request->account_number,
-                'ifsc_code'          => $request->ifsc_code,
-            ]);
-
-
-            DB::commit();
-
-            return response()->json([
-                'status'  => true,
-                'message' => 'Profile completed successfully',
-                'user'    => $user,
-            ], 201);
-        } catch (\Exception $e) {
-
-
-            DB::rollBack();
-
-            return response()->json([
-                'status'  => false,
-                'message' => $e->getMessage(),
-            ], 500);
-        }
-    }
+    
     public function login(Request $request)
     {
         $credentials = $request->validate([

@@ -43,4 +43,17 @@ class CommonHelper
             'service'  => $serviceSlug->service,
         ];
     }
+
+    public static function checkAuthUser(){
+        
+        if(!auth()->check() ){
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthorized'
+            ], 401);
+        }else{
+            return redirect()->route('home');
+        }
+        
+    }
 }

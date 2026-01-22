@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>BBPS Portal</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -168,20 +169,34 @@
                     </form>
 
                     <!-- SignUp Form -->
-                    <form id="signupForm" class="d-none">
+                    <form id="signupForm" class="d-none" >
+                        @csrf
                         <h3 class="text-center mb-2" style="color:#667eea;">Create a new account</h3>
                         <p class="text-center text-muted mb-3">Register to pay your bills quickly</p>
                         <div class="mb-3 form-floating">
-                            <input type="text" class="form-control" id="signupName" placeholder="Name">
+                            <input type="text" name="name" class="form-control" id="signupName" placeholder="Name" required>
+                            <span class="text-danger" id="nameError" style="font-size: 0.875em;"></span>
                             <label for="signupName">Name</label>
                         </div>
                         <div class="mb-3 form-floating">
-                            <input type="email" class="form-control" id="signupEmail" placeholder="Email">
+                            <input name="email" type="email" class="form-control" id="signupEmail" placeholder="Email" required>
+                            <span class="text-danger" id="emailError" style="font-size: 0.875em;"></span>
                             <label for="signupEmail">Email</label>
                         </div>
                         <div class="mb-3 form-floating">
-                            <input type="text" class="form-control" id="signupMobile" placeholder="Mobile">
+                            <input type="text" name="mobile" class="form-control" id="signupMobile" placeholder="Mobile" required>
+                            <span class="text-danger" id="mobileError" style="font-size: 0.875em;"></span>
                             <label for="signupMobile">Mobile</label>
+                        </div>
+                        <div class="mb-3 form-floating">
+                            <input type="password" name="password" class="form-control" id="signuppassword" placeholder="Password" required>
+                            <span class="text-danger" id="passwordError" style="font-size: 0.875em;"></span>
+                            <label for="signuppassword">Password</label>
+                        </div>
+                        <div class="mb-3 form-floating">
+                            <input type="password" name="password_confirmation" class="form-control" id="signuppassword_confirmation" placeholder="Confirm Password" required>
+                            <span class="text-danger" id="passwordConfirmError" style="font-size: 0.875em;"></span>
+                            <label for="signuppassword_confirmation">Confirm Password</label>
                         </div>
                         <button type="submit" class="btn bbps-btn w-100">Sign Up</button>
                         <p class="text-center mt-2 text-muted">
@@ -192,19 +207,19 @@
 
                     <!-- OTP Form -->
                     <form id="otpForm" class="d-none text-center mt-3">
-                        <p style="color:#667eea;">Enter the 6-digit OTP sent to your email</p>
-                        <div class="d-flex justify-content-center mb-3">
-                            <input type="text" maxlength="1" class="otp-input">
-                            <input type="text" maxlength="1" class="otp-input">
-                            <input type="text" maxlength="1" class="otp-input">
-                            <input type="text" maxlength="1" class="otp-input">
-                            <input type="text" maxlength="1" class="otp-input">
-                            <input type="text" maxlength="1" class="otp-input">
+                        @csrf
+                        <h3 class="text-center mb-2" style="color:#667eea;">Verify Email</h3>
+                        <p style="color:#667eea; font-size:0.9rem;">Enter the 4-digit OTP sent to your email</p>
+                        <input type="hidden" id="otpEmail" name="email">
+                        <div class="d-flex justify-content-center mb-4">
+                            <input type="text" maxlength="1" class="otp-input form-control" inputmode="numeric" required>
+                            <input type="text" maxlength="1" class="otp-input form-control" inputmode="numeric" required>
+                            <input type="text" maxlength="1" class="otp-input form-control" inputmode="numeric" required>
+                            <input type="text" maxlength="1" class="otp-input form-control" inputmode="numeric" required>
                         </div>
                         <button type="submit" class="btn bbps-btn w-100">Verify OTP</button>
-                        <p class="text-center mt-2 text-muted">
-                            Already have an account?
-                            <a href="#" id="switchLogin" style="color:#667eea; text-decoration:none; font-weight:500;">Login</a>
+                        <p class="text-center mt-3 text-muted">
+                            <a href="#" id="switchLogin" style="color:#667eea; text-decoration:none; font-weight:500;">Back to Login</a>
                         </p>
                     </form>
 
@@ -222,66 +237,165 @@
             const switchToSignup = document.getElementById('switchToSignup');
             const switchToLogin = document.getElementById('switchToLogin');
             const switchLogin = document.getElementById('switchLogin');
+            let userEmail = '';
 
             function showLogin() {
                 loginForm.classList.remove('d-none');
                 signupForm.classList.add('d-none');
                 otpForm.classList.add('d-none');
+                clearErrors();
             }
 
             function showSignup() {
                 signupForm.classList.remove('d-none');
                 loginForm.classList.add('d-none');
                 otpForm.classList.add('d-none');
+                clearErrors();
             }
 
             function showOTP() {
                 otpForm.classList.remove('d-none');
+                signupForm.classList.add('d-none');
+                loginForm.classList.add('d-none');
+                document.querySelector('.otp-input').focus();
             }
 
-            // Dummy signup submission
-            signupForm.addEventListener('submit', (e) => {
+            function clearErrors() {
+                document.getElementById('nameError').textContent = '';
+                document.getElementById('emailError').textContent = '';
+                document.getElementById('mobileError').textContent = '';
+                document.getElementById('passwordError').textContent = '';
+                document.getElementById('passwordConfirmError').textContent = '';
+            }
+
+            // Signup form submission
+            signupForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const response = true; // simulate backend success
-                if (response) {
-                    signupForm.classList.add('d-none');
-                    otpForm.classList.remove('d-none');
-                    showOTP();
-                    otpInputs[0].focus();
-                } else {
-                    Swal.fire('Error', 'Signup failed. Try again.', 'error');
+                clearErrors();
+
+                const formData = new FormData(signupForm);
+                const payload = {
+                    name: formData.get('name'),
+                    email: formData.get('email'),
+                    mobile: formData.get('mobile'),
+                    password: formData.get('password'),
+                    password_confirmation: formData.get('password_confirmation'),
+                    _token: document.querySelector('input[name="_token"]').value
+                };
+
+                try {
+                    const res = await fetch("{{ route('admin.signup') }}", {
+                        method: "POST",
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const data = await res.json();
+
+                    if (res.ok && data.status) {
+                        userEmail = payload.email;
+                        document.getElementById('otpEmail').value = userEmail;
+                        Swal.fire('Success', 'OTP sent to your email. Please verify.', 'success');
+                        showOTP();
+                    } else {
+                        // Handle validation errors
+                        if (data.errors) {
+                            if (data.errors.name) document.getElementById('nameError').textContent = data.errors.name[0];
+                            if (data.errors.email) document.getElementById('emailError').textContent = data.errors.email[0];
+                            if (data.errors.mobile) document.getElementById('mobileError').textContent = data.errors.mobile[0];
+                            if (data.errors.password) document.getElementById('passwordError').textContent = data.errors.password[0];
+                            if (data.errors.password_confirmation) document.getElementById('passwordConfirmError').textContent = data.errors.password_confirmation[0];
+                        }
+                        Swal.fire('Error', data.message || 'Signup failed', 'error');
+                    }
+
+                } catch (error) {
+                    Swal.fire('Error', 'Server error. Try again later.', 'error');
+                    console.error(error);
                 }
             });
 
             // OTP input navigation
             const otpInputs = document.querySelectorAll('.otp-input');
             otpInputs.forEach((input, i) => {
-                input.addEventListener('input', () => {
-                    if (input.value.length === 1 && i < otpInputs.length - 1) otpInputs[i + 1].focus();
+                input.addEventListener('input', (e) => {
+                    // Only allow numbers
+                    e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                    
+                    if (e.target.value.length === 1 && i < otpInputs.length - 1) {
+                        otpInputs[i + 1].focus();
+                    }
                 });
                 input.addEventListener('keydown', (e) => {
-                    if (e.key === 'Backspace' && input.value === '' && i > 0) otpInputs[i - 1].focus();
+                    if (e.key === 'Backspace' && input.value === '' && i > 0) {
+                        otpInputs[i - 1].focus();
+                    }
                 });
             });
 
-            // Do not have account
+            // OTP form submission
+            otpForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const otpValues = Array.from(document.querySelectorAll('.otp-input')).map(input => input.value).join('');
+
+                if (otpValues.length !== 4) {
+                    Swal.fire('Error', 'Please enter a valid 4-digit OTP', 'error');
+                    return;
+                }
+
+                try {
+                    const res = await fetch("{{ route('verify_otp') }}", {
+                        method: "POST",
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            email: userEmail,
+                            otp: otpValues
+                        })
+                    });
+
+                    const data = await res.json();
+
+                    if (res.ok && data.status) {
+                        Swal.fire('Success', 'Email verified successfully!', 'success').then(() => {
+                            showLogin();
+                            signupForm.reset();
+                            otpForm.reset();
+                            otpInputs.forEach(input => input.value = '');
+                        });
+                    } else {
+                        Swal.fire('Error', data.message || 'OTP verification failed', 'error');
+                    }
+
+                } catch (error) {
+                    Swal.fire('Error', 'Server error. Try again later.', 'error');
+                    console.error(error);
+                }
+            });
+
+            // Toggle between login and signup
             switchToSignup.addEventListener('click', (e) => {
                 e.preventDefault();
                 showSignup();
             });
 
-            // Already have a account
             switchToLogin.addEventListener('click', (e) => {
                 e.preventDefault();
                 showLogin();
             });
 
-            // Already have a account
             switchLogin.addEventListener('click', (e) => {
                 e.preventDefault();
                 showLogin();
             });
-
 
         });
     </script>
