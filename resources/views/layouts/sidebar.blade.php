@@ -64,10 +64,13 @@
                                 </li>
 
                                 <li class="nav-item">
-                                    <a href="javascript:void(0)" class="nav-link text-white">
-                                        <i class="bi bi-bank me-2"></i> <!-- Icon for Banking -->
-                                        Service Request </a>
+                                    <a href="{{ route('request_services') }}"
+                                        class="nav-link text-white {{ Route::currentRouteName() == 'request_services' ? 'sidebar-active' : '' }}">
+                                        <i class="bi bi-clipboard-check me-2"></i>
+                                        Service Requests
+                                    </a>
                                 </li>
+
                             </ul>
                         </div>
                     </li>
