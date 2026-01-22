@@ -15,4 +15,10 @@ class AdminController extends Controller
         // dd($data);
         return view('Admin.profile')->with($data);
     }
+
+    public function dashboard()
+{
+    return view('dashboard');
+}
+
 }
