@@ -13,7 +13,8 @@ use App\Models\GlobalService;
 
 use Illuminate\Support\Facades\Auth;
 use App\Models\BusinessCategory;
-use App\Models\UsersBank;   
+use App\Models\ServiceRequest;
+use App\Models\UsersBank;
 use App\Models\User;
 use Exception;
 use App\Policies\IsUser;
@@ -79,10 +80,10 @@ class UserController extends Controller
         ]);
     }
 
-    public function completeProfile(Request $request,$userId)
+    public function completeProfile(Request $request, $userId)
     {
         DB::beginTransaction();
-       
+
         try {
 
             $request->validate([
@@ -257,17 +258,24 @@ class UserController extends Controller
             //         ->get();
             // }
 
-            $data['activeService'] = GlobalService::where(['is_active' => '1'])
-                ->select('id', 'slug', 'service_name')
-                ->get();
-
             $data['userData'] = User::where('id', $userId)->select('name', 'email', 'mobile', 'status', 'role_id')->first();
             $data['businessInfo'] = BusinessInfo::where('user_id', $userId)->first();
 
             // $data['businessCategory'] = BusinessCategory::where('id',$businessInfo->business_category_id)->first();
 
             $data['usersBank'] = UsersBank::where('user_id', $userId)->first();
-            
+
+            // Requested Services
+            $data['serviceRequest'] =  ServiceRequest::with(['user', 'service'])
+                ->where('user_id', $userId)
+                ->where('status', 'pending')
+                ->get();
+
+            $data['serviceEnabled'] =  ServiceRequest::with(['user', 'service'])
+                ->where('user_id', $userId)
+                ->where('status', 'approved')
+                ->get();
+
             return view('Users.view-user')->with($data);
         } catch (\Exception $e) {
             return response()->json([
@@ -276,7 +284,4 @@ class UserController extends Controller
             ]);
         }
     }
-
-
-    
 }

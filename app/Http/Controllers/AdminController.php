@@ -13,8 +13,7 @@ use App\Models\BusinessInfo;
 use App\Models\BusinessCategory;
 use App\Models\UsersBank;
 use App\Models\UsersService;
-
-
+use Illuminate\Support\Facades\Validator;
 
 class AdminController extends Controller
 {
@@ -57,58 +56,58 @@ class AdminController extends Controller
     }
 
 
-    public function disableUserService(Request $request){
-        try{
-            
-            if(!auth()->check() && auth::user()->role_id != '1'){
+    public function disableUserService(Request $request)
+    {
+
+
+        try {
+
+            if (!auth()->check() && auth::user()->role_id != '1') {
                 return response()->json([
                     'status' => false,
                     'message' => 'Unauthorized'
                 ], 401);
             }
-            
-           
-            
-            $request->validate([
-                'service_id' => 'required|string|max:50',
-                'is_active' => 'required|in:0,1',
-                'user_id' => 'required|string|max:50',
-                'type' => 'required|string|in:disable,enable',
-            ]);
-            
-            $userId = decrypt($request->user_id);
-            // Logic to disable user service goes here
-            $data = UsersService::where('user_id', $userId)->string('service_id',$request->service_id)->first();
 
-            if($data->status == '0'){
+            $validator = Validator::make($request->all(), [
+                'service_id' => 'required|string|max:50',
+                'type' => 'required|string|in:is_api_allowed,is_active',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+
+            $data = GlobalService::find($request->service_id);
+
+            if (!$data) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Service is not approved yet by the admin',
+                    'message' => 'Service not found.',
                 ]);
             }
-            if(!$data){
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Service not found for user',
-                ]);
-            }
-            switch($request->type){
+
+            switch ($request->type) {
                 case 'is_api_allowed':
-                    $data->is_api_enable = $request->is_active;
+                    $data->is_activation_allowed =  $data->is_activation_allowed == '1' ? '0' : '1';
                     $data->save();
 
                     return response()->json([
                         'status' => true,
-                        'message' => 'Users api status updated  successfully',
+                        'message' => 'API Activation Updated  Successfully',
                     ]);
                     break;
                 case 'is_active':
-                    $data->is_active = $request->is_active;
+                    $data->is_active =  $data->is_active == '1' ? '0' : '1';
                     $data->save();
 
                     return response()->json([
                         'status' => true,
-                        'message' => 'Users api status updated  successfully',
+                        'message' => 'Service Status Updated  Successfully',
                     ]);
                     break;
                 default:
@@ -117,18 +116,11 @@ class AdminController extends Controller
                         'message' => 'Invalid type provided',
                     ]);
             }
-            
-
-            
-
-        }catch(Exception $e){
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
             ]);
         }
     }
-
-    
-
 }

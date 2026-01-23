@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommonController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ServiceRequestController;
 use App\Http\Controllers\TransactionController;
@@ -26,7 +27,7 @@ Route::group(['middleware' => ['auth']], function () {
         // Route::get('/dashboard', function () {
         //     return view('dashboard');
         // })->name('dashboard');
-        Route::post('servicetoggle',[AdminController::class,'disableUserService'])->name('admin.service_toggle.user');
+        Route::post('servicetoggle',[AdminController::class,'disableUserService'])->name('admin.service_toggle');
 
         Route::post('logout', [AuthController::class, 'logout'])->name('admin.logout');
     });

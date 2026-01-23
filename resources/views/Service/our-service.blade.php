@@ -5,12 +5,6 @@
 
 @section('content')
 
-<style>
-    .cursor-pointer {
-        cursor: pointer !important;
-    }
-</style>
-
 <div class="row align-items-center mb-2">
     <div class="col-auto ms-auto">
         <button type="button" class="btn buttonColor" data-bs-toggle="modal" data-bs-target="#serviceModal">
@@ -185,11 +179,10 @@
                     data: 'is_activation_allowed',
                     render: function(data, type, row) {
                         let checked = data == '1' ? 'checked' : ''; // toggle state
-                        let route = `/service/status/${row.id}`; // dummy route to change the status
                         return `
                             <div class="form-check form-switch">
                                 <input class="form-check-input cursor-pointer" type="checkbox" ${checked}
-                                    onchange="changeStatus('${route}', 'This Record')">
+                                    onchange="changeService('${row.id}', 'is_api_allowed','This Record')">
                             </div>
                         `;
                     },
@@ -200,11 +193,10 @@
                     data: 'is_active',
                     render: function(data, type, row) {
                         let checked = data == '1' ? 'checked' : ''; // toggle state
-                        let route = `/service/status/${row.id}`; // dummy route to change the status
                         return `
                             <div class="form-check form-switch">
                                 <input class="form-check-input cursor-pointer" type="checkbox" ${checked}
-                                    onchange="changeStatus('${route}', 'Service')">
+                                    onchange="changeService('${row.id}', 'is_active','Service')">
                             </div>
                         `;
                     },
@@ -225,6 +217,64 @@
         //     table.ajax.reload();
         // });
     });
+
+    function changeService(id, type, text = 'This Record') {
+        Swal.fire({
+            title: 'Are you sure to change status of ' + text + '?',
+            // text: "You will be logged out from your account!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: "{{route('admin.service_toggle')}}",
+                    type: 'POST',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        service_id: id,
+                        type: type
+                    },
+                    success: function(response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: response.message ?? 'Status updated successfully',
+                            timer: 2000,
+                            showConfirmButton: true
+                        });
+                    },
+                    error: function(xhr) {
+                        let title = 'Error';
+                        let message = 'Something went wrong!';
+
+                        if (xhr.status === 422) {
+                            title = 'Validation Error';
+
+                            if (xhr.responseJSON && xhr.responseJSON.errors) {
+                                let firstKey = Object.keys(xhr.responseJSON.errors)[0];
+                                message = xhr.responseJSON.errors[firstKey][0];
+                            }
+                        } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                            message = xhr.responseJSON.message;
+                        }
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: title,
+                            html: message,
+                            timer: 2000,
+                            showConfirmButton: true
+                        });
+                    }
+
+                });
+            }
+        });
+    }
 </script>
 
 @endsection

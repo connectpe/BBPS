@@ -201,11 +201,11 @@
                 </div>
 
                 <div class="border rounded p-2">
-                    <span class="badge buttonColor ms-auto">Service 1</span>
-                    <span class="badge buttonColor ms-auto">Service 2</span>
-                    <span class="badge buttonColor ms-auto">Service 3</span>
-                    <span class="badge buttonColor ms-auto">Service 4</span>
-                    <span class="badge buttonColor ms-auto">Service 5</span>
+                    @forelse($serviceEnabled as $service)
+                    <span class="badge buttonColor ms-auto">{{ $service->service?->service_name ?? '----' }}</span>
+                    @empty
+                    <span class="label text-muted">No services found.</span>
+                    @endforelse
                 </div>
 
                 <hr class="my-4">
@@ -215,14 +215,26 @@
                     <i class="bi bi-gear text-primary fs-4 me-2"></i>
                     <h6 class="fw-bold mb-0">Services Request</h6>
                 </div>
+
+                @forelse($serviceRequest as $service)
                 <div class="info-row">
-                    <span class="label">Service 1</span>
-                    <span class="value"><button class="btn buttonColor btn-sm">Approve <i class="bi bi-check-circle"></i></button> </span>
+                    <span class="label">{{ $service->service?->service_name ?? '----' }}</span>
+                    <span class="value">
+                        <!-- Reject Icon -->
+                        <i class="bi bi-x-circle text-danger cursor-pointer"
+                            onclick="handleServiceAction('{{ $service->id }}', '{{ $service->user_id }}', 'reject')"></i>
+
+                        <!-- Approve Icon -->
+                        <i class="bi bi-check-circle text-success cursor-pointer ms-2"
+                            onclick="handleServiceAction('{{ $service->id }}', '{{ $service->user_id }}', 'approve')"></i>
+                    </span>
                 </div>
+                @empty
                 <div class="info-row">
-                    <span class="label">Service 2</span>
-                    <span class="value"><button class="btn buttonColor btn-sm">Approve <i class="bi bi-check-circle"></i></button> </span>
+                    <span class="label text-muted">No service request found.</span>
                 </div>
+                @endforelse
+
 
                 <hr class="m-3">
                 <!-- KYC Info -->
@@ -311,5 +323,57 @@
         </div>
     </div>
 </div>
+
+
+<script>
+    function handleServiceAction(serviceId, userId, action) {
+        Swal.fire({
+            title: `Are you sure you want to ${action}?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '/service/action',
+                    type: 'POST',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        service_id: serviceId,
+                        user_id: userId,
+                        action: action
+                    },
+                    success: function(response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: response.message ?? 'Action completed successfully',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    },
+                    error: function(xhr) {
+                        let message = 'Something went wrong!';
+
+                        if (xhr.status === 422 && xhr.responseJSON.errors) {
+                            const firstKey = Object.keys(xhr.responseJSON.errors)[0];
+                            message = xhr.responseJSON.errors[firstKey][0];
+                        } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                            message = xhr.responseJSON.message;
+                        }
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: message
+                        });
+                    }
+                });
+            }
+        });
+    }
+</script>
 
 @endsection
