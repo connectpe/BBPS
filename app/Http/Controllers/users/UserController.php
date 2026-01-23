@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers\users;
 
+use App\Helpers\CommonHelper;
 use App\Http\Controllers\Controller;
+use App\Models\BusinessInfo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\OauthUser;
 use Illuminate\Support\Facades\DB;
 use App\Models\GlobalService;
-
-
+use App\Models\User;
+use App\Models\UsersBank;
 
 class UserController extends Controller
 {
@@ -75,7 +77,7 @@ class UserController extends Controller
         try {
 
             $request->validate([
-                
+
                 'business_name'     => 'required|string',
                 'business_pan'      => 'required|string',
                 'business_type'     => 'required|string',
@@ -155,7 +157,7 @@ class UserController extends Controller
     public function generateClientCredentials(Request $request)
     {
 
-        if(!auth()->check() && auth::user()->role_id != '2'){
+        if (!auth()->check() && auth::user()->role_id != '2') {
             return response()->json([
                 'status' => false,
                 'message' => 'Unauthorized'
@@ -188,7 +190,7 @@ class UserController extends Controller
             $secretCount = OauthUser::where('user_id', $userId)
                 ->where('service_id', $service->id)
                 ->count();
-            
+
 
             if ($secretCount > 1) {
                 // If existing credentials found, deactivate them
@@ -231,10 +233,38 @@ class UserController extends Controller
         }
     }
 
-    
 
-    public function viewSingleUsers()
+    public function viewSingleUsers($Id)
     {
-        return view('Users.view-user');
+        try {
+
+            CommonHelper::checkAuthUser();
+            $userId = $Id;
+
+            // if (auth()->user()->role_id == '2') {
+            //     $data['saltKeys'] = OauthUser::where('user_id', auth()->id())
+            //         ->where('is_active', '1')
+            //         ->select('client_id', 'client_secret', 'created_at')
+            //         ->get();
+            // }
+
+            $data['activeService'] = GlobalService::where(['is_active' => '1'])
+                ->select('id', 'slug', 'service_name')
+                ->get();
+
+            $data['userData'] = User::where('id', $userId)->select('name', 'email', 'mobile', 'status', 'role_id')->first();
+            $data['businessInfo'] = BusinessInfo::where('user_id', $userId)->first();
+
+            // $data['businessCategory'] = BusinessCategory::where('id',$businessInfo->business_category_id)->first();
+
+            $data['usersBank'] = UsersBank::where('user_id', $userId)->first();
+            
+            return view('Users.view-user')->with($data);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
     }
 }

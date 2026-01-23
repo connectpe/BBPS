@@ -64,6 +64,7 @@
 </style>
 
 
+
 <div class="row mt-3 g-4">
 
     <div class="col-lg-6">
@@ -78,23 +79,28 @@
 
                 <div class="info-row">
                     <span class="label">Name</span>
-                    <span class="value">John Doe</span>
+                    <span class="value">{{$userData->name ?? '----'}}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Email</span>
-                    <span class="value">john@example.com</span>
+                    <span class="value">{{$userData->email ?? '----'}}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Mobile</span>
-                    <span class="value">+91 9876543210</span>
+                    <span class="value">{{$userData->mobile ?? '----'}}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Last Login at </span>
-                    <span class="value">Jan-20-2026 11:40 am</span>
+                    <span class="value"> </span>
                 </div>
                 <div class="info-row mb-3">
                     <span class="label">Status</span>
-                    <span class="badge bg-success">Active</span>
+
+                    @if($userData->status == 1)
+                    <span class="badge bg-success">ACTIVE</span>
+                    @else
+                    <span class="badge bg-danger">INACTIVE</span>
+                    @endif
                 </div>
 
                 <!-- Divider -->
@@ -108,43 +114,67 @@
 
                 <div class="info-row">
                     <span class="label">Business Name</span>
-                    <span class="value">ABC Pvt Ltd</span>
+                    <span class="value">{{$businessInfo->business_name ?? ''}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Business Pan Number</span>
+                    <span class="value">{{$businessInfo->business_pan_number ?? ''}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Business Pan Name</span>
+                    <span class="value">{{$businessInfo->business_pan_name ?? ''}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Pan Owner Name</span>
+                    <span class="value">{{$businessInfo->pan_owner_name ?? ''}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label"> Pan Number</span>
+                    <span class="value">{{$businessInfo->pan_number ?? ''}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label"> Aadhaar Number</span>
+                    <span class="value">{{$businessInfo->aadhar_number ?? ''}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Business Aadhaar Name</span>
+                    <span class="value">{{$businessInfo->aadhar_name ?? ''}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Business Category</span>
+                    <span class="value">{{$businessInfo->business_category_id ?? ''}}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Business Type</span>
-                    <span class="value">Private Limited</span>
-                </div>
-                <div class="info-row">
-                    <span class="label">Industry</span>
-                    <span class="value">IT Industry</span>
+                    <span class="value">{{$businessInfo->business_type ?? ''}}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">GST No</span>
-                    <span class="value">27ABCDE1234F1Z5</span>
+                    <span class="value">{{$businessInfo->gst_number ?? ''}}</span>
                 </div>
-                <div class="info-row">
+                <!-- <div class="info-row">
                     <span class="label">Business Email</span>
-                    <span class="value">business@abc.com</span>
+                    <span class="value">{{$businessInfo->business_name ?? ''}}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Business Phone</span>
-                    <span class="value">9876543210</span>
-                </div>
+                    <span class="value">{{$businessInfo->business_name ?? ''}}</span>
+                </div> -->
                 <div class="info-row">
                     <span class="label">State</span>
-                    <span class="value">Uttar Pradesh</span>
+                    <span class="value">{{$businessInfo->state ?? ''}}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">City</span>
-                    <span class="value">Lucknow</span>
+                    <span class="value">{{$businessInfo->city ?? ''}}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Pin Code</span>
-                    <span class="value">224955</span>
+                    <span class="value">{{$businessInfo->pincode ?? ''}}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Address</span>
-                    <span class="value">Gomti Nagar Lucknow</span>
+                    <span class="value">{{$businessInfo->address ?? ''}}</span>
                 </div>
 
                 <div class="info-row">
@@ -252,20 +282,24 @@
                 </div>
 
                 <div class="info-row">
+                    <span class="label">Bank Name</span>
+                    <span class="value">{{$usersBank->bank_name ?? '----'}}</span>
+                </div>
+                <div class="info-row">
                     <span class="label">Branch Name</span>
-                    <span class="value">Kalyanpur Lucknow</span>
+                    <span class="value">{{$usersBank->branch_name ?? '----'}}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Account No</span>
-                    <span class="value">56785675678</span>
+                    <span class="value">{{$usersBank->account_number ?? '----'}}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">IFSC</span>
-                    <span class="value">HDFC0001234</span>
+                    <span class="value">{{$usersBank->ifsc_code ?? '----'}}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Account Holder</span>
-                    <span class="value">John Doe</span>
+                    <span class="value">{{$usersBank->account_holder ?? '----'}}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Bank Document</span>
@@ -273,14 +307,9 @@
                             <i class="bi bi-eye me-1"></i> View
                         </a></span>
                 </div>
-
             </div>
-
         </div>
     </div>
-
 </div>
-
-
 
 @endsection

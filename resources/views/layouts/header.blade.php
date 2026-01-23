@@ -58,7 +58,7 @@
                     <hr class="dropdown-divider">
                 </li>
 
-                <li><a class="dropdown-item" href="{{ route('admin_profile') }}">My Profile</a></li>
+                <li><a class="dropdown-item" href="{{ route('admin_profile', [Auth::user()->id]) }}">My Profile</a></li>
                 <li><a class="dropdown-item" href="javascript:void(0)">Wallet Statement</a></li>
                 <li><a class="dropdown-item" href="javascript:void(0)">AEPS Statement</a></li>
                 <li>

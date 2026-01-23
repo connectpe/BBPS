@@ -19,32 +19,40 @@ class ServiceRequestController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        try{
+            $request->validate([
             'service_id' => 'required|exists:global_services,id',
-        ]);
-        $alreadyRequested = ServiceRequest::where('user_id', auth()->id())
-            ->where('service_id', $request->service_id)
-            ->exists();
+            ]);
+            $alreadyRequested = ServiceRequest::where('user_id', auth()->id())
+                ->where('service_id', $request->service_id)
+                ->exists();
 
-        if ($alreadyRequested) {
-            if ($request->ajax()) {
-                return response()->json(['success' => false, 'message' => 'Service already requested']);
+            if ($alreadyRequested) {
+                if ($request->ajax()) {
+                    return response()->json(['success' => false, 'message' => 'Service already requested']);
+                }
+
+                return back()->with('error', 'Service already requested');
             }
 
-            return back()->with('error', 'Service already requested');
+            ServiceRequest::create([
+                'user_id' => auth()->id(),
+                'service_id' => $request->service_id,
+                'status' => 'pending',
+            ]);
+
+            if ($request->ajax()) {
+                return response()->json(['success' => true, 'message' => 'Service request sent successfully']);
+            }
+
+            return back()->with('success', 'Service request sent successfully');
+
+        }catch(\Exception $e){
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ]);
         }
-
-        ServiceRequest::create([
-            'user_id' => auth()->id(),
-            'service_id' => $request->service_id,
-            'status' => 'pending',
-        ]);
-
-        if ($request->ajax()) {
-            return response()->json(['success' => true, 'message' => 'Service request sent successfully']);
-        }
-
-        return back()->with('success', 'Service request sent successfully');
     }
 
     public function approve($id)
