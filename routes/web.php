@@ -31,10 +31,11 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
     Route::post('change-password', [AuthController::class, 'passwordReset'])->name('admin.change_password');
-    Route::post('completeProfile/{id}', [UserController::class, 'completeProfile'])->name('admin.complete_profile');
+
+    Route::post('completeProfile/{user_id}', [UserController::class, 'completeProfile'])->name('admin.complete_profile');
 
     // Admin  Related Route
-    Route::get('profile', [AdminController::class, 'adminProfile'])->name('admin_profile');
+    Route::get('profile/{user_id}', [AdminController::class, 'adminProfile'])->name('admin_profile');
 
     // Service Related Route
     Route::get('/utility-service', [ServiceController::class, 'utilityService'])->name('utility_service');

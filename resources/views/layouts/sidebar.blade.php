@@ -133,46 +133,46 @@
                     </div>
                 </li>
 
-        <li class="nav-item">
-            <a href="{{route('our_servicess')}}"
-                class="nav-link text-white {{ Route::currentRouteName() == 'our_services' ? 'sidebar-active' : '' }}">
-                <i class="bi bi-bank me-2"></i> <!-- Icon for Banking -->
-                Ladger </a>
-        </li>
-
-        <li class="nav-item">
-            <a href="{{route('our_servicess')}}"
-                class="nav-link text-white {{ Route::currentRouteName() == 'our_services' ? 'sidebar-active' : '' }}">
-                <i class="bi bi-bank me-2"></i> <!-- Icon for Banking -->
-                Complaint Report </a>
-        </li>
-            <li class="nav-item">
-                    <a href="{{ route('our_servicess') }}"
+                <li class="nav-item">
+                    <a href="{{route('our_servicess')}}"
                         class="nav-link text-white {{ Route::currentRouteName() == 'our_services' ? 'sidebar-active' : '' }}">
                         <i class="bi bi-bank me-2"></i> <!-- Icon for Banking -->
-                        Our Services </a>
-            </li>
+                        Ladger </a>
+                </li>
 
-        <li class="nav-item">
-            <form action="{{ route('admin.logout') }}" method="POST">
-                @csrf
-                <button type="submit"
-                    class="nav-link btn btn-link text-white w-100 text-start d-flex align-items-center gap-2 px-3" style="background-color: #e76666;">
-                    <i class="bi bi-box-arrow-right fs-5"></i>
-                    <span>Logout</span>
-                </button>
-            </form>
-        </li>
+                <li class="nav-item">
+                    <a href="{{route('our_servicess')}}"
+                        class="nav-link text-white {{ Route::currentRouteName() == 'our_services' ? 'sidebar-active' : '' }}">
+                        <i class="bi bi-bank me-2"></i> <!-- Icon for Banking -->
+                        Complaint Report </a>
+                </li>
+                <li class="nav-item">
+                        <a href="{{ route('our_servicess') }}"
+                            class="nav-link text-white {{ Route::currentRouteName() == 'our_services' ? 'sidebar-active' : '' }}">
+                            <i class="bi bi-bank me-2"></i> <!-- Icon for Banking -->
+                            Our Services </a>
+                </li>
 
-
-
-
-                            </ul>
-                        </div>
+                    <li class="nav-item">
+                        <form action="{{ route('admin.logout') }}" method="POST">
+                            @csrf
+                            <button type="submit"
+                                class="nav-link btn btn-link text-white w-100 text-start d-flex align-items-center gap-2 px-3" style="background-color: #e76666;">
+                                <i class="bi bi-box-arrow-right fs-5"></i>
+                                <span>Logout</span>
+                            </button>
+                        </form>
                     </li>
 
-                </ul>
-            </li>
+
+
+
+                        </ul>
+                    </div>
+                </li>
+
+            </ul>
+        </li>
 
             
 
