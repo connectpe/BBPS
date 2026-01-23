@@ -26,6 +26,7 @@ Route::group(['middleware' => ['auth']], function () {
         // Route::get('/dashboard', function () {
         //     return view('dashboard');
         // })->name('dashboard');
+        Route::post('servicetoggle',[AdminController::class,'disableUserService'])->name('admin.service_toggle.user');
 
         Route::post('logout', [AuthController::class, 'logout'])->name('admin.logout');
     });
