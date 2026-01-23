@@ -803,7 +803,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             <label class="form-label">
                                 Profile Pic
                             </label>
-                            <input type="file" class="form-control" accept=".jpg,.jpeg,.png" name="profile_Pic">
+                            <input type="file" class="form-control" accept=".jpg,.jpeg,.png" name="profile_image">
                         </div>
                     </div>
                 </div>
@@ -822,11 +822,11 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             <label class="form-label">Business Type</label>
                             <select class="form-select" name="business_type" id="business_type">
                                 <option value="">--Select Business Type--</option>
-                                <option>Individual</option>
-                                <option>Proprietorship</option>
-                                <option>Partnership</option>
-                                <option>Private Limited</option>
-                                <option>LLP</option>
+                                <option value="individual">Individual</option>
+                                <option value="proprietorship">Proprietorship</option>
+                                <option value="partnership">Partnership</option>
+                                <option value="private">Private Limited</option>
+                                <option value="llp">LLP</option>
                             </select>
                         </div>
 
@@ -875,8 +875,8 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             <label class="form-label">State</label>
                             <select class="form-select" name="state">
                                 <option value="">--Select State--</option>
-                                <option>Uttar Pradesh</option>
-                                <option>Bihar</option>
+                                <option value="Uttar Pradesh">Uttar Pradesh</option>
+                                <option value="Bihar">Bihar</option>
                             </select>
                         </div>
 
@@ -884,8 +884,8 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             <label class="form-label">City</label>
                             <select class="form-select" name="city">
                                 <option value="">--Select City--</option>
-                                <option>Lucknow</option>
-                                <option>Kapnur</option>
+                                <option value="Lucknow">Lucknow</option>
+                                <option value="Kanpur">Kanpur</option>
                             </select>
                         </div>
 
@@ -1289,7 +1289,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
 <script>
     function submitProfileForm() {
-        alert('Submitting profile form...');
+        // alert('Submitting profile form...');
         const formData = new FormData();
         console.log(formData);
         const userId = document.getElementById('user_id').value;
