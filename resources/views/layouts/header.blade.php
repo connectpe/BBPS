@@ -122,7 +122,7 @@
 
                                         {{-- APPROVED --}}
                                         @if ($request->status === 'approved')
-                                            <button class="btn btn-success btn-sm w-100" disabled>
+                                            <button class="btn btn-success btn-sm w-100">
                                                 Activated
                                             </button>
 
@@ -143,7 +143,7 @@
 
                                             {{-- USER VIEW --}}
                                             @else
-                                                <button class="btn btn-secondary btn-sm w-100" disabled>
+                                                <button class="btn btn-secondary btn-sm w-100">
                                                     Requested
                                                 </button>
                                             @endif

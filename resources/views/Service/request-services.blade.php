@@ -86,21 +86,16 @@
 
                                     <td>
                                         @if (auth()->user()->role_id == 1)
-                                            {{-- PENDING --}}
                                             @if ($request->status == 'pending')
                                                 <button class="btn btn-sm btn-primary approve-btn"
                                                     data-id="{{ $request->id }}" data-status="pending">
                                                     Requested
                                                 </button>
-
-                                                {{-- APPROVED --}}
                                             @elseif($request->status == 'approved')
                                                 <button class="btn btn-sm btn-success approve-btn"
                                                     data-id="{{ $request->id }}" data-status="approved">
                                                     Activated
                                                 </button>
-
-                                                {{-- REJECTED --}}
                                             @else
                                                 <span class="text-muted">No Action</span>
                                             @endif

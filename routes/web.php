@@ -8,6 +8,7 @@ use App\Http\Controllers\ServiceRequestController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\users\ReportController;
 use App\Http\Controllers\users\UserController;
+use App\Http\Controllers\LadgerController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -62,8 +63,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('fetch/{type}/{id?}/{returntype?}', [CommonController::class, 'fetchData']);
     Route::post('/service-request', [ServiceRequestController::class, 'store'])
         ->name('service.request');
-
     Route::post('/service-request/{id}/approve', [ServiceRequestController::class, 'approve'])->name('service.approve');
+
+    // ladger  Route
+    Route::get('/ladger', [LadgerController::class, 'index'])->name('ladger.index');
 
 
 });
