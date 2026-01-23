@@ -706,16 +706,16 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                 ];
                 @endphp
                 <div class="row mb-2">
-                    @foreach($saltKeys  as $key)
+                    @foreach($saltKeys as $key)
                     <div class="col-md-12 mb-2">
                         <div class="border rounded p-3">
                             <div class="row">
-                                
+
                                 <div class="col-12">
                                     <strong>Client ID:</strong> {{ $key['client_id'] }} <br />
                                     <strong>Client Key:</strong> {{ maskValue($key['client_secret']) }} <br />
                                 </div>
-                               
+
                             </div>
                         </div>
                     </div>
@@ -781,6 +781,9 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                 <div class="step step-1">
                     <h6 class="mb-3">Personal Details</h6>
                     <div class="row g-2">
+
+                       <input type="hidden" name="user_id" id="user_id" value="{{ $user->id }}">
+
                         <div class="col-md-6">
                             <label class="form-label">Full Name</label>
                             <input type="text" class="form-control" placeholder="Enter full name" value="{{$user->name}}" disabled>
@@ -793,7 +796,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
                         <div class="col-md-6">
                             <label class="form-label">Mobile Number</label>
-                            <input type="text" class="form-control" name="mobile" placeholder="Enter mobile number" value="{{$user->mobile ?? ''}}">
+                            <input type="text" class="form-control" name="mobile" placeholder="Enter mobile number" value="{{$user->mobile ?? ''}}" disabled>
                         </div>
 
                         <div class="col-md-6">
@@ -829,27 +832,31 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
                         <div class="col-md-6">
                             <label class="form-label">Industry</label>
-                            <input type="text" class="form-control" placeholder="e.g. Retail, IT, Manufacturing">
+                            <input type="text" class="form-control" placeholder="e.g. Retail, IT, Manufacturing" name="industry">
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">CIN No</label>
-                            <input type="text" class="form-control" placeholder="CIN No">
+                            <input type="text" class="form-control" placeholder="CIN No" name="cin_number">
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">GST No</label>
-                            <input type="text" class="form-control" placeholder="GST NO">
+                            <input type="text" class="form-control" placeholder="GST NO" name="gst_number">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Business Pan</label>
+                            <input type="text" class="form-control" placeholder="business_pan" name="business_pan">
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">Business Email</label>
-                            <input type="email" class="form-control" placeholder="Enter business email">
+                            <input type="email" class="form-control" placeholder="Enter business email" name="business_email">
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">Business Phone</label>
-                            <input type="text" class="form-control" placeholder="Enter business phone">
+                            <input type="text" class="form-control" placeholder="Enter business phone" name="business_phone">
                         </div>
 
 
@@ -861,12 +868,12 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             <input type="file"
                                 class="form-control"
                                 multiple
-                                accept=".pdf,.jpg,.jpeg,.png">
+                                accept=".pdf,.jpg,.jpeg,.png" name="business_docs[]">
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">State</label>
-                            <select class="form-select">
+                            <select class="form-select" name="state">
                                 <option value="">--Select State--</option>
                                 <option>Uttar Pradesh</option>
                                 <option>Bihar</option>
@@ -875,7 +882,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
                         <div class="col-md-6">
                             <label class="form-label">City</label>
-                            <select class="form-select">
+                            <select class="form-select" name="city">
                                 <option value="">--Select City--</option>
                                 <option>Lucknow</option>
                                 <option>Kapnur</option>
@@ -884,12 +891,12 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
                         <div class="col-md-6">
                             <label class="form-label">Pin Code</label>
-                            <input type="number" class="form-control" placeholder="Enter Pin Code">
+                            <input type="number" class="form-control" placeholder="Enter Pin Code" name="pincode">
                         </div>
 
                         <div class="col-12">
                             <label class="form-label">Business Address</label>
-                            <textarea class="form-control" rows="2" placeholder="Enter business address"></textarea>
+                            <textarea class="form-control" rows="2" placeholder="Enter business address" name="business_address"></textarea>
                         </div>
                     </div>
                 </div>
@@ -906,7 +913,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                 <input type="text"
                                     class="form-control"
                                     placeholder="Enter Aadhaar number"
-                                    maxlength="12">
+                                    maxlength="12" name="adhar_number">
                             </div>
 
                             <div class="col-md-6">
@@ -914,28 +921,28 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                 <input type="text"
                                     class="form-control"
                                     placeholder="Enter PAN number"
-                                    maxlength="10">
+                                    maxlength="10" name="pan_number">
                             </div>
 
                             <div class="col-md-4">
                                 <label class="form-label">Aadhaar Front</label>
                                 <input type="file"
                                     class="form-control"
-                                    accept=".jpg,.jpeg,.png">
+                                    accept=".jpg,.jpeg,.png" name="adhar_front_image">
                             </div>
 
                             <div class="col-md-4">
                                 <label class="form-label">Aadhaar Back</label>
                                 <input type="file"
                                     class="form-control"
-                                    accept=".jpg,.jpeg,.png">
+                                    accept=".jpg,.jpeg,.png" name="adhar_back_image">
                             </div>
 
                             <div class="col-md-4">
                                 <label class="form-label">PAN Card</label>
                                 <input type="file"
                                     class="form-control"
-                                    accept=".jpg,.jpeg,.png">
+                                    accept=".jpg,.jpeg,.png" name="pan_card_image">
                             </div>
                         </div>
 
@@ -951,27 +958,27 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
                         <div class="col-md-6">
                             <label class="form-label">Account Holder Name</label>
-                            <input type="text" class="form-control" placeholder="Enter account holder name">
+                            <input type="text" class="form-control" placeholder="Enter account holder name" name="account_holder_name">
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">Account Number</label>
-                            <input type="text" class="form-control" placeholder="Enter account number">
+                            <input type="text" class="form-control" placeholder="Enter account number" name="account_number">
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">IFSC Code</label>
-                            <input type="text" class="form-control" placeholder="Enter IFSC code">
+                            <input type="text" class="form-control" placeholder="Enter IFSC code" name="ifsc_code">
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">Branch Name</label>
-                            <input type="text" class="form-control" placeholder="Enter branch name">
+                            <input type="text" class="form-control" placeholder="Enter branch name" name="branch_name">
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">Bank Documents</label>
-                            <input type="file" class="form-control" multiple accept=".pdf,.jpg,.jpeg,.png">
+                            <input type="file" class="form-control" multiple accept=".pdf,.jpg,.jpeg,.png" name="bank_docs[]">
                             <small class="text-muted">Upload cheque / passbook copy (Max 2MB each)</small>
                         </div>
                     </div>
@@ -1083,10 +1090,9 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
             currentStep++;
             showStep(currentStep);
         } else {
-            alert('Profile Completed Successfully!');
-            $('#completeProfileModal').modal('hide');
-
-
+            // alert('Profile Completed Successfully!');
+            // $('#completeProfileModal').modal('hide');
+            submitProfileForm();
         }
     });
 
@@ -1139,37 +1145,37 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
 
         $.ajax({
-    url: "{{ route('generate_client_credentials') }}",
-    type: 'POST',
-    contentType: 'application/json',
-    data: JSON.stringify({
-        service: service,
-        _token: $('meta[name="csrf-token"]').attr('content'),
-    }),
-    success: function(response) {
+            url: "{{ route('generate_client_credentials') }}",
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                service: service,
+                _token: $('meta[name="csrf-token"]').attr('content'),
+            }),
+            success: function(response) {
 
-        const client_id  = response.data.client_id;
-        const client_key = response.data.client_secret;
+                const client_id = response.data.client_id;
+                const client_key = response.data.client_secret;
 
-        console.log(client_id);
-        console.log(client_key);
+                console.log(client_id);
+                console.log(client_key);
 
-        const result = {
-            success: true,
-            client_id: client_id,
-            client_key: client_key
-        };
+                const result = {
+                    success: true,
+                    client_id: client_id,
+                    client_key: client_key
+                };
 
-        console.log(result);
+                console.log(result);
 
-        if (result.success) {
-            showCredentials(result.client_id, result.client_key);
-        }
-    },
-    error: function(xhr) {
-        console.error(xhr.responseText);
-    }
-});
+                if (result.success) {
+                    showCredentials(result.client_id, result.client_key);
+                }
+            },
+            error: function(xhr) {
+                console.error(xhr.responseText);
+            }
+        });
 
 
         // const response = {
@@ -1279,6 +1285,81 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
             }
         });
     });
+</script>
+
+<script>
+    function submitProfileForm() {
+        alert('Submitting profile form...');
+        const formData = new FormData();
+        console.log(formData);
+        const userId = document.getElementById('user_id').value;
+
+        // Automatically append all input, select, textarea values
+        $('#completeProfileModal input, #completeProfileModal select, #completeProfileModal textarea').each(function() {
+            const name = $(this).attr('name');
+            if (!name) return;
+
+            // Handle file inputs
+            if ($(this).is(':file')) {
+                const files = this.files;
+                if (files.length > 0) {
+                    if (name.includes('[]')) {
+                        // Multiple files
+                        for (let i = 0; i < files.length; i++) {
+                            formData.append(name, files[i]);
+                        }
+                    } else {
+                        // Single file
+                        formData.append(name, files[0]);
+                    }
+                }
+            }
+            // Handle regular inputs (not disabled)
+            else if (!$(this).is(':disabled')) {
+                formData.append(name, $(this).val());
+            }
+        });
+
+        // Add CSRF token
+        formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+
+        // Debug: Check what's being sent
+        console.log('FormData contents:');
+        for (let pair of formData.entries()) {
+            console.log(pair[0], pair[1]);
+        }
+
+        // Show loading state
+        $('#nextStep').prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Submitting...');
+
+        // AJAX request
+        $.ajax({
+            url: `/completeProfile/${userId}`, // Replace with your route
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                // Handle success
+                alert('Profile completed successfully!');
+                $('#completeProfileModal').modal('hide');
+                location.reload(); // Or redirect to another page
+            },
+            error: function(xhr) {
+                // Handle errors
+                let errorMessage = 'Something went wrong!';
+
+                if (xhr.status === 422) {
+                    // Validation errors
+                    const errors = xhr.responseJSON.errors;
+                    errorMessage = Object.values(errors).flat().join('\n');
+                }
+
+                alert(errorMessage);
+                $('#nextStep').prop('disabled', false).html('Submit <i class="bi bi-check-circle"></i>');
+            }
+        });
+    }
 </script>
 
 @endsection
