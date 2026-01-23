@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\GlobalService;
 use App\Helpers\CommonHelper;
+use App\Models\GlobalService;
 use App\Models\OauthUser;
-
 
 class AdminController extends Controller
 {
@@ -24,13 +22,13 @@ class AdminController extends Controller
         $data['activeService'] = GlobalService::where(['is_active' => '1'])
             ->select('id', 'slug', 'service_name')
             ->get();
+
         // dd($data);
         return view('Admin.profile')->with($data);
     }
 
     public function dashboard()
-{
-    return view('dashboard');
-}
-
+    {
+        return view('dashboard');
+    }
 }

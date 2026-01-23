@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('service_id')->constrained('global_services')->onDelete('cascade');
+            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->string('transaction_amount')->nullable();
             $table->enum('is_api_enable', ['0', '1'])->default('1');
             $table->enum('is_active', ['0', '1'])->default('1');
