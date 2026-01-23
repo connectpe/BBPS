@@ -248,70 +248,34 @@ class UserController extends Controller
     }
 
 
-    public function disableUserService(Request $request){
+    public function AddService(Request $request)
+    {
         try{
-            
-            if(!auth()->check() && auth::user()->role_id != '1'){
+            if(!auth()->check() && auth::user()->role_id == '1'){
                 return response()->json([
                     'status' => false,
                     'message' => 'Unauthorized'
                 ], 401);
             }
-            
-           
-            
+
             $request->validate([
-                'service_id' => 'required|string|max:50',
-                'is_active' => 'required|in:0,1',
-                'user_id' => 'required|string|max:50',
-                'type' => 'required|string|in:disable,enable',
+                'service_name' => 'required|string|max:50',
             ]);
-            
-            $userId = decrypt($request->user_id);
-            // Logic to disable user service goes here
-            $data = UsersService::where('user_id', $userId)->string('service_id',$request->service_id)->first();
 
-            if($data->status == '0'){
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Service is not approved yet by the admin',
-                ]);
-            }
-            if(!$data){
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Service not found for user',
-                ]);
-            }
-            switch($request->type){
-                case 'is_api_allowed':
-                    $data->is_api_enable = $request->is_active;
-                    $data->save();
+            $slug = Str::strtolower($request->service_name);
 
-                    return response()->json([
-                        'status' => true,
-                        'message' => 'Users api status updated  successfully',
-                    ]);
-                    break;
-                case 'is_active':
-                    $data->is_active = $request->is_active;
-                    $data->save();
+            $service = GlobalService::create([
+                'name' => $request->service_name,
+                'slug' => $slug,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
 
-                    return response()->json([
-                        'status' => true,
-                        'message' => 'Users api status updated  successfully',
-                    ]);
-                    break;
-                default:
-                    return response()->json([
-                        'status' => false,
-                        'message' => 'Invalid type provided',
-                    ]);
-            }
-            
-
-            
-
+            return response()->json([
+                'status' => true,
+                'message' => 'Service added successfully',
+                'data' => $service,
+            ], 201);
         }catch(Exception $e){
             return response()->json([
                 'status' => false,
@@ -319,4 +283,47 @@ class UserController extends Controller
             ]);
         }
     }
-}
+
+    public function EditService(Request $request,$serviceId)
+    {
+        try{
+            if(!auth()->check() && auth::user()->role_id == '1'){
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized'
+                ], 401);
+            }
+
+            $request->validate([
+                'service_name' => 'required|string|max:50',
+            ]);
+
+            $slug = Str::strtolower($request->service_name);
+
+            $service = GlobalService::where('id',$serviceId)->first();
+            if(!$service){
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Service not found',
+                ]);
+            }
+
+            $service->service_name = $request->service_name;
+            $service->slug = $slug;
+            $service->updated_at = now();
+            $service->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'serviceName updated  successfully',
+                
+            ], 200);
+        }catch(Exception $e){
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
+    }
+

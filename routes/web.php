@@ -27,6 +27,10 @@ Route::group(['middleware' => ['auth']], function () {
         //     return view('dashboard');
         // })->name('dashboard');
         Route::post('servicetoggle',[AdminController::class,'disableUserService'])->name('admin.service_toggle.user');
+        Route::post('user-status-change/{user_id}',[AdminController::class,'changeUserStatus'])->name('admin.user_status.change');
+        Route::post('add-service',[AdminController::class,'AddService'])->name('admin.add_service');
+        Route::put('edit-service/{service_id}',[AdminController::class,'EditService'])->name('admin.edit_service');
+
 
         Route::post('logout', [AuthController::class, 'logout'])->name('admin.logout');
     });

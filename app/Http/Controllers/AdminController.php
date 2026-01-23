@@ -125,6 +125,129 @@ class AdminController extends Controller
         }
     }
 
+
+    public function AddService(Request $request)
+    {
+        try{
+            if(!auth()->check() && auth::user()->role_id == '1'){
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized'
+                ], 401);
+            }
+
+            $request->validate([
+                'service_name' => 'required|string|max:50',
+            ]);
+
+            $slug = Str::strtolower($request->service_name);
+
+            $service = GlobalService::create([
+                'name' => $request->service_name,
+                'slug' => $slug,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Service added successfully',
+                'data' => $service,
+            ], 201);
+        }catch(Exception $e){
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function EditService(Request $request,$serviceId)
+    {
+        try{
+            if(!auth()->check() && auth::user()->role_id == '1'){
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized'
+                ], 401);
+            }
+
+            $request->validate([
+                'service_name' => 'required|string|max:50',
+            ]);
+
+            $slug = Str::strtolower($request->service_name);
+
+            $service = GlobalService::where('id',$serviceId)->first();
+            if(!$service){
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Service not found',
+                ]);
+            }
+
+            $service->service_name = $request->service_name;
+            $service->slug = $slug;
+            $service->updated_at = now();
+            $service->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'serviceName updated  successfully',
+                
+            ], 200);
+        }catch(Exception $e){
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
+    protected function validateUser(){
+        if(!auth()->check() && auth::user()->role_id == '1'){
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized'
+                ], 401);
+        }
+    }
+
+    public function UserStatusChange(Request $request,$userId)
+    {
+        try{
+            
+            $this->validateUser();
+
+            $request->validate([
+                'status' => 'required|in:0,1,2,3,4',
+            ]);
+
+            $userId = decrypt($userId);
+            $user = User::where('id',$userId)->first();
+            if(!$user){
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User not found',
+                ]);
+            }
+
+            $user->status = $request->status;
+            $user->updated_at = now();
+            $user->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'User status updated  successfully',
+                
+            ], 200);
+        }catch(Exception $e){
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
+
     
 
 }
