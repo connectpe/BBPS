@@ -146,6 +146,12 @@
                 <i class="bi bi-bank me-2"></i> <!-- Icon for Banking -->
                 Complaint Report </a>
         </li>
+            <li class="nav-item">
+                    <a href="{{ route('our_servicess') }}"
+                        class="nav-link text-white {{ Route::currentRouteName() == 'our_services' ? 'sidebar-active' : '' }}">
+                        <i class="bi bi-bank me-2"></i> <!-- Icon for Banking -->
+                        Our Services </a>
+            </li>
 
         <li class="nav-item">
             <form action="{{ route('admin.logout') }}" method="POST">
@@ -168,14 +174,9 @@
                 </ul>
             </li>
 
-            <li class="nav-item">
-                <a href="{{ route('our_servicess') }}"
-                    class="nav-link text-white {{ Route::currentRouteName() == 'our_services' ? 'sidebar-active' : '' }}">
-                    <i class="bi bi-bank me-2"></i> <!-- Icon for Banking -->
-                    Our Services </a>
-            </li>
+            
 
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <form action="{{ route('admin.logout') }}" method="POST">
                     @csrf
                     <button type="submit"
@@ -185,7 +186,7 @@
                         <span>Logout</span>
                     </button>
                 </form>
-            </li>
+            </li> -->
 
 
         </ul>
@@ -273,7 +274,7 @@
                             <i class="bi bi-chevron-down small"></i>
                         </a>
 
-<<<<<<< HEAD
+
                     <div class="collapse {{ $transactionActive ? 'show' : '' }} ms-3" id="transaction">
                         <ul class="nav flex-column">
                             <li class="nav-item">
@@ -303,17 +304,8 @@
                                     Transaction Status
                                 </a>
                             </li>
-=======
-                        <div class="collapse {{ $transactionActive ? 'show' : '' }} ms-3" id="transaction">
-                            <ul class="nav flex-column">
-                                <li class="nav-item">
-                                    <a href="{{ route('transaction_status') }}"
-                                        class="nav-link text-white {{ Route::currentRouteName() == 'transaction_status' ? 'sidebar-active' : '' }}">
-                                        <i class="bi bi-list-check me-2"></i>
-                                        Transaction Status
-                                    </a>
-                                </li>
->>>>>>> origin/nilam21jan
+
+
 
                                 <li class="nav-item">
                                     <a href="{{ route('transaction_complaint') }}"
