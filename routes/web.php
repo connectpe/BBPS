@@ -26,12 +26,13 @@ Route::group(['middleware' => ['auth']], function () {
         // Route::get('/dashboard', function () {
         //     return view('dashboard');
         // })->name('dashboard');
+        Route::post('servicetoggle',[AdminController::class,'disableUserService'])->name('admin.service_toggle.user');
 
         Route::post('logout', [AuthController::class, 'logout'])->name('admin.logout');
     });
 
     Route::post('change-password', [AuthController::class, 'passwordReset'])->name('admin.change_password');
-    Route::post('completeProfile', [UserController::class, 'completeProfile'])->name('admin.complete_profile');
+    Route::post('completeProfile/{user_id}', [UserController::class, 'completeProfile'])->name('admin.complete_profile');
 
     // Admin  Related Route
     Route::get('profile/{user_id}', [AdminController::class, 'adminProfile'])->name('admin_profile');

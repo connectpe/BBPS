@@ -56,7 +56,7 @@ class CommonController extends Controller
 
 
 				if (Auth::user()->role_id == '1') {
-					$request['parentData'] = 'all';
+					$request['parentData'] != [Auth::user()->id];
 				} else {
 					$request['whereIn'] = 'user_id';
 					$request['parentData'] = [Auth::user()->id];

@@ -10,8 +10,15 @@ use Illuminate\Support\Str;
 use App\Models\OauthUser;
 use Illuminate\Support\Facades\DB;
 use App\Models\GlobalService;
+
+use Illuminate\Support\Facades\Auth;
+use App\Models\BusinessCategory;
+use App\Models\UsersBank;   
 use App\Models\User;
-use App\Models\UsersBank;
+use Exception;
+use App\Policies\IsUser;
+
+
 
 class UserController extends Controller
 {
@@ -19,6 +26,8 @@ class UserController extends Controller
     public function bbpsUsers()
 
     {
+        // $data = $this->isUser(Auth::user());
+        // dd($data);
         return view('Users.users');
     }
 
@@ -70,10 +79,10 @@ class UserController extends Controller
         ]);
     }
 
-    public function completeProfile(Request $request)
+    public function completeProfile(Request $request,$userId)
     {
         DB::beginTransaction();
-        $userId = Auth::id();
+       
         try {
 
             $request->validate([
@@ -267,4 +276,7 @@ class UserController extends Controller
             ]);
         }
     }
+
+
+    
 }
