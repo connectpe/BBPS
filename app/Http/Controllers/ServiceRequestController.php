@@ -49,34 +49,15 @@ class ServiceRequestController extends Controller
 
     public function approve($id)
     {
-        if (! auth()->check() || auth()->user()->role_id !== 1) {
-            abort(403, 'Unauthorized action');
+        $request = ServiceRequest::findOrFail($id);
+        if ($request->status === 'approved') {
+            $request->status = 'pending';
+        } else {
+            $request->status = 'approved';
         }
 
-        $serviceRequest = ServiceRequest::findOrFail($id);
-        if ($serviceRequest->status === 'approved') {
-            return back()->with('info', 'Service already activated');
-        }
+        $request->save();
 
-        $serviceRequest->update([
-            'status' => 'approved',
-        ]);
-
-        return back()->with('success', 'Service activated successfully');
-    }
-
-    public function reject($id)
-    {
-        if (! auth()->check() || auth()->user()->role_id !== 1) {
-            abort(403, 'Unauthorized action');
-        }
-
-        $serviceRequest = ServiceRequest::findOrFail($id);
-
-        $serviceRequest->update([
-            'status' => 'rejected',
-        ]);
-
-        return back()->with('success', 'Service request rejected');
+        return back()->with('success', 'Service status updated successfully');
     }
 }

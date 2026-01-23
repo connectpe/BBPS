@@ -63,11 +63,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/service-request', [ServiceRequestController::class, 'store'])
         ->name('service.request');
 
-    Route::post('/service-request/{id}/approve', [ServiceRequestController::class, 'approve'])
-        ->name('service.approve');
+    Route::post('/service-request/{id}/approve', [ServiceRequestController::class, 'approve'])->name('service.approve');
 
-    Route::post('/service-request/{id}/reject', [ServiceRequestController::class, 'reject'])
-        ->name('service.reject');
 
 });
 
