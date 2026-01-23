@@ -137,11 +137,13 @@
             </li>
 
             <li class="nav-item">
-                <a href="{{ route('our_servicess') }}"
-                    class="nav-link text-white {{ Route::currentRouteName() == 'our_services' ? 'sidebar-active' : '' }}">
-                    <i class="bi bi-bank me-2"></i> <!-- Icon for Banking -->
-                    Complaint Report </a>
+                <a href="{{ route('complain.report') }}"
+                    class="nav-link text-white {{ Route::currentRouteName() == 'complain.report' ? 'sidebar-active' : '' }}">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Complaint Report
+                </a>
             </li>
+
             <li class="nav-item">
                 <a href="{{ route('our_servicess') }}"
                     class="nav-link text-white {{ Route::currentRouteName() == 'our_services' ? 'sidebar-active' : '' }}">

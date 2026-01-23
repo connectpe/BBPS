@@ -9,6 +9,7 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\users\ReportController;
 use App\Http\Controllers\users\UserController;
 use App\Http\Controllers\LadgerController;
+use App\Http\Controllers\ComplainReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -67,6 +68,9 @@ Route::group(['middleware' => ['auth']], function () {
 
     // ladger  Route
     Route::get('/ladger', [LadgerController::class, 'index'])->name('ladger.index');
+
+    // Complain Report Route
+    Route::get('/complain-report', [ComplainReportController::class, 'complainReport'])->name('complain.report');
 
 
 });
