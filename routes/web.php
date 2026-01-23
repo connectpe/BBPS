@@ -34,7 +34,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('completeProfile', [UserController::class, 'completeProfile'])->name('admin.complete_profile');
 
     // Admin  Related Route
-    Route::get('profile', [AdminController::class, 'adminProfile'])->name('admin_profile');
+    Route::get('profile/{user_id}', [AdminController::class, 'adminProfile'])->name('admin_profile');
 
     // Service Related Route
     Route::get('/utility-service', [ServiceController::class, 'utilityService'])->name('utility_service');
