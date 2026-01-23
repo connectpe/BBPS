@@ -3,12 +3,10 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Laravel\Sanctum\HasApiTokens;
-
-
 
 class User extends Authenticatable
 {
@@ -55,8 +53,6 @@ class User extends Authenticatable
 
     // Sanctum provides token management via HasApiTokens
 
-
-
     public function role()
     {
         return $this->belongsTo(Role::class);
@@ -75,5 +71,10 @@ class User extends Authenticatable
     public function logs()
     {
         return $this->hasMany(UserLog::class);
+    }
+
+    public function isAdmin()
+    {
+        return $this->role && $this->role->name === 'Admin';
     }
 }

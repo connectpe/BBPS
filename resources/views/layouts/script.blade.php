@@ -90,3 +90,101 @@
         $('#imagePreviewModal').modal('show');
     }
 </script>
+
+
+@if(session('success'))
+<script>
+    Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: "{{ session('success') }}",
+        timer: 3000,
+        showConfirmButton: false
+    });
+</script>
+@endif
+
+@if(session('error'))
+<script>
+    Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: "{{ session('error') }}",
+    });
+</script>
+@endif
+
+@if(session('info'))
+<script>
+    Swal.fire({
+        icon: 'info',
+        title: 'Info',
+        text: "{{ session('info') }}",
+    });
+</script>
+@endif
+
+
+<script>
+    document.querySelectorAll('.raise-request-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'Do you want to raise this service request?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Send',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const formData = new FormData(form);
+                    fetch(form.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire('Success', 'Service request raised successfully!',
+                                    'success');
+                                const button = form.querySelector('button');
+                                button.textContent = 'Requested';
+                                button.className = 'btn btn-secondary btn-sm w-100';
+                                button.disabled = true;
+                                form.removeEventListener('submit', arguments.callee);
+                            } else {
+                                Swal.fire('Error', data.message ||
+                                    'Failed to raise request', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            Swal.fire('Error', 'Network error occurred', 'error');
+                        });
+                }
+            });
+        });
+    });
+    document.querySelectorAll('.approve-request-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            Swal.fire({
+                title: 'Confirm Activation',
+                text: 'Do you want to activate this service?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Activate',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    });
+</script>

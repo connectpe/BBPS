@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommonController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\ServiceRequestController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\users\ReportController;
 use App\Http\Controllers\users\UserController;
@@ -19,9 +20,12 @@ Route::post('signup', [AuthController::class, 'signup'])->name('admin.signup');
 
 Route::group(['middleware' => ['auth']], function () {
     Route::prefix('admin')->group(function () {
-        Route::get('/dashboard', function () {
-            return view('dashboard');
-        })->name('dashboard');
+        Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+
+        // Route::get('/dashboard', function () {
+        //     return view('dashboard');
+        // })->name('dashboard');
 
         Route::post('logout', [AuthController::class, 'logout'])->name('admin.logout');
     });
@@ -37,7 +41,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/recharge-service', [ServiceController::class, 'rechargeService'])->name('recharge_service');
     Route::get('/banking-service', [ServiceController::class, 'bankingService'])->name('banking_service');
     Route::get('our-services', [ServiceController::class, 'ourService'])->name('our_servicess');
-
+    Route::get('request-services', [ServiceRequestController::class, 'index'])->name('request_services');
 
     // Users Related Route
     Route::get('/users', [UserController::class, 'bbpsUsers'])->name('users');
@@ -56,6 +60,15 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('generate/client-credentials', [UserController::class, 'generateClientCredentials'])->name('generate_client_credentials');
 
     Route::post('fetch/{type}/{id?}/{returntype?}', [CommonController::class, 'fetchData']);
+    Route::post('/service-request', [ServiceRequestController::class, 'store'])
+        ->name('service.request');
+
+    Route::post('/service-request/{id}/approve', [ServiceRequestController::class, 'approve'])
+        ->name('service.approve');
+
+    Route::post('/service-request/{id}/reject', [ServiceRequestController::class, 'reject'])
+        ->name('service.reject');
+
 });
 
 Route::prefix('admin', function () {

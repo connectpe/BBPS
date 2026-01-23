@@ -15,13 +15,12 @@
         <h2 class="mb-4">@yield('page-title')</h1>
             <!-- <h6 class="mb-0">Dashboard</h6> -->
 
-            @auth
-                @if (auth()->user()->role_id = 1)
-                    <button class="btn btn-primary mb-2 ms-5" data-bs-toggle="modal" data-bs-target="#serviceModal">
-                        ADD
-                    </button>
-                @endif
-            @endauth
+
+            <button class="btn btn-primary ms-2 mb-3" data-bs-toggle="modal" data-bs-target="#serviceModall">
+                <i class="fa-solid fa-table-list"></i> Services
+            </button>
+
+
 
     </div>
 
@@ -76,3 +75,90 @@
         </div>
     </div>
 </header>
+
+<div class="modal fade" id="serviceModall" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-top">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Available Services</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <table class="table table-bordered align-middle">
+                    <thead>
+                        <tr>
+                            <th>Service Name</th>
+                            <th width="180">Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @php
+                            $isAdmin = auth()->check() && auth()->user()->role_id == 1;
+                        @endphp
+
+                        @foreach ($services as $service)
+                            @php
+                                $request = $requestedServices->get($service->id);
+                            @endphp
+
+                            <tr>
+                                <td>{{ $service->service_name }}</td>
+
+                                <td>
+                                    @if ($request)
+                                        {{-- APPROVED --}}
+                                        @if ($request->status === 'approved')
+                                            <button class="btn btn-success btn-sm w-100">
+                                                Activated
+                                            </button>
+
+                                            {{-- PENDING --}}
+                                        @elseif ($request->status === 'pending')
+                                            @if ($isAdmin)
+                                                <form action="{{ route('service.approve', $request->id) }}"
+                                                    method="POST" class="approve-request-form">
+                                                    @csrf
+                                                    <button class="btn btn-warning btn-sm w-100">
+                                                        Requested
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <button class="btn btn-secondary btn-sm w-100">
+                                                    Requested
+                                                </button>
+                                            @endif
+                                        @endif
+
+                                        {{-- NO REQUEST --}}
+                                    @else
+                                        @if ($isAdmin)
+                                            <span class="text-muted">Not Requested</span>
+                                        @else
+                                            <form action="{{ route('service.request') }}" method="POST"
+                                                class="raise-request-form">
+                                                @csrf
+                                                <input type="hidden" name="service_id" value="{{ $service->id }}">
+                                                <button class="btn btn-primary btn-sm w-100">
+                                                    Raise Request
+                                                </button>
+                                            </form>
+                                        @endif
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
