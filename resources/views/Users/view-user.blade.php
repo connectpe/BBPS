@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'View User')
-@section('page-title', 'View User')
+@section('title', 'User Details')
+@section('page-title', 'User Details')
 
 @section('content')
 
@@ -39,6 +39,7 @@
         cursor: pointer;
         transition: all 0.2s ease;
         background: #f8f9fa;
+        text-align: center;
     }
 
     .doc-card:hover {
@@ -47,9 +48,9 @@
     }
 
     .doc-card img {
-        width: 100%;
+        /* width: 100%; */
         height: 120px;
-        object-fit: cover;
+        /* object-fit: cover; */
         border-radius: 6px;
     }
 
@@ -87,6 +88,10 @@
                     <span class="label">Mobile</span>
                     <span class="value">+91 9876543210</span>
                 </div>
+                <div class="info-row">
+                    <span class="label">Last Login at </span>
+                    <span class="value">Jan-20-2026 11:40 am</span>
+                </div>
                 <div class="info-row mb-3">
                     <span class="label">Status</span>
                     <span class="badge bg-success">Active</span>
@@ -107,7 +112,11 @@
                 </div>
                 <div class="info-row">
                     <span class="label">Business Type</span>
-                    <span class="value">IT Services</span>
+                    <span class="value">Private Limited</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Industry</span>
+                    <span class="value">IT Industry</span>
                 </div>
                 <div class="info-row">
                     <span class="label">GST No</span>
@@ -116,6 +125,34 @@
                 <div class="info-row">
                     <span class="label">Business Email</span>
                     <span class="value">business@abc.com</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Business Phone</span>
+                    <span class="value">9876543210</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">State</span>
+                    <span class="value">Uttar Pradesh</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">City</span>
+                    <span class="value">Lucknow</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Pin Code</span>
+                    <span class="value">224955</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Address</span>
+                    <span class="value">Gomti Nagar Lucknow</span>
+                </div>
+
+                <div class="info-row">
+                    <span class="label">Business Document</span>
+                    <div class="document-images">
+                        <img src="{{ asset('assets/image/aadhar-front.png') }}" alt="" class="img-fluid rounded m-1 doc-card" onclick="showImage(this.src)">
+                        <img src="{{ asset('assets/image/aadhar-front.png') }}" alt="" class="img-fluid rounded m-1 doc-card" onclick="showImage(this.src)">
+                    </div>
                 </div>
 
             </div>
@@ -127,13 +164,45 @@
         <div class="card shadow-sm border-0 h-100">
             <div class="card-body">
 
+                <!-- Enabled Services  -->
                 <div class="d-flex align-items-center mb-3">
+                    <i class="bi bi-gear text-primary fs-4 me-2"></i>
+                    <h6 class="fw-bold mb-0">Enabled Services</h6>
+                </div>
+
+                <div class="border rounded p-2">
+                    <span class="badge buttonColor ms-auto">Service 1</span>
+                    <span class="badge buttonColor ms-auto">Service 2</span>
+                    <span class="badge buttonColor ms-auto">Service 3</span>
+                    <span class="badge buttonColor ms-auto">Service 4</span>
+                    <span class="badge buttonColor ms-auto">Service 5</span>
+                </div>
+
+                <hr class="my-4">
+
+                <!-- Enabled Services  -->
+                <div class="d-flex align-items-center mb-3">
+                    <i class="bi bi-gear text-primary fs-4 me-2"></i>
+                    <h6 class="fw-bold mb-0">Services Request</h6>
+                </div>
+                <div class="info-row">
+                    <span class="label">Service 1</span>
+                    <span class="value"><button class="btn buttonColor btn-sm">Approve <i class="bi bi-check-circle"></i></button> </span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Service 2</span>
+                    <span class="value"><button class="btn buttonColor btn-sm">Approve <i class="bi bi-check-circle"></i></button> </span>
+                </div>
+
+                <hr class="m-3">
+                <!-- KYC Info -->
+                <div class="d-flex align-items-center my-3">
                     <i class="bi bi-shield-check text-primary fs-4 me-2"></i>
                     <h6 class="fw-bold mb-0">KYC Details</h6>
                     <span class="badge bg-success ms-auto">Verified</span>
                 </div>
 
-                <!-- KYC Info -->
+
                 <div class="info-row">
                     <span class="label">PAN Number</span>
                     <span class="value">ABCDE1234F</span>
@@ -150,24 +219,24 @@
 
                         <!-- Aadhaar Front -->
                         <div class="col-6">
-                            <div class="doc-card" onclick="showImage('/images/aadhar-front.jpg','Aadhaar Front')">
-                                <img src="/images/aadhar-front.jpg" class="img-fluid rounded">
+                            <div class="doc-card">
+                                <img src="{{asset('assets/image/aadhar-front.png')}}" class="img-fluid rounded" onclick="showImage(this.src,'Aadhaar Front')">
                                 <small class="doc-label">Aadhaar Front</small>
                             </div>
                         </div>
 
                         <!-- Aadhaar Back -->
                         <div class="col-6">
-                            <div class="doc-card" onclick="showImage('/images/aadhar-back.jpg','Aadhaar Back')">
-                                <img src="/images/aadhar-back.jpg" class="img-fluid rounded">
+                            <div class="doc-card">
+                                <img src="{{asset('assets/image/aadhar-back.png')}}" class="img-fluid rounded" onclick="showImage(this.src,'Aadhaar Back')">
                                 <small class="doc-label">Aadhaar Back</small>
                             </div>
                         </div>
 
                         <!-- PAN Card -->
                         <div class="col-12">
-                            <div class="doc-card" onclick="showImage('/images/pan-card.jpg','PAN Card')">
-                                <img src="/images/pan-card.jpg" class="img-fluid rounded">
+                            <div class="doc-card">
+                                <img src="{{asset('assets/image/pan-card.png')}}" class="img-fluid rounded" onclick="showImage(this.src,'PAN Card')">
                                 <small class="doc-label">PAN Card</small>
                             </div>
                         </div>
@@ -175,28 +244,20 @@
                     </div>
                 </div>
 
-            </div>
-        </div>
-    </div>
+                <hr class="my-3">
 
-
-
-    <!-- Bank Details -->
-    <div class="col-lg-6">
-        <div class="card shadow-sm border-0 h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center mb-3">
+                <div class="d-flex align-items-center mt-3">
                     <i class="bi bi-bank text-primary fs-4 me-2"></i>
                     <h6 class="fw-bold mb-0">Bank Details</h6>
                 </div>
 
                 <div class="info-row">
-                    <span class="label">Bank Name</span>
-                    <span class="value">HDFC Bank</span>
+                    <span class="label">Branch Name</span>
+                    <span class="value">Kalyanpur Lucknow</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Account No</span>
-                    <span class="value">****5678</span>
+                    <span class="value">56785675678</span>
                 </div>
                 <div class="info-row">
                     <span class="label">IFSC</span>
@@ -206,7 +267,15 @@
                     <span class="label">Account Holder</span>
                     <span class="value">John Doe</span>
                 </div>
+                <div class="info-row">
+                    <span class="label">Bank Document</span>
+                    <span class="value"><a href="javascript:void(0)" class="btn btn-outline-primary btn-sm" onclick="showImage('','Bank Document')">
+                            <i class="bi bi-eye me-1"></i> View
+                        </a></span>
+                </div>
+
             </div>
+
         </div>
     </div>
 
