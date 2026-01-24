@@ -10,8 +10,6 @@
         </button>
 
 
-
-
         <h2 class="mb-4">@yield('page-title')</h1>
             <!-- <h6 class="mb-0">Dashboard</h6> -->
             @php
@@ -68,7 +66,8 @@
                     <hr class="dropdown-divider">
                 </li>
 
-                <li><a class="dropdown-item" href="{{ route('admin_profile') }}">My Profile</a></li>
+
+                <li><a class="dropdown-item" href="{{ route('admin_profile',auth::id()) }}">My Profile</a></li>
                 <li><a class="dropdown-item" href="javascript:void(0)">Wallet Statement</a></li>
                 <li><a class="dropdown-item" href="javascript:void(0)">AEPS Statement</a></li>
                 <li>

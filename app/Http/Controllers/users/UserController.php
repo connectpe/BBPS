@@ -9,6 +9,15 @@ use App\Models\OauthUser;
 use Illuminate\Support\Facades\DB;
 use App\Models\GlobalService;
 
+use Illuminate\Support\Facades\Auth;
+use App\Models\BusinessInfo;
+use App\Models\BusinessCategory;
+use App\Models\UsersBank;   
+use App\Models\User;
+use Exception;
+use App\Policies\IsUser;
+
+
 
 
 class UserController extends Controller
@@ -17,6 +26,8 @@ class UserController extends Controller
     public function bbpsUsers()
 
     {
+        // $data = $this->isUser(Auth::user());
+        // dd($data);
         return view('Users.users');
     }
 
@@ -68,39 +79,101 @@ class UserController extends Controller
         ]);
     }
 
-    public function completeProfile(Request $request)
+
+    public function completeProfile(Request $request,$userId)
     {
         DB::beginTransaction();
-        $userId = Auth::id();
+       
         try {
+          
+            $request->validate([              
+                'profile_image'        => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+                'business_name'      => 'required|string|max:255',
+                'business_type'      => 'required|string|max:255',
+                'industry'           => 'nullable|string|max:255',
+                'cin_number'         => 'nullable|string|max:50',
+                'gst_number'         => 'required|string|max:50',
+                'business_pan'       => 'required|string|max:50',
+                'business_email'     => 'nullable|email|max:255',
+                'business_phone'     => 'nullable|string|max:20',
+                'business_docs.*'    => 'nullable|file|mimes:pdf,jpg,png|max:5120',
 
-            $request->validate([
-                
-                'business_name'     => 'required|string',
-                'business_pan'      => 'required|string',
-                'business_type'     => 'required|string',
+              
+                'state'              => 'required|string|max:255',
+                'city'               => 'required|string|max:255',
+                'pincode'            => 'required|string|max:10',
+                'business_address'   => 'required|string|max:500',
 
-                'aadhar_name'       => 'required|string',
-                'aadhar_number'     => 'required|string',
-                'gst_number'        => 'required|string',
+                'adhar_number'       => 'required|string|max:20',
+                'pan_number'         => 'required|string|max:20',
+                'adhar_front_image'  => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+                'adhar_back_image'   => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+                'pan_card_image'     => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
 
-                'pan_owner_name'    => 'required|string',
-                'pan_number'        => 'required|string',
-
-                'address'           => 'required|string',
-                'city'              => 'required|string',
-                'state'             => 'required|string',
-                'pincode'           => 'required|string',
-
-                'baneficiary_name'  => 'required|string',
-                'bank_name'         => 'required|string',
-                'account_number'    => 'required|string',
-                'ifsc_code'         => 'required|string',
+               
+                'account_holder_name' => 'required|string|max:255',
+                'account_number'     => 'required|string|max:30',
+                'ifsc_code'          => 'required|string|max:20',
+                'branch_name'        => 'required|string|max:255',
+                'bank_docs.*'        => 'nullable|file|mimes:pdf,jpg,png|max:5120',
             ]);
 
+            
+
+           
+            $profilePicPath = null;
+            if ($request->hasFile('profile_image')) {
+                $profilePicPath = $request->file('profile_image')->store('profile_pictures', 'public');
+
+                
+                User::where('id', $userId)->update(['profile_image' => $profilePicPath]);
+            }
+
+           
+            $businessDocsPath = null;
+            if ($request->hasFile('business_docs')) {
+                $businessDocs = [];
+                foreach ($request->file('business_docs') as $doc) {
+                    $businessDocs[] = $doc->store('business_documents', 'public');
+                }
+                $businessDocsPath = json_encode($businessDocs);
+            }
+            
+
+           
+            $adharFrontPath = null;
+            if ($request->hasFile('adhar_front_image')) {
+                $adharFrontPath = $request->file('adhar_front_image')->store('kyc_documents', 'public');
+            }
+            
+
+          
+            $adharBackPath = null;
+            if ($request->hasFile('adhar_back_image')) {
+                $adharBackPath = $request->file('adhar_back_image')->store('kyc_documents', 'public');
+            }
+
+           
+            $panCardPath = null;
+            if ($request->hasFile('pan_card_image')) {
+                $panCardPath = $request->file('pan_card_image')->store('kyc_documents', 'public');
+            }
+
+            $bankDocsPath = null;
+            if ($request->hasFile('bank_docs')) {
+                $bankDocs = [];
+                foreach ($request->file('bank_docs') as $doc) {
+                    $bankDocs[] = $doc->store('bank_documents', 'public');
+                }
+                $bankDocsPath = json_encode($bankDocs);
+            }
+
+           
             $categoryId = null;
             if ($request->filled('business_type')) {
-                $category = BusinessCategory::where('slug', $request->business_type)->first();
+                $category = BusinessCategory::where('slug', $request->business_type)
+                    ->orWhere('name', $request->business_type)
+                    ->first();
                 $categoryId = $category?->id;
             }
 
@@ -109,45 +182,56 @@ class UserController extends Controller
                 'user_id'                => $userId,
                 'business_category_id'   => $categoryId,
                 'business_name'          => $request->business_name,
-                'business_pan_number'    => $request->business_pan,
-                'business_pan_name'      => $request->pan_owner_name,
-                'aadhar_name'            => $request->aadhar_name,
-                'aadhar_number'          => $request->aadhar_number,
+                'industry'               => $request->industry,
+                'cin_number'             => $request->cin_number,
                 'gst_number'             => $request->gst_number,
-                'pan_owner_name'         => $request->pan_owner_name,
+                'business_pan_number'    => $request->business_pan,
+                'business_email'         => $request->business_email,
+                'business_phone'         => $request->business_phone,
+                'business_type'          => $request->business_type,
+                'aadhar_number'          => $request->adhar_number,
+               
                 'pan_number'             => $request->pan_number,
-                'address'                => $request->address,
+                'address'                => $request->business_address,
                 'city'                   => $request->city,
                 'state'                  => $request->state,
                 'pincode'                => $request->pincode,
+                              
+                'business_document'          => $businessDocsPath,
+                'aadhar_front_image'      => $adharFrontPath,
+                'aadhar_back_image'       => $adharBackPath,
+                'pancard_image'         => $panCardPath,
+                
             ]);
 
-
+           
+           
             UsersBank::create([
                 'user_id'            => $userId,
                 'business_info_id'   => $businessInfo->id,
-                'baneficiary_name'   => $request->baneficiary_name,
-                'bank_name'          => $request->bank_name,
+                'benificiary_name'   => $request->account_holder_name,
+                'branch_name'          => $request->branch_name,
                 'account_number'     => $request->account_number,
                 'ifsc_code'          => $request->ifsc_code,
+                'bank_docs'          => $bankDocsPath,
             ]);
 
 
             DB::commit();
 
+            $user = User::find($userId);
+
             return response()->json([
                 'status'  => true,
                 'message' => 'Profile completed successfully',
                 'user'    => $user,
-            ], 201);
+            ], 200);
         } catch (\Exception $e) {
-
-
             DB::rollBack();
 
             return response()->json([
                 'status'  => false,
-                'message' => $e->getMessage(),
+                'message' => 'Error: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -155,7 +239,7 @@ class UserController extends Controller
     public function generateClientCredentials(Request $request)
     {
 
-        if(!auth()->check() && auth::user()->role_id != '2'){
+        if (!auth()->check() && auth::user()->role_id != '2') {
             return response()->json([
                 'status' => false,
                 'message' => 'Unauthorized'
@@ -188,7 +272,7 @@ class UserController extends Controller
             $secretCount = OauthUser::where('user_id', $userId)
                 ->where('service_id', $service->id)
                 ->count();
-            
+
 
             if ($secretCount > 1) {
                 // If existing credentials found, deactivate them
@@ -231,10 +315,14 @@ class UserController extends Controller
         }
     }
 
-    
+
 
     public function viewSingleUsers()
     {
         return view('Users.view-user');
     }
-}
+
+
+    
+    }
+

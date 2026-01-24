@@ -135,6 +135,73 @@
                     Ladger
                 </a>
             </li>
+        <li class="nav-item">
+                    <a class="nav-link text-white d-flex justify-content-between align-items-center {{ $userActive ? '' : 'collapsed' }} {{ $userActive ? 'sidebar-active' : '' }}"
+                        data-bs-toggle="collapse"
+                        href="#transactionManagement"
+                        role="button"
+                        aria-expanded="{{ $userActive ? 'true' : 'false' }}"
+                        aria-controls="userManagement">
+                        <span><i class="bi bi-grid-1x2 me-2"></i></i>Transactions</span>
+                        <i class="bi bi-chevron-down small"></i>
+                    </a>
+
+                    <div class="collapse {{ $userActive ? 'show' : '' }} ms-3" id="transactionManagement">
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a href="{{route('recharge_report')}}"
+                                    class="nav-link text-white {{ Route::currentRouteName() == 'users' ? 'sidebar-active' : '' }}">
+                                    <i class="bi bi-people-fill me-2"></i>
+                                    Recharge
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href="{{route('banking_report')}}"
+                                    class="nav-link text-white">
+                                    <i class="bi bi-bank me-2"></i> <!-- Icon for Banking -->
+                                    Banking </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{route('utility_report')}}"
+                                    class="nav-link text-white">
+                                    <i class="bi bi-bank me-2"></i> <!-- Icon for Banking -->
+                                    Utility </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
+                <li class="nav-item">
+                    <a href="{{route('our_servicess')}}"
+                        class="nav-link text-white {{ Route::currentRouteName() == 'our_services' ? 'sidebar-active' : '' }}">
+                        <i class="bi bi-bank me-2"></i> <!-- Icon for Banking -->
+                        Ladger </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="{{route('our_servicess')}}"
+                        class="nav-link text-white {{ Route::currentRouteName() == 'our_services' ? 'sidebar-active' : '' }}">
+                        <i class="bi bi-bank me-2"></i> <!-- Icon for Banking -->
+                        Complaint Report </a>
+                </li>
+                <li class="nav-item">
+                        <a href="{{ route('our_servicess') }}"
+                            class="nav-link text-white {{ Route::currentRouteName() == 'our_services' ? 'sidebar-active' : '' }}">
+                            <i class="bi bi-bank me-2"></i> <!-- Icon for Banking -->
+                            Our Services </a>
+                </li>
+
+                    <li class="nav-item">
+                        <form action="{{ route('admin.logout') }}" method="POST">
+                            @csrf
+                            <button type="submit"
+                                class="nav-link btn btn-link text-white w-100 text-start d-flex align-items-center gap-2 px-3" style="background-color: #e76666;">
+                                <i class="bi bi-box-arrow-right fs-5"></i>
+                                <span>Logout</span>
+                            </button>
+                        </form>
+                    </li>
 
             <li class="nav-item">
                 <a href="{{ route('complain.report') }}"
@@ -164,6 +231,12 @@
             </li>
 
 
+                        </ul>
+                    </div>
+                </li>
+
+            </ul>
+        </li>
 
 
         </ul>

@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommonController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ServiceRequestController;
 use App\Http\Controllers\TransactionController;
@@ -29,14 +30,24 @@ Route::group(['middleware' => ['auth']], function () {
         //     return view('dashboard');
         // })->name('dashboard');
 
+        Route::post('servicetoggle',[AdminController::class,'disableUserService'])->name('admin.service_toggle.user');
+        Route::post('user-status-change/{user_id}',[AdminController::class,'changeUserStatus'])->name('admin.user_status.change');
+        Route::post('add-service',[AdminController::class,'AddService'])->name('admin.add_service');
+        Route::put('edit-service/{service_id}',[AdminController::class,'EditService'])->name('admin.edit_service');
+
+
+        Route::post('servicetoggle',[AdminController::class,'disableUserService'])->name('admin.service_toggle');
+
+
         Route::post('logout', [AuthController::class, 'logout'])->name('admin.logout');
     });
 
     Route::post('change-password', [AuthController::class, 'passwordReset'])->name('admin.change_password');
-    Route::post('completeProfile', [UserController::class, 'completeProfile'])->name('admin.complete_profile');
+
+    Route::post('completeProfile/{user_id}', [UserController::class, 'completeProfile'])->name('admin.complete_profile');
 
     // Admin  Related Route
-    Route::get('profile', [AdminController::class, 'adminProfile'])->name('admin_profile');
+    Route::get('profile/{user_id}', [AdminController::class, 'adminProfile'])->name('admin_profile');
 
     // Service Related Route
     Route::get('/utility-service', [ServiceController::class, 'utilityService'])->name('utility_service');

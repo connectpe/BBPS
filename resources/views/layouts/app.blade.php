@@ -128,6 +128,10 @@
             background-color: #3c5be4;
             color: white;
         }
+
+        .cursor-pointer {
+            cursor: pointer !important;
+        }
     </style>
 </head>
 

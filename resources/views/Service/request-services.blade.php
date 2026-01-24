@@ -5,6 +5,7 @@
 
 @section('content')
 
+
     {{-- FILTER SECTION --}}
     <div class="accordion mb-3" id="filterAccordion">
         <div class="accordion-item">
@@ -174,3 +175,4 @@
 
 
 @endsection
+
