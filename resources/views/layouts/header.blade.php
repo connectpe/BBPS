@@ -12,11 +12,21 @@
 
         <h2 class="mb-4">@yield('page-title')</h1>
             <!-- <h6 class="mb-0">Dashboard</h6> -->
+            @php
 
+                $role = Auth::user()->role_id;
 
-            <button class="btn btn-primary ms-2 mb-3" data-bs-toggle="modal" data-bs-target="#serviceModall">
-                <i class="fa-solid fa-table-list"></i> Services
-            </button>
+            @endphp
+
+            @if ($role == 1)
+                {{-- <button class="btn btn-primary ms-2 mb-3" data-bs-toggle="modal" data-bs-target="#serviceModall">
+                    <i class="fa-solid fa-table-list"></i> Services
+                </button> --}}
+            @elseif($role == 2)
+                <button class="btn btn-primary ms-2 mb-3" data-bs-toggle="modal" data-bs-target="#serviceModall">
+                    <i class="fa-solid fa-table-list"></i> Services
+                </button>
+            @endif
 
 
 
@@ -74,7 +84,6 @@
         </div>
     </div>
 </header>
-
 <div class="modal fade" id="serviceModall" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-top">
         <div class="modal-content">
@@ -107,23 +116,31 @@
                                 <td>{{ $service->service_name }}</td>
 
                                 <td>
+                                    {{-- IF REQUEST EXISTS --}}
                                     @if ($request)
+
                                         {{-- APPROVED --}}
                                         @if ($request->status === 'approved')
                                             <button class="btn btn-success btn-sm w-100">
                                                 Activated
                                             </button>
 
-                                            {{-- PENDING --}}
+                                        {{-- PENDING --}}
                                         @elseif ($request->status === 'pending')
+
+                                            {{-- ADMIN CAN APPROVE --}}
                                             @if ($isAdmin)
                                                 <form action="{{ route('service.approve', $request->id) }}"
-                                                    method="POST" class="approve-request-form">
+                                                      method="POST"
+                                                      class="approve-request-form">
                                                     @csrf
-                                                    <button class="btn btn-warning btn-sm w-100">
+                                                    <button type="submit"
+                                                        class="btn btn-warning btn-sm w-100">
                                                         Requested
                                                     </button>
                                                 </form>
+
+                                            {{-- USER VIEW --}}
                                             @else
                                                 <button class="btn btn-secondary btn-sm w-100">
                                                     Requested
@@ -131,25 +148,31 @@
                                             @endif
                                         @endif
 
-                                        {{-- NO REQUEST --}}
+                                    {{-- NO REQUEST --}}
                                     @else
+
+                                        {{-- ADMIN --}}
                                         @if ($isAdmin)
                                             <span class="text-muted">Not Requested</span>
+
+                                        {{-- USER --}}
                                         @else
-                                            <form action="{{ route('service.request') }}" method="POST"
-                                                class="raise-request-form">
+                                            <form action="{{ route('service.request') }}"
+                                                  method="POST"
+                                                  class="raise-request-form">
                                                 @csrf
-                                                <input type="hidden" name="service_id" value="{{ $service->id }}">
+                                                <input type="hidden" name="service_id"
+                                                       value="{{ $service->id }}">
                                                 <button class="btn btn-primary btn-sm w-100">
                                                     Raise Request
                                                 </button>
                                             </form>
                                         @endif
+
                                     @endif
                                 </td>
                             </tr>
                         @endforeach
-
                     </tbody>
                 </table>
             </div>
@@ -157,7 +180,4 @@
         </div>
     </div>
 </div>
-
-
-
 

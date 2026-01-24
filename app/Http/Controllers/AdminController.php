@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 
 use App\Models\GlobalService;
 use App\Helpers\CommonHelper;
+use App\Models\GlobalService;
 use App\Models\OauthUser;
 use App\Models\User;
 use App\Models\BusinessInfo;
@@ -48,6 +49,12 @@ class AdminController extends Controller
                 'message' => $e->getMessage(),
             ]);
         }
+        $data['activeService'] = GlobalService::where(['is_active' => '1'])
+            ->select('id', 'slug', 'service_name')
+            ->get();
+
+        // dd($data);
+        return view('Admin.profile')->with($data);
     }
 
     public function dashboard()
