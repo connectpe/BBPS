@@ -13,16 +13,16 @@ class ServiceRequestController extends Controller
     public function index()
     {
         $requests = ServiceRequest::with(['user', 'service'])->latest()->get();
-
         return view('Service.request-services', compact('requests'));
     }
 
     public function store(Request $request)
     {
-        try{
+        try {
             $request->validate([
-            'service_id' => 'required|exists:global_services,id',
+                'service_id' => 'required|exists:global_services,id',
             ]);
+
             $alreadyRequested = ServiceRequest::where('user_id', auth()->id())
                 ->where('service_id', $request->service_id)
                 ->exists();
@@ -46,8 +46,7 @@ class ServiceRequestController extends Controller
             }
 
             return back()->with('success', 'Service request sent successfully');
-
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -57,7 +56,7 @@ class ServiceRequestController extends Controller
 
     public function approve($id)
     {
-        if (! auth()->check() || auth()->user()->role_id !== 1) {
+        if (! auth()->check() || auth()->user()->role_id !== '1') {
             abort(403, 'Unauthorized action');
         }
 
@@ -75,7 +74,7 @@ class ServiceRequestController extends Controller
 
     public function reject($id)
     {
-        if (! auth()->check() || auth()->user()->role_id !== 1) {
+        if (! auth()->check() || auth()->user()->role_id !== '1') {
             abort(403, 'Unauthorized action');
         }
 

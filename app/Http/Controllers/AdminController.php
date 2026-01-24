@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
 use App\Models\GlobalService;
 use App\Helpers\CommonHelper;
 use App\Models\OauthUser;
@@ -10,13 +12,14 @@ use App\Models\User;
 use App\Models\BusinessInfo;
 use App\Models\BusinessCategory;
 use App\Models\UsersBank;
-
+use App\Models\UsersService;
+use Illuminate\Support\Facades\Validator;
 
 class AdminController extends Controller
 {
     public function adminProfile($userId)
     {
-        try{
+        try {
             CommonHelper::checkAuthUser();
             $userId = auth()->id();
             if (auth()->user()->role_id == '2') {
@@ -30,17 +33,16 @@ class AdminController extends Controller
             $data['activeService'] = GlobalService::where(['is_active' => '1'])
                 ->select('id', 'slug', 'service_name')
                 ->get();
-            $data['userdata'] = User::where('id',$userId)->select('name','email','mobile','status','role_id')->first();
-            $data['businessInfo'] = BusinessInfo::where('user_id',$userId)->first();
+            $data['userdata'] = User::where('id', $userId)->select('name', 'email', 'mobile', 'status', 'role_id')->first();
+            $data['businessInfo'] = BusinessInfo::where('user_id', $userId)->first();
             // $data['businessCategory'] = BusinessCategory::where('id',$businessInfo->business_category_id)->first();
-                
-            $data['usersBank'] = UsersBank::where('user_id',$userId)->select('bank_name','account_number','ifsc_code','created_at')->first();
+
+            $data['usersBank'] = UsersBank::where('user_id', $userId)->select('bank_name', 'account_number', 'ifsc_code', 'created_at')->first();
 
             // dd($data);
-            
-            return view('Admin.profile')->with($data);
 
-        }catch(\Exception $e){
+            return view('Admin.profile')->with($data);
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -53,58 +55,59 @@ class AdminController extends Controller
         return view('dashboard');
     }
 
-    public function disableUserService(Request $request){
-        try{
-            
-            if(!auth()->check() && auth::user()->role_id != '1'){
+
+    public function disableUserService(Request $request)
+    {
+
+
+        try {
+
+            if (!auth()->check() && auth::user()->role_id != '1') {
                 return response()->json([
                     'status' => false,
                     'message' => 'Unauthorized'
                 ], 401);
             }
-            
-           
-            
-            $request->validate([
-                'service_id' => 'required|string|max:50',
-                'is_active' => 'required|in:0,1',
-                'user_id' => 'required|string|max:50',
-                'type' => 'required|string|in:disable,enable',
-            ]);
-            
-            $userId = decrypt($request->user_id);
-            // Logic to disable user service goes here
-            $data = UsersService::where('user_id', $userId)->string('service_id',$request->service_id)->first();
 
-            if($data->status == '0'){
+            $validator = Validator::make($request->all(), [
+                'service_id' => 'required|string|max:50',
+                'type' => 'required|string|in:is_api_allowed,is_active',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+
+            $data = GlobalService::find($request->service_id);
+
+            if (!$data) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Service is not approved yet by the admin',
+                    'message' => 'Service not found.',
                 ]);
             }
-            if(!$data){
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Service not found for user',
-                ]);
-            }
-            switch($request->type){
+
+            switch ($request->type) {
                 case 'is_api_allowed':
-                    $data->is_api_enable = $request->is_active;
+                    $data->is_activation_allowed =  $data->is_activation_allowed == '1' ? '0' : '1';
                     $data->save();
 
                     return response()->json([
                         'status' => true,
-                        'message' => 'Users api status updated  successfully',
+                        'message' => 'API Activation Updated  Successfully',
                     ]);
                     break;
                 case 'is_active':
-                    $data->is_active = $request->is_active;
+                    $data->is_active =  $data->is_active == '1' ? '0' : '1';
                     $data->save();
 
                     return response()->json([
                         'status' => true,
-                        'message' => 'Users api status updated  successfully',
+                        'message' => 'Service Status Updated  Successfully',
                     ]);
                     break;
                 default:
@@ -113,17 +116,14 @@ class AdminController extends Controller
                         'message' => 'Invalid type provided',
                     ]);
             }
-            
-
-            
-
-        }catch(Exception $e){
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
             ]);
         }
     }
+
 
 
     public function AddService(Request $request)
