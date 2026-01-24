@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\UserService;
 use App\Models\ServiceRequest;
+use App\Models\UserService;
 use Illuminate\Http\Request;
 
 class ServiceRequestController extends Controller
@@ -35,7 +35,7 @@ class ServiceRequestController extends Controller
                 'service_id' => 'required|exists:global_services,id',
             ]);
 
-            // 🔹 Check already requested in UserService
+           
             $alreadyRequested = UserService::where('user_id', auth()->id())
                 ->where('service_id', $request->service_id)
                 ->exists();
@@ -96,23 +96,22 @@ class ServiceRequestController extends Controller
     /**
      * Approve / Unapprove service
      */
-   public function approve($id)
-{
-    $service = UserService::findOrFail($id);
+    public function approve($id)
+    {
+        $service = UserService::findOrFail($id);
 
-    if ($service->status === 'approved') {
-        $service->status = 'pending';
-        $service->is_active = '0';
-    } else {
-        $service->status = 'approved';
-        $service->is_active = '1';
+        if ($service->status === 'approved') {
+            $service->status = 'pending';
+            $service->is_active = '0';
+            $message = 'Service deactivated successfully';
+        } else {
+            $service->status = 'approved';
+            $service->is_active = '1';
+            $message = 'Service activated successfully';
+        }
+
+        $service->save();
+
+        return back()->with('success', $message);
     }
-
-    $service->save();
-
-    return back()->with('success', 'Service activated successfully');
-}
-
-
-   
 }
