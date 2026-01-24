@@ -2,19 +2,16 @@
 
 namespace App\Http\Controllers\users;
 
-use App\Helpers\CommonHelper;
 use App\Http\Controllers\Controller;
-use App\Models\BusinessInfo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\OauthUser;
 use Illuminate\Support\Facades\DB;
 use App\Models\GlobalService;
-
 use Illuminate\Support\Facades\Auth;
+use App\Models\BusinessInfo;
 use App\Models\BusinessCategory;
-use App\Models\ServiceRequest;
-use App\Models\UsersBank;
+use App\Models\UsersBank;   
 use App\Models\User;
 use Exception;
 use App\Policies\IsUser;
@@ -80,14 +77,14 @@ class UserController extends Controller
         ]);
     }
 
-    public function completeProfile(Request $request, $userId)
+    public function completeProfile(Request $request,$userId)
     {
         DB::beginTransaction();
-
+       
         try {
 
             $request->validate([
-
+                
                 'business_name'     => 'required|string',
                 'business_pan'      => 'required|string',
                 'business_type'     => 'required|string',
@@ -167,7 +164,7 @@ class UserController extends Controller
     public function generateClientCredentials(Request $request)
     {
 
-        if (!auth()->check() && auth::user()->role_id != '2') {
+        if(!auth()->check() && auth::user()->role_id != '2'){
             return response()->json([
                 'status' => false,
                 'message' => 'Unauthorized'
@@ -200,7 +197,7 @@ class UserController extends Controller
             $secretCount = OauthUser::where('user_id', $userId)
                 ->where('service_id', $service->id)
                 ->count();
-
+            
 
             if ($secretCount > 1) {
                 // If existing credentials found, deactivate them
@@ -243,120 +240,14 @@ class UserController extends Controller
         }
     }
 
+    
 
-    public function viewSingleUsers($Id)
+    public function viewSingleUsers()
     {
-        try {
-
-            CommonHelper::checkAuthUser();
-            $userId = $Id;
-
-<<<<<<< HEAD
-    public function AddService(Request $request)
-    {
-        try{
-            if(!auth()->check() && auth::user()->role_id == '1'){
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Unauthorized'
-                ], 401);
-            }
-
-            $request->validate([
-                'service_name' => 'required|string|max:50',
-            ]);
-
-            $slug = Str::strtolower($request->service_name);
-
-            $service = GlobalService::create([
-                'name' => $request->service_name,
-                'slug' => $slug,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-
-            return response()->json([
-                'status' => true,
-                'message' => 'Service added successfully',
-                'data' => $service,
-            ], 201);
-        }catch(Exception $e){
-=======
-            // if (auth()->user()->role_id == '2') {
-            //     $data['saltKeys'] = OauthUser::where('user_id', auth()->id())
-            //         ->where('is_active', '1')
-            //         ->select('client_id', 'client_secret', 'created_at')
-            //         ->get();
-            // }
-
-            $data['userData'] = User::where('id', $userId)->select('name', 'email', 'mobile', 'status', 'role_id')->first();
-            $data['businessInfo'] = BusinessInfo::where('user_id', $userId)->first();
-
-            // $data['businessCategory'] = BusinessCategory::where('id',$businessInfo->business_category_id)->first();
-
-            $data['usersBank'] = UsersBank::where('user_id', $userId)->first();
-
-            // Requested Services
-            $data['serviceRequest'] =  ServiceRequest::with(['user', 'service'])
-                ->where('user_id', $userId)
-                ->where('status', 'pending')
-                ->get();
-
-            $data['serviceEnabled'] =  ServiceRequest::with(['user', 'service'])
-                ->where('user_id', $userId)
-                ->where('status', 'approved')
-                ->get();
-
-            return view('Users.view-user')->with($data);
-        } catch (\Exception $e) {
->>>>>>> AbhishekFrontend
-            return response()->json([
-                'status' => false,
-                'message' => $e->getMessage(),
-            ]);
-        }
+        return view('Users.view-user');
     }
 
-    public function EditService(Request $request,$serviceId)
-    {
-        try{
-            if(!auth()->check() && auth::user()->role_id == '1'){
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Unauthorized'
-                ], 401);
-            }
 
-            $request->validate([
-                'service_name' => 'required|string|max:50',
-            ]);
-
-            $slug = Str::strtolower($request->service_name);
-
-            $service = GlobalService::where('id',$serviceId)->first();
-            if(!$service){
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Service not found',
-                ]);
-            }
-
-            $service->service_name = $request->service_name;
-            $service->slug = $slug;
-            $service->updated_at = now();
-            $service->save();
-
-            return response()->json([
-                'status' => true,
-                'message' => 'serviceName updated  successfully',
-                
-            ], 200);
-        }catch(Exception $e){
-            return response()->json([
-                'status' => false,
-                'message' => $e->getMessage(),
-            ]);
-        }
-    }
+    
     }
 
