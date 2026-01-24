@@ -38,7 +38,7 @@
                                                 <th>Slug</th>
                                                 <th>Service Type</th>
                                                 <th>Activation Allowed</th>
-                                                <th>Status</th>
+                                                <th>Is_active</th>
                                                 <th>Action</th>
                                             </tr>
                                         </thead>

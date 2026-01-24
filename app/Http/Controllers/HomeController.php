@@ -12,7 +12,7 @@ class HomeController extends Controller
     {
        
         $services = GlobalService::where('is_active', '1')->get();
-        $requestedServices = GlobalService::where('user_id', auth()->id())
+        $requestedServices = ServiceRequest::where('user_id', auth()->id())
             ->get()
             ->keyBy('service_id'); 
 
