@@ -18,7 +18,6 @@ return new class extends Migration
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->string('transaction_amount')->nullable();
             $table->enum('is_api_enable', ['0', '1'])->default('1');
-            $table->enum('status', ['0', '1'])->default('0');
             $table->enum('is_active', ['0', '1'])->default('1');
             $table->timestamps();
         });

@@ -54,6 +54,12 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/recharge-service', [ServiceController::class, 'rechargeService'])->name('recharge_service');
     Route::get('/banking-service', [ServiceController::class, 'bankingService'])->name('banking_service');
     Route::get('our-services', [ServiceController::class, 'ourService'])->name('our_servicess');
+    Route::post('/admin/service/add', [AdminController::class, 'AddService'])
+    ->name('admin.service.add');
+    Route::post('admin/service/edit/{id}', [AdminController::class, 'EditService'])
+    ->name('admin.service.edit');
+
+
     Route::get('request-services', [ServiceRequestController::class, 'index'])->name('request_services');
 
     // Users Related Route
