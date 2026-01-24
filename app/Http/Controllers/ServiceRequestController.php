@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ServiceRequest;
 use App\Models\UserService;
 use Illuminate\Http\Request;
 
@@ -16,7 +17,10 @@ class ServiceRequestController extends Controller
             ->latest()
             ->get();
 
-        $requests = ServiceRequest::with(['user', 'service'])->latest()->get();
+        $requests = UserService::with(['user', 'service'])
+            ->latest()
+            ->get();
+
         return view('Service.request-services', compact('requests'));
     }
 
@@ -25,64 +29,66 @@ class ServiceRequestController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'service_id' => 'required|exists:global_services,id',
-        ]);
-
-        $alreadyRequested = UserService::where('user_id', auth()->id())
-            ->where('service_id', $request->service_id)
-            ->exists();
-
-        if ($alreadyRequested) {
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Service already requested'
-                ]);
         try {
+
             $request->validate([
                 'service_id' => 'required|exists:global_services,id',
             ]);
 
-            $alreadyRequested = ServiceRequest::where('user_id', auth()->id())
+           
+            $alreadyRequested = UserService::where('user_id', auth()->id())
                 ->where('service_id', $request->service_id)
                 ->exists();
 
             if ($alreadyRequested) {
                 if ($request->ajax()) {
-                    return response()->json(['success' => false, 'message' => 'Service already requested']);
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Service already requested',
+                    ]);
                 }
 
                 return back()->with('error', 'Service already requested');
             }
 
-            ServiceRequest::create([
+            // 🔹 Check already requested in ServiceRequest
+            $alreadyRequestedRequest = ServiceRequest::where('user_id', auth()->id())
+                ->where('service_id', $request->service_id)
+                ->exists();
+
+            if ($alreadyRequestedRequest) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Service already requested',
+                    ]);
+                }
+
+                return back()->with('error', 'Service already requested');
+            }
+
+            UserService::create([
                 'user_id' => auth()->id(),
                 'service_id' => $request->service_id,
                 'status' => 'pending',
+                'is_api_enable' => '1',
+                'is_active' => '1',
             ]);
 
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Service request sent successfully',
+                ]);
+            }
 
-        UserService::create([
-            'user_id' => auth()->id(),
-            'service_id' => $request->service_id,
-            'status' => 'pending',
-            'is_api_enable' => '1',
-            'is_active' => '1',
-        ]);
-
-        if ($request->ajax()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Service request sent successfully'
-
-          
             return back()->with('success', 'Service request sent successfully');
+
         } catch (\Exception $e) {
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
-
             ]);
         }
     }
@@ -97,33 +103,15 @@ class ServiceRequestController extends Controller
         if ($service->status === 'approved') {
             $service->status = 'pending';
             $service->is_active = '0';
+            $message = 'Service deactivated successfully';
         } else {
             $service->status = 'approved';
             $service->is_active = '1';
-        if (! auth()->check() || auth()->user()->role_id !== '1') {
-            abort(403, 'Unauthorized action');
-        }
-
-        $serviceRequest = ServiceRequest::findOrFail($id);
-        if ($serviceRequest->status === 'approved') {
-            return back()->with('info', 'Service already activated');
-        }
-
-        $serviceRequest->update([
-            'status' => 'approved',
-        ]);
-
-        return back()->with('success', 'Service activated successfully');
-    }
-
-    public function reject($id)
-    {
-        if (! auth()->check() || auth()->user()->role_id !== '1') {
-            abort(403, 'Unauthorized action');
+            $message = 'Service activated successfully';
         }
 
         $service->save();
 
-        return back()->with('success', 'Service status updated successfully');
+        return back()->with('success', $message);
     }
 }

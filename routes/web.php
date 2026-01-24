@@ -11,6 +11,7 @@ use App\Http\Controllers\users\ReportController;
 use App\Http\Controllers\users\UserController;
 use App\Http\Controllers\LadgerController;
 use App\Http\Controllers\ComplainReportController;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -30,14 +31,12 @@ Route::group(['middleware' => ['auth']], function () {
         //     return view('dashboard');
         // })->name('dashboard');
 
-        Route::post('servicetoggle',[AdminController::class,'disableUserService'])->name('admin.service_toggle.user');
-        Route::post('user-status-change/{user_id}',[AdminController::class,'changeUserStatus'])->name('admin.user_status.change');
-        Route::post('add-service',[AdminController::class,'AddService'])->name('admin.add_service');
-        Route::put('edit-service/{service_id}',[AdminController::class,'EditService'])->name('admin.edit_service');
+        Route::post('servicetoggle', [AdminController::class, 'disableUserService'])->name('admin.service_toggle.user');
+        Route::post('user-status-change', [AdminController::class, 'changeUserStatus'])->name('admin.user_status.change');
+        Route::post('add-service', [AdminController::class, 'AddService'])->name('admin.add_service');
+        Route::put('edit-service/{service_id}', [AdminController::class, 'EditService'])->name('admin.edit_service');
 
-
-        Route::post('servicetoggle',[AdminController::class,'disableUserService'])->name('admin.service_toggle');
-
+        Route::post('servicetoggle', [AdminController::class, 'disableUserService'])->name('admin.service_toggle');
 
         Route::post('logout', [AuthController::class, 'logout'])->name('admin.logout');
     });
@@ -59,8 +58,8 @@ Route::group(['middleware' => ['auth']], function () {
     // Users Related Route
     Route::get('/users', [UserController::class, 'bbpsUsers'])->name('users');
     Route::get('recharge-report', [ReportController::class, 'RechargeReport'])->name('recharge_report');
-    Route::get('banking-report',[ReportController::class,'BankingTransactionReport'])->name('banking_report');
-    Route::get('utility-report',[ReportController::class,'UtilityTransactionReport'])->name('utility_report');
+    Route::get('banking-report', [ReportController::class, 'BankingTransactionReport'])->name('banking_report');
+    Route::get('utility-report', [ReportController::class, 'UtilityTransactionReport'])->name('utility_report');
 
     Route::get('/view-user/{id}', [UserController::class, 'viewSingleUsers'])->name('view_user');
 
@@ -82,8 +81,6 @@ Route::group(['middleware' => ['auth']], function () {
 
     // Complain Report Route
     Route::get('/complain-report', [ComplainReportController::class, 'complainReport'])->name('complain.report');
-
-
 });
 
 Route::prefix('admin', function () {

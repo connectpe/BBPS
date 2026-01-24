@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Auth;
 
 use App\Models\GlobalService;
 use App\Helpers\CommonHelper;
-use App\Models\GlobalService;
 use App\Models\OauthUser;
 use App\Models\User;
 use App\Models\BusinessInfo;
@@ -15,6 +14,7 @@ use App\Models\BusinessCategory;
 use App\Models\UsersBank;
 use App\Models\UsersService;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
@@ -28,19 +28,16 @@ class AdminController extends Controller
                     ->where('is_active', '1')
                     ->select('client_id', 'client_secret', 'created_at')
                     ->get();
-
-                // dd($data['saltKeys']);
             }
             $data['activeService'] = GlobalService::where(['is_active' => '1'])
                 ->select('id', 'slug', 'service_name')
                 ->get();
+
             $data['userdata'] = User::where('id', $userId)->select('name', 'email', 'mobile', 'status', 'role_id')->first();
             $data['businessInfo'] = BusinessInfo::where('user_id', $userId)->first();
-            // $data['businessCategory'] = BusinessCategory::where('id',$businessInfo->business_category_id)->first();
+            $data['businessCategory'] = BusinessCategory::where('status', 1)->orderBy('id', 'desc')->get();
 
-            $data['usersBank'] = UsersBank::where('user_id', $userId)->select('bank_name', 'account_number', 'ifsc_code', 'created_at')->first();
-
-            // dd($data);
+            $data['usersBank'] = UsersBank::where('user_id', $userId)->first();
 
             return view('Admin.profile')->with($data);
         } catch (\Exception $e) {
@@ -135,8 +132,8 @@ class AdminController extends Controller
 
     public function AddService(Request $request)
     {
-        try{
-            if(!auth()->check() && auth::user()->role_id == '1'){
+        try {
+            if (!auth()->check() && auth::user()->role_id == '1') {
                 return response()->json([
                     'status' => false,
                     'message' => 'Unauthorized'
@@ -161,7 +158,7 @@ class AdminController extends Controller
                 'message' => 'Service added successfully',
                 'data' => $service,
             ], 201);
-        }catch(Exception $e){
+        } catch (Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -169,10 +166,10 @@ class AdminController extends Controller
         }
     }
 
-    public function EditService(Request $request,$serviceId)
+    public function EditService(Request $request, $serviceId)
     {
-        try{
-            if(!auth()->check() && auth::user()->role_id == '1'){
+        try {
+            if (!auth()->check() && auth::user()->role_id == '1') {
                 return response()->json([
                     'status' => false,
                     'message' => 'Unauthorized'
@@ -185,8 +182,8 @@ class AdminController extends Controller
 
             $slug = Str::strtolower($request->service_name);
 
-            $service = GlobalService::where('id',$serviceId)->first();
-            if(!$service){
+            $service = GlobalService::where('id', $serviceId)->first();
+            if (!$service) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Service not found',
@@ -201,28 +198,29 @@ class AdminController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => 'serviceName updated  successfully',
-                
+
             ], 200);
-        }catch(Exception $e){
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
             ]);
         }
     }
-    protected function validateUser(){
-        if(!auth()->check() && auth::user()->role_id == '1'){
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Unauthorized'
-                ], 401);
+    protected function validateUser()
+    {
+        if (!auth()->check() && auth::user()->role_id == '1') {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthorized'
+            ], 401);
         }
     }
 
-    public function UserStatusChange(Request $request,$userId)
+    public function UserStatusChange(Request $request, $userId)
     {
-        try{
-            
+        try {
+
             $this->validateUser();
 
             $request->validate([
@@ -230,8 +228,8 @@ class AdminController extends Controller
             ]);
 
             $userId = decrypt($userId);
-            $user = User::where('id',$userId)->first();
-            if(!$user){
+            $user = User::where('id', $userId)->first();
+            if (!$user) {
                 return response()->json([
                     'status' => false,
                     'message' => 'User not found',
@@ -245,9 +243,9 @@ class AdminController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => 'User status updated  successfully',
-                
+
             ], 200);
-        }catch(Exception $e){
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -255,6 +253,37 @@ class AdminController extends Controller
         }
     }
 
-    
 
+
+
+    public function changeUserStatus(Request $request)
+    {
+        $request->validate([
+            'id'     => 'required|exists:users,id',
+            'status' => 'required|in:0,1,2,3,4'
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            $user = User::findOrFail($request->id);
+
+            $user->status = $request->status;
+            $user->save();
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'User status updated successfully.'
+            ]);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update user status. Please try again.'
+            ], 500);
+        }
+    }
 }

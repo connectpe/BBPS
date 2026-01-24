@@ -18,8 +18,6 @@ return new class extends Migration
             $table->string('aadhar_back_image')->nullable()->after('aadhar_front_image');
             $table->string('pancard_image')->nullable()->after('aadhar_back_image');
            
-
-
         });
     }
 

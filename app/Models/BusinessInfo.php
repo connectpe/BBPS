@@ -7,7 +7,29 @@ use Illuminate\Database\Eloquent\Model;
 class BusinessInfo extends Model
 {
     protected $fillable = [
-        'user_id', 'business_category_id', 'business_name', 'industry', 'cin_number', 'gst_number', 'business_pan_number', 'business_email', 'business_phone', 'business_document', 'address', 'city', 'state', 'pincode','business_pan_name','business_type','pan_number','pan_owner_name','aadhar_number','aadhar_name','bank_id','pancard_image','aadhar_front_image','aadhar_back_image','business_type'
+        'user_id',
+        'business_category_id',
+        'business_name',
+        'gst_number',
+        'business_pan_number',
+        'business_email',
+        'business_phone',
+        'business_document',
+        'address',
+        'city',
+        'state',
+        'pincode',
+        'business_pan_name',
+        'pan_number',
+        'pan_owner_name',
+        'aadhar_number',
+        'aadhar_name',
+        'bank_id',
+        'pancard_image',
+        'aadhar_front_image',
+        'aadhar_back_image',
+        'business_type',
+        'cin_no'
     ];
 
     public function user()

@@ -633,22 +633,26 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
                                 <div class="d-flex justify-content-between mb-2">
                                     <span class="fw-semibold">Account Holder Name:</span>
-                                    <span class="text-muted">John Doe</span>
+                                    <span class="text-muted">{{$usersBank->benificiary_name ?? '----'}}</span>
                                 </div>
 
                                 <div class="d-flex justify-content-between mb-2">
                                     <span class="fw-semibold">Account Number:</span>
-                                    <span class="text-muted">****5678</span>
+                                    <span class="text-muted">{{$usersBank->account_number ?? '----'}}</span>
                                 </div>
 
                                 <div class="d-flex justify-content-between mb-2">
                                     <span class="fw-semibold">IFSC Code:</span>
-                                    <span class="text-muted">HDFC0001234</span>
+                                    <span class="text-muted">{{$usersBank->ifsc_code ?? '----'}}</span>
                                 </div>
 
                                 <div class="d-flex justify-content-between mb-2">
+                                    <span class="fw-semibold">Account Type:</span>
+                                    <span class="text-muted">{{$usersBank->account_type ?? '----'}}</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
                                     <span class="fw-semibold">Branch Name:</span>
-                                    <span class="text-muted">Andheri East</span>
+                                    <span class="text-muted">{{$usersBank->branch_name ?? '----'}}</span>
                                 </div>
                             </div>
                         </div>
@@ -671,7 +675,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                         </div>
                                     </div>
 
-                                    <a href="javascript:void(0)" class="btn btn-outline-primary btn-sm" onclick="showImage('','Bank Document')">
+                                    <a href="javascript:void(0)" class="btn btn-outline-primary btn-sm" onclick="showImage('{{$usersBank->bank_docs}}','Bank Document')">
                                         <i class="bi bi-eye me-1"></i> View
                                     </a>
                                 </div>
@@ -693,18 +697,6 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                 </div>
 
 
-                @php
-                $keys = [
-                [
-                'clientId' => '454v54545v656556brtyty657ht',
-                'clientKey' => 'key_1234567890',
-                ],
-                [
-                'clientId' => '984hfghf76876ghfgh',
-                'clientKey' => 'key_9876543210',
-                ],
-                ];
-                @endphp
                 <div class="row mb-2">
                     @foreach($saltKeys as $key)
                     <div class="col-md-12 mb-2">
@@ -782,16 +774,16 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                     <h6 class="mb-3">Personal Details</h6>
                     <div class="row g-2">
 
-                       <input type="hidden" name="user_id" id="user_id" value="{{ $user->id }}">
+                        <input type="hidden" name="user_id" id="user_id" value="{{ $user->id }}">
 
                         <div class="col-md-6">
                             <label class="form-label">Full Name</label>
-                            <input type="text" class="form-control" placeholder="Enter full name" value="{{$user->name}}" disabled>
+                            <input type="text" class="form-control" placeholder="Enter full name" value="{{$user->name ?? ''}}" disabled>
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">Email</label>
-                            <input type="email" class="form-control" placeholder="Enter email" value="{{$user->email}}" disabled>
+                            <input type="email" class="form-control" placeholder="Enter email" value="{{$user->email ?? ''}}" disabled>
                         </div>
 
                         <div class="col-md-6">
@@ -815,48 +807,46 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
                         <div class="col-md-6">
                             <label class="form-label">Business Name</label>
-                            <input type="text" class="form-control" placeholder="Enter business name" name="business_name" id="business_name">
+                            <input type="text" class="form-control" placeholder="Enter business name" name="business_name" id="business_name" value="{{$businessInfo->business_name ?? ''}}">
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">Business Type</label>
-                            <select class="form-select" name="business_type" id="business_type">
-                                <option value="">--Select Business Type--</option>
-                                <option value="individual">Individual</option>
-                                <option value="proprietorship">Proprietorship</option>
-                                <option value="partnership">Partnership</option>
-                                <option value="private">Private Limited</option>
-                                <option value="llp">LLP</option>
+                            <label class="form-label">Business Category</label>
+                            <select class="form-select" name="business_category" id="business_category">
+                                <option value="">--Select Business Category--</option>
+                                @foreach($businessCategory as $category)
+                                <option value="{{$category->id}}" {{ $businessInfo?->business_category_id  == $category->id ? 'selected' : ''}}>{{$category->name}}</option>
+                                @endforeach
                             </select>
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">Industry</label>
-                            <input type="text" class="form-control" placeholder="e.g. Retail, IT, Manufacturing" name="industry">
+                            <label class="form-label">Business Type</label>
+                            <input type="text" class="form-control" placeholder="e.g. Retail, IT, Manufacturing" name="business_type" value="{{$businessInfo->business_type}}">
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">CIN No</label>
-                            <input type="text" class="form-control" placeholder="CIN No" name="cin_number">
+                            <input type="text" class="form-control" placeholder="CIN No" name="cin_number" value="{{$businessInfo->cin_no ?? ''}}">
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">GST No</label>
-                            <input type="text" class="form-control" placeholder="GST NO" name="gst_number">
+                            <input type="text" class="form-control" placeholder="GST NO" name="gst_number" value="{{$businessInfo->gst_number ?? ''}}">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Business Pan</label>
-                            <input type="text" class="form-control" placeholder="business_pan" name="business_pan">
+                            <input type="text" class="form-control" placeholder="Business Pan" name="business_pan" value="{{$businessInfo->business_pan_number ?? ''}}">
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">Business Email</label>
-                            <input type="email" class="form-control" placeholder="Enter business email" name="business_email">
+                            <input type="email" class="form-control" placeholder="Enter business email" name="business_email" value="{{$businessInfo->business_email  ?? ''}}">
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">Business Phone</label>
-                            <input type="text" class="form-control" placeholder="Enter business phone" name="business_phone">
+                            <input type="text" class="form-control" placeholder="Enter business phone" name="business_phone" value="{{$businessInfo->business_phone  ?? ''}}">
                         </div>
 
 
@@ -875,7 +865,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             <label class="form-label">State</label>
                             <select class="form-select" name="state">
                                 <option value="">--Select State--</option>
-                                <option value="Uttar Pradesh">Uttar Pradesh</option>
+                                <option value="Uttar Pradesh" value="{{$businessInfo->state ?? ''}}" {{$businessInfo->state == 'Uttar Pradesh' ? 'selected' : ''}}>Uttar Pradesh</option>
                                 <option value="Bihar">Bihar</option>
                             </select>
                         </div>
@@ -884,19 +874,19 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             <label class="form-label">City</label>
                             <select class="form-select" name="city">
                                 <option value="">--Select City--</option>
-                                <option value="Lucknow">Lucknow</option>
+                                <option value="Lucknow" value="{{$businessInfo->city ?? ''}}" {{$businessInfo->city == 'Lucknow' ? 'selected' : ''}}>Lucknow</option>
                                 <option value="Kanpur">Kanpur</option>
                             </select>
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">Pin Code</label>
-                            <input type="number" class="form-control" placeholder="Enter Pin Code" name="pincode">
+                            <input type="number" class="form-control" placeholder="Enter Pin Code" name="pincode" value="{{$businessInfo->pincode ?? ''}}">
                         </div>
 
                         <div class="col-12">
                             <label class="form-label">Business Address</label>
-                            <textarea class="form-control" rows="2" placeholder="Enter business address" name="business_address"></textarea>
+                            <textarea class="form-control" rows="2" placeholder="Enter business address" name="business_address">{{$businessInfo->address ?? ''}}</textarea>
                         </div>
                     </div>
                 </div>
@@ -913,7 +903,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                 <input type="text"
                                     class="form-control"
                                     placeholder="Enter Aadhaar number"
-                                    maxlength="12" name="adhar_number">
+                                    maxlength="12" name="adhar_number" value="{{$businessInfo->aadhar_number ?? ''}}">
                             </div>
 
                             <div class="col-md-6">
@@ -921,7 +911,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                 <input type="text"
                                     class="form-control"
                                     placeholder="Enter PAN number"
-                                    maxlength="10" name="pan_number">
+                                    maxlength="10" name="pan_number" value="{{$businessInfo->pan_number ?? ''}}">
                             </div>
 
                             <div class="col-md-4">
@@ -929,6 +919,15 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                 <input type="file"
                                     class="form-control"
                                     accept=".jpg,.jpeg,.png" name="adhar_front_image">
+
+                                @if(!empty($businessInfo->aadhar_front_image))
+                                <div class="mt-2">
+                                    <img src="{{ getFilePath($businessInfo->aadhar_front_image) }}"
+                                        alt="Aadhaar Front"
+                                        class="img-thumbnail cursor-pointer "
+                                        style="max-height: 120px;" onclick="showImage(this.src,'Aadhaar Front')">
+                                </div>
+                                @endif
                             </div>
 
                             <div class="col-md-4">
@@ -936,6 +935,15 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                 <input type="file"
                                     class="form-control"
                                     accept=".jpg,.jpeg,.png" name="adhar_back_image">
+
+                                @if(!empty($businessInfo->aadhar_back_image))
+                                <div class="mt-2">
+                                    <img src="{{ getFilePath($businessInfo->aadhar_back_image) }}"
+                                        alt="Aadhaar Back"
+                                        class="img-thumbnail cursor-pointer"
+                                        style="max-height: 120px;" onclick="showImage(this.src,'Aadhaar Back')">
+                                </div>
+                                @endif
                             </div>
 
                             <div class="col-md-4">
@@ -943,6 +951,15 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                 <input type="file"
                                     class="form-control"
                                     accept=".jpg,.jpeg,.png" name="pan_card_image">
+
+                                @if(!empty($businessInfo->pancard_image))
+                                <div class="mt-2">
+                                    <img src="{{ getFilePath($businessInfo->pancard_image) }}"
+                                        alt="PAN Card"
+                                        class="img-thumbnail cursor-pointer"
+                                        style="max-height: 120px;" onclick="showImage(this.src,'PAN Card')">
+                                </div>
+                                @endif
                             </div>
                         </div>
 
@@ -958,28 +975,37 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
                         <div class="col-md-6">
                             <label class="form-label">Account Holder Name</label>
-                            <input type="text" class="form-control" placeholder="Enter account holder name" name="account_holder_name">
+                            <input type="text" class="form-control" placeholder="Enter account holder name" name="account_holder_name" value="{{$usersBank->benificiary_name ?? ''}}">
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">Account Number</label>
-                            <input type="text" class="form-control" placeholder="Enter account number" name="account_number">
+                            <input type="text" class="form-control" placeholder="Enter account number" name="account_number" value="{{$usersBank->account_number ?? ''}}">
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">IFSC Code</label>
-                            <input type="text" class="form-control" placeholder="Enter IFSC code" name="ifsc_code">
+                            <input type="text" class="form-control" placeholder="Enter IFSC code" name="ifsc_code" value="{{$usersBank->ifsc_code ?? ''}}">
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">Branch Name</label>
-                            <input type="text" class="form-control" placeholder="Enter branch name" name="branch_name">
+                            <input type="text" class="form-control" placeholder="Enter branch name" name="branch_name" value="{{$usersBank->branch_name ?? ''}}">
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">Bank Documents</label>
-                            <input type="file" class="form-control" multiple accept=".pdf,.jpg,.jpeg,.png" name="bank_docs[]">
+                            <input type="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png" name="bank_docs">
                             <small class="text-muted">Upload cheque / passbook copy (Max 2MB each)</small>
+
+                            @if(!empty($usersBank->bank_docs))
+                            <div class="mt-2">
+                                <img src="{{ getFilePath($usersBank->bank_docs) }}"
+                                    alt="Bank Document"
+                                    class="img-thumbnail cursor-pointer"
+                                    style="max-height: 120px;" onclick="showImage(this.src,'Bank Document')">
+                            </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -1339,24 +1365,52 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
             data: formData,
             processData: false,
             contentType: false,
+
             success: function(response) {
-                // Handle success
-                alert('Profile completed successfully!');
                 $('#completeProfileModal').modal('hide');
-                location.reload(); // Or redirect to another page
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Profile Completed',
+                    text: response.message,
+                    confirmButtonText: 'OK'
+                });
+
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
             },
             error: function(xhr) {
-                // Handle errors
-                let errorMessage = 'Something went wrong!';
+                $('#nextStep').prop('disabled', false).html('Submit <i class="bi bi-check-circle"></i>');
 
                 if (xhr.status === 422) {
                     // Validation errors
                     const errors = xhr.responseJSON.errors;
-                    errorMessage = Object.values(errors).flat().join('\n');
-                }
 
-                alert(errorMessage);
-                $('#nextStep').prop('disabled', false).html('Submit <i class="bi bi-check-circle"></i>');
+                    // Get the first error message
+                    const firstError = Object.values(errors)[0][0];
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validation Error',
+                        text: firstError,
+                        confirmButtonText: 'OK'
+                    });
+                } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: xhr.responseJSON.message,
+                        confirmButtonText: 'OK'
+                    });
+                } else {
+                    // Other errors
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Something went wrong!',
+                        confirmButtonText: 'OK'
+                    });
+                }
             }
         });
     }

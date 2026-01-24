@@ -83,7 +83,7 @@
                                         </span>
                                     </td>
 
-                                    <td>{{ $request->created_at->format('d-m-Y H:i') }}</td>
+                                    <td>{{ $request->created_at?->format('d-m-Y H:i') ?? '----' }}</td>
 
                                     <td>
                                         @if (auth()->user()->role_id == 1)

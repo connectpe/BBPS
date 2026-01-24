@@ -51,7 +51,7 @@
         <div class="card-body pt-4">
             <!-- Table -->
             <div class="table-responsive">
-                <table id="usersTable" class="table table-striped table-bordered table-hover w-100">
+                <table id="rechargeTable" class="table table-striped table-bordered table-hover w-100">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -61,7 +61,6 @@
                             <th>Status</th>
                             <th>UTR</th>
                             <th>Action</th>
-                            
                         </tr>
                     </thead>
                 </table>
@@ -73,7 +72,7 @@
 <script>
     $(document).ready(function() {
 
-        var table = $('#usersTable').DataTable({
+        var table = $('#rechargeTable').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
