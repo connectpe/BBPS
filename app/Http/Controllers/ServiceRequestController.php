@@ -50,8 +50,6 @@ class ServiceRequestController extends Controller
 
                 return back()->with('error', 'Service already requested');
             }
-
-            // 🔹 Check already requested in ServiceRequest
             $alreadyRequestedRequest = ServiceRequest::where('user_id', auth()->id())
                 ->where('service_id', $request->service_id)
                 ->exists();
