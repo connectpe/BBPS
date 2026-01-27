@@ -149,14 +149,29 @@
                 },
                 {
                     data: 'status',
-                    render: function(data) {
-                        return data == '1' ?
-                            '<span class="fw-bold text-success">ACTIVE</span>' :
-                            '<span class="fw-bold text-danger">INACTIVE</span>';
+                    render: function(data, type, row) {
+
+                        const statusOptions = {
+                            0: 'INITIATED',
+                            1: 'ACTIVE',
+                            2: 'INACTIVE',
+                            3: 'PENDING',
+                            4: 'SUSPENDED'
+                        };
+
+                        let dropdown = `<select class="form-select form-select-sm" onchange="changeStatusDropdown(this, ${row.id})" onfocus="this.setAttribute('data-prev', this.value)">`;
+
+                        for (const [value, label] of Object.entries(statusOptions)) {
+                            let selected = data == value ? 'selected' : '';
+                            dropdown += `<option value="${value}" ${selected}>${label}</option>`;
+                        }
+
+                        dropdown += `</select>`;
+                        return dropdown;
                     },
                     orderable: false,
                     searchable: false
-                },
+                }
             ]
         });
 
@@ -173,6 +188,73 @@
             table.ajax.reload();
         });
     });
+
+
+    function changeStatusDropdown(selectElement, id) {
+        const newStatus = selectElement.value;
+        const prevStatus = selectElement.getAttribute('data-prev');
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'Do you want to change the status?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+
+            if (!result.isConfirmed) {
+                selectElement.value = prevStatus;
+                return;
+            }
+
+            $.ajax({
+                url: "{{ route('admin.user_status.change') }}",
+                type: 'POST',
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    status: newStatus,
+                    id: id
+                },
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Updated!',
+                            text: response.message ?? 'Status updated successfully',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    }
+                    // update previous value after success
+                    selectElement.setAttribute('data-prev', newStatus);
+                },
+                error: function(xhr) {
+                    // rollback on error
+                    selectElement.value = prevStatus;
+
+                    let message = 'Something went wrong!';
+
+                    if (xhr.status === 422 && xhr.responseJSON?.errors) {
+                        const firstKey = Object.keys(xhr.responseJSON.errors)[0];
+                        message = xhr.responseJSON.errors[firstKey][0];
+                    } else if (xhr.responseJSON?.message) {
+                        message = xhr.responseJSON.message;
+                    }
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                }
+            });
+        });
+    }
 </script>
 
 @endsection

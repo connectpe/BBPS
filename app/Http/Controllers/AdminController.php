@@ -6,14 +6,20 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 use App\Helpers\CommonHelper;
+
+use App\Models\BusinessCategory;
+use App\Models\BusinessInfo;
 use App\Models\GlobalService;
+
 use App\Models\OauthUser;
 use App\Models\User;
-use App\Models\BusinessInfo;
-use App\Models\BusinessCategory;
 use App\Models\UsersBank;
-use App\Models\UsersService;
 use Illuminate\Support\Facades\Validator;
+
+use Illuminate\Support\Facades\DB;
+
+use Illuminate\Support\Str;
+
 
 class AdminController extends Controller
 {
@@ -27,19 +33,16 @@ class AdminController extends Controller
                     ->where('is_active', '1')
                     ->select('client_id', 'client_secret', 'created_at')
                     ->get();
-
-                // dd($data['saltKeys']);
             }
             $data['activeService'] = GlobalService::where(['is_active' => '1'])
                 ->select('id', 'slug', 'service_name')
                 ->get();
+
             $data['userdata'] = User::where('id', $userId)->select('name', 'email', 'mobile', 'status', 'role_id')->first();
             $data['businessInfo'] = BusinessInfo::where('user_id', $userId)->first();
-            // $data['businessCategory'] = BusinessCategory::where('id',$businessInfo->business_category_id)->first();
+            $data['businessCategory'] = BusinessCategory::where('status', 1)->orderBy('id', 'desc')->get();
 
-            $data['usersBank'] = UsersBank::where('user_id', $userId)->select('bank_name', 'account_number', 'ifsc_code', 'created_at')->first();
-
-            // dd($data);
+            $data['usersBank'] = UsersBank::where('user_id', $userId)->first();
 
             return view('Admin.profile')->with($data);
         } catch (\Exception $e) {
@@ -61,17 +64,15 @@ class AdminController extends Controller
         return view('dashboard');
     }
 
-
     public function disableUserService(Request $request)
     {
 
-
         try {
 
-            if (!auth()->check() && auth::user()->role_id != '1') {
+            if (! auth()->check() && auth::user()->role_id != '1') {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Unauthorized'
+                    'message' => 'Unauthorized',
                 ], 401);
             }
 
@@ -83,14 +84,13 @@ class AdminController extends Controller
             if ($validator->fails()) {
                 return response()->json([
                     'message' => 'Validation failed',
-                    'errors' => $validator->errors()
+                    'errors' => $validator->errors(),
                 ], 422);
             }
 
-
             $data = GlobalService::find($request->service_id);
 
-            if (!$data) {
+            if (! $data) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Service not found.',
@@ -99,7 +99,7 @@ class AdminController extends Controller
 
             switch ($request->type) {
                 case 'is_api_allowed':
-                    $data->is_activation_allowed =  $data->is_activation_allowed == '1' ? '0' : '1';
+                    $data->is_activation_allowed = $data->is_activation_allowed == '1' ? '0' : '1';
                     $data->save();
 
                     return response()->json([
@@ -108,7 +108,7 @@ class AdminController extends Controller
                     ]);
                     break;
                 case 'is_active':
-                    $data->is_active =  $data->is_active == '1' ? '0' : '1';
+                    $data->is_active = $data->is_active == '1' ? '0' : '1';
                     $data->save();
 
                     return response()->json([
@@ -130,29 +130,28 @@ class AdminController extends Controller
         }
     }
 
-
-
     public function AddService(Request $request)
     {
-        try{
-            if(!auth()->check() && auth::user()->role_id == '1'){
+        try {
+
+            if (! auth()->check() || auth()->user()->role_id != '1') {
+
                 return response()->json([
                     'status' => false,
-                    'message' => 'Unauthorized'
+                    'message' => 'Unauthorized',
                 ], 401);
             }
 
             $request->validate([
                 'service_name' => 'required|string|max:50',
             ]);
-
-            $slug = Str::strtolower($request->service_name);
-
+            $slug = Str::slug($request->service_name);
             $service = GlobalService::create([
-                'name' => $request->service_name,
+                'user_id' => auth()->id(),
+                'service_name' => $request->service_name,
                 'slug' => $slug,
-                'created_at' => now(),
-                'updated_at' => now(),
+                'is_active' => 1,
+                'is_activation_allowed' => 1,
             ]);
 
             return response()->json([
@@ -160,38 +159,46 @@ class AdminController extends Controller
                 'message' => 'Service added successfully',
                 'data' => $service,
             ], 201);
-        }catch(Exception $e){
+
+
+        } catch (\Exception $e) {
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
-            ]);
+            ], 500);
         }
     }
 
-    public function EditService(Request $request,$serviceId)
+    public function EditService(Request $request, $serviceId)
     {
-        try{
-            if(!auth()->check() && auth::user()->role_id == '1'){
+        try {
+
+            if (! auth()->check() || auth()->user()->role_id != 1) {
+
                 return response()->json([
                     'status' => false,
-                    'message' => 'Unauthorized'
+                    'message' => 'Unauthorized',
                 ], 401);
             }
-
             $request->validate([
                 'service_name' => 'required|string|max:50',
             ]);
+            $slug = Str::slug($request->service_name);
+            $service = GlobalService::where('id', $serviceId)->first();
+
 
             $slug = Str::strtolower($request->service_name);
 
-            $service = GlobalService::where('id',$serviceId)->first();
-            if(!$service){
+            $service = GlobalService::where('id', $serviceId)->first();
+            if (!$service) {
+
+
                 return response()->json([
                     'status' => false,
                     'message' => 'Service not found',
-                ]);
+                ], 404);
             }
-
             $service->service_name = $request->service_name;
             $service->slug = $slug;
             $service->updated_at = now();
@@ -199,29 +206,34 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => true,
-                'message' => 'serviceName updated  successfully',
-                
+
+                'message' => 'Service name updated successfully',
             ], 200);
-        }catch(Exception $e){
+
+        } catch (\Exception $e) {
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
-            ]);
-        }
-    }
-    protected function validateUser(){
-        if(!auth()->check() && auth::user()->role_id == '1'){
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Unauthorized'
-                ], 401);
+            ], 500);
         }
     }
 
-    public function UserStatusChange(Request $request,$userId)
+    protected function validateUser()
     {
-        try{
-            
+        if (! auth()->check() && auth::user()->role_id == '1') {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthorized',
+            ], 401);
+        }
+    }
+
+    public function UserStatusChange(Request $request, $userId)
+    {
+
+        try {
+
             $this->validateUser();
 
             $request->validate([
@@ -229,8 +241,10 @@ class AdminController extends Controller
             ]);
 
             $userId = decrypt($userId);
-            $user = User::where('id',$userId)->first();
-            if(!$user){
+            $user = User::where('id', $userId)->first();
+
+            if (! $user) {
+
                 return response()->json([
                     'status' => false,
                     'message' => 'User not found',
@@ -244,9 +258,10 @@ class AdminController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => 'User status updated  successfully',
-                
+
             ], 200);
-        }catch(Exception $e){
+
+        } catch (Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -254,6 +269,35 @@ class AdminController extends Controller
         }
     }
 
-    
+    public function changeUserStatus(Request $request)
+    {
+        $request->validate([
+            'id'     => 'required|exists:users,id',
+            'status' => 'required|in:0,1,2,3,4'
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            $user = User::findOrFail($request->id);
+
+            $user->status = $request->status;
+            $user->save();
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'User status updated successfully.'
+            ]);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update user status. Please try again.'
+            ], 500);
+        }
+    }
 
 }

@@ -44,7 +44,7 @@
 </div>
 
 @php
-    $role = Auth::user()->role_id;
+$role = Auth::user()->role_id;
 @endphp
 
 <div class="col-12 col-md-10 col-lg-12">
@@ -53,21 +53,16 @@
         <div class="card-body pt-4">
             <!-- Table -->
             <div class="table-responsive">
-                <table id="usersTable" class="table table-striped table-bordered table-hover w-100">
+                <table id="bankingTable" class="table table-striped table-bordered table-hover w-100">
                     <thead>
                         <tr>
                             <th>ID</th>
                             <th>User</th>
-                            <th>ReferenceId</th>
                             <th>OrderId</th>
+                            <th>Reference No.</th>
                             <th>Status</th>
-                            <th>Amount</th>
-                            @if($role == '1')
-                            <th>Payout Root</th>
-                            @endif
-                            <th>Created At</th>
-                            <th>Updated At</th>
-                            <th>Status</th>
+                            <th>UTR</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                 </table>
@@ -79,12 +74,12 @@
 <script>
     $(document).ready(function() {
 
-        var table = $('#usersTable').DataTable({
+        var table = $('#bankingTable').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
 
-                url: "{{url('fetch')}}/banking/0",
+                url: "{{url('fetch')}}/transactions/0",
                 type: 'POST',
 
 
@@ -117,8 +112,7 @@
                 searchPlaceholder: "Search users..."
             },
 
-            columns: [
-                {
+            columns: [{
                     data: 'id'
                 },
                 {
@@ -143,17 +137,16 @@
                     `;
                     }
                 },
-                {
-                    data: 'email'
-                },
+
                 {
                     data: 'business.pan_number'
                 },
                 {
                     data: 'business.aadhar_number'
                 },
-                @if($role == '1')
-                
+                {
+                    data: 'created_at'
+                },
                 {
                     data: 'status',
                     render: function(data) {
@@ -164,16 +157,6 @@
                     orderable: false,
                     searchable: false
                 },
-                @endif
-                {
-                    data: 'created_at'
-                },
-                
-                {
-                    data: 'updated_at'
-                },
-
-                
             ]
         });
 
@@ -191,5 +174,4 @@
         });
     });
 </script>
-
 @endsection

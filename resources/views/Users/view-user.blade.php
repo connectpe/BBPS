@@ -222,11 +222,11 @@
                     <span class="value">
                         <!-- Reject Icon -->
                         <i class="bi bi-x-circle text-danger cursor-pointer"
-                            onclick="handleServiceAction('{{ $service->id }}', '{{ $service->user_id }}', 'reject')"></i>
+                            onclick="handleServiceAction('{{ $service->id }}', 'reject')"></i>
 
                         <!-- Approve Icon -->
                         <i class="bi bi-check-circle text-success cursor-pointer ms-2"
-                            onclick="handleServiceAction('{{ $service->id }}', '{{ $service->user_id }}', 'approve')"></i>
+                            onclick="handleServiceAction('{{ $service->id }}', 'approve')"></i>
                     </span>
                 </div>
                 @empty
@@ -311,7 +311,7 @@
                 </div>
                 <div class="info-row">
                     <span class="label">Account Holder</span>
-                    <span class="value">{{$usersBank->account_holder ?? '----'}}</span>
+                    <span class="value">{{$usersBank->benificiary_name ?? '----'}}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Bank Document</span>
