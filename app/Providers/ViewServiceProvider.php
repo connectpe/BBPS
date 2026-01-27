@@ -12,7 +12,7 @@ class ViewServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
-        View::composer('*', function ($view) {
+        View::composer('layouts.header', function ($view) {
 
             $services = GlobalService::where('is_active', '1')->get();
 

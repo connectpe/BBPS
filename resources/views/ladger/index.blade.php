@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Ladger')
-@section('page-title', 'Ladger')
+@section('title', 'Ledger')
+@section('page-title', 'Ledger')
 
 @section('content')
 
@@ -12,7 +12,7 @@
                 <button class="accordion-button collapsed fw-bold" type="button"
                     data-bs-toggle="collapse"
                     data-bs-target="#collapseFilter">
-                    Filter Ladger
+                    Filter Ledger
                 </button>
             </h2>
 
@@ -120,7 +120,7 @@
                 ],
 
                 language: {
-                    searchPlaceholder: "Search ladger..."
+                    searchPlaceholder: "Search ledger..."
                 }
             });
 
