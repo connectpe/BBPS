@@ -21,4 +21,5 @@ class ReportController extends Controller
     {
         return view('Users.reports.utility_bills');
     }
+    
 }

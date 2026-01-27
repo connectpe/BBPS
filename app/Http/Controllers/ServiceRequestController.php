@@ -46,10 +46,26 @@ class ServiceRequestController extends Controller
                         'success' => false,
                         'message' => 'Service already requested',
                     ]);
+
                 }
 
                 return back()->with('error', 'Service already requested');
             }
+            $alreadyRequestedRequest = ServiceRequest::where('user_id', auth()->id())
+                ->where('service_id', $request->service_id)
+                ->exists();
+
+            if ($alreadyRequestedRequest) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Service already requested',
+                    ]);
+                }
+
+                return back()->with('error', 'Service already requested');
+            }
+
 
             // 🔹 Check already requested in ServiceRequest
             $alreadyRequestedRequest = ServiceRequest::where('user_id', auth()->id())
@@ -66,6 +82,7 @@ class ServiceRequestController extends Controller
 
                 return back()->with('error', 'Service already requested');
             }
+
 
             UserService::create([
                 'user_id' => auth()->id(),
