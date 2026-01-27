@@ -47,6 +47,7 @@ class ServiceRequestController extends Controller
                         'message' => 'Service already requested',
                     ]);
 
+
                 }
 
                 return back()->with('error', 'Service already requested');
@@ -61,6 +62,7 @@ class ServiceRequestController extends Controller
                         'success' => false,
                         'message' => 'Service already requested',
                     ]);
+
                 }
 
                 return back()->with('error', 'Service already requested');

@@ -3,11 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\CommonHelper;
+<<<<<<< HEAD
 
 use App\Models\BusinessCategory;
 use App\Models\BusinessInfo;
 use App\Models\GlobalService;
 
+=======
+// use App\Models\GlobalService;
+>>>>>>> RamanandBackend
 use App\Models\OauthUser;
 use App\Models\User;
 use App\Models\UsersBank;
