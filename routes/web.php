@@ -83,7 +83,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/service-request/{id}/approve', [ServiceRequestController::class, 'approve'])->name('service.approve');
 
     // ladger  Route
-    Route::get('/ladger', [LadgerController::class, 'index'])->name('ladger.index');
+    Route::get('/ledger', [LadgerController::class, 'index'])->name('ladger.index');
 
     // Complain Report Route
     Route::get('/complain-report', [ComplainReportController::class, 'complainReport'])->name('complain.report');
