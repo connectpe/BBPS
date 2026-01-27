@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-use App\Models\GlobalService;
 use App\Helpers\CommonHelper;
 use App\Models\GlobalService;
 use App\Models\OauthUser;

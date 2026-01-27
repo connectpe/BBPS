@@ -145,6 +145,7 @@ class AuthController extends Controller
             'email'    => 'required|email',
             'password' => 'required'
         ]);
+        
         $user = User::where('email', $request->email)->first();
 
         if(empty($user->email_verified_at)){
@@ -153,6 +154,7 @@ class AuthController extends Controller
                 'message' => 'Email not verified. Please verify your email before logging in.',
             ]);
         }
+
         if (!Auth::attempt($credentials, $request->boolean('remember'))) {
             return back()->withErrors([
                 'email' => 'Invalid credentials',
