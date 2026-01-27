@@ -20,6 +20,7 @@ use App\Models\UserService;
 use Exception;
 use App\Policies\IsUser;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
@@ -86,6 +87,12 @@ class UserController extends Controller
         DB::beginTransaction();
         try {
 
+
+            $businessData = BusinessInfo::where('user_id', $userId)->first();
+            $bankDetail = UsersBank::where('user_id', $userId)->first();
+            $user = User::find($userId);
+
+
             $validator = Validator::make(
                 $request->all(),
                 [
@@ -93,28 +100,36 @@ class UserController extends Controller
                     'business_name'      => 'required|string|max:255',
                     'business_category'  => 'required|exists:business_categories,id',
                     'business_type'      => 'required|string|max:255',
-                    'cin_number'         => 'nullable|string|max:50',
-                    'gst_number'         => 'required|string|max:50',
-                    'business_pan'       => 'required|string|max:50',
-                    'business_email'     => 'nullable|email|max:255',
-                    'business_phone'     => 'nullable|string|max:20',
-                    'business_docs.*'    => 'nullable|file|mimes:pdf,jpg,png|max:5120',
 
+                    // 'cin_number'         => 'nullable|string|max:50|unique:business_infos,cin_no',
+                    // 'gst_number'         => 'required|string|max:50|unique:business_infos,gst_number',
+                    // 'business_pan'       => 'required|string|max:50|unique:business_infos,business_pan_number',
+                    // 'business_email'     => 'nullable|email|max:255|unique:business_infos,business_email ',
+                    // 'business_phone'     => 'nullable|string|max:20|unique:business_infos,business_phone ',
+
+
+                    'cin_number'     => 'nullable|string|max:50|unique:business_infos,cin_no,' . ($businessData->id ?? 'NULL') . ',id|regex:/^[A-Z]{1}[0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$/i',
+                    'gst_number'     => 'required|string|max:50|unique:business_infos,gst_number,' . ($businessData->id ?? 'NULL') . ',id|regex:/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/i',
+                    'business_pan'   => 'required|string|max:50|unique:business_infos,business_pan_number,' . ($businessData->id ?? 'NULL') . ',id|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i',
+                    'business_email' => 'nullable|email|max:255|unique:business_infos,business_email,' . ($businessData->id ?? 'NULL') . ',id',
+                    'business_phone' => 'nullable|string|max:20|unique:business_infos,business_phone,' . ($businessData->id ?? 'NULL') . ',id|regex:/^[6-9]\d{9}$/',
+
+                    'business_docs.*'    => 'nullable|file|mimes:pdf,jpg,png|max:5120',
 
                     'state'              => 'required|string|max:255',
                     'city'               => 'required|string|max:255',
                     'pincode'            => 'required|string|max:10',
                     'business_address'   => 'required|string|max:500',
 
-                    'adhar_number'       => 'required|string|max:20',
-                    'pan_number'         => 'required|string|max:20',
+                    'adhar_number'       => 'required|string|max:20|regex:/^\d{12}$/|unique:business_infos,aadhar_number,' . ($businessData->id ?? 'NULL') . ',id',
+                    'pan_number'         => 'required|string|max:20|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i|unique:business_infos,pan_number,' . ($businessData->id ?? 'NULL') . ',id',
                     'adhar_front_image'  => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
                     'adhar_back_image'   => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
                     'pan_card_image'     => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
 
 
                     'account_holder_name' => 'required|string|max:255',
-                    'account_number'     => 'required|string|max:30',
+                    'account_number'     => 'required|string|max:30|unique:users_banks,account_number,' . ($bankDetail->id ?? 'NULL') . ',id',
                     'ifsc_code'          => 'required|string|max:20',
                     'branch_name'        => 'required|string|max:255',
                     'bank_docs'        => 'nullable|file|mimes:pdf,jpg,png|max:2048',
@@ -140,20 +155,30 @@ class UserController extends Controller
 
                     'cin_number.string'          => 'CIN number must be a valid string.',
                     'cin_number.max'             => 'CIN number must not exceed 50 characters.',
+                    'cin_number.unique'       => 'This CIN number has already been taken.',
+                    'cin_number.regex'       => 'The CIN number must be a valid Indian CIN format.',
 
                     'gst_number.required'        => 'GST number is required.',
                     'gst_number.string'          => 'GST number must be a valid string.',
                     'gst_number.max'             => 'GST number must not exceed 50 characters.',
+                    'gst_number.unique'       => 'This GST number has already been taken.',
+                    'gst_number.regex'       => 'The GST number must be a valid Indian GST format (15 characters).',
 
                     'business_pan.required'      => 'Business PAN is required.',
                     'business_pan.string'        => 'Business PAN must be a valid string.',
                     'business_pan.max'           => 'Business PAN must not exceed 50 characters.',
+                    'business_pan.regex'     => 'The PAN number must be a valid Indian PAN format (e.g., ABCDE1234F).',
+                    'business_pan.unique'     => 'This Business PAN number has already been taken.',
 
                     'business_email.email'       => 'Business email must be a valid email address.',
                     'business_email.max'         => 'Business email must not exceed 255 characters.',
+                    'business_email.unique'   => 'This Business Email has already been taken.',
 
                     'business_phone.string'      => 'Business phone must be a valid string.',
                     'business_phone.max'         => 'Business phone must not exceed 20 characters.',
+                    'business_phone.unique'   => 'This Business Phone has already been taken.',
+                    'business_phone.regex'   => 'The phone number must be a valid 10-digit Indian mobile number starting with 6-9.',
+
 
                     'business_docs.*.file'       => 'Each business document must be a valid file.',
                     'business_docs.*.mimes'      => 'Business documents must be a file of type: pdf, jpg, png.',
@@ -178,10 +203,15 @@ class UserController extends Controller
                     'adhar_number.required'      => 'Aadhar number is required.',
                     'adhar_number.string'        => 'Aadhar number must be a valid string.',
                     'adhar_number.max'           => 'Aadhar number must not exceed 20 characters.',
+                    'adhar_number.unique'       => 'This Aadhaar has already been taken.',
+                    'adhar_number.regex' => 'The Aadhaar number must be exactly 12 digits.',
 
+                    'pan_number.regex'   => 'The PAN number must be in a valid format (e.g., ABCDE1234F).',
                     'pan_number.required'        => 'PAN number is required.',
                     'pan_number.string'          => 'PAN number must be a valid string.',
                     'pan_number.max'             => 'PAN number must not exceed 20 characters.',
+                    'pan_number.unique'       => 'This Pan has already been taken.',
+
 
                     'adhar_front_image.image'    => 'Aadhar front image must be an image file.',
                     'adhar_front_image.mimes'    => 'Aadhar front image must be a file of type: jpeg, png, jpg.',
@@ -202,6 +232,8 @@ class UserController extends Controller
                     'account_number.required'    => 'Account number is required.',
                     'account_number.string'      => 'Account number must be a valid string.',
                     'account_number.max'         => 'Account number must not exceed 30 characters.',
+                    'account_number.unique'     => 'This Account number has already been taken.',
+
 
                     'ifsc_code.required'         => 'IFSC code is required.',
                     'ifsc_code.string'           => 'IFSC code must be a valid string.',
@@ -224,11 +256,8 @@ class UserController extends Controller
                 ], 422);
             }
 
-            $businessData = BusinessInfo::where('user_id', $userId)->first();
-            $bankDetail = UsersBank::where('user_id', $userId)->first();
-            $user = User::find($userId);
 
-            $profilePicPath = null;
+            $profilePicPath = $user->profile_image ?? null;
             if ($request->hasFile('profile_image')) {
                 $profilePicPath =  uploadFile($request->profile_image, "profile_pictures/$userId", $user->profile_image ?? null);
                 User::where('id', $userId)->update(['profile_image' => $profilePicPath]);
@@ -236,8 +265,8 @@ class UserController extends Controller
 
             $businessDocsPath = null;
             if ($request->hasFile('business_docs')) {
-
-                $businessDocs = uploadFile($request->business_docs, "business_documents/$userId", $businessData->business_document ?? null);
+                $oldDoc = $businessData->business_document ? json_decode($businessData->business_document, true) : null;
+                $businessDocs = uploadFile($request->business_docs, "business_documents/$userId",  $oldDoc);
                 $businessDocsPath = json_encode($businessDocs);
             }
 
@@ -264,10 +293,7 @@ class UserController extends Controller
                 $bankDocsPath =  uploadFile($request->bank_docs, "bank_documents/$userId", $bankDetail->bank_docs ?? null);
             }
 
-            $businessInfo = BusinessInfo::updateOrCreate([
-                'user_id'                => $userId,
-                'business_category_id'   => $request->business_category,
-            ], [
+            $data =  [
                 'business_name'          => $request->business_name,
                 'industry'               => $request->industry,
                 'cin_no'             => $request->cin_number,
@@ -284,12 +310,20 @@ class UserController extends Controller
                 'state'                  => $request->state,
                 'pincode'                => $request->pincode,
 
-                'business_document'          => $businessDocsPath,
                 'aadhar_front_image'      => $adharFrontPath,
                 'aadhar_back_image'       => $adharBackPath,
                 'pancard_image'         => $panCardPath,
 
-            ]);
+            ];
+
+            if ($businessDocsPath != null) {
+                $data['business_document'] = $businessDocsPath;
+            }
+
+            $businessInfo = BusinessInfo::updateOrCreate([
+                'user_id'                => $userId,
+                'business_category_id'   => $request->business_category,
+            ], $data);
 
 
             UsersBank::updateOrCreate(
@@ -308,8 +342,6 @@ class UserController extends Controller
 
 
             DB::commit();
-
-
 
             return response()->json([
                 'status'  => true,

@@ -78,7 +78,7 @@
                                     </span>
                                 </td>
 
-                                <td>{{ $request->created_at->format('d-m-Y H:i') }}</td>
+                                <td>{{ $request->created_at?->format('d-m-Y H:i') }}</td>
 
 
                                 <td>
