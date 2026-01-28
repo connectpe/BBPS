@@ -249,8 +249,6 @@ class AuthController extends Controller
             ]);
 
             $user = auth()->user();
-
-
             if (!Hash::check($request->current_password, $user->password)) {
                 return response()->json([
                     'status' => false,

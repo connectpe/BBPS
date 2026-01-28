@@ -10,6 +10,7 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\users\ReportController;
 use App\Http\Controllers\users\UserController;
 use App\Http\Controllers\LadgerController;
+use App\Http\Controllers\BbpsRechargeController;
 use App\Http\Controllers\ComplainReportController;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
@@ -41,8 +42,17 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('logout', [AuthController::class, 'logout'])->name('admin.logout');
     });
 
+    // RECHARGE RELATED ROUTE 8010801087
+    Route::prefix('bbps-recharge')->group(function () {
+        Route::post('genrate-token',[BbpsRechargeController::class,'generateToken'])->name('bbps.generate_token');
+        Route::get('getPlans',[BbpsRechargeController::class,'getPlans'])->name('bbps.getPlans');
+        Route::post('balance',[BbpsRechargeController::class,'balance'])->name('bbps.balance');
+        Route::post('validateRecharge',[BbpsRechargeController::class,'validateRecharge'])->name('bbps.validateRecharge');
+        Route::post('payment',[BbpsRechargeController::class,'payment'])->name('bbps.payment');
+        Route::post('status',[BbpsRechargeController::class,'status'])->name('bbps.status');
+    });
     Route::post('change-password', [AuthController::class, 'passwordReset'])->name('admin.change_password');
-
+    
     Route::post('completeProfile/{user_id}', [UserController::class, 'completeProfile'])->name('admin.complete_profile');
 
     // Admin  Related Route
