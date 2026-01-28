@@ -302,9 +302,17 @@
         </li>
 
         <!-- Ledger Report -->
-        <li class="nav-item">
+        {{-- <li class="nav-item">
             <a href="javascript:void(0)" class="nav-link text-white">
                 <i class="bi bi-journal-text me-2"></i> Ledger Report
+            </a>
+        </li> --}}
+
+        <li class="nav-item">
+            <a href="{{ route('ladger.index') }}"
+                class="nav-link text-white {{ Route::currentRouteName() == 'ladger.index' ? 'sidebar-active' : '' }}">
+                <i class="bi bi-journal-text me-2"></i>
+                Ledger Report
             </a>
         </li>
 
