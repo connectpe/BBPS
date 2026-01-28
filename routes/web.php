@@ -74,6 +74,7 @@ Route::group(['middleware' => ['auth']], function () {
     // Transaction Related Route
     Route::get('/transaction-status', [TransactionController::class, 'transactionStatus'])->name('transaction_status');
     Route::get('/transaction-complaint', [TransactionController::class, 'transactionComplaint'])->name('transaction_complaint');
+     Route::post('/complaints', [TransactionController::class, 'store'])->name('complaints.store');
     Route::get('/complaint-status', [TransactionController::class, 'complaintStatus'])->name('complaint_status');
     Route::get('/transaction-report', [TransactionController::class, 'transaction_Report'])->name('transaction.report');
 
@@ -89,6 +90,8 @@ Route::group(['middleware' => ['auth']], function () {
 
     // Complain Report Route
     Route::get('/complain-report', [ComplainReportController::class, 'complainReport'])->name('complain.report');
+        Route::post('/complain-report/{id}/update', [ComplainReportController::class, 'updateComplaint'])
+        ->name('complain.update');
 });
 
 Route::prefix('admin', function () {
