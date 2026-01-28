@@ -17,8 +17,9 @@ use App\Models\EmailVerification;
 use Carbon\Carbon;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
-
+use Illuminate\Validation\Rule;
 
 
 class AuthController extends Controller
@@ -29,25 +30,53 @@ class AuthController extends Controller
         DB::beginTransaction();
 
         try {
+
+            $user =  User::where('email', $request->email)->first();
+
             $request->validate([
                 'name'     => 'required|string|max:255',
-                'email'    => 'required|string|email|max:255|unique:users',
-                'mobile'   => 'required|string|max:10',
+                'email' => [
+                    'required',
+                    'email',
+                    'max:50',
+                    $user && $user->status != '0'
+                        ? Rule::unique('users', 'email')
+                        : '',
+                    'regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
+                ],
+                'mobile' => [
+                    'required',
+                    'max:10',
+                    'regex:/^[6-9][0-9]{9}$/',
+                    $user && $user->status != '0'
+                        ? Rule::unique('users', 'mobile')
+                        : '',
+                ],
                 'password' => 'required|string|min:6|confirmed',
-                
             ]);
+
+
             $role = 'user';
-
             $role = Role::where('slug', $role)->firstOrFail();
-
             $otp = rand(1000, 9999);
 
-            $user = User::create([
-                'name'     => $request->name,
-                'email'    => $request->email,
-                'role_id'  => $role->id,
-                'password' => bcrypt($request->password),
-            ]);
+
+            if ($user) {
+                User::updateOrCreate(
+                    ['email'    => $request->email],
+                    [
+                        'password' => bcrypt($request->password),
+                    ]
+                );
+            } else {
+                $user = User::create([
+                    'name'     => $request->name,
+                    'email'    => $request->email,
+                    'mobile'    => $request->mobile,
+                    'role_id'  => $role->id,
+                    'password' => bcrypt($request->password),
+                ]);
+            }
 
             $isSend = SendingMail::sendMail([
                 'name'    => $request->name,
@@ -86,7 +115,7 @@ class AuthController extends Controller
 
             return response()->json([
                 'status'  => false,
-                'message' => 'Something went wrong',
+                'message' => $e->getMessage(),
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -101,7 +130,7 @@ class AuthController extends Controller
         ]);
 
         // Get user by email
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('email', $request->email)->where('status', '0')->first();
 
         if (!$user) {
             return response()->json([
@@ -123,12 +152,13 @@ class AuthController extends Controller
             ], 401);
         }
 
-        
+
         $user->email_verified_at  = Carbon::now();
+        $user->status = '1';
 
         $user->save();
 
-        
+
         $otpData->delete();
 
         return response()->json([
@@ -138,34 +168,59 @@ class AuthController extends Controller
     }
 
 
-    
     public function login(Request $request)
     {
-        $credentials = $request->validate([
+
+        $validator = Validator::make($request->all(), [
             'email'    => 'required|email',
-            'password' => 'required'
+            'password' => 'required',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
         $user = User::where('email', $request->email)->first();
 
-        if(empty($user->email_verified_at)){
-            return back()->withErrors([
-                'status'=>false,
+
+        if ($user && empty($user->email_verified_at)) {
+            return response()->json([
+                'status'  => false,
                 'message' => 'Email not verified. Please verify your email before logging in.',
-            ]);
+                'errors'  => [
+                    'verify_email' => ['Email not verified. Please verify your email before logging in.']
+                ],
+            ], 422);
         }
-        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
-            return back()->withErrors([
-                'email' => 'Invalid credentials',
-            ]);
+
+
+        if (!Auth::attempt(
+            $request->only('email', 'password'),
+            $request->boolean('remember')
+        )) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Invalid credentials',
+                'errors'  => [
+                    'email' => ['Invalid credentials'],
+                ],
+            ], 422);
         }
+
 
         $request->session()->regenerate();
 
-
-
-
-        return redirect()->route('dashboard');
+        return response()->json([
+            'status'   => true,
+            'message'  => 'Login successful',
+            'redirect' => route('dashboard'),
+        ]);
     }
+
 
     public function me(Request $request)
     {
@@ -190,8 +245,6 @@ class AuthController extends Controller
             ]);
 
             $user = auth()->user();
-
-
 
 
             if (!Hash::check($request->current_password, $user->password)) {
