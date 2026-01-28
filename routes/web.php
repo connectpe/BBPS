@@ -76,6 +76,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/transaction-complaint', [TransactionController::class, 'transactionComplaint'])->name('transaction_complaint');
      Route::post('/complaints', [TransactionController::class, 'store'])->name('complaints.store');
     Route::get('/complaint-status', [TransactionController::class, 'complaintStatus'])->name('complaint_status');
+    Route::post('/complaint-status/check', [TransactionController::class, 'checkComplaintStatus'])
+    ->name('complaint.status.check');
     Route::get('/transaction-report', [TransactionController::class, 'transaction_Report'])->name('transaction.report');
 
     Route::post('generate/client-credentials', [UserController::class, 'generateClientCredentials'])->name('generate_client_credentials');

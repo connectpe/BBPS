@@ -22,7 +22,11 @@ class Complaint extends Model
         'category',
     ];
 
-     public function user()
+    protected $casts = [
+        'resolved_at' => 'datetime',
+    ];
+
+    public function user()
     {
         return $this->belongsTo(User::class);
     }
