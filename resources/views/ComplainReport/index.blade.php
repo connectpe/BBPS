@@ -60,7 +60,7 @@
         </div>
     </div>
 
-    <div class="col-10 px-0">
+    <div class="col-11 px-0">
         <div class="card shadow-sm">
             <div class="card-body pt-4">
                 <div class="table-responsive">
@@ -220,10 +220,6 @@
             </div>
         </div>
     </div>
-
-    {{-- SweetAlert2 CDN (keep if not already in layout) --}}
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <script>
         $(document).ready(function() {
 
