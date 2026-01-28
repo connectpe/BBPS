@@ -176,6 +176,7 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
+
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
@@ -184,6 +185,7 @@ class AuthController extends Controller
             ], 422);
         }
 
+
         $user = User::where('email', $request->email)->first();
 
 
@@ -191,10 +193,12 @@ class AuthController extends Controller
             return response()->json([
                 'status'  => false,
                 'message' => 'Email not verified. Please verify your email before logging in.',
+
                 'errors'  => [
                     'verify_email' => ['Email not verified. Please verify your email before logging in.']
                 ],
             ], 422);
+
         }
 
 
