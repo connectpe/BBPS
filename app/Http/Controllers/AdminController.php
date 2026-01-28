@@ -6,8 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 use App\Helpers\CommonHelper;
-
-
 use App\Models\BusinessCategory;
 use App\Models\BusinessInfo;
 use App\Models\GlobalService;
