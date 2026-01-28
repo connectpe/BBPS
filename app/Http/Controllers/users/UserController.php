@@ -19,6 +19,7 @@ use App\Models\User;
 use App\Models\UserService;
 use Exception;
 use App\Policies\IsUser;
+use App\Helpers\UploadFileHelper;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -82,7 +83,7 @@ class UserController extends Controller
     }
 
 
-    public function completeProfile(Request $request, $userId)
+      public function completeProfile(Request $request, $userId)
     {
         DB::beginTransaction();
         try {

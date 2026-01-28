@@ -104,8 +104,10 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
     <!-- User Image -->
     <div class="col">
         <!-- Profile Image -->
+
         <img id="userImage" src="{{getFilePath($user?->profile_image)}}" alt="User Image"
             class="rounded-circle border border-1 border-primary cursor-pointer" onclick="showImage(this.src,'Profile Image')" width="100" height="100"
+
             onerror="showInitials(this)">
     </div>
 
@@ -113,6 +115,15 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
     <div class="col">
         <h4 class="mb-1">{{ $user->name }}</h4>
         <p class="mb-0 text-muted">{{ $user->email }}</p>
+
+
+        <!-- Badges -->
+        <!-- <div class="mt-2">
+                                                                <span class="badge bg-success me-1">Active</span>
+                                                                <span class="badge bg-info text-dark me-1">Verified</span>
+                                                                <span class="badge bg-warning text-dark">Premium User</span>
+                                                            </div> -->
+
     </div>
 
 </div>
@@ -127,6 +138,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                 <i class="bi bi-check-circle-fill fs-4 text-success mb-2"></i>
                 <h6 class="card-title mb-1">Completed Transaction</h6>
                 <p class="card-text fs-6 fw-bold">{{ number_format(2345) }}</p>
+
             </div>
         </div>
     </div>
@@ -149,9 +161,11 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                 <i class="bi bi-wallet2 fs-4 text-warning mb-2"></i>
                 <h6 class="card-title mb-1">Wallet Balance</h6>
                 <p class="card-text fs-6 fw-bold">{{ number_format(4567) }}</p>
+
             </div>
         </div>
     </div>
+
 
     <!-- Card 4: Member Since -->
     <div class="col-md-3">
@@ -225,6 +239,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                     <div class="col-md-8">123 Main Street, NY 10001</div>
                 </div>
             </div>
+
 
             <!-- Security Setting -->
             <div class="tab-pane fade" id="security" role="tabpanel" aria-labelledby="security-tab">
@@ -367,8 +382,10 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
     <!-- User Image -->
     <div class="col">
         <!-- Profile Image -->
+
         <img id="userImage" src="{{getFilePath($user?->profile_image)}}" alt="User Image"
             class="rounded-circle border border-1 border-primary cursor-pointer" onclick="showImage(this.src,'Profile Image')" width="100" height="100"
+
             onerror="showInitials(this)">
     </div>
 
@@ -978,6 +995,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                         @if(!empty($businessInfo->business_document))
                         @php
 
+
                         $docImage = json_decode($businessInfo->business_document ?? '' , true);
                         @endphp
                         <div class="col-12 border p-1">
@@ -1006,6 +1024,9 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                 <span class="error-text">Invalid Aadhaar number</span>
                             </div>
 
+
+
+                       
                             <div class="col-md-6">
                                 <label class="form-label">PAN Number</label>
                                 <input type="text" class="form-control validate"
