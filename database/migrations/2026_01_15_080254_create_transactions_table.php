@@ -19,7 +19,7 @@ return new class extends Migration
             $table->decimal('amount', 15, 2);
 
             $table->string('transaction_type');
-            $table->enum('status',[
+            $table->enum('status', [
                 'pending',
                 'processing',
                 'processed',
@@ -27,7 +27,7 @@ return new class extends Migration
                 'reversed'
             ])->default('pending');
             $table->string('reference_number')->unique();
-           
+
             $table->timestamps();
         });
     }

@@ -63,9 +63,11 @@ Route::group(['middleware' => ['auth']], function () {
 
     // Users Related Route
     Route::get('/users', [UserController::class, 'bbpsUsers'])->name('users');
-    Route::get('recharge-report', [ReportController::class, 'RechargeReport'])->name('recharge_report');
-    Route::get('banking-report', [ReportController::class, 'BankingTransactionReport'])->name('banking_report');
-    Route::get('utility-report', [ReportController::class, 'UtilityTransactionReport'])->name('utility_report');
+    Route::get('reports/{type}', [ReportController::class, 'index'])
+     ->name('reports');
+    // Route::get('recharge-report', [ReportController::class, 'RechargeReport'])->name('recharge_report');
+    // Route::get('banking-report', [ReportController::class, 'BankingTransactionReport'])->name('banking_report');
+    // Route::get('utility-report', [ReportController::class, 'UtilityTransactionReport'])->name('utility_report');
 
     Route::get('/view-user/{id}', [UserController::class, 'viewSingleUsers'])->name('view_user');
 
@@ -83,7 +85,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/service-request/{id}/approve', [ServiceRequestController::class, 'approve'])->name('service.approve');
 
     // ladger  Route
-    Route::get('/ladger', [LadgerController::class, 'index'])->name('ladger.index');
+    Route::get('/ledger', [LadgerController::class, 'index'])->name('ladger.index');
 
     // Complain Report Route
     Route::get('/complain-report', [ComplainReportController::class, 'complainReport'])->name('complain.report');

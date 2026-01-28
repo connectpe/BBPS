@@ -74,7 +74,7 @@
             <ul class="nav nav-pills flex-column mb-auto">
 
                 @php
-                $transactionRoute = ['banking_report','utility_report','recharge_report'];
+                $transactionRoute = ['reports/recharge','reports/utility','reports/banking'];
                 $servicesActive = in_array(Route::currentRouteName(), $transactionRoute);
                 @endphp
 
@@ -89,24 +89,25 @@
                     <div class="collapse {{ $servicesActive ? 'show' : '' }} ms-3" id="transactionManagement">
                         <ul class="nav flex-column">
                             <li class="nav-item">
-                                <a href="{{ route('recharge_report') }}"
-                                    class="nav-link text-white {{ Route::currentRouteName() == 'recharge_report' ? 'sidebar-active' : '' }}">
+                                <a href="{{ url('reports/recharge') }}"
+                                    class="nav-link text-white {{ request()->is('reports/recharge') ? 'sidebar-active' : '' }}">
                                     <i class="bi bi-phone me-2"></i>
                                     Recharge
                                 </a>
                             </li>
 
+
                             <li class="nav-item">
-                                <a href="{{ route('banking_report') }}"
-                                    class="nav-link text-white {{ Route::currentRouteName() == 'banking_report' ? 'sidebar-active' : '' }}">
+                                <a href="{{ url('reports/banking') }}"
+                                    class="nav-link text-white {{ request()->is('reports/banking') ? 'sidebar-active' : '' }}">
                                     <i class="bi bi-bank me-2"></i>
                                     Banking
                                 </a>
                             </li>
 
                             <li class="nav-item">
-                                <a href="{{ route('utility_report') }}"
-                                    class="nav-link text-white {{ Route::currentRouteName() == 'utility_report' ? 'sidebar-active' : '' }}">
+                                <a href="{{ url('reports/utility') }}"
+                                    class="nav-link text-white {{ request()->is('reports/utility') ? 'sidebar-active' : '' }}">
                                     <i class="bi bi-lightning-charge me-2"></i>
                                     Utility
                                 </a>
@@ -229,9 +230,9 @@
                 'transaction_status',
                 'transaction_complaint',
                 'complaint_status',
-                'recharge_report',
-                'banking_report',
-                'utility_report'
+                'reports/recharge',
+                'reports/banking',
+                'reports/utility'
                 ];
                 $transactionActive = in_array(Route::currentRouteName(), $transactionRoute);
                 @endphp
@@ -248,24 +249,24 @@
                         <ul class="nav flex-column">
 
                             <li class="nav-item">
-                                <a href="{{ route('recharge_report') }}"
-                                    class="nav-link text-white {{ Route::currentRouteName() == 'recharge_report' ? 'sidebar-active' : '' }}">
+                                <a href="{{ url('reports/recharge') }}"
+                                    class="nav-link text-white {{ request()->is('reports/recharge') ? 'sidebar-active' : '' }}">
                                     <i class="bi bi-phone me-2"></i>
                                     Recharge
                                 </a>
                             </li>
 
                             <li class="nav-item">
-                                <a href="{{ route('banking_report') }}"
-                                    class="nav-link text-white {{ Route::currentRouteName() == 'banking_report' ? 'sidebar-active' : '' }}">
+                                <a href="{{ url('reports/banking') }}"
+                                    class="nav-link text-white {{ request()->is('reports/banking') ? 'sidebar-active' : '' }}">
                                     <i class="bi bi-bank me-2"></i>
                                     Banking
                                 </a>
                             </li>
 
                             <li class="nav-item">
-                                <a href="{{ route('utility_report') }}"
-                                    class="nav-link text-white {{ Route::currentRouteName() == 'utility_report' ? 'sidebar-active' : '' }}">
+                                <a href="{{ url('reports/utility') }}"
+                                    class="nav-link text-white {{ request()->is('reports/utility') ? 'sidebar-active' : '' }}">
                                     <i class="bi bi-lightning-charge me-2"></i>
                                     Utility
                                 </a>
@@ -302,9 +303,17 @@
         </li>
 
         <!-- Ledger Report -->
-        <li class="nav-item">
+        {{-- <li class="nav-item">
             <a href="javascript:void(0)" class="nav-link text-white">
                 <i class="bi bi-journal-text me-2"></i> Ledger Report
+            </a>
+        </li> --}}
+
+        <li class="nav-item">
+            <a href="{{ route('ladger.index') }}"
+                class="nav-link text-white {{ Route::currentRouteName() == 'ladger.index' ? 'sidebar-active' : '' }}">
+                <i class="bi bi-journal-text me-2"></i>
+                Ledger Report
             </a>
         </li>
 
