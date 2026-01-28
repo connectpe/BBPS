@@ -63,6 +63,9 @@
     }
 </style>
 
+@php
+use App\Facades\FileUpload;
+@endphp
 
 
 <div class="row mt-3 g-4">
@@ -152,14 +155,14 @@
                     <span class="label">GST No</span>
                     <span class="value">{{$businessInfo->gst_number ?? ''}}</span>
                 </div>
-                <!-- <div class="info-row">
+                <div class="info-row">
                     <span class="label">Business Email</span>
-                    <span class="value">{{$businessInfo->business_name ?? ''}}</span>
+                    <span class="value">{{$businessInfo->business_email ?? ''}}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Business Phone</span>
-                    <span class="value">{{$businessInfo->business_name ?? ''}}</span>
-                </div> -->
+                    <span class="value">{{$businessInfo->business_phone ?? ''}}</span>
+                </div>
                 <div class="info-row">
                     <span class="label">State</span>
                     <span class="value">{{$businessInfo->state ?? ''}}</span>
@@ -178,10 +181,17 @@
                 </div>
 
                 <div class="info-row">
+
+                    @php
+                    $docs = json_decode($businessInfo->business_document ?? '' , true);
+
+                    @endphp
+
                     <span class="label">Business Document</span>
                     <div class="document-images">
-                        <img src="{{ asset('assets/image/aadhar-front.png') }}" alt="" class="img-fluid rounded m-1 doc-card" onclick="showImage(this.src)">
-                        <img src="{{ asset('assets/image/aadhar-front.png') }}" alt="" class="img-fluid rounded m-1 doc-card" onclick="showImage(this.src)">
+                        @foreach(optional($docs) as $doc)
+                        <img src="{{ FileUpload::getFilePath($doc) }}" alt="" class="img-fluid rounded m-1 doc-card" height="150" width="150" onclick="showImage(this.src,'Business Document')">
+                        @endforeach
                     </div>
                 </div>
 
@@ -245,15 +255,17 @@
                 </div>
 
 
+
                 <div class="info-row">
                     <span class="label">PAN Number</span>
-                    <span class="value">ABCDE1234F</span>
+                    <span class="value"> {{$businessInfo->pan_number ?? ''}}</span>
                 </div>
 
                 <div class="info-row">
                     <span class="label">Aadhaar</span>
-                    <span class="value">XXXX-XXXX-1234</span>
+                    <span class="value">{{$businessInfo->aadhar_number ?? ''}}</span>
                 </div>
+
 
                 <!-- Documents -->
                 <div class="mt-3">
@@ -262,7 +274,13 @@
                         <!-- Aadhaar Front -->
                         <div class="col-6">
                             <div class="doc-card">
+                                @if($businessInfo?->aadhar_front_image)
+                                <img src="{{ FileUpload::getFilePath($businessInfo?->aadhar_front_image) }}"
+                                    class="img-fluid rounded border" alt="Aadhaar Front" style="cursor:pointer"
+                                    onclick="showImage(this.src,'Aadhaar Front')">
+                                @else
                                 <img src="{{asset('assets/image/aadhar-front.png')}}" class="img-fluid rounded" onclick="showImage(this.src,'Aadhaar Front')">
+                                @endif
                                 <small class="doc-label">Aadhaar Front</small>
                             </div>
                         </div>
@@ -270,7 +288,13 @@
                         <!-- Aadhaar Back -->
                         <div class="col-6">
                             <div class="doc-card">
+                                @if($businessInfo?->aadhar_back_image)
+                                <img src="{{ FileUpload::getFilePath($businessInfo?->aadhar_back_image) }}"
+                                    class="img-fluid rounded border" alt="Aadhaar Back" style="cursor:pointer"
+                                    onclick="showImage(this.src,'Aadhaar Back')">
+                                @else
                                 <img src="{{asset('assets/image/aadhar-back.png')}}" class="img-fluid rounded" onclick="showImage(this.src,'Aadhaar Back')">
+                                @endif
                                 <small class="doc-label">Aadhaar Back</small>
                             </div>
                         </div>
@@ -278,7 +302,14 @@
                         <!-- PAN Card -->
                         <div class="col-12">
                             <div class="doc-card">
+                                @if($businessInfo?->pancard_image)
+                                <img src="{{ FileUpload::getFilePath($businessInfo?->pancard_image) }}"
+                                    class="img-fluid rounded border" alt="PAN Card" style="cursor:pointer"
+                                    onclick="showImage(this.src,'PAN Card')">
+                                @else
                                 <img src="{{asset('assets/image/pan-card.png')}}" class="img-fluid rounded" onclick="showImage(this.src,'PAN Card')">
+                                @endif
+
                                 <small class="doc-label">PAN Card</small>
                             </div>
                         </div>
@@ -315,9 +346,12 @@
                 </div>
                 <div class="info-row">
                     <span class="label">Bank Document</span>
-                    <span class="value"><a href="javascript:void(0)" class="btn btn-outline-primary btn-sm" onclick="showImage('','Bank Document')">
+                    <span class="value">
+                        <a href="javascript:void(0)" class="btn btn-outline-primary btn-sm"
+                            onclick="showImage('{{FileUpload::getFilePath($usersBank?->bank_docs)}}','Bank Document')">
                             <i class="bi bi-eye me-1"></i> View
-                        </a></span>
+                        </a>
+                    </span>
                 </div>
             </div>
         </div>
