@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('business_infos', function (Blueprint $table) {
-            $table->longText('business_document')->nullable()->change();
+            $table->longText('business_document')->nullable();
         });
     }
 
@@ -23,7 +23,7 @@ return new class extends Migration
     {
         Schema::table('business_infos', function (Blueprint $table) {
             // Rollback: change it back to string(255)
-            $table->string('business_document', 255)->nullable()->change();
+            $table->string('business_document', 255)->nullable();
         });
     }
 };

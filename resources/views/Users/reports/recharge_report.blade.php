@@ -56,10 +56,13 @@
                         <tr>
                             <th>ID</th>
                             <th>User</th>
-                            <th>OrderId</th>
-                            <th>Reference No.</th>
+                            <th>Operator</th>
+                            <th>Circle</th>
+                            <th>Amount</th>
+                            <th>Transaction Type</th>
+                            <th>Referene No</th>
+                            <th>Created at</th>
                             <th>Status</th>
-                            <th>UTR</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -79,7 +82,6 @@
 
                 url: "{{url('fetch')}}/transactions/0",
                 type: 'POST',
-
 
                 data: function(d) {
                     d._token = $('meta[name="csrf-token"]').attr('content');
@@ -107,54 +109,76 @@
                 }
             ],
             language: {
-                searchPlaceholder: "Search users..."
+                searchPlaceholder: "Search Transactions..."
             },
 
             columns: [{
                     data: 'id'
                 },
                 {
-                    data: 'business.business_name',
+                    data: 'user.name',
                     render: function(data, type, row) {
-                        let url = "{{route('view_user',['id' => 'id'])}}".replace('id', row.id);
-                        return `
+
+                        const userRole = "{{Auth::user()->role_id}}";
+
+                        if (userRole == 1) {
+                            let url = "{{route('view_user',['id' => 'id'])}}".replace('id', row.user_id);
+                            return `
                         <a href="${url}" class="text-primary fw-semibold text-decoration-none">
                             ${data ?? '----'}
                         </a>
                     `;
+                        } else {
+                            return data;
+                        }
+
                     }
                 },
                 {
-                    data: 'name',
+                    data: 'operator',
                     render: function(data, type, row) {
-                        let url = "{{route('view_user',['id' => 'id'])}}".replace('id', row.id);
-                        return `
-                        <a href="${url}" class="text-primary fw-semibold text-decoration-none">
-                            ${data}
-                        </a>
-                    `;
+                        const operator = `${data.name} [${data.code}]`;
+                        return `${operator} `;
                     }
                 },
-               
                 {
-                    data: 'business.pan_number'
+                    data: 'circle',
+                    render: function(data, type, row) {
+                        const circle = `${data.name} [${data.code}]`;
+                        return `${circle} `;
+                    }
                 },
                 {
-                    data: 'business.aadhar_number'
+                    data: 'amount'
                 },
                 {
-                    data: 'created_at'
+                    data: 'transaction_type'
+                },
+                {
+                    data: 'reference_number'
+                },
+                {
+                    data: 'created_at',
                 },
                 {
                     data: 'status',
                     render: function(data) {
-                        return data == '1' ?
-                            '<span class="fw-bold text-success">ACTIVE</span>' :
-                            '<span class="fw-bold text-danger">INACTIVE</span>';
+
+                        const colors = {
+                            pending: 'secondary', // gray – waiting
+                            processing: 'warning', // yellow – in progress
+                            processed: 'success', // green – done
+                            failed: 'danger', // red – error
+                            reversed: 'info', // blue – rolled back
+                        };
+
+                        const color = colors[data] || 'secondary';
+                        return `<span class="badge bg-${color}">${formatStatus(data)}</span>`;
                     },
                     orderable: false,
                     searchable: false
                 },
+
             ]
         });
 
@@ -170,6 +194,14 @@
             $('#filterStatus').val('');
             table.ajax.reload();
         });
+
+        function formatStatus(status) {
+            if (!status) return '';
+
+            return status
+                .toLowerCase()
+                .replace(/^\w/, c => c.toUpperCase());
+        }
     });
 </script>
 

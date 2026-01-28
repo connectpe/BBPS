@@ -159,9 +159,9 @@
                             <label for="loginPassword">Password</label>
                             @error('password')
                             <span class="text-danger" style="font-size: 0.875em;">{{ $message }}</span>
-                            @enderror   
+                            @enderror
                         </div>
-                        <button type="submit" class="btn bbps-btn w-100">Login</button>
+                        <button type="submit" class="btn bbps-btn w-100" id="loginButton">Login</button>
                         <p class="text-center mt-3 text-muted">
                             Don't have an account?
                             <a href="#" id="switchToSignup" style="color:#667eea; text-decoration:none; font-weight:500;">SignUp</a>
@@ -169,7 +169,7 @@
                     </form>
 
                     <!-- SignUp Form -->
-                    <form id="signupForm" class="d-none" >
+                    <form id="signupForm" class="d-none">
                         @csrf
                         <h3 class="text-center mb-2" style="color:#667eea;">Create a new account</h3>
                         <p class="text-center text-muted mb-3">Register to pay your bills quickly</p>
@@ -198,7 +198,7 @@
                             <span class="text-danger" id="passwordConfirmError" style="font-size: 0.875em;"></span>
                             <label for="signuppassword_confirmation">Confirm Password</label>
                         </div>
-                        <button type="submit" class="btn bbps-btn w-100">Sign Up</button>
+                        <button type="submit" class="btn bbps-btn w-100" id="signupButton">Sign Up</button>
                         <p class="text-center mt-2 text-muted">
                             Already have an account?
                             <a href="#" id="switchToLogin" style="color:#667eea; text-decoration:none; font-weight:500;">Login</a>
@@ -273,7 +273,11 @@
                 e.preventDefault();
                 clearErrors();
 
+                const signupButton = document.getElementById('signupButton');
+                signupButton.disabled = true;
+                signupButton.textContent = 'Processing...';
                 const formData = new FormData(signupForm);
+
                 const payload = {
                     name: formData.get('name'),
                     email: formData.get('email'),
@@ -296,26 +300,48 @@
 
                     const data = await res.json();
 
+
                     if (res.ok && data.status) {
                         userEmail = payload.email;
                         document.getElementById('otpEmail').value = userEmail;
                         Swal.fire('Success', 'OTP sent to your email. Please verify.', 'success');
                         showOTP();
+
+
                     } else {
-                        // Handle validation errors
+
+                        ['name', 'email', 'mobile', 'password', 'password_confirmation'].forEach(field => {
+                            const el = document.getElementById(field + 'Error');
+                            if (el) el.textContent = '';
+                        });
+
+
                         if (data.errors) {
-                            if (data.errors.name) document.getElementById('nameError').textContent = data.errors.name[0];
-                            if (data.errors.email) document.getElementById('emailError').textContent = data.errors.email[0];
-                            if (data.errors.mobile) document.getElementById('mobileError').textContent = data.errors.mobile[0];
-                            if (data.errors.password) document.getElementById('passwordError').textContent = data.errors.password[0];
-                            if (data.errors.password_confirmation) document.getElementById('passwordConfirmError').textContent = data.errors.password_confirmation[0];
+                            Object.keys(data.errors).forEach(field => {
+                                const el = document.getElementById(field + 'Error');
+                                if (el) el.textContent = data.errors[field][0]; // show first error
+                            });
                         }
-                        Swal.fire('Error', data.message || 'Signup failed', 'error');
+
+                        let errorMessage = data.message || 'An error occurred';
+                        if (data.errors) {
+
+                            const firstField = Object.keys(data.errors)[0];
+                            if (firstField) errorMessage = data.errors[firstField][0];
+                        }
+
+                        Swal.fire('Error', errorMessage, 'error');
+
+                        signupButton.disabled = false;
+                        signupButton.textContent = 'Sign Up';
                     }
 
                 } catch (error) {
                     Swal.fire('Error', 'Server error. Try again later.', 'error');
                     console.error(error);
+
+                    signupButton.disabled = false;
+                    signupButton.textContent = 'Sign Up';
                 }
             });
 
@@ -325,7 +351,7 @@
                 input.addEventListener('input', (e) => {
                     // Only allow numbers
                     e.target.value = e.target.value.replace(/[^0-9]/g, '');
-                    
+
                     if (e.target.value.length === 1 && i < otpInputs.length - 1) {
                         otpInputs[i + 1].focus();
                     }
@@ -399,6 +425,84 @@
 
         });
     </script>
+
+
+    <!-- Login Form Submit  -->
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const form = this;
+            const loginButton = document.getElementById('loginButton');
+
+
+            loginButton.disabled = true;
+            loginButton.textContent = 'Logging in...';
+
+
+            document.querySelectorAll('.text-danger').forEach(el => el.textContent = '');
+
+            try {
+                const res = await fetch(form.action, {
+                    method: 'POST',
+                    body: new FormData(form),
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                let data = {};
+                try {
+                    data = await res.json();
+                } catch (e) {
+                    // Response is not JSON (500 / HTML error)
+                }
+
+
+                if (res.ok && data.status) {
+                    Swal.fire('Success', data.message || 'Login successful', 'success')
+                        .then(() => {
+                            window.location.href = data.redirect;
+                        });
+                    return;
+                }
+
+
+                if (res.status === 422 && data.errors) {
+
+                    const firstField = Object.keys(data.errors)[0];
+                    const firstError = data.errors[firstField][0];
+
+                    Swal.fire('Error', firstError, 'error');
+                    // Re-enable button
+                    loginButton.disabled = false;
+                    loginButton.textContent = 'Login';
+                    return;
+                }
+
+                Swal.fire(
+                    'Error',
+                    data.message || 'Something went wrong. Please try again later.',
+                    'error'
+                );
+
+            } catch (error) {
+                Swal.fire(
+                    'Error',
+                    'Server error. Please try again later.',
+                    'error'
+                );
+                console.error(error);
+            }
+
+
+            // Re-enable button
+            loginButton.disabled = false;
+            loginButton.textContent = 'Login';
+        });
+    </script>
+
 
 </body>
 

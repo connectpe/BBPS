@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('business_infos', function (Blueprint $table) {
             $table->string('business_email', 255)->after('business_name')->unique();
-            $table->string('business_phone', 20)->after('business_email')->unique();
+            $table->string('business_phone', 20)->after('business_email')->change()->unique();
             $table->string('cin_no', 255)->after('aadhar_number');
         });
     }
@@ -24,7 +24,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('business_infos', function (Blueprint $table) {
-            $table->dropColumn('business_email');
+            $table->dropColumn('business_email')->change();
             $table->dropColumn('business_phone');
             $table->dropColumn('cin_no');
         });
