@@ -18,9 +18,9 @@
                 <div class="accordion-body">
                     <div class="row g-3 align-items-end">
                         <!-- <div class="col-md-3">
-                                    <label for="filterName" class="form-label">OrderId</label>
-                                    <input type="text" class="form-control" id="filterOrderId" placeholder="Enter OrderId">
-                                </div> -->
+                                        <label for="filterName" class="form-label">OrderId</label>
+                                        <input type="text" class="form-control" id="filterOrderId" placeholder="Enter OrderId">
+                                    </div> -->
 
                         <div class="col-md-4">
                             <label for="filterUser" class="form-label">User</label>
@@ -101,32 +101,52 @@
     <script>
         $(document).ready(function() {
 
+            // helper: format ISO timestamp to 'DD-MM-YYYY HH:MM'
+            function formatDateTime(dt) {
+                if (!dt) return '-';
+                try {
+                    const d = new Date(dt);
+                    const dd = String(d.getDate()).padStart(2, '0');
+                    const mm = String(d.getMonth() + 1).padStart(2, '0');
+                    const yyyy = d.getFullYear();
+                    const hh = String(d.getHours()).padStart(2, '0');
+                    const min = String(d.getMinutes()).padStart(2, '0');
+                    return `${dd}-${mm}-${yyyy} ${hh}:${min}`;
+                } catch (e) {
+                    return dt;
+                }
+            }
+
             var table = $('#rechargeTable').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
-
                     url: "{{ url('fetch') }}/transactions/0",
-                    type: 'POST',
-
+                    type: "POST",
                     data: function(d) {
                         d._token = $('meta[name="csrf-token"]').attr('content');
+
                         d.user_id = $('#filterUser').val();
                         d.reference_number = $('#filterreferenceId').val();
                         d.status = $('#filterStatus').val();
+
+                        d.date_from = $('#filterDateFrom').val();
+                        d.date_to = $('#filterDateTo').val();
                     }
                 },
+
                 pageLength: 10,
                 lengthMenu: [5, 10, 25, 50],
                 responsive: false,
+
                 dom: "<'row mb-2'<'col-sm-4'l><'col-sm-4'f><'col-sm-4 text-end'B>>" +
                     "<'row'<'col-12'tr>>" +
                     "<'row mt-2'<'col-sm-6'i><'col-sm-6'p>>",
+
                 buttons: [{
                         extend: 'excelHtml5',
                         text: 'Excel',
                         className: 'btn buttonColor btn-sm'
-
                     },
                     {
                         extend: 'pdfHtml5',
@@ -134,6 +154,7 @@
                         className: 'btn buttonColor btn-sm'
                     }
                 ],
+
                 language: {
                     searchPlaceholder: "Search Transactions..."
                 },
@@ -141,40 +162,36 @@
                 columns: [{
                         data: 'id'
                     },
+
                     {
                         data: 'user.name',
                         render: function(data, type, row) {
-
                             const userRole = "{{ Auth::user()->role_id }}";
-
                             if (userRole == 1) {
                                 let url = "{{ route('view_user', ['id' => 'id']) }}".replace('id',
                                     row.user_id);
-                                return `
-                        <a href="${url}" class="text-primary fw-semibold text-decoration-none">
-                            ${data ?? '----'}
-                        </a>
-                    `;
-                            } else {
-                                return data;
+                                return `<a href="${url}" class="text-primary fw-semibold text-decoration-none">${data ?? '----'}</a>`;
                             }
-
+                            return data ?? '----';
                         }
                     },
+
                     {
                         data: 'operator',
-                        render: function(data, type, row) {
-                            const operator = `${data.name} [${data.code}]`;
-                            return `${operator} `;
+                        render: function(data) {
+                            if (!data) return '----';
+                            return `${data.name} [${data.code}]`;
                         }
                     },
+
                     {
                         data: 'circle',
-                        render: function(data, type, row) {
-                            const circle = `${data.name} [${data.code}]`;
-                            return `${circle} `;
+                        render: function(data) {
+                            if (!data) return '----';
+                            return `${data.name} [${data.code}]`;
                         }
                     },
+
                     {
                         data: 'amount'
                     },
@@ -186,62 +203,49 @@
                     },
                     {
                         data: 'created_at',
+                        render: function(data, type, row) {
+                            return formatDateTime(data);
+                        }
                     },
+
                     {
                         data: 'status',
-                        render: function(data) {
-
+                        render: function(status) {
                             const colors = {
-                                pending: 'secondary', // gray – waiting
-                                processing: 'warning', // yellow – in progress
-                                processed: 'success', // green – done
-                                failed: 'danger', // red – error
-                                reversed: 'info', // blue – rolled back
+                                pending: 'secondary',
+                                processing: 'warning',
+                                processed: 'success',
+                                failed: 'danger',
+                                reversed: 'info',
                             };
+                            const color = colors[status] || 'secondary';
 
-                            const color = colors[data] || 'secondary';
-                            return `<span class="badge bg-${color}">${formatStatus(data)}</span>`;
+                            const label = (status || '')
+                                .toString()
+                                .toLowerCase()
+                                .replace(/^\w/, c => c.toUpperCase());
+
+                            return `<span class="badge bg-${color}">${label}</span>`;
                         },
                         orderable: false,
                         searchable: false
-                    },
-                    data: function(d) {
-                        d._token = $('meta[name="csrf-token"]').attr('content');
-                        d.user_id = $('#filterUser').val();
-                        d.reference_number = $('#filterreferenceId').val();
-                        d.status = $('#filterStatus').val();
-                        d.date_from = $('#filterDateFrom').val();
-                        d.date_to = $('#filterDateTo').val();
                     }
-
-
                 ]
             });
-
-            // Apply filter
             $('#applyFilter').on('click', function() {
                 table.ajax.reload();
             });
-
-            // Reset filter
             $('#resetFilter').on('click', function() {
-                $('#filterName').val('');
-                $('#filterEmail').val('');
+                $('#filterUser').val('');
+                $('#filterreferenceId').val('');
                 $('#filterStatus').val('');
-
                 $('#filterDateFrom').val('');
                 $('#filterDateTo').val('');
                 table.ajax.reload();
             });
 
-            function formatStatus(status) {
-                if (!status) return '';
-
-                return status
-                    .toLowerCase()
-                    .replace(/^\w/, c => c.toUpperCase());
-            }
         });
     </script>
+
 
 @endsection
