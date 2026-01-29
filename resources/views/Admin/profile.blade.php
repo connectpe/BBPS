@@ -93,6 +93,10 @@
 </style>
 
 @php
+
+
+use App\Facades\FileUpload;
+
 $user = Auth::user();
 $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 @endphp
@@ -105,7 +109,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
     <div class="col">
         <!-- Profile Image -->
 
-        <img id="userImage" src="{{getFilePath($user?->profile_image)}}" alt="User Image"
+        <img id="userImage" src="{{FileUpload::getFilePath($user?->profile_image)}}" alt="User Image"
             class="rounded-circle border border-1 border-primary cursor-pointer" onclick="showImage(this.src,'Profile Image')" width="100" height="100"
 
             onerror="showInitials(this)">
@@ -115,15 +119,6 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
     <div class="col">
         <h4 class="mb-1">{{ $user->name }}</h4>
         <p class="mb-0 text-muted">{{ $user->email }}</p>
-
-
-        <!-- Badges -->
-        <!-- <div class="mt-2">
-                                                                <span class="badge bg-success me-1">Active</span>
-                                                                <span class="badge bg-info text-dark me-1">Verified</span>
-                                                                <span class="badge bg-warning text-dark">Premium User</span>
-                                                            </div> -->
-
     </div>
 
 </div>
@@ -383,7 +378,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
     <div class="col">
         <!-- Profile Image -->
 
-        <img id="userImage" src="{{getFilePath($user?->profile_image)}}" alt="User Image"
+        <img id="userImage" src="{{FileUpload::getFilePath($user?->profile_image)}}" alt="User Image"
             class="rounded-circle border border-1 border-primary cursor-pointer" onclick="showImage(this.src,'Profile Image')" width="100" height="100"
 
             onerror="showInitials(this)">
@@ -621,7 +616,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             </div>
                             <div class="card-body text-center">
                                 @if(!empty($businessInfo->aadhar_front_image))
-                                <img src="{{ getFilePath($businessInfo->aadhar_front_image) }}"
+                                <img src="{{ FileUpload::getFilePath($businessInfo->aadhar_front_image) }}"
                                     class="img-fluid rounded border" alt="Aadhaar Front" style="cursor:pointer"
                                     onclick="showImage(this.src,'Aadhaar Front')">
                                 @endif
@@ -637,7 +632,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             </div>
                             <div class="card-body text-center">
                                 @if(!empty($businessInfo->aadhar_back_image))
-                                <img src="{{ getFilePath($businessInfo->aadhar_back_image) }}"
+                                <img src="{{ FileUpload::getFilePath($businessInfo->aadhar_back_image) }}"
                                     class="img-fluid rounded border" style="cursor:pointer"
                                     onclick="showImage(this.src,'Aadhaar Back')" alt="Aadhaar Back">
                                 @endif
@@ -653,7 +648,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             </div>
                             <div class="card-body text-center">
                                 @if(!empty($businessInfo->pancard_image))
-                                <img src="{{ getFilePath($businessInfo->pancard_image) }}"
+                                <img src="{{ FileUpload::getFilePath($businessInfo->pancard_image) }}"
                                     class="img-fluid rounded border" style="cursor:pointer"
                                     onclick="showImage(this.src,'PAN Card')" alt="PAN Card">
                                 @endif
@@ -733,7 +728,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                     </div>
 
                                     <a href="javascript:void(0)" class="btn btn-outline-primary btn-sm"
-                                        onclick="showImage('{{getFilePath($usersBank?->bank_docs)}}','Bank Document')">
+                                        onclick="showImage('{{FileUpload::getFilePath($usersBank?->bank_docs)}}','Bank Document')">
                                         <i class="bi bi-eye me-1"></i> View
                                     </a>
                                 </div>
@@ -873,7 +868,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                 name="profile_image">
                             @if(!empty($userdata->profile_image))
                             <div class="mt-2">
-                                <img src="{{ getFilePath($userdata->profile_image) }}"
+                                <img src="{{ FileUpload::getFilePath($userdata->profile_image) }}"
                                     alt="Profile Image"
                                     class="img-thumbnail cursor-pointer profile-image"
                                     style="max-height: 120px;" onclick="showImage(this.src,'Profile Image')">
@@ -1001,7 +996,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                         <div class="col-12 border p-1">
                             <h6>Business Document</h6>
                             @foreach($docImage as $image)
-                            <img src="{{getFilePath($image)}}" class="img m-1 shadow cursor-pointer" alt="Busineee Document" style="max-height:200px; width:200px;" onclick="showImage(this.src,'Business Document')">
+                            <img src="{{FileUpload::getFilePath($image)}}" class="img m-1 shadow cursor-pointer" alt="Busineee Document" style="max-height:200px; width:200px;" onclick="showImage(this.src,'Business Document')">
                             @endforeach
                         </div>
                         @endif
@@ -1026,7 +1021,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
 
 
-                       
+
                             <div class="col-md-6">
                                 <label class="form-label">PAN Number</label>
                                 <input type="text" class="form-control validate"
@@ -1045,7 +1040,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                     name="adhar_front_image">
                                 @if(!empty($businessInfo->aadhar_front_image))
                                 <div class="mt-2">
-                                    <img src="{{ getFilePath($businessInfo->aadhar_front_image) }}"
+                                    <img src="{{ FileUpload::getFilePath($businessInfo->aadhar_front_image) }}"
                                         alt="Aadhaar Front"
                                         class="img-thumbnail cursor-pointer "
                                         style="max-height: 120px;" onclick="showImage(this.src,'Aadhaar Front')">
@@ -1059,7 +1054,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                     name="adhar_back_image">
                                 @if(!empty($businessInfo->aadhar_back_image))
                                 <div class="mt-2">
-                                    <img src="{{ getFilePath($businessInfo->aadhar_back_image) }}"
+                                    <img src="{{ FileUpload::getFilePath($businessInfo->aadhar_back_image) }}"
                                         alt="Aadhaar Back"
                                         class="img-thumbnail cursor-pointer"
                                         style="max-height: 120px;" onclick="showImage(this.src,'Aadhaar Back')">
@@ -1073,7 +1068,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                     name="pan_card_image">
                                 @if(!empty($businessInfo->pancard_image))
                                 <div class="mt-2">
-                                    <img src="{{ getFilePath($businessInfo->pancard_image) }}"
+                                    <img src="{{ FileUpload::getFilePath($businessInfo->pancard_image) }}"
                                         alt="PAN Card"
                                         class="img-thumbnail cursor-pointer"
                                         style="max-height: 120px;" onclick="showImage(this.src,'PAN Card')">
@@ -1132,7 +1127,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
                             @if(!empty($usersBank->bank_docs))
                             <div class="mt-2">
-                                <img src="{{ getFilePath($usersBank->bank_docs) }}"
+                                <img src="{{ FileUpload::getFilePath($usersBank->bank_docs) }}"
                                     alt="Bank Document"
                                     class="img-thumbnail cursor-pointer"
                                     style="max-height: 120px;" onclick="showImage(this.src,'Bank Document')">

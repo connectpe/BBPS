@@ -64,17 +64,19 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/banking-service', [ServiceController::class, 'bankingService'])->name('banking_service');
     Route::get('our-services', [ServiceController::class, 'ourService'])->name('our_servicess');
     Route::post('/admin/service/add', [AdminController::class, 'AddService'])
-    ->name('admin.service.add');
+        ->name('admin.service.add');
     Route::post('admin/service/edit/{id}', [AdminController::class, 'EditService'])
-    ->name('admin.service.edit');
+        ->name('admin.service.edit');
 
+
+    Route::get('services', [ServiceRequestController::class, 'enabledServices'])->name('enabled_services');
 
     Route::get('request-services', [ServiceRequestController::class, 'index'])->name('request_services');
 
     // Users Related Route
     Route::get('/users', [UserController::class, 'bbpsUsers'])->name('users');
-    Route::get('reports/{type}', [ReportController::class, 'index'])
-     ->name('reports');
+    Route::get('reports/{type}', [ReportController::class, 'index'])->name('reports');
+
     // Route::get('recharge-report', [ReportController::class, 'RechargeReport'])->name('recharge_report');
     // Route::get('banking-report', [ReportController::class, 'BankingTransactionReport'])->name('banking_report');
     // Route::get('utility-report', [ReportController::class, 'UtilityTransactionReport'])->name('utility_report');

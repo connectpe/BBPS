@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\GlobalService;
 use App\Models\ServiceRequest;
+use App\Models\User;
 use App\Models\UserService;
 use Illuminate\Http\Request;
 
@@ -13,15 +15,18 @@ class ServiceRequestController extends Controller
      */
     public function index()
     {
-        $requests = UserService::with(['user', 'service'])
-            ->latest()
-            ->get();
+        // $requests = UserService::with(['user', 'service'])
+        //     ->latest()
+        //     ->get();
 
         $requests = UserService::with(['user', 'service'])
             ->latest()
             ->get();
 
-        return view('Service.request-services', compact('requests'));
+        $users = User::where('role_id', '!=', '1')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
+        $globalServices = GlobalService::where('is_active', '1')->orderBy('id', 'desc')->get();
+
+        return view('Service.request-services', compact('requests', 'users', 'globalServices'));
     }
 
     /**
@@ -35,7 +40,7 @@ class ServiceRequestController extends Controller
                 'service_id' => 'required|exists:global_services,id',
             ]);
 
-           
+
             $alreadyRequested = UserService::where('user_id', auth()->id())
                 ->where('service_id', $request->service_id)
                 ->exists();
@@ -46,8 +51,6 @@ class ServiceRequestController extends Controller
                         'success' => false,
                         'message' => 'Service already requested',
                     ]);
-
-
                 }
 
                 return back()->with('error', 'Service already requested');
@@ -62,7 +65,6 @@ class ServiceRequestController extends Controller
                         'success' => false,
                         'message' => 'Service already requested',
                     ]);
-
                 }
 
                 return back()->with('error', 'Service already requested');
@@ -102,7 +104,6 @@ class ServiceRequestController extends Controller
             }
 
             return back()->with('success', 'Service request sent successfully');
-
         } catch (\Exception $e) {
 
             return response()->json([
@@ -132,5 +133,10 @@ class ServiceRequestController extends Controller
         $service->save();
 
         return back()->with('success', $message);
+    }
+
+
+    public function enabledServices(){
+        return view('Service.enabled-services');
     }
 }

@@ -1,9 +1,12 @@
 <?php
 
+namespace App\Helpers;
+
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
-if (!function_exists('uploadFile')) {
+class FileUploadHelper
+{
     /**
      * Upload a single or multiple files, delete old file(s), and store in a folder on 'public' disk
      *
@@ -12,7 +15,7 @@ if (!function_exists('uploadFile')) {
      * @param string $folder                        Folder name under public disk
      * @return string|array|null                    New file path(s)
      */
-    function uploadFile($files, $folder = 'uploads', $oldFiles = null)
+    public static function uploadFile($files, $folder = 'uploads', $oldFiles = null)
     {
         // Delete old file(s)
         if ($oldFiles) {
@@ -37,7 +40,7 @@ if (!function_exists('uploadFile')) {
             $paths = [];
             foreach ($files as $file) {
                 if ($file instanceof UploadedFile) {
-                    $paths[] = $file->store($folder, 'public'); // same as your code
+                    $paths[] = $file->store($folder, 'public');
                 }
             }
             return $paths;
@@ -45,25 +48,20 @@ if (!function_exists('uploadFile')) {
 
         // Single file
         if ($files instanceof UploadedFile) {
-            return $files->store($folder, 'public'); // same as your code
+            return $files->store($folder, 'public');
         }
 
         return null;
     }
-}
 
-
-
-if (!function_exists('getFilePath')) {
     /**
      * Get public URL for stored file(s)
      *
      * @param string|array|null $files   Stored DB path(s)
      * @return string|array|null
      */
-    function getFilePath($files)
+    public static function getFilePath($files)
     {
-
         if (!$files) {
             return null;
         }

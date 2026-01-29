@@ -53,10 +53,14 @@ class AuthController extends Controller
                         : '',
                 ],
                 'password' => 'required|string|min:6|confirmed',
+                'role' => 'required|in:user,reseller'
+            ], [
+                'role.required' => 'Role is required',
+                'role.in' => 'Please select a valid role',
             ]);
 
 
-            $role = 'user';
+            $role =  $request->role;
             $role = Role::where('slug', $role)->firstOrFail();
             $otp = rand(1000, 9999);
 
@@ -66,6 +70,7 @@ class AuthController extends Controller
                     ['email'    => $request->email],
                     [
                         'password' => bcrypt($request->password),
+                        'role_id'  => $role->id ?? 2,
                     ]
                 );
             } else {
@@ -73,7 +78,7 @@ class AuthController extends Controller
                     'name'     => $request->name,
                     'email'    => $request->email,
                     'mobile'    => $request->mobile,
-                    'role_id'  => $role->id,
+                    'role_id'  => $role->id ?? 2,
                     'password' => bcrypt($request->password),
                 ]);
             }
@@ -198,7 +203,6 @@ class AuthController extends Controller
                     'verify_email' => ['Email not verified. Please verify your email before logging in.']
                 ],
             ], 422);
-
         }
 
 

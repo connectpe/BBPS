@@ -7,18 +7,9 @@
 
 <div class="row g-4">
 
-    <!-- Card 1 : Banking Image -->
-    <!-- <div class="col-md-3">
-        <div class="card shadow-sm h-100 text-center">
-            <div class="card-body d-flex align-items-center justify-content-center p-2">
-                <img src="{{ asset('assets/image/pay-image.jpg') }}"
-                    class="img-fluid"
-                    style="max-width: 100%; max-height: 100%; object-fit: contain;"
-                    alt="Banking System">
-            </div>
-        </div>
-    </div> -->
-
+   @php
+    use Illuminate\Support\Facades\Auth;
+    @endphp
 
     <!-- Card 2 : Our Services -->
     <div class="col-md-8">

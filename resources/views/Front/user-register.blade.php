@@ -173,6 +173,26 @@
                         @csrf
                         <h3 class="text-center mb-2" style="color:#667eea;">Create a new account</h3>
                         <p class="text-center text-muted mb-3">Register to pay your bills quickly</p>
+
+                        <div class="mb-3 role-selector">
+                            <div class="d-flex gap-2">
+                                <button type="button"
+                                    class="btn btn-outline-primary w-50 bbps-btn"
+                                    data-role="user">
+                                    User
+                                </button>
+
+                                <button type="button"
+                                    class="btn btn-outline-primary w-50"
+                                    data-role="reseller">
+                                    Reseller
+                                </button>
+                            </div>
+
+                            <!-- Hidden input -->
+                            <input type="hidden" name="role" id="role" value="user">
+                        </div>
+
                         <div class="mb-3 form-floating">
                             <input type="text" name="name" class="form-control" id="signupName" placeholder="Name" required>
                             <span class="text-danger" id="nameError" style="font-size: 0.875em;"></span>
@@ -222,7 +242,6 @@
                             <a href="#" id="switchLogin" style="color:#667eea; text-decoration:none; font-weight:500;">Back to Login</a>
                         </p>
                     </form>
-
                 </div>
             </div>
         </div>
@@ -282,10 +301,13 @@
                     name: formData.get('name'),
                     email: formData.get('email'),
                     mobile: formData.get('mobile'),
+                    role: formData.get('role'),
                     password: formData.get('password'),
                     password_confirmation: formData.get('password_confirmation'),
                     _token: document.querySelector('input[name="_token"]').value
                 };
+
+                alert(payload.role)
 
                 try {
                     const res = await fetch("{{ route('admin.signup') }}", {
@@ -500,6 +522,25 @@
             // Re-enable button
             loginButton.disabled = false;
             loginButton.textContent = 'Login';
+        });
+    </script>
+
+
+    <script>
+        document.querySelectorAll('.role-selector button').forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all
+                document.querySelectorAll('.role-selector button')
+                    .forEach(
+                        btn => btn.classList.remove('bbps-btn')
+                    );
+
+                // Add active class to clicked
+                this.classList.add('bbps-btn');
+
+                // Update hidden input
+                document.getElementById('role').value = this.dataset.role;
+            });
         });
     </script>
 

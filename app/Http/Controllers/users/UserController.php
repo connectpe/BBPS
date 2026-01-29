@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 use App\Models\OauthUser;
 use Illuminate\Support\Facades\DB;
 use App\Models\GlobalService;
-
+use App\Facades\FileUpload;
 use Illuminate\Support\Facades\Auth;
 use App\Models\BusinessInfo;
 use App\Models\BusinessCategory;
@@ -27,11 +27,9 @@ class UserController extends Controller
 {
 
     public function bbpsUsers()
-
     {
-        // $data = $this->isUser(Auth::user());
-        // dd($data);
-        return view('Users.users');
+        $users = User::where('role_id', '!=', '1')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
+        return view('Users.users', compact('users'));
     }
 
 
@@ -83,7 +81,7 @@ class UserController extends Controller
     }
 
 
-      public function completeProfile(Request $request, $userId)
+    public function completeProfile(Request $request, $userId)
     {
         DB::beginTransaction();
         try {
@@ -260,38 +258,38 @@ class UserController extends Controller
 
             $profilePicPath = $user->profile_image ?? null;
             if ($request->hasFile('profile_image')) {
-                $profilePicPath =  uploadFile($request->profile_image, "profile_pictures/$userId", $user->profile_image ?? null);
+                $profilePicPath =  FileUpload::uploadFile($request->profile_image, "profile_pictures/$userId", $user->profile_image ?? null);
                 User::where('id', $userId)->update(['profile_image' => $profilePicPath]);
             }
 
             $businessDocsPath = null;
             if ($request->hasFile('business_docs')) {
                 $oldDoc = $businessData->business_document ? json_decode($businessData->business_document, true) : null;
-                $businessDocs = uploadFile($request->business_docs, "business_documents/$userId",  $oldDoc);
+                $businessDocs = FileUpload::uploadFile($request->business_docs, "business_documents/$userId",  $oldDoc);
                 $businessDocsPath = json_encode($businessDocs);
             }
 
 
             $adharFrontPath = $businessData->aadhar_front_image ?? null;
             if ($request->hasFile('adhar_front_image')) {
-                $adharFrontPath = uploadFile($request->adhar_front_image, "kyc_documents/$userId", $businessData->aadhar_front_image ?? null);
+                $adharFrontPath = FileUpload::uploadFile($request->adhar_front_image, "kyc_documents/$userId", $businessData->aadhar_front_image ?? null);
             }
 
 
             $adharBackPath = $businessData->aadhar_back_image ?? null;
             if ($request->hasFile('adhar_back_image')) {
-                $adharBackPath = uploadFile($request->adhar_back_image, "kyc_documents/$userId", $businessData->aadhar_back_image ?? null);
+                $adharBackPath = FileUpload::uploadFile($request->adhar_back_image, "kyc_documents/$userId", $businessData->aadhar_back_image ?? null);
             }
 
 
             $panCardPath = $businessData->pancard_image ?? null;
             if ($request->hasFile('pan_card_image')) {
-                $panCardPath = uploadFile($request->pan_card_image, "kyc_documents/$userId", $businessData->pancard_image ?? null);
+                $panCardPath = FileUpload::uploadFile($request->pan_card_image, "kyc_documents/$userId", $businessData->pancard_image ?? null);
             }
 
             $bankDocsPath = $bankDetail->bank_docs ?? null;
             if ($request->hasFile('bank_docs')) {
-                $bankDocsPath =  uploadFile($request->bank_docs, "bank_documents/$userId", $bankDetail->bank_docs ?? null);
+                $bankDocsPath =  FileUpload::uploadFile($request->bank_docs, "bank_documents/$userId", $bankDetail->bank_docs ?? null);
             }
 
             $data =  [
