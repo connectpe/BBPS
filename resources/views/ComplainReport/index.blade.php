@@ -2,163 +2,195 @@
 
 @section('title', 'Complaint Report')
 @section('page-title', 'Complaint Report')
+<style>
+    #complaintTable { width: auto !important; table-layout: fixed;}
+    #complaintTable th,#complaintTable td {word-break: break-word;}
+    #complaintTable th{font-size: 12px !important;}
+    #complaintTable td{font-size: 13px !important;}
+    .table-scroll-wrapper {overflow-y: auto;overflow-x: auto;border-radius: 0.25rem; }
+   #complaintTable thead th {position: sticky;top: 0;background-color: #f8f9fa;z-index: 10;}
+</style>
+
 
 @section('content')
 
-    <div class="accordion mb-3" id="filterAccordion">
-        <div class="accordion-item">
-            <h2 class="accordion-header">
-                <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#collapseFilter">
-                    Filter Complaints
-                </button>
-            </h2>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12 px-0">
+                <div class="accordion mb-3" id="filterAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button fw-bold" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapseFilter">
+                                <i class="fa-solid fa-filter me-2"></i>Filter Complaints
+                            </button>
+                        </h2>
 
-            <div id="collapseFilter" class="accordion-collapse collapse">
-                <div class="accordion-body">
-                    <div class="row align-items-end">
+                        <div id="collapseFilter" class="accordion-collapse collapse">
+                            <div class="accordion-body">
+                                <div class="row align-items-end">
 
-                        <div class="col-md-3">
-                            <label class="form-label">Reference No</label>
-                            <input type="text" id="filterReference" class="form-control">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Reference No</label>
+                                        <input type="text" id="filterReference" class="form-control"
+                                            placeholder="Enter reference...">
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label class="form-label">User Name</label>
+                                        <input type="text" id="filterUser" class="form-control"
+                                            placeholder="Enter username...">
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label class="form-label">Priority</label>
+                                        <select id="filterPriority" class="form-select">
+                                            <option value="">All</option>
+                                            <option value="low">Low</option>
+                                            <option value="normal">Normal</option>
+                                            <option value="high">High</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label class="form-label">Status</label>
+                                        <select id="filterStatus" class="form-select">
+                                            <option value="">All</option>
+                                            <option value="open">Open</option>
+                                            <option value="in_progress">In Progress</option>
+                                            <option value="resolved">Resolved</option>
+                                            <option value="closed">Closed</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label class="form-label">From Date</label>
+                                        <input type="date" id="filterDateFrom" class="form-control">
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label class="form-label">To Date</label>
+                                        <input type="date" id="filterDateTo" class="form-control">
+                                    </div>
+
+                                    <div class="col-md-12 d-flex gap-2 mt-2">
+                                        <button class="btn buttonColor" id="applyFilter">
+                                            <i class="fa-solid fa-search me-1"></i>Apply Filter
+                                        </button>
+                                        <button class="btn btn-secondary" id="resetFilter">
+                                            <i class="fa-solid fa-redo me-1"></i>Reset
+                                        </button>
+                                    </div>
+
+                                </div>
+                            </div>
                         </div>
-
-                        <div class="col-md-3">
-                            <label class="form-label">User Name</label>
-                            <input type="text" id="filterUser" class="form-control">
-                        </div>
-
-                        <div class="col-md-3">
-                            <label class="form-label">Priority</label>
-                            <select id="filterPriority" class="form-select">
-                                <option value="">All</option>
-                                <option value="Low">Low</option>
-                                <option value="Normal">Normal</option>
-                                <option value="High">High</option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-3">
-                            <label class="form-label">Status</label>
-                            <select id="filterStatus" class="form-select">
-                                <option value="">All</option>
-                                <option value="open">open</option>
-                                <option value="in_progress">in_progress</option>
-                                <option value="resolved">resolved</option>
-                                <option value="closed">closed</option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-12 d-flex gap-2 mt-2">
-                            <button class="btn buttonColor" id="applyFilter">Filter</button>
-                            <button class="btn btn-secondary" id="resetFilter">Reset</button>
-                        </div>
-
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
 
-    <div class="col-11 px-0">
-        <div class="card shadow-sm">
-            <div class="card-body pt-4">
-                <div class="table-responsive">
-                    <table id="complaintTable" class="table table-striped table-bordered table-hover w-100">
-                        <thead class="table-light">
-                            <tr>
-                                <th>#</th>
-                                <th>Reference No</th>
-                                <th>User Name</th>
-                                <th>Service Name</th>
-                                <th>Category</th>
-                                <th>Priority</th>
-                                <th>Status</th>
-                                <th class="text-center">Description</th>
-                                <th>Admin Notes</th>
-                                <th class="text-center">Attachment</th>
-                                <th>Created Date</th>
-                                <th class="text-center">Action</th>
-                            </tr>
-                        </thead>
+                <div class="card shadow-sm">
+                    <div class="card-body pt-4">
+                        <div class="table-scroll-wrapper">
+                            <table id="complaintTable" class="table table-striped table-bordered table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width: 10px !important;">#</th>
+                                        <th>Reference No</th>
+                                        <th>User Name</th>
+                                        <th>Service Name</th>
+                                        <th>Category</th>
+                                        <th>Priority</th>
+                                        <th>Status</th>
+                                        <th>Description</th>
+                                        <th>Admin Notes</th>
+                                        <th>Attachment</th>
+                                        <th>Created Date</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
 
-                        <tbody>
-                            @foreach ($complaints as $i => $c)
-                                <tr data-id="{{ $c->id }}">
-                                    <td>{{ $i + 1 }}</td>
-                                    <td class="ref">{{ $c->reference_number }}</td>
-                                    <td class="user">{{ $c->user->name ?? '-' }}</td>
-                                    <td class="service">{{ $c->service_name }}</td>
-                                    <td class="category">
-                                        {{ ucfirst($c->category ?? '-') }}
-                                    </td>
+                                <tbody>
+                                    @foreach ($complaints as $i => $c)
+                                        <tr data-id="{{ $c->id }}">
+                                            <td>{{ $i + 1 }}</td>
+                                            <td class="ref">{{ $c->reference_number }}</td>
+                                            <td class="user">{{ $c->user->name ?? '-' }}</td>
+                                            <td class="service">{{ $c->service_name }}</td>
+                                            <td class="category">
+                                                {{ ucfirst($c->category ?? '-') }}
+                                            </td>
 
 
-                                    <td class="priority">
-                                        @php
-                                            $p = $c->priority;
-                                            $pClass = 'bg-warning';
-                                            if ($p === 'high') {
-                                                $pClass = 'bg-danger';
-                                            } elseif ($p === 'urgent') {
-                                                $pClass = 'bg-dark';
-                                            } elseif ($p === 'low') {
-                                                $pClass = 'bg-success';
-                                            }
-                                        @endphp
-                                        <span class="badge {{ $pClass }}">{{ strtoupper($c->priority) }}</span>
-                                    </td>
+                                            <td class="priority">
+                                                @php
+                                                    $p = $c->priority;
+                                                    $pClass = 'bg-warning';
+                                                    if ($p === 'high') {
+                                                        $pClass = 'bg-danger';
+                                                    } elseif ($p === 'urgent') {
+                                                        $pClass = 'bg-dark';
+                                                    } elseif ($p === 'low') {
+                                                        $pClass = 'bg-success';
+                                                    }
+                                                @endphp
+                                                <span
+                                                    class="badge {{ $pClass }}">{{ strtoupper($c->priority) }}</span>
+                                            </td>
 
-                                    <td class="status">
-                                        @php
-                                            $st = $c->status;
-                                            $stClass = 'bg-warning';
-                                            if ($st === 'resolved') {
-                                                $stClass = 'bg-success';
-                                            } elseif ($st === 'in_progress') {
-                                                $stClass = 'bg-info';
-                                            } elseif ($st === 'closed') {
-                                                $stClass = 'bg-secondary';
-                                            }
-                                        @endphp
-                                        <span class="badge {{ $stClass }}">{{ strtoupper($c->status) }}</span>
-                                    </td>
+                                            <td class="status">
+                                                @php
+                                                    $st = $c->status;
+                                                    $stClass = 'bg-warning';
+                                                    if ($st === 'resolved') {
+                                                        $stClass = 'bg-success';
+                                                    } elseif ($st === 'in_progress') {
+                                                        $stClass = 'bg-info';
+                                                    } elseif ($st === 'closed') {
+                                                        $stClass = 'bg-secondary';
+                                                    }
+                                                @endphp
+                                                <span class="badge {{ $stClass }}">{{ strtoupper($c->status) }}</span>
+                                            </td>
 
-                                    <td class="text-center">
-                                        <a href="javascript:void(0)" class="text-dark view-description"
-                                            data-description="{{ $c->description }}">
-                                            <i class="fa-regular fa-eye"></i>
-                                        </a>
-                                    </td>
+                                            <td class="text-center">
+                                                <a href="javascript:void(0)" class="text-dark view-description"
+                                                    data-description="{{ $c->description }}">
+                                                    <i class="fa-regular fa-eye"></i>
+                                                </a>
+                                            </td>
 
-                                    <td class="notes">{{ $c->admin_notes ?? '-' }}</td>
+                                            <td class="notes">{{ $c->admin_notes ?? '-' }}</td>
 
-                                    <td class="text-center attachment">
-                                        @if ($c->attachment_path)
-                                            <a href="{{ asset('storage/' . $c->attachment_path) }}" target="_blank">
-                                                View
-                                            </a>
-                                        @else
-                                            -
-                                        @endif
-                                    </td>
+                                            <td class="text-center attachment">
+                                                @if ($c->attachment_path)
+                                                    <a href="{{ asset('storage/' . $c->attachment_path) }}"
+                                                        target="_blank">
+                                                        View
+                                                    </a>
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
 
-                                    <td class="created">
-                                        {{ $c->created_at ? $c->created_at->format('d-m-Y H:i') : '-' }}
-                                    </td>
+                                            <td class="created">
+                                                {{ $c->created_at ? $c->created_at->format('d-m-Y H:i') : '-' }}
+                                            </td>
 
-                                    <td class="text-center">
-                                        <button type="button" class="btn btn-sm buttonColor edit-complaint"
-                                            data-id="{{ $c->id }}" data-status="{{ $c->status }}"
-                                            data-notes="{{ $c->admin_notes }}" data-ref="{{ $c->reference_number }}">
-                                            Update
-                                        </button>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
+                                            <td class="text-center">
+                                                <button type="button" class="btn btn-sm buttonColor edit-complaint"
+                                                    data-id="{{ $c->id }}" data-status="{{ $c->status }}"
+                                                    data-notes="{{ $c->admin_notes }}"
+                                                    data-ref="{{ $c->reference_number }}">
+                                                    Update
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
 
-                    </table>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -230,18 +262,18 @@
             let table = $('#complaintTable').DataTable({
                 pageLength: 10,
                 lengthMenu: [5, 10, 25, 50],
-                responsive: true,
-                dom: "<'row mb-2'<'col-sm-4'l><'col-sm-4'f><'col-sm-4 text-end'B>>" +
+                responsive: false,
+                dom: "<'row mb-3'<'col-sm-6'l><'col-sm-6 text-end'B>>" +
                     "<'row'<'col-12'tr>>" +
-                    "<'row mt-2'<'col-sm-6'i><'col-sm-6'p>>",
+                    "<'row mt-3'<'col-sm-6'i><'col-sm-6 text-end'p>>",
                 buttons: [{
                         extend: 'excelHtml5',
-                        text: 'Excel',
+                        text: '<i class="fa-solid fa-file-excel"></i> Excel',
                         className: 'btn buttonColor btn-sm'
                     },
                     {
                         extend: 'pdfHtml5',
-                        text: 'PDF',
+                        text: '<i class="fa-solid fa-file-pdf"></i> PDF',
                         className: 'btn buttonColor btn-sm'
                     }
                 ],
@@ -252,10 +284,35 @@
 
             // Filters
             $('#applyFilter').on('click', function() {
+                const dateFrom = $('#filterDateFrom').val();
+                const dateTo = $('#filterDateTo').val();
+
                 table.column(1).search($('#filterReference').val());
                 table.column(2).search($('#filterUser').val());
                 table.column(5).search($('#filterPriority').val());
                 table.column(6).search($('#filterStatus').val());
+
+                // Date range filter using custom filter
+                $.fn.dataTable.ext.search.pop(); 
+                $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+                    let dateCell = data[10]; 
+                    
+                    if (!dateCell || dateCell === '-') return true;
+                    let dateParts = dateCell.split(' ')[0].split('-');
+                    let cellDate = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
+
+                    let fromDate = dateFrom ? new Date(dateFrom) : null;
+                    let toDate = dateTo ? new Date(dateTo) : null;
+
+                    if (fromDate && cellDate < fromDate) return false;
+                    if (toDate) {
+                        toDate.setHours(23, 59, 59, 999);
+                        if (cellDate > toDate) return false;
+                    }
+
+                    return true;
+                });
+
                 table.draw();
             });
 
@@ -263,6 +320,8 @@
             $('#resetFilter').on('click', function() {
                 $('#filterReference, #filterUser').val('');
                 $('#filterPriority, #filterStatus').val('');
+                $('#filterDateFrom, #filterDateTo').val('');
+                $.fn.dataTable.ext.search.pop(); // Remove date filter
                 table.search('').columns().search('').draw();
             });
 
