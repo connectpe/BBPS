@@ -3,29 +3,36 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Client\ConnectionException;
 
 class BbpsRechargeController extends Controller
 {
     private  $baseUrl;
-    private  $publicKey;
+    private  $publicKey;    
     private  $keyVersion;
     private  $clientId;
     private  $clientSecret;
 
     public function __construct()
     {
-        $this->baseUrl   = 'https://alpha3.mobikwik.com';
+        $this->baseUrl= 'https://alpha3.mobikwik.com';
         // $this->publicKey = file_get_contents(storage_path('keys/bbps_public_key.pem'));
         $this->keyVersion = '1.0';
-        $this->clientSecret = '';
-        $this->clientId = '';
+        $this->clientSecret = env('MOBIKWIK_CLIENT_SECRET');
+        $this->clientId = env('MOBIKWIK_CLIENT_ID');
     }
 
     public function generateToken()
     {
         try {
-            $response = Http::timeout(15)->post(
-                $this->baseUrl.'/recharge/v1/verify/retailer',
+            $response = Http::timeout(15)
+            ->withHeaders([
+                'Content-Type' => 'application/json',
+            ])
+            ->post(
+                $this->baseUrl . '/recharge/v1/verify/retailer',
                 [
                     'clientId'     => $this->clientId,
                     'clientSecret' => $this->clientSecret,
@@ -71,35 +78,33 @@ class BbpsRechargeController extends Controller
         }
     }
 
-    public function getPlans(Request $request)
-    {
-        $request->validate([
-            'mobile'      => 'required|string',
-            'operator_id' => 'required|integer',
-            'circle_id'   => 'required|integer',
-            'plan_type'   => 'nullable|integer',
-        ]);
-
+   public function getPlans($operator_id, $circle_id, $plan_type = null)
+    {        
+        
         try {
-            $opId      = $request->operator_id;
-            $cirId     = $request->circle_id;
-            $planType  = $request->plan_type;
+            $opId     = $operator_id;
+            $cirId    = $circle_id;
+            $planType = $plan_type; // optional
 
+           
+            $endpoint = "/recharge/v1/rechargePlansAPI/{$opId}/{$cirId}";           
 
-            $endpoint = "/recharge/v1/rechargePlansAPI/{$opId}/{$cirId}/{$planType}";
+            // Append planType ONLY if provided
+            if (!empty($planType)) {
+                $endpoint .= "/{$planType}";
+            }
 
-            // if (!empty($planType)) {
-            //     $endpoint .= "/{$planType}";
-            // }
-
-            $response = Http::withHeaders([
+            $response = Http::withoutVerifying()
+            ->timeout(120)
+            ->retry(3, 3000)
+            ->withHeaders([
                 'Content-Type' => 'application/json',
                 'X-MClient'    => '14',
-            ])->timeout(20)
-                ->get(config('services.mobikwik.base_url') . $endpoint);
-
+            ])
+            ->get($this->baseUrl . $endpoint);
 
             if (!$response->successful()) {
+
                 Log::error('Mobikwik Plan API HTTP Error', [
                     'url'      => $endpoint,
                     'status'   => $response->status(),
@@ -114,7 +119,6 @@ class BbpsRechargeController extends Controller
 
             $data = $response->json();
 
-
             if (isset($data['success']) && $data['success'] === false) {
                 return response()->json([
                     'success' => false,
@@ -123,21 +127,22 @@ class BbpsRechargeController extends Controller
                 ], 400);
             }
 
-
             return response()->json([
                 'success' => true,
-                'data'    => $data['data'] ?? [],
+                'data'    => $data['data']['plans'] ?? [],
             ], 200);
+
         } catch (\Illuminate\Http\Client\ConnectionException $e) {
 
             Log::error('Mobikwik Plan API Timeout', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
                 'message' => 'Provider timeout, please try again later',
             ], 504);
+
         } catch (\Exception $e) {
 
             Log::error('Mobikwik Plan API Exception', [
@@ -152,6 +157,7 @@ class BbpsRechargeController extends Controller
             ], 500);
         }
     }
+
 
     public function balance(Request $request)
     {
@@ -277,5 +283,9 @@ class BbpsRechargeController extends Controller
                 'message' => $e->getMessage(),
             ]);
         }
+    }
+
+    public function viewBill(Request $request){
+
     }
 }
