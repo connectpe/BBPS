@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BbpsRechargeController;
 use App\Http\Controllers\CommonController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ServiceController;
@@ -68,6 +69,12 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('admin/service/edit/{id}', [AdminController::class, 'EditService'])
         ->name('admin.service.edit');
 
+        
+    Route::prefix('recharge')->group(function () {
+        Route::post('/get-plans', [BbpsRechargeController::class, 'getPlans']);
+    });
+
+
 
     Route::get('services', [ServiceRequestController::class, 'enabledServices'])->name('enabled_services');
 
@@ -75,7 +82,9 @@ Route::group(['middleware' => ['auth']], function () {
 
     // Users Related Route
     Route::get('/users', [UserController::class, 'bbpsUsers'])->name('users');
+
     Route::get('reports/{type}', [ReportController::class, 'index'])->name('reports');
+
 
     // Route::get('recharge-report', [ReportController::class, 'RechargeReport'])->name('recharge_report');
     // Route::get('banking-report', [ReportController::class, 'BankingTransactionReport'])->name('banking_report');
