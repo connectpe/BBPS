@@ -292,6 +292,8 @@ class CommonController extends Controller
 			(isset($request->tr_type) && !empty($request->tr_type)) ||
 			(isset($request->account_number) && !empty($request->account_number)) ||
 			(isset($request->from) && !empty($request->from)) ||
+			(isset($request->date_from) && !empty($request->date_from)) ||
+			(isset($request->date_to) && !empty($request->date_to)) ||
 			(isset($request->status) && $request->status != '') ||
 			(isset($request->apes_status_array) && $request->apes_status_array != '') ||
 			(isset($request->area) && $request->area != '') ||
@@ -382,6 +384,16 @@ class CommonController extends Controller
 				$request['from'],
 				$request['to']
 			]);
+		}
+		if (!empty($request->get('date_from')) && !empty($request->get('date_to'))) {
+			$query->whereBetween(DB::raw('DATE(created_at)'), [
+				$request->get('date_from'),
+				$request->get('date_to')
+			]);
+		} elseif (!empty($request->get('date_from'))) {
+			$query->whereDate('created_at', '>=', $request->get('date_from'));
+		} elseif (!empty($request->get('date_to'))) {
+			$query->whereDate('created_at', '<=', $request->get('date_to'));
 		}
 
 
