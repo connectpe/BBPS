@@ -8,15 +8,15 @@
     #complaintTable th,#complaintTable td { word-break: break-word; }
     #complaintTable th{ font-size: 12px !important; }
     #complaintTable td{ font-size: 13px !important; }
-    .table-scroll-wrapper { overflow-y: auto; overflow-x: auto; border-radius: 0.25rem; }
-    #complaintTable thead th { position: sticky; top: 0; background-color: #f8f9fa; z-index: 10; }
+    /* .table-scroll-wrapper { overflow-y: auto; overflow-x: auto; border-radius: 0.25rem; } */
+    /* #complaintTable thead th { position: sticky; top: 0; background-color: #f8f9fa; z-index: 10; } */
 </style>
 
 @section('content')
 
 <div class="container-fluid">
     <div class="row">
-        <div class="col-lg-12 px-0">
+        <div class="col-lg-12">
 
             {{-- FILTER --}}
             <div class="accordion mb-3" id="filterAccordion">
@@ -211,6 +211,7 @@ $(document).ready(function() {
 
         pageLength: 10,
         lengthMenu: [5, 10, 25, 50],
+        searchable: true,
         responsive: false,
 
         dom: "<'row mb-3'<'col-sm-6'l><'col-sm-6 text-end'B>>" +
