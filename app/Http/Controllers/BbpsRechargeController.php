@@ -15,7 +15,7 @@ class BbpsRechargeController extends Controller
     public function __construct()
     {
         $this->baseUrl   = 'https://alpha3.mobikwik.com';
-        $this->publicKey = file_get_contents(storage_path('keys/bbps_public_key.pem'));
+        // $this->publicKey = file_get_contents(storage_path('keys/bbps_public_key.pem'));
         $this->keyVersion = '1.0';
         $this->clientSecret = '';
         $this->clientId = '';
@@ -25,7 +25,7 @@ class BbpsRechargeController extends Controller
     {
         try {
             $response = Http::timeout(15)->post(
-                $this->baseUrl . '/recharge/v1/verify/retailer',
+                $this->baseUrl.'/recharge/v1/verify/retailer',
                 [
                     'clientId'     => $this->clientId,
                     'clientSecret' => $this->clientSecret,
@@ -74,6 +74,7 @@ class BbpsRechargeController extends Controller
     public function getPlans(Request $request)
     {
         $request->validate([
+            'mobile'      => 'required|string',
             'operator_id' => 'required|integer',
             'circle_id'   => 'required|integer',
             'plan_type'   => 'nullable|integer',
@@ -85,10 +86,11 @@ class BbpsRechargeController extends Controller
             $planType  = $request->plan_type;
 
 
-            $endpoint = "/recharge/v1/rechargePlansAPI/{$opId}/{$cirId}";
-            if (!empty($planType)) {
-                $endpoint .= "/{$planType}";
-            }
+            $endpoint = "/recharge/v1/rechargePlansAPI/{$opId}/{$cirId}/{$planType}";
+
+            // if (!empty($planType)) {
+            //     $endpoint .= "/{$planType}";
+            // }
 
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
@@ -154,7 +156,6 @@ class BbpsRechargeController extends Controller
     public function balance(Request $request)
     {
         try {
-            // Validate request
             $request->validate([
                 'memberId' => 'required|string',
             ]);

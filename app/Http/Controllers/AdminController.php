@@ -36,12 +36,12 @@ class AdminController extends Controller
                 ->select('id', 'slug', 'service_name')
                 ->get();
 
-            $data['userdata'] = User::where('id', $userId)->select('name', 'email', 'mobile', 'status', 'role_id','profile_image')->first();
+            $data['userdata'] = User::where('id', $userId)->select('name', 'email', 'mobile', 'status', 'role_id', 'profile_image')->first();
             $data['businessInfo'] = BusinessInfo::where('user_id', $userId)->first();
             $data['businessCategory'] = BusinessCategory::where('status', 1)->orderBy('id', 'desc')->get();
 
             $data['usersBank'] = UsersBank::where('user_id', $userId)->first();
-            
+
             return view('Admin.profile')->with($data);
         } catch (\Exception $e) {
             return response()->json([
@@ -157,8 +157,6 @@ class AdminController extends Controller
                 'message' => 'Service added successfully',
                 'data' => $service,
             ], 201);
-
-
         } catch (\Exception $e) {
 
             return response()->json([
@@ -207,7 +205,6 @@ class AdminController extends Controller
 
                 'message' => 'Service name updated successfully',
             ], 200);
-
         } catch (\Exception $e) {
 
             return response()->json([
@@ -258,7 +255,6 @@ class AdminController extends Controller
                 'message' => 'User status updated  successfully',
 
             ], 200);
-
         } catch (Exception $e) {
             return response()->json([
                 'status' => false,
@@ -297,5 +293,4 @@ class AdminController extends Controller
             ], 500);
         }
     }
-
 }

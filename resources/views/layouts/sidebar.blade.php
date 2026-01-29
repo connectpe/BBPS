@@ -332,7 +332,114 @@
 
     </ul>
 
-    @endif
+    @elseif($role == 3)
 
+    <ul class="nav nav-pills flex-column mb-auto">
+
+        <!-- Dashboard -->
+        <li class="nav-item">
+            <a href="{{ route('dashboard') }}"
+                class="nav-link text-white {{ Route::is('dashboard') ? 'sidebar-active' : '' }}">
+                <i class="bi bi-speedometer2 me-2"></i> Dashboard
+            </a>
+        </li>
+
+        <!-- User Management -->
+        <li class="nav-item mt-2">
+            <ul class="nav nav-pills flex-column mb-auto">
+
+                @php
+                $userRoute = ['enabled_services'];
+                $userActive = in_array(Route::currentRouteName(), $userRoute);
+                @endphp
+
+                <li class="nav-item">
+                    <a class="nav-link text-white d-flex justify-content-between align-items-center {{ $userActive ? '' : 'collapsed' }} {{ $userActive ? 'sidebar-active' : '' }}"
+                        data-bs-toggle="collapse" href="#userManagement" role="button"
+                        aria-expanded="{{ $userActive ? 'true' : 'false' }}" aria-controls="userManagement">
+                        <span><i class="bi bi-people me-2"></i> Service</span>
+                        <i class="bi bi-chevron-down small"></i>
+                    </a>
+
+                    <div class="collapse {{ $userActive ? 'show' : '' }} ms-3" id="userManagement">
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a href="{{ route('enabled_services') }}"
+                                    class="nav-link text-white {{ Route::currentRouteName() == 'enabled_services' ? 'sidebar-active' : '' }}">
+                                    <i class="bi bi-clipboard-check me-2"></i>
+                                    Services
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </li>
+
+        <!-- Transactions -->
+        <li class="nav-item mt-2">
+            <ul class="nav nav-pills flex-column mb-auto">
+
+                @php
+                $transactionRoute = ['reports/recharge','reports/utility','reports/banking'];
+                $servicesActive = in_array(Route::currentRouteName(), $transactionRoute);
+                @endphp
+
+                <li class="nav-item">
+                    <a class="nav-link text-white d-flex justify-content-between align-items-center {{ $servicesActive ? '' : 'collapsed' }} {{ $servicesActive ? 'sidebar-active' : '' }}"
+                        data-bs-toggle="collapse" href="#transactionManagement" role="button"
+                        aria-expanded="{{ $servicesActive ? 'true' : 'false' }}">
+                        <span><i class="bi bi-cash-stack me-2"></i> Transactions</span>
+                        <i class="bi bi-chevron-down small"></i>
+                    </a>
+
+                    <div class="collapse {{ $servicesActive ? 'show' : '' }} ms-3" id="transactionManagement">
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a href="{{ url('reports/recharge') }}"
+                                    class="nav-link text-white {{ request()->is('reports/recharge') ? 'sidebar-active' : '' }}">
+                                    <i class="bi bi-phone me-2"></i>
+                                    Recharge
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href="{{ url('reports/banking') }}"
+                                    class="nav-link text-white {{ request()->is('reports/banking') ? 'sidebar-active' : '' }}">
+                                    <i class="bi bi-bank me-2"></i>
+                                    Banking
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href="{{ url('reports/utility') }}"
+                                    class="nav-link text-white {{ request()->is('reports/utility') ? 'sidebar-active' : '' }}">
+                                    <i class="bi bi-lightning-charge me-2"></i>
+                                    Utility
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </li>
+
+
+        <!-- Logout -->
+        <li class="nav-item">
+            <form action="{{ route('admin.logout') }}" method="POST">
+                @csrf
+                <button type="submit"
+                    class="nav-link btn btn-link text-white w-100 text-start d-flex align-items-center gap-2 px-3"
+                    style="background-color: #e76666;">
+                    <i class="bi bi-box-arrow-right fs-5"></i>
+                    <span>Logout</span>
+                </button>
+            </form>
+        </li>
+
+    </ul>
+
+    @endif
 
 </nav>

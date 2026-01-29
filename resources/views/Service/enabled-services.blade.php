@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Recharge Report')
-@section('page-title', 'Recharge Report')
+@section('title', 'Active Services')
+@section('page-title', 'Active Services')
 
 @section('content')
 
@@ -20,32 +20,13 @@
                         <input type="text" class="form-control" id="filterOrderId" placeholder="Enter OrderId">
                     </div> -->
 
-                    <div class="col-md-3">
-                        <label for="filterUser" class="form-label">User</label>
-                        <select id="filterUser" class="form-control">
-                            <option value="">--Select User--</option>
-                            @foreach($users as $value)
-                            <option value="{{$value->id}}">{{$value->name}}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
+                    <!--                    
                     <div class="col-md-3">
                         <label for="filterreferenceId" class="form-label">ReferenceId</label>
                         <input type="text" class="form-control" id="filterreferenceId" placeholder="Enter ReferenceId">
-                    </div>
+                    </div> -->
 
-                    <div class="col-md-3">
-                        <label for="filterStatus" class="form-label">Status</label>
-                        <select class="form-select" id="filterStatus">
-                            <option value="">--select--</option>
-                            <option value="pending">Pending</option>
-                            <option value="processing">Processing</option>
-                            <option value="processed">Processed</option>
-                            <option value="failed">Failed</option>
-                            <option value="reversed">Reversed</option>
-                        </select>
-                    </div>
+
 
                     <div class="col-md-3 d-flex gap-2">
                         <button class="btn buttonColor " id="applyFilter"> Filter</button>
@@ -68,12 +49,7 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>User</th>
-                            <th>Operator</th>
-                            <th>Circle</th>
-                            <th>Amount</th>
-                            <th>Transaction Type</th>
-                            <th>Referene No</th>
+                            <th>Service Name</th>
                             <th>Created at</th>
                             <th>Status</th>
                         </tr>
@@ -128,25 +104,6 @@
                     data: 'id'
                 },
                 {
-                    data: 'user.name',
-                    render: function(data, type, row) {
-
-                        const userRole = "{{Auth::user()->role_id}}";
-
-                        if (userRole == 1) {
-                            let url = "{{route('view_user',['id' => 'id'])}}".replace('id', row.user_id);
-                            return `
-                        <a href="${url}" class="text-primary fw-semibold text-decoration-none">
-                            ${data ?? '----'}
-                        </a>
-                    `;
-                        } else {
-                            return data;
-                        }
-
-                    }
-                },
-                {
                     data: 'operator',
                     render: function(data, type, row) {
                         const operator = `${data.name} [${data.code}]`;
@@ -162,33 +119,6 @@
                 },
                 {
                     data: 'amount'
-                },
-                {
-                    data: 'transaction_type'
-                },
-                {
-                    data: 'reference_number'
-                },
-                {
-                    data: 'created_at',
-                },
-                {
-                    data: 'status',
-                    render: function(data) {
-
-                        const colors = {
-                            pending: 'secondary', // gray – waiting
-                            processing: 'warning', // yellow – in progress
-                            processed: 'success', // green – done
-                            failed: 'danger', // red – error
-                            reversed: 'info', // blue – rolled back
-                        };
-
-                        const color = colors[data] || 'secondary';
-                        return `<span class="badge bg-${color}">${formatStatus(data)}</span>`;
-                    },
-                    orderable: false,
-                    searchable: false
                 },
 
             ]
@@ -206,14 +136,6 @@
             $('#filterStatus').val('');
             table.ajax.reload();
         });
-
-        function formatStatus(status) {
-            if (!status) return '';
-
-            return status
-                .toLowerCase()
-                .replace(/^\w/, c => c.toUpperCase());
-        }
     });
 </script>
 

@@ -3,11 +3,12 @@
 namespace App\Http\Controllers\users;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class ReportController extends Controller
 {
-    
+
     public function index($type)
     {
         switch ($type) {
@@ -31,10 +32,12 @@ class ReportController extends Controller
                 abort(404);
         }
 
+        $users = User::where('role_id', '!=', '1')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
+
         return view($view, [
             'page_title' => $pageTitle,
-            'site_title' => $pageTitle
+            'site_title' => $pageTitle,
+            'users' => $users
         ]);
     }
-
 }

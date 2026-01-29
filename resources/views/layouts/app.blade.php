@@ -45,7 +45,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
     <link rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
     <!-- Sweetalert  -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -137,6 +137,7 @@
 
 <body class="d-flex">
 
+   
     {{-- Sidebar --}}
     @include('layouts.sidebar')
 

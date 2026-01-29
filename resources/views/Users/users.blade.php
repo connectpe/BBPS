@@ -16,19 +16,26 @@
             <div class="accordion-body">
                 <div class="row g-3 align-items-end">
                     <div class="col-md-3">
-                        <label for="filterName" class="form-label">Name</label>
-                        <input type="text" class="form-control" id="filterName" placeholder="Enter name">
+                        <label for="filterName" class="form-label">User</label>
+                        <select name="filterName" id="filterName" class="form-control">
+                            <option value="">--Select User--</option>
+                            @foreach($users as $value)
+                            <option value="{{$value->id}}">{{$value->name}}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="col-md-3">
                         <label for="filterEmail" class="form-label">Email</label>
-                        <input type="text" class="form-control" id="filterEmail" placeholder="Enter email">
+                        <input type="email" class="form-control" id="filterEmail" placeholder="Enter Email">
                     </div>
+                   
                     <div class="col-md-3">
                         <label for="filterStatus" class="form-label">Status</label>
                         <select class="form-select" id="filterStatus">
                             <option value="">All</option>
-                            <option value="Active">Active</option>
-                            <option value="Inactive">Inactive</option>
+                            <option value="0">Initiated</option>
+                            <option value="1">Active</option>
+                            <option value="2">Inactive</option>
                         </select>
                     </div>
                     <div class="col-md-3 d-flex gap-2">
@@ -59,7 +66,7 @@
                             <th>Email</th>
                             <th>PanNO.</th>
                             <th>Aadhar NO.</th>
-                            <th>Aadhaar No</th>
+                            <th>Created at</th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -80,10 +87,9 @@
                 url: "{{url('fetch')}}/users/0",
                 type: 'POST',
 
-
                 data: function(d) {
                     d._token = $('meta[name="csrf-token"]').attr('content');
-                    d.name = $('#filterName').val();
+                    d.id = $('#filterName').val();
                     d.email = $('#filterEmail').val();
                     d.status = $('#filterStatus').val();
                 }
