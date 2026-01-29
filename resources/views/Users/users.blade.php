@@ -15,7 +15,7 @@
         <div id="collapseFilter" class="accordion-collapse collapse" aria-labelledby="headingFilter" data-bs-parent="#filterAccordion">
             <div class="accordion-body">
                 <div class="row g-3 align-items-end">
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <label for="filterName" class="form-label">User</label>
                         <select name="filterName" id="filterName" class="form-control">
                             <option value="">--Select User--</option>
@@ -24,12 +24,12 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <label for="filterEmail" class="form-label">Email</label>
                         <input type="email" class="form-control" id="filterEmail" placeholder="Enter Email">
                     </div>
 
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <label for="filterStatus" class="form-label">Status</label>
                         <select class="form-select" id="filterStatus">
                             <option value="">All</option>
@@ -38,8 +38,6 @@
                             <option value="2">Inactive</option>
                         </select>
                     </div>
-
-                    {{-- ✅ ADDED: Date Range Filters --}}
                     <div class="col-md-3">
                         <label for="filterDateFrom" class="form-label">From Date</label>
                         <input type="date" class="form-control" id="filterDateFrom">
@@ -51,7 +49,6 @@
                     </div>
 
                     <div class="col-md-3 d-flex gap-2">
-                        <!-- Buttons aligned with input fields -->
                         <button class="btn buttonColor " id="applyFilter"> Filter</button>
                         <button class="btn btn-secondary" id="resetFilter">Reset</button>
                     </div>
