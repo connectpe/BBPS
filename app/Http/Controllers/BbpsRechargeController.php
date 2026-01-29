@@ -25,7 +25,7 @@ class BbpsRechargeController extends Controller
     {
         try {
             $response = Http::timeout(15)->post(
-                $this->baseUrl . '/recharge/v1/verify/retailer',
+                $this->baseUrl.'/recharge/v1/verify/retailer',
                 [
                     'clientId'     => $this->clientId,
                     'clientSecret' => $this->clientSecret,
