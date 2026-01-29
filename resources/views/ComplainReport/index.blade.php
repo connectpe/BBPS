@@ -2,419 +2,359 @@
 
 @section('title', 'Complaint Report')
 @section('page-title', 'Complaint Report')
-<style>
-    #complaintTable { width: auto !important; table-layout: fixed;}
-    #complaintTable th,#complaintTable td {word-break: break-word;}
-    #complaintTable th{font-size: 12px !important;}
-    #complaintTable td{font-size: 13px !important;}
-    .table-scroll-wrapper {overflow-y: auto;overflow-x: auto;border-radius: 0.25rem; }
-   #complaintTable thead th {position: sticky;top: 0;background-color: #f8f9fa;z-index: 10;}
-</style>
 
+<style>
+    /* #complaintTable { width: 100% !important; table-layout: fixed; } */
+    #complaintTable th,#complaintTable td { word-break: break-word; }
+    #complaintTable th{ font-size: 12px !important; }
+    #complaintTable td{ font-size: 13px !important; }
+    .table-scroll-wrapper { overflow-y: auto; overflow-x: auto; border-radius: 0.25rem; }
+    #complaintTable thead th { position: sticky; top: 0; background-color: #f8f9fa; z-index: 10; }
+</style>
 
 @section('content')
 
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-lg-12 px-0">
-                <div class="accordion mb-3" id="filterAccordion">
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button fw-bold" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#collapseFilter">
-                                <i class="fa-solid fa-filter me-2"></i>Filter Complaints
-                            </button>
-                        </h2>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-12 px-0">
 
-                        <div id="collapseFilter" class="accordion-collapse collapse">
-                            <div class="accordion-body">
-                                <div class="row align-items-end">
+            {{-- FILTER --}}
+            <div class="accordion mb-3" id="filterAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFilter">
+                            <i class="fa-solid fa-filter me-2"></i>Filter Complaints
+                        </button>
+                    </h2>
 
-                                    <div class="col-md-3">
-                                        <label class="form-label">Reference No</label>
-                                        <input type="text" id="filterReference" class="form-control"
-                                            placeholder="Enter reference...">
-                                    </div>
+                    <div id="collapseFilter" class="accordion-collapse collapse">
+                        <div class="accordion-body">
+                            <div class="row align-items-end g-2">
 
-                                    <div class="col-md-3">
-                                        <label class="form-label">User Name</label>
-                                        <input type="text" id="filterUser" class="form-control"
-                                            placeholder="Enter username...">
-                                    </div>
-
-                                    <div class="col-md-3">
-                                        <label class="form-label">Priority</label>
-                                        <select id="filterPriority" class="form-select">
-                                            <option value="">All</option>
-                                            <option value="low">Low</option>
-                                            <option value="normal">Normal</option>
-                                            <option value="high">High</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="col-md-3">
-                                        <label class="form-label">Status</label>
-                                        <select id="filterStatus" class="form-select">
-                                            <option value="">All</option>
-                                            <option value="open">Open</option>
-                                            <option value="in_progress">In Progress</option>
-                                            <option value="resolved">Resolved</option>
-                                            <option value="closed">Closed</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="col-md-3">
-                                        <label class="form-label">From Date</label>
-                                        <input type="date" id="filterDateFrom" class="form-control">
-                                    </div>
-
-                                    <div class="col-md-3">
-                                        <label class="form-label">To Date</label>
-                                        <input type="date" id="filterDateTo" class="form-control">
-                                    </div>
-
-                                    <div class="col-md-12 d-flex gap-2 mt-2">
-                                        <button class="btn buttonColor" id="applyFilter">
-                                            <i class="fa-solid fa-search me-1"></i>Apply Filter
-                                        </button>
-                                        <button class="btn btn-secondary" id="resetFilter">
-                                            <i class="fa-solid fa-redo me-1"></i>Reset
-                                        </button>
-                                    </div>
-
+                                <div class="col-md-3">
+                                    <label class="form-label">Reference No</label>
+                                    <input type="text" id="filterReference" class="form-control" placeholder="Enter reference...">
                                 </div>
+
+                                <div class="col-md-3">
+                                    <label class="form-label">User Name</label>
+                                    <input type="text" id="filterUser" class="form-control" placeholder="Enter username...">
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="form-label">Priority</label>
+                                    <select id="filterPriority" class="form-select">
+                                        <option value="">All</option>
+                                        <option value="low">Low</option>
+                                        <option value="normal">Normal</option>
+                                        <option value="high">High</option>
+                                        <option value="urgent">Urgent</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="form-label">Status</label>
+                                    <select id="filterStatus" class="form-select">
+                                        <option value="">All</option>
+                                        @foreach ($statuses as $st)
+                                            <option value="{{ $st }}">{{ strtoupper($st) }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="form-label">From Date</label>
+                                    <input type="date" id="filterDateFrom" class="form-control">
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="form-label">To Date</label>
+                                    <input type="date" id="filterDateTo" class="form-control">
+                                </div>
+
+                                <div class="col-md-12 d-flex gap-2 mt-2">
+                                    <button class="btn buttonColor" id="applyFilter">
+                                        <i class="fa-solid fa-search me-1"></i>Apply Filter
+                                    </button>
+                                    <button class="btn btn-secondary" id="resetFilter">
+                                        <i class="fa-solid fa-redo me-1"></i>Reset
+                                    </button>
+                                </div>
+
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="card shadow-sm">
-                    <div class="card-body pt-4">
-                        <div class="table-scroll-wrapper">
-                            <table id="complaintTable" class="table table-striped table-bordered table-hover">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th style="width: 10px !important;">#</th>
-                                        <th>Reference No</th>
-                                        <th>User Name</th>
-                                        <th>Service Name</th>
-                                        <th>Category</th>
-                                        <th>Priority</th>
-                                        <th>Status</th>
-                                        <th>Description</th>
-                                        <th>Admin Notes</th>
-                                        <th>Attachment</th>
-                                        <th>Created Date</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-
-                                <tbody>
-                                    @foreach ($complaints as $i => $c)
-                                        <tr data-id="{{ $c->id }}">
-                                            <td>{{ $i + 1 }}</td>
-                                            <td class="ref">{{ $c->reference_number }}</td>
-                                            <td class="user">{{ $c->user->name ?? '-' }}</td>
-                                            <td class="service">{{ $c->service_name }}</td>
-                                            <td class="category">
-                                                {{ ucfirst($c->category ?? '-') }}
-                                            </td>
-
-
-                                            <td class="priority">
-                                                @php
-                                                    $p = $c->priority;
-                                                    $pClass = 'bg-warning';
-                                                    if ($p === 'high') {
-                                                        $pClass = 'bg-danger';
-                                                    } elseif ($p === 'urgent') {
-                                                        $pClass = 'bg-dark';
-                                                    } elseif ($p === 'low') {
-                                                        $pClass = 'bg-success';
-                                                    }
-                                                @endphp
-                                                <span
-                                                    class="badge {{ $pClass }}">{{ strtoupper($c->priority) }}</span>
-                                            </td>
-
-                                            <td class="status">
-                                                @php
-                                                    $st = $c->status;
-                                                    $stClass = 'bg-warning';
-                                                    if ($st === 'resolved') {
-                                                        $stClass = 'bg-success';
-                                                    } elseif ($st === 'in_progress') {
-                                                        $stClass = 'bg-info';
-                                                    } elseif ($st === 'closed') {
-                                                        $stClass = 'bg-secondary';
-                                                    }
-                                                @endphp
-                                                <span class="badge {{ $stClass }}">{{ strtoupper($c->status) }}</span>
-                                            </td>
-
-                                            <td class="text-center">
-                                                <a href="javascript:void(0)" class="text-dark view-description"
-                                                    data-description="{{ $c->description }}">
-                                                    <i class="fa-regular fa-eye"></i>
-                                                </a>
-                                            </td>
-
-                                            <td class="notes">{{ $c->admin_notes ?? '-' }}</td>
-
-                                            <td class="text-center attachment">
-                                                @if ($c->attachment_path)
-                                                    <a href="{{ asset('storage/' . $c->attachment_path) }}"
-                                                        target="_blank">
-                                                        View
-                                                    </a>
-                                                @else
-                                                    -
-                                                @endif
-                                            </td>
-
-                                            <td class="created">
-                                                {{ $c->created_at ? $c->created_at->format('d-m-Y H:i') : '-' }}
-                                            </td>
-
-                                            <td class="text-center">
-                                                <button type="button" class="btn btn-sm buttonColor edit-complaint"
-                                                    data-id="{{ $c->id }}" data-status="{{ $c->status }}"
-                                                    data-notes="{{ $c->admin_notes }}"
-                                                    data-ref="{{ $c->reference_number }}">
-                                                    Update
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-
-                            </table>
-                        </div>
+            {{-- TABLE --}}
+            <div class="card shadow-sm">
+                <div class="card-body pt-4">
+                    <div class="table-scroll-wrapper">
+                        <table id="complaintTable" class="table table-striped table-bordered table-hover w-100">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Reference No</th>
+                                    <th>User Name</th>
+                                    <th>Service Name</th>
+                                    <th>Category</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Description</th>
+                                    <th>Admin Notes</th>
+                                    <th>Attachment</th>
+                                    <th>Created Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                        </table>
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
+</div>
 
-    {{-- Description Modal --}}
-    <div class="modal fade" id="descriptionModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header border-bottom-0">
-                    <h5 class="modal-title">Complaint Description</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-
-                <div class="modal-body">
-                    <p id="descriptionText" class="mb-0"></p>
-                </div>
-
-                <div class="modal-footer border-top-0">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
+{{-- Description Modal --}}
+<div class="modal fade" id="descriptionModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-bottom-0">
+                <h5 class="modal-title">Complaint Description</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="descriptionText" class="mb-0"></p>
+            </div>
+            <div class="modal-footer border-top-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
+</div>
 
-    {{-- Update Modal --}}
-    <div class="modal fade" id="updateModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header border-bottom-0">
-                    <h5 class="modal-title">Update Complaint: <span id="updateRef"></span></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+{{-- Update Modal --}}
+<div class="modal fade" id="updateModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-bottom-0">
+                <h5 class="modal-title">Update Complaint: <span id="updateRef"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <input type="hidden" id="complaintId">
+
+                <div class="mb-3">
+                    <label class="form-label">Status</label>
+                    <select id="updateStatus" class="form-select">
+                        @foreach ($statuses as $st)
+                            <option value="{{ $st }}">{{ strtoupper($st) }}</option>
+                        @endforeach
+                    </select>
+                    <small class="text-danger d-none" id="err_updateStatus"></small>
                 </div>
 
-                <div class="modal-body">
-                    <input type="hidden" id="complaintId">
-
-                    <div class="mb-3">
-                        <label class="form-label">Status</label>
-                        <select id="updateStatus" class="form-select">
-                            @foreach ($statuses as $st)
-                                <option value="{{ $st }}">{{ strtoupper($st) }}</option>
-                            @endforeach
-                        </select>
-                        <small class="text-danger d-none" id="err_updateStatus"></small>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Admin Notes</label>
-                        <textarea id="updateNotes" class="form-control" rows="3" placeholder="Write admin notes..."></textarea>
-                        <small class="text-danger d-none" id="err_updateNotes"></small>
-                    </div>
+                <div class="mb-3">
+                    <label class="form-label">Admin Notes</label>
+                    <textarea id="updateNotes" class="form-control" rows="3" placeholder="Write admin notes..."></textarea>
+                    <small class="text-danger d-none" id="err_updateNotes"></small>
                 </div>
+            </div>
 
-                <div class="modal-footer border-top-0">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn buttonColor" id="saveUpdate">Save</button>
-                </div>
+            <div class="modal-footer border-top-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn buttonColor" id="saveUpdate">Save</button>
             </div>
         </div>
     </div>
-    <script>
-        $(document).ready(function() {
+</div>
 
-            function resetUpdateErrors() {
-                $('#err_updateStatus, #err_updateNotes').addClass('d-none').text('');
+<script>
+$(document).ready(function() {
+
+    function formatDateTime(dt) {
+        if (!dt) return '-';
+        const d = new Date(dt);
+        const dd = String(d.getDate()).padStart(2, '0');
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const yyyy = d.getFullYear();
+        const hh = String(d.getHours()).padStart(2, '0');
+        const min = String(d.getMinutes()).padStart(2, '0');
+        return `${dd}-${mm}-${yyyy} ${hh}:${min}`;
+    }
+
+    function resetUpdateErrors() {
+        $('#err_updateStatus, #err_updateNotes').addClass('d-none').text('');
+    }
+
+    let table = $('#complaintTable').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: "{{ route('complain.report.fetch') }}",
+            type: "POST",
+            data: function(d) {
+                d._token = $('meta[name="csrf-token"]').attr('content');
+
+                d.reference_number = $('#filterReference').val();
+                d.user_name = $('#filterUser').val();
+                d.priority = $('#filterPriority').val();
+                d.status = $('#filterStatus').val();
+
+                d.date_from = $('#filterDateFrom').val();
+                d.date_to = $('#filterDateTo').val();
             }
+        },
 
-            let table = $('#complaintTable').DataTable({
-                pageLength: 10,
-                lengthMenu: [5, 10, 25, 50],
-                responsive: false,
-                dom: "<'row mb-3'<'col-sm-6'l><'col-sm-6 text-end'B>>" +
-                    "<'row'<'col-12'tr>>" +
-                    "<'row mt-3'<'col-sm-6'i><'col-sm-6 text-end'p>>",
-                buttons: [{
-                        extend: 'excelHtml5',
-                        text: '<i class="fa-solid fa-file-excel"></i> Excel',
-                        className: 'btn buttonColor btn-sm'
-                    },
-                    {
-                        extend: 'pdfHtml5',
-                        text: '<i class="fa-solid fa-file-pdf"></i> PDF',
-                        className: 'btn buttonColor btn-sm'
-                    }
-                ],
-                language: {
-                    searchPlaceholder: "Search complaints..."
+        pageLength: 10,
+        lengthMenu: [5, 10, 25, 50],
+        responsive: false,
+
+        dom: "<'row mb-3'<'col-sm-6'l><'col-sm-6 text-end'B>>" +
+             "<'row'<'col-12'tr>>" +
+             "<'row mt-3'<'col-sm-6'i><'col-sm-6 text-end'p>>",
+
+        buttons: [
+            { extend: 'excelHtml5', text: '<i class="fa-solid fa-file-excel"></i> Excel', className: 'btn buttonColor btn-sm' },
+            { extend: 'pdfHtml5',   text: '<i class="fa-solid fa-file-pdf"></i> PDF',   className: 'btn buttonColor btn-sm' }
+        ],
+
+        language: { searchPlaceholder: "Search complaints..." },
+
+        columns: [
+            { data: 'id', render: function(data, type, row, meta) {
+                return meta.row + meta.settings._iDisplayStart + 1;
+            }, orderable: false, searchable: false },
+
+            { data: 'reference_number' },
+            { data: 'user_name' },
+            { data: 'service_name' },
+            { data: 'category', render: (d)=> d ? (d.charAt(0).toUpperCase()+d.slice(1)) : '-' },
+
+            { data: 'priority', render: function(d){
+                let cls = 'bg-warning';
+                if (d === 'high') cls = 'bg-danger';
+                else if (d === 'urgent') cls = 'bg-dark';
+                else if (d === 'low') cls = 'bg-success';
+                return `<span class="badge ${cls}">${(d || '-').toUpperCase()}</span>`;
+            }},
+
+            { data: 'status', render: function(d){
+                let cls = 'bg-warning';
+                if (d === 'resolved') cls = 'bg-success';
+                else if (d === 'in_progress') cls = 'bg-info';
+                else if (d === 'closed') cls = 'bg-secondary';
+                return `<span class="badge ${cls}">${(d || '-').toUpperCase()}</span>`;
+            }},
+
+            { data: 'description', render: function(d){
+                return `
+                    <a href="javascript:void(0)" class="text-dark view-description" data-description="${(d ?? '').replace(/"/g, '&quot;')}">
+                        <i class="fa-regular fa-eye"></i>
+                    </a>
+                `;
+            }, orderable:false, searchable:false, className:'text-center' },
+
+            { data: 'admin_notes', render: (d)=> d ?? '-' },
+
+            { data: 'attachment_url', render: function(d){
+                if(!d) return '-';
+                return `<a href="${d}" target="_blank">View</a>`;
+            }, orderable:false, searchable:false, className:'text-center' },
+
+            { data: 'created_at', render: function(d){ return formatDateTime(d); } },
+
+            { data: 'id', render: function(id, type, row){
+                return `
+                    <button type="button"
+                        class="btn btn-sm buttonColor edit-complaint"
+                        data-id="${id}"
+                        data-status="${row.status}"
+                        data-notes="${(row.admin_notes ?? '').replace(/"/g,'&quot;')}"
+                        data-ref="${row.reference_number}">
+                        Update
+                    </button>
+                `;
+            }, orderable:false, searchable:false, className:'text-center' },
+        ]
+    });
+
+   
+    $('#applyFilter').on('click', function() {
+        table.ajax.reload();
+    });
+    $('#resetFilter').on('click', function() {
+        $('#filterReference, #filterUser').val('');
+        $('#filterPriority, #filterStatus').val('');
+        $('#filterDateFrom, #filterDateTo').val('');
+        table.ajax.reload();
+    });
+
+    
+    $(document).on('click', '.view-description', function() {
+        let description = $(this).data('description') || '';
+        $('#descriptionText').text(description);
+        $('#descriptionModal').modal('show');
+    });
+
+   
+    $(document).on('click', '.edit-complaint', function() {
+        resetUpdateErrors();
+
+        $('#complaintId').val($(this).data('id'));
+        $('#updateStatus').val($(this).data('status'));
+        $('#updateNotes').val($(this).data('notes') ?? '');
+        $('#updateRef').text($(this).data('ref'));
+
+        $('#updateModal').modal('show');
+    });
+
+    $('#saveUpdate').on('click', function() {
+        resetUpdateErrors();
+
+        const id = $('#complaintId').val();
+        const status = $('#updateStatus').val();
+        const notes = $('#updateNotes').val();
+
+        $.ajax({
+            url: "{{ url('/complain-report') }}/" + id + "/update",
+            type: "POST",
+            data: {
+                _token: "{{ csrf_token() }}",
+                status: status,
+                admin_notes: notes
+            },
+            success: function(res) {
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Updated!',
+                    text: res.message || 'Complaint updated successfully!',
+                    timer: 1800,
+                    showConfirmButton: false
+                });
+
+                $('#updateModal').modal('hide');
+                table.ajax.reload(null, false); 
+            },
+            error: function(xhr) {
+                let msg = 'Something went wrong!';
+                if (xhr.status === 422 && xhr.responseJSON?.errors) {
+                    const errors = xhr.responseJSON.errors;
+                    if (errors.status) $('#err_updateStatus').removeClass('d-none').text(errors.status[0]);
+                    if (errors.admin_notes) $('#err_updateNotes').removeClass('d-none').text(errors.admin_notes[0]);
+                    msg = 'Validation error!';
                 }
-            });
 
-            // Filters
-            $('#applyFilter').on('click', function() {
-                const dateFrom = $('#filterDateFrom').val();
-                const dateTo = $('#filterDateTo').val();
-
-                table.column(1).search($('#filterReference').val());
-                table.column(2).search($('#filterUser').val());
-                table.column(5).search($('#filterPriority').val());
-                table.column(6).search($('#filterStatus').val());
-
-                // Date range filter using custom filter
-                $.fn.dataTable.ext.search.pop(); 
-                $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-                    let dateCell = data[10]; 
-                    
-                    if (!dateCell || dateCell === '-') return true;
-                    let dateParts = dateCell.split(' ')[0].split('-');
-                    let cellDate = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
-
-                    let fromDate = dateFrom ? new Date(dateFrom) : null;
-                    let toDate = dateTo ? new Date(dateTo) : null;
-
-                    if (fromDate && cellDate < fromDate) return false;
-                    if (toDate) {
-                        toDate.setHours(23, 59, 59, 999);
-                        if (cellDate > toDate) return false;
-                    }
-
-                    return true;
-                });
-
-                table.draw();
-            });
-
-
-            $('#resetFilter').on('click', function() {
-                $('#filterReference, #filterUser').val('');
-                $('#filterPriority, #filterStatus').val('');
-                $('#filterDateFrom, #filterDateTo').val('');
-                $.fn.dataTable.ext.search.pop(); // Remove date filter
-                table.search('').columns().search('').draw();
-            });
-
-            // Description modal
-            $(document).on('click', '.view-description', function() {
-                let description = $(this).data('description') || '';
-                $('#descriptionText').text(description);
-                $('#descriptionModal').modal('show');
-            });
-
-            // Open update modal
-            $(document).on('click', '.edit-complaint', function() {
-                resetUpdateErrors();
-
-                const id = $(this).data('id');
-                const status = $(this).data('status');
-                const notes = $(this).data('notes') ?? '';
-                const ref = $(this).data('ref');
-
-                $('#complaintId').val(id);
-                $('#updateStatus').val(status);
-                $('#updateNotes').val(notes);
-                $('#updateRef').text(ref);
-
-                $('#updateModal').modal('show');
-            });
-
-            // Save update (AJAX) + SweetAlert
-            $('#saveUpdate').on('click', function() {
-                resetUpdateErrors();
-
-                const id = $('#complaintId').val();
-                const status = $('#updateStatus').val();
-                const notes = $('#updateNotes').val();
-
-                $.ajax({
-                    url: "{{ url('/complain-report') }}/" + id + "/update",
-                    type: "POST",
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        status: status,
-                        admin_notes: notes
-                    },
-                    success: function(res) {
-
-                        const row = $('tr[data-id="' + id + '"]');
-
-                        // status badge class
-                        let stClass = 'bg-warning';
-                        if (status === 'resolved') stClass = 'bg-success';
-                        else if (status === 'in_progress') stClass = 'bg-info';
-                        else if (status === 'closed') stClass = 'bg-secondary';
-
-                        row.find('td.status').html(
-                            `<span class="badge ${stClass}">${status.toUpperCase()}</span>`);
-                        row.find('td.notes').text(notes ? notes : '-');
-
-                        // Update button data so next time modal shows latest
-                        row.find('.edit-complaint').data('status', status);
-                        row.find('.edit-complaint').data('notes', notes);
-
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Updated!',
-                            text: res.message || 'Complaint updated successfully!',
-                            timer: 1800,
-                            showConfirmButton: false
-                        });
-
-                        $('#updateModal').modal('hide');
-                    },
-                    error: function(xhr) {
-                        let msg = 'Something went wrong!';
-                        if (xhr.status === 422) msg = 'Validation error! Please check inputs.';
-
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: msg
-                        });
-
-                        if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
-                            const errors = xhr.responseJSON.errors;
-                            if (errors.status) $('#err_updateStatus').removeClass('d-none')
-                                .text(errors.status[0]);
-                            if (errors.admin_notes) $('#err_updateNotes').removeClass('d-none')
-                                .text(errors.admin_notes[0]);
-                        }
-                    }
-                });
-            });
-
+                Swal.fire({ icon: 'error', title: 'Error', text: msg });
+            }
         });
-    </script>
+    });
+
+});
+</script>
 
 @endsection
