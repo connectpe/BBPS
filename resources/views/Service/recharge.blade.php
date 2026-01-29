@@ -192,7 +192,7 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary d-none" id="backBtn">Back</button>
-                <button type="button" class="btn btn-primary" id="nextBtn">Next</button>
+                <button type="button" class="btn btn-primary" id="nextBtn">View Plans</button>
             </div>
 
         </div>
@@ -204,41 +204,54 @@
 
 
 $rechargeOperators = [
-['name' => 'Airtel', 'icon' => 'bi-telephone-fill'],
-['name' => 'Jio', 'icon' => 'bi-telephone-fill'],
-['name' => 'Vi (Vodafone Idea)', 'icon' => 'bi-telephone-fill'],
-['name' => 'BSNL', 'icon' => 'bi-telephone-fill'],
-['name' => 'MTNL', 'icon' => 'bi-telephone-fill'],
-['name' => 'Tata Docomo', 'icon' => 'bi-telephone-fill'], // legacy but sometimes still listed
-['name' => 'Aircel', 'icon' => 'bi-telephone-fill'], // legacy
-['name' => 'Idea Cellular', 'icon' => 'bi-telephone-fill'], // merged into Vi
+['name' => 'Airtel', 'icon' => 'bi-telephone-fill', 'op_id' => 1],
+['name' => 'Vodafone Idea (Vi)', 'icon' => 'bi-telephone-fill', 'op_id' => 2],
+['name' => 'Jio', 'icon' => 'bi-telephone-fill', 'op_id' => 3],
+['name' => 'BSNL (Vodafone Idea)', 'icon' => 'bi-telephone-fill', 'op_id' => 4],
+['name' => 'BSNL', 'icon' => 'bi-telephone-fill', 'op_id' => 5],
+['name' => 'MTNL (Vodafone Idea)', 'icon' => 'bi-telephone-fill', 'op_id' => 6],
+['name' => 'MTNL', 'icon' => 'bi-telephone-fill', 'op_id' => 7],
+['name' => 'Tata Docomo', 'icon' => 'bi-telephone-fill', 'op_id' => 8], 
+['name' => 'Aircel', 'icon' => 'bi-telephone-fill', 'op_id' => 9], 
+['name' => 'Idea Cellular', 'icon' => 'bi-telephone-fill', 'op_id' => 10], 
 ];
 
 $rechargeCircles = [
-['name' => 'Andhra Pradesh', 'code' => 'AP'],
-['name' => 'Assam', 'code' => 'AS'],
-['name' => 'Bihar & Jharkhand', 'code' => 'BR'],
-['name' => 'Chennai', 'code' => 'CH'],
-['name' => 'Delhi', 'code' => 'DL'],
-['name' => 'Gujarat', 'code' => 'GJ'],
-['name' => 'Haryana', 'code' => 'HR'],
-['name' => 'Himachal Pradesh', 'code' => 'HP'],
-['name' => 'Jammu & Kashmir', 'code' => 'JK'],
-['name' => 'Karnataka', 'code' => 'KA'],
-['name' => 'Kerala', 'code' => 'KL'],
-['name' => 'Kolkata', 'code' => 'KO'],
-['name' => 'Madhya Pradesh & Chhattisgarh', 'code' => 'MP'],
-['name' => 'Maharashtra & Goa', 'code' => 'MH'],
-['name' => 'Mumbai', 'code' => 'MU'],
-['name' => 'North East', 'code' => 'NE'],
-['name' => 'Orissa', 'code' => 'OR'],
-['name' => 'Punjab', 'code' => 'PB'],
-['name' => 'Rajasthan', 'code' => 'RJ'],
-['name' => 'Tamil Nadu', 'code' => 'TN'],
-['name' => 'Uttar Pradesh (East)', 'code' => 'UE'],
-['name' => 'Uttar Pradesh (West)', 'code' => 'UW'],
-['name' => 'West Bengal', 'code' => 'WB'],
+['name' => 'Andhra Pradesh & Telangana', 'code' => 'AP', 'circle_id' => 1],
+['name' => 'Assam', 'code' => 'AS', 'circle_id' => 2],
+['name' => 'Bihar & Jharkhand', 'code' => 'BR', 'circle_id' => 3],
+['name' => 'Chennai', 'code' => 'CH', 'circle_id' => 4],
+['name' => 'Delhi NCR', 'code' => 'DL', 'circle_id' => 5],
+['name' => 'Gujarat', 'code' => 'GJ', 'circle_id' => 6],
+['name' => 'Haryana', 'code' => 'HR', 'circle_id' => 7],
+['name' => 'Himachal Pradesh', 'code' => 'HP', 'circle_id' => 8],
+['name' => 'Jammu & Kashmir', 'code' => 'JK', 'circle_id' => 9],
+['name' => 'Karnataka', 'code' => 'KA', 'circle_id' => 10],
+['name' => 'Kerala', 'code' => 'KL', 'circle_id' => 11],
+['name' => 'Kolkata', 'code' => 'KO', 'circle_id' => 12],
+['name' => 'Madhya Pradesh & Chhattisgarh', 'code' => 'MP', 'circle_id' => 13],
+['name' => 'Maharashtra & Goa', 'code' => 'MH', 'circle_id' => 14],
+['name' => 'Mumbai', 'code' => 'MU', 'circle_id' => 15],
+['name' => 'North East', 'code' => 'NE', 'circle_id' => 16],
+['name' => 'Odisha', 'code' => 'OR', 'circle_id' => 17],
+['name' => 'Punjab', 'code' => 'PB', 'circle_id' => 18],
+['name' => 'Rajasthan', 'code' => 'RJ', 'circle_id' => 19],
+['name' => 'Tamil Nadu', 'code' => 'TN', 'circle_id' => 20],
+['name' => 'Uttar Pradesh (East)', 'code' => 'UE', 'circle_id' => 21],
+['name' => 'Uttar Pradesh (West)', 'code' => 'UW', 'circle_id' => 22],
+['name' => 'West Bengal', 'code' => 'WB', 'circle_id' => 23],
 ];
+
+
+$rechargePlanTypes = [
+['name' => 'Popular', 'code' => 'POPULAR'],
+['name' => 'Unlimited', 'code' => 'UNLIMITED'],
+['name' => 'Data', 'code' => 'DATA'],
+['name' => 'Talktime', 'code' => 'TALKTIME'],
+['name' => 'SMS', 'code' => 'SMS'],
+['name' => 'Roaming', 'code' => 'ROAMING'],
+];
+
 
 @endphp
 
@@ -248,7 +261,7 @@ $rechargeCircles = [
         let options = `<option value="">Select Operator</option>`;
 
         window.rechargeOperators.forEach(op => {
-            options += `<option value="${op.name}">${op.name}</option>`;
+            options += `<option value="${op.op_id}">${op.name}</option>`;
         });
 
         return `
@@ -265,7 +278,7 @@ $rechargeCircles = [
         let options = `<option value="">Select Circle</option>`;
 
         window.rechargeCircles.forEach(circle => {
-            options += `<option value="${circle.code}">${circle.name}</option>`;
+            options += `<option value="${circle.circle_id}">${circle.name}</option>`;
         });
 
         return `
@@ -277,115 +290,132 @@ $rechargeCircles = [
         </div>
     `;
     }
+
+    //     function buildPlanTypeDropdown() {
+    //     let options = `<option value="">Select Plan Type</option>`;
+
+    //     window.rechargePlanTypes.forEach(plan => {
+    //         options += `<option value="${plan.code}">${plan.name}</option>`;
+    //     });
+
+    //     return `
+    //         <div class="mb-3">
+    //             <label>Plan Type</label>
+    //             <select class="form-select" id="planType">
+    //                 ${options}
+    //             </select>
+    //         </div>
+    //     `;
+    //    }
 </script>
 
 
 <script>
-/* ===============================
+    /* ===============================
    SERVICE CONFIG
 ================================ */
-const serviceConfig = {
+    const serviceConfig = {
 
-    "Mobile Prepaid": {
-        steps: ["INPUT", "FETCH_PLANS", "PAY"],
-        input: () => `
+        "Mobile Prepaid": {
+            steps: ["INPUT", "FETCH_PLANS", "PAY"],
+            input: () => `
             <div class="mb-3">
                 <label>Mobile Number</label>
-                <input class="form-control" id="mobile">
+                <input class="form-control" id="mobile" name="mobile" type="text">
             </div>
             ${buildOperatorDropdown()}
             ${buildCircleDropdown()}
         `
-    },
+        },
 
-    "Mobile Postpaid": {
-        steps: ["INPUT", "FETCH_BILL", "PAY"],
-        input: () => `
+        "Mobile Postpaid": {
+            steps: ["INPUT", "FETCH_BILL", "PAY"],
+            input: () => `
             <div class="mb-3">
                 <label>Mobile Number</label>
                 <input class="form-control" id="accountInput">
             </div>
             ${buildOperatorDropdown()}
         `
-    },
+        },
 
-    "Landline Postpaid": {
-        steps: ["INPUT", "FETCH_BILL", "PAY"],
-        input: () => `
+        "Landline Postpaid": {
+            steps: ["INPUT", "FETCH_BILL", "PAY"],
+            input: () => `
             <div class="mb-3">
                 <label>Landline Number</label>
                 <input class="form-control" id="accountInput">
             </div>
             ${buildOperatorDropdown()}
         `
-    },
+        },
 
-    "Broadband Postpaid": {
-        steps: ["INPUT", "FETCH_BILL", "PAY"],
-        input: () => `
+        "Broadband Postpaid": {
+            steps: ["INPUT", "FETCH_BILL", "PAY"],
+            input: () => `
             <div class="mb-3">
                 <label>Broadband Account ID</label>
                 <input class="form-control" id="accountInput">
             </div>
             ${buildOperatorDropdown()}
         `
-    },
+        },
 
-    "Cable TV": {
-        steps: ["INPUT", "FETCH_BILL", "PAY"],
-        input: () => `
+        "Cable TV": {
+            steps: ["INPUT", "FETCH_BILL", "PAY"],
+            input: () => `
             <div class="mb-3">
                 <label>Customer ID</label>
                 <input class="form-control" id="accountInput">
             </div>
             ${buildOperatorDropdown()}
         `
-    },
+        },
 
-    "DTH": {
-        steps: ["INPUT", "FETCH_BILL", "PAY"],
-        input: () => `
+        "DTH": {
+            steps: ["INPUT", "FETCH_BILL", "PAY"],
+            input: () => `
             <div class="mb-3">
                 <label>Subscriber ID</label>
                 <input class="form-control" id="accountInput">
             </div>
             ${buildOperatorDropdown()}
         `
-    },
+        },
 
-    "Fastag": {
-        steps: ["INPUT", "FETCH_BILL", "PAY"],
-        input: () => `
+        "Fastag": {
+            steps: ["INPUT", "FETCH_BILL", "PAY"],
+            input: () => `
             <div class="mb-3">
                 <label>Vehicle / FASTag Number</label>
                 <input class="form-control" id="accountInput">
             </div>
         `
-    },
+        },
 
-    "Subscription": {
-        steps: ["INPUT", "PAY"],
-        input: () => `
+        "Subscription": {
+            steps: ["INPUT", "PAY"],
+            input: () => `
             <div class="mb-3">
                 <label>Subscription ID</label>
                 <input class="form-control" id="accountInput">
             </div>
         `
-    },
+        },
 
-    "NCMC Recharge": {
-        steps: ["INPUT", "PAY"],
-        input: () => `
+        "NCMC Recharge": {
+            steps: ["INPUT", "PAY"],
+            input: () => `
             <div class="mb-3">
                 <label>NCMC Card Number</label>
                 <input class="form-control" id="accountInput">
             </div>
         `
-    },
+        },
 
-    "Bill Pay": {
-        steps: ["INPUT", "FETCH_BILL", "PAY"],
-        input: () => `
+        "Bill Pay": {
+            steps: ["INPUT", "FETCH_BILL", "PAY"],
+            input: () => `
             <div class="mb-3">
                 <label>Bill Type</label>
                 <select class="form-select">
@@ -399,149 +429,186 @@ const serviceConfig = {
                 <input class="form-control" id="accountInput">
             </div>
         `
-    },
+        },
 
-    "Scan Pay": {
-        steps: ["SCAN", "PAY"],
-        input: () => `
+        "Scan Pay": {
+            steps: ["SCAN", "PAY"],
+            input: () => `
             <div class="text-center">
                 <button class="btn btn-outline-primary w-100">
                     <i class="bi bi-qr-code-scan me-2"></i> Scan QR Code
                 </button>
             </div>
         `
-    }
-};
+        }
+    };
 
-/* ===============================
-   GLOBAL STATE
-================================ */
-let currentService = '';
-let stepIndex = 0;
-let selectedAmount = 0;
+    /* ===============================
+       GLOBAL STATE
+    ================================ */
+    let currentService = '';
+    let stepIndex = 0;
+    let selectedAmount = 0;
 
-/* ===============================
-   INIT
-================================ */
-$(document).ready(function() {
+    /* ===============================
+       INIT
+    ================================ */
+    $(document).ready(function() {
 
-    window.rechargeOperators = @json($rechargeOperators);
-    window.rechargeCircles = @json($rechargeCircles);
+        window.rechargeOperators = @json($rechargeOperators);
+        window.rechargeCircles = @json($rechargeCircles);
+        // window.rechargePlanTypes = @json($rechargePlanTypes);
 
-    $('.service-btn').on('click', function() {
-        currentService = $(this).data('service');
-        stepIndex = 0;
-        selectedAmount = 0;
+        $('.service-btn').on('click', function() {
+            currentService = $(this).data('service');
+            stepIndex = 0;
+            selectedAmount = 0;
 
-        $('#modalTitle').text(currentService);
-        loadStep();
-        $('#rechargeModal').modal('show');
+            $('#modalTitle').text(currentService);
+            loadStep();
+            $('#rechargeModal').modal('show');
+        });
+
     });
 
-});
+    /* ===============================
+       STEP ENGINE
+    ================================ */
+    function loadStep() {
 
-/* ===============================
-   STEP ENGINE
-================================ */
-function loadStep() {
+        const config = serviceConfig[currentService];
+        const step = config.steps[stepIndex];
 
-    const config = serviceConfig[currentService];
-    const step = config.steps[stepIndex];
+        $('#backBtn').toggleClass('d-none', stepIndex === 0);
 
-    $('#backBtn').toggleClass('d-none', stepIndex === 0);
+        if (step === "INPUT" || step === "SCAN") {
+            $('#nextBtn').text('View Plans');
+            $('#modalBody').html(config.input());
+            return;
+        }
 
-    if (step === "INPUT" || step === "SCAN") {
-        $('#nextBtn').text('Next');
-        $('#modalBody').html(config.input());
-        return;
-    }
+        if (step === "FETCH_BILL") {
+            $('#nextBtn').text('Fetching...');
+            $('#modalBody').html(loader("Fetching bill details..."));
 
-    if (step === "FETCH_BILL") {
-        $('#nextBtn').text('Fetching...');
-        $('#modalBody').html(loader("Fetching bill details..."));
-
-        setTimeout(() => {
-            selectedAmount = 399; // API amount
-            stepIndex++;
-            loadStep();
-        }, 1200);
-        return;
-    }
-
-    if (step === "FETCH_PLANS") {
-        $('#nextBtn').hide();
-        $('#modalBody').html(loader("Fetching recharge plans..."));
-
-        setTimeout(() => {
-            $('#modalBody').html(`
-                <div class="list-group">
-                    <button class="list-group-item plan" data-amt="239">₹239 – 28 Days</button>
-                    <button class="list-group-item plan" data-amt="299">₹299 – 28 Days</button>
-                    <button class="list-group-item plan" data-amt="719">₹719 – 84 Days</button>
-                </div>
-            `);
-
-            $('.plan').on('click', function() {
-                selectedAmount = $(this).data('amt');
-                $('#nextBtn').show();
+            setTimeout(() => {
+                selectedAmount = 399; 
                 stepIndex++;
                 loadStep();
-            });
-        }, 1200);
-        return;
+            }, 1200);
+            return;
+        }
+
+        // if (step === "FETCH_PLANS") {
+        //     $('#nextBtn').hide();
+        //     $('#modalBody').html(loader("Fetching recharge plans..."));
+
+        //     setTimeout(() => {
+        //         $('#modalBody').html(`
+        //         <div class="list-group">
+        //             <button class="list-group-item plan" data-amt="239">₹239 – 28 Days</button>
+        //             <button class="list-group-item plan" data-amt="299">₹299 – 28 Days</button>
+        //             <button class="list-group-item plan" data-amt="719">₹719 – 84 Days</button>
+        //         </div>
+        //     `);
+
+        //         $('.plan').on('click', function() {
+        //             selectedAmount = $(this).data('amt');
+        //             $('#nextBtn').show();
+        //             stepIndex++;
+        //             loadStep();
+        //         });
+        //     }, 1200);
+        //     return;
+        // }
+
+        // if (step === "PAY") {
+        //     $('#nextBtn').text('Pay Now');
+        //     $('#modalBody').html(`
+        //     <div class="mb-3">
+        //         <label>Amount</label>
+        //         <input class="form-control" value="₹${selectedAmount || 399}" readonly>
+        //     </div>
+        //     <div class="mb-3">
+        //         <label>Payment Method</label>
+        //         <select class="form-select">
+        //             <option>UPI</option>
+        //             <option>Wallet</option>
+        //             <option>Debit Card</option>
+        //             <option>Net Banking</option>
+        //         </select>
+        //     </div>
+        // `);
+        // }
     }
 
-    if (step === "PAY") {
-        $('#nextBtn').text('Pay Now');
-        $('#modalBody').html(`
-            <div class="mb-3">
-                <label>Amount</label>
-                <input class="form-control" value="₹${selectedAmount || 399}" readonly>
-            </div>
-            <div class="mb-3">
-                <label>Payment Method</label>
-                <select class="form-select">
-                    <option>UPI</option>
-                    <option>Wallet</option>
-                    <option>Debit Card</option>
-                    <option>Net Banking</option>
-                </select>
-            </div>
-        `);
-    }
-}
+    /* ===============================
+       BUTTON HANDLERS
+    ================================ */
+    $('#nextBtn').on('click', function() {
+        const config = serviceConfig[currentService];
 
-/* ===============================
-   BUTTON HANDLERS
-================================ */
-$('#nextBtn').on('click', function() {
-    const config = serviceConfig[currentService];
+        if (stepIndex < config.steps.length - 1) {
+            stepIndex++;
+            loadStep();
+        } else {
+            alert('Call Payment API');
+        }
+    });
 
-    if (stepIndex < config.steps.length - 1) {
-        stepIndex++;
+    $('#backBtn').on('click', function() {
+        stepIndex--;
         loadStep();
-    } else {
-        alert('Call Payment API');
-    }
-});
+    });
 
-$('#backBtn').on('click', function() {
-    stepIndex--;
-    loadStep();
-});
-
-/* ===============================
-   HELPERS
-================================ */
-function loader(text) {
-    return `
+    /* ===============================
+       HELPERS
+    ================================ */
+    function loader(text) {
+        return `
         <div class="text-center my-4">
             <div class="spinner-border text-primary"></div>
             <p class="mt-2">${text}</p>
         </div>
     `;
-}
+    }
 </script>
 
+<script>
+    document.getElementById('nextBtn').addEventListener('click', function() {
 
+        const mobile = document.getElementById('mobile').value;
+        const operator_id = document.getElementById('operator').value;
+        const circle_id = document.getElementById('circle').value;
+
+        if (!mobile || !operator_id || !circle_id) {
+            alert('Please fill all fields');
+            return;
+        }
+
+        fetch('/recharge/get-plans', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document
+                        .querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    mobile: mobile,
+                    operator_id: operator_id,
+                    circle_id: circle_id,
+                })
+            })
+            .then(res => res.json())
+            .then(response => {
+                console.log(response);
+                // currentStepIndex++;
+                loadStep();
+            })
+            .catch(error => {
+                console.error(error);
+                alert(error);
+            });
+    });
+</script>
 @endsection
