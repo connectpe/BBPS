@@ -26,12 +26,15 @@ class AdminController extends Controller
         try {
             CommonHelper::checkAuthUser();
             $userId = auth()->id();
-            if (auth()->user()->role_id == '2') {
+            $role = Auth::user()->role_id;
+
+            if (in_array($role, [2, 3])) {
                 $data['saltKeys'] = OauthUser::where('user_id', auth()->id())
                     ->where('is_active', '1')
                     ->select('client_id', 'client_secret', 'created_at')
                     ->get();
             }
+
             $data['activeService'] = GlobalService::where(['is_active' => '1'])
                 ->select('id', 'slug', 'service_name')
                 ->get();
@@ -59,7 +62,13 @@ class AdminController extends Controller
 
     public function dashboard()
     {
-        return view('dashboard');
+        $role = Auth::user()->role_id;
+
+        if (in_array($role, [1, 2])) {
+            return view('dashboard');
+        } elseif (in_array($role, [3])) {
+            return view('api-dashboard');
+        }
     }
 
     public function disableUserService(Request $request)

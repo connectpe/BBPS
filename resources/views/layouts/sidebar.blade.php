@@ -74,7 +74,7 @@
             <ul class="nav nav-pills flex-column mb-auto">
 
                 @php
-                $transactionRoute = ['reports/recharge','reports/utility','reports/banking'];
+                $transactionRoute = ['reports/recharge','reports/utility','reports/banking','reports'];
                 $servicesActive = in_array(Route::currentRouteName(), $transactionRoute);
                 @endphp
 
@@ -232,7 +232,8 @@
                 'complaint_status',
                 'reports/recharge',
                 'reports/banking',
-                'reports/utility'
+                'reports/utility',
+                'reports'
                 ];
                 $transactionActive = in_array(Route::currentRouteName(), $transactionRoute);
                 @endphp
@@ -344,7 +345,7 @@
             </a>
         </li>
 
-        <!-- User Management -->
+
         <li class="nav-item mt-2">
             <ul class="nav nav-pills flex-column mb-auto">
 
@@ -376,25 +377,31 @@
             </ul>
         </li>
 
-        <!-- Transactions -->
+        <!-- Transaction -->
         <li class="nav-item mt-2">
             <ul class="nav nav-pills flex-column mb-auto">
 
                 @php
-                $transactionRoute = ['reports/recharge','reports/utility','reports/banking'];
-                $servicesActive = in_array(Route::currentRouteName(), $transactionRoute);
+                $transactionRoute = [
+                'reports/recharge',
+                'reports/banking',
+                'reports/utility',
+                'reports'
+                ];
+                $transactionActive = in_array(Route::currentRouteName(), $transactionRoute);
                 @endphp
 
                 <li class="nav-item">
-                    <a class="nav-link text-white d-flex justify-content-between align-items-center {{ $servicesActive ? '' : 'collapsed' }} {{ $servicesActive ? 'sidebar-active' : '' }}"
-                        data-bs-toggle="collapse" href="#transactionManagement" role="button"
-                        aria-expanded="{{ $servicesActive ? 'true' : 'false' }}">
-                        <span><i class="bi bi-cash-stack me-2"></i> Transactions</span>
+                    <a class="nav-link text-white d-flex justify-content-between align-items-center {{ $transactionActive ? '' : 'collapsed' }} {{ $transactionActive ? 'sidebar-active' : '' }}"
+                        data-bs-toggle="collapse" href="#transaction" role="button"
+                        aria-expanded="{{ $transactionActive ? 'true' : 'false' }}">
+                        <span><i class="bi bi-receipt me-2"></i> Transaction Report</span>
                         <i class="bi bi-chevron-down small"></i>
                     </a>
 
-                    <div class="collapse {{ $servicesActive ? 'show' : '' }} ms-3" id="transactionManagement">
+                    <div class="collapse {{ $transactionActive ? 'show' : '' }} ms-3" id="transaction">
                         <ul class="nav flex-column">
+
                             <li class="nav-item">
                                 <a href="{{ url('reports/recharge') }}"
                                     class="nav-link text-white {{ request()->is('reports/recharge') ? 'sidebar-active' : '' }}">
@@ -403,7 +410,7 @@
                                 </a>
                             </li>
 
-                            <li class="nav-item">
+                            <!-- <li class="nav-item">
                                 <a href="{{ url('reports/banking') }}"
                                     class="nav-link text-white {{ request()->is('reports/banking') ? 'sidebar-active' : '' }}">
                                     <i class="bi bi-bank me-2"></i>
@@ -417,12 +424,20 @@
                                     <i class="bi bi-lightning-charge me-2"></i>
                                     Utility
                                 </a>
-                            </li>
+                            </li> -->
+
                         </ul>
                     </div>
                 </li>
             </ul>
         </li>
+<!-- 
+        <li class="nav-item">
+            <a href="{{ route('reseller_reports') }}"
+                class="nav-link text-white {{ Route::is('reseller_reports') ? 'sidebar-active' : '' }}">
+                <i class="bi bi-file-earmark-text me-2"></i> Reports
+            </a>
+        </li> -->
 
 
         <!-- Logout -->

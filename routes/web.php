@@ -11,7 +11,6 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\users\ReportController;
 use App\Http\Controllers\users\UserController;
 use App\Http\Controllers\LadgerController;
-use App\Http\Controllers\BbpsRechargeController;
 use App\Http\Controllers\ComplainReportController;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
@@ -45,15 +44,15 @@ Route::group(['middleware' => ['auth']], function () {
 
     // RECHARGE RELATED ROUTE 8010801087
     Route::prefix('bbps-recharge')->group(function () {
-        Route::post('genrate-token',[BbpsRechargeController::class,'generateToken'])->name('bbps.generate_token');
-        Route::get('getPlans',[BbpsRechargeController::class,'getPlans'])->name('bbps.getPlans');
-        Route::post('balance',[BbpsRechargeController::class,'balance'])->name('bbps.balance');
-        Route::post('validateRecharge',[BbpsRechargeController::class,'validateRecharge'])->name('bbps.validateRecharge');
-        Route::post('payment',[BbpsRechargeController::class,'payment'])->name('bbps.payment');
-        Route::post('status',[BbpsRechargeController::class,'status'])->name('bbps.status');
+        Route::post('genrate-token', [BbpsRechargeController::class, 'generateToken'])->name('bbps.generate_token');
+        Route::get('getPlans', [BbpsRechargeController::class, 'getPlans'])->name('bbps.getPlans');
+        Route::post('balance', [BbpsRechargeController::class, 'balance'])->name('bbps.balance');
+        Route::post('validateRecharge', [BbpsRechargeController::class, 'validateRecharge'])->name('bbps.validateRecharge');
+        Route::post('payment', [BbpsRechargeController::class, 'payment'])->name('bbps.payment');
+        Route::post('status', [BbpsRechargeController::class, 'status'])->name('bbps.status');
     });
     Route::post('change-password', [AuthController::class, 'passwordReset'])->name('admin.change_password');
-    
+
     Route::post('completeProfile/{user_id}', [UserController::class, 'completeProfile'])->name('admin.complete_profile');
 
     // Admin  Related Route
@@ -69,11 +68,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('admin/service/edit/{id}', [AdminController::class, 'EditService'])
         ->name('admin.service.edit');
 
-        
+
     Route::prefix('recharge')->group(function () {
         Route::post('/get-plans', [BbpsRechargeController::class, 'getPlans']);
     });
-
 
 
     Route::get('services', [ServiceRequestController::class, 'enabledServices'])->name('enabled_services');
@@ -84,7 +82,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/users', [UserController::class, 'bbpsUsers'])->name('users');
 
     Route::get('reports/{type}', [ReportController::class, 'index'])->name('reports');
-
+    Route::get('reports', [LadgerController::class, 'reports'])->name('reseller_reports');
 
     // Route::get('recharge-report', [ReportController::class, 'RechargeReport'])->name('recharge_report');
     // Route::get('banking-report', [ReportController::class, 'BankingTransactionReport'])->name('banking_report');
@@ -95,10 +93,10 @@ Route::group(['middleware' => ['auth']], function () {
     // Transaction Related Route
     Route::get('/transaction-status', [TransactionController::class, 'transactionStatus'])->name('transaction_status');
     Route::get('/transaction-complaint', [TransactionController::class, 'transactionComplaint'])->name('transaction_complaint');
-     Route::post('/complaints', [TransactionController::class, 'store'])->name('complaints.store');
+    Route::post('/complaints', [TransactionController::class, 'store'])->name('complaints.store');
     Route::get('/complaint-status', [TransactionController::class, 'complaintStatus'])->name('complaint_status');
     Route::post('/complaint-status/check', [TransactionController::class, 'checkComplaintStatus'])
-    ->name('complaint.status.check');
+        ->name('complaint.status.check');
     Route::get('/transaction-report', [TransactionController::class, 'transaction_Report'])->name('transaction.report');
 
     Route::post('generate/client-credentials', [UserController::class, 'generateClientCredentials'])->name('generate_client_credentials');
@@ -113,7 +111,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     // Complain Report Route
     Route::get('/complain-report', [ComplainReportController::class, 'complainReport'])->name('complain.report');
-        Route::post('/complain-report/{id}/update', [ComplainReportController::class, 'updateComplaint'])
+    Route::post('/complain-report/{id}/update', [ComplainReportController::class, 'updateComplaint'])
         ->name('complain.update');
 });
 
