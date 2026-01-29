@@ -28,7 +28,7 @@ class CommonController extends Controller
 
 			case 'users':
 				$request['table'] = '\App\Models\User';
-				$request['searchData'] = ['id', 'name', 'email', 'mobile', 'created_at'];
+				$request['searchData'] = ['id', 'name', 'email', 'mobile', 'created_at'];   // it is for the Datatable search box 
 				$request['select'] = 'all';
 				$request['with'] = ['business'];
 
@@ -142,7 +142,9 @@ class CommonController extends Controller
 
 			case 'transactions':
 				$request['table'] = '\App\Models\Transaction';
-				$request['searchData'] = ['id', 'amount', 'reference_number', 'created_at'];
+
+				$request['searchData'] = ['id',  'created_at', 'reference_number', 'user_id', 'operator_id', 'circle_id', 'status', 'amount', 'transaction_type'];
+
 				$request['select'] = 'all';
 				$request['with'] = ['user', 'operator', 'circle'];
 				$orderIndex = $request->get('order');
@@ -235,6 +237,31 @@ class CommonController extends Controller
 				break;
 		}
 
+
+		// For filter the Records 
+		$filterColumnsMap = [
+			'users' => ['id', 'email', 'mobile', 'status'],
+			'global-service' => ['service_name', 'status'],
+			'insurance' => ['name', 'email', 'mobile', 'pan', 'agentId', 'status'],
+			'transactions' => ['reference_number', 'user_id', 'operator_id', 'circle_id', 'status', 'amount', 'transaction_type'],
+			'serviceRequest' => ['user_id', 'is_active', 'service_id', 'service_type'],
+			// add more types and columns here
+		];
+
+		$filters = []; // separate variable to store dynamic filters
+
+		if (isset($filterColumnsMap[$type])) {
+			foreach ($filterColumnsMap[$type] as $column) {
+				if ($request->has($column) && $request->$column !== '') {
+					$filters[$column] = $request->$column;
+				}
+			}
+		}
+
+
+		$request->merge(['filters' => $filters]);
+
+
 		try {
 			$totalData = $this->getData($request, 'count');
 		} catch (\Exception $e) {
@@ -310,6 +337,7 @@ class CommonController extends Controller
 
 	protected function getData($request, $type = 'data')
 	{
+
 		$model = $request['table'];
 
 		// Start query
@@ -322,19 +350,31 @@ class CommonController extends Controller
 			}
 		}
 
+		if ($request->has('filters') && !empty($request->filters)) {
+			foreach ($request->filters as $column => $value) {
 
-		if (
-			isset($request['where']) &&
-			$request['where'] == 1 &&
-			isset($request->searchText) &&
-			!empty($request->searchText)
-		) {
+				if ($value === null || $value === '') {
+					continue;
+				}
+
+				if (is_numeric($value)) {
+					$query->where($column, $value);
+				} else {
+					$query->where($column, 'LIKE', '%' . $value . '%');
+				}
+			}
+		}
+
+
+
+		if (isset($request['where']) && $request['where'] == 1 && isset($request->searchText) && !empty($request->searchText)) {
 			$query->where(function ($q) use ($request) {
 				foreach ($request['searchData'] as $column) {
 					$q->orWhere($column, 'LIKE', '%' . $request->searchText . '%');
 				}
 			});
 		}
+
 
 
 		if (!empty($request['from']) && !empty($request['to'])) {
