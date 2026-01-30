@@ -193,6 +193,46 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
+        // dd($user);
+        if(!$user){
+            return response()->json([
+                'status'=> false,
+                'message'=> 'User not found',
+
+            ],404);
+        }
+
+        // if(empty($user->email_verified_at)){
+        //     $otp = rand(1000, 9999);
+        //     $isSend = SendingMail::sendMail([
+        //         'name'    => $user->name,
+        //         'email'   => $user->email,
+        //         'otp'     => $otp,
+        //         'subject' => 'Email Verification for start our Business'
+        //     ]);
+
+        //     if (!$isSend) {
+        //         throw new \Exception('Mail not sent');
+        //     }
+
+        //     EmailVerification::updateOrCreate(
+        //         ['user_id' => $user->id],
+        //         [
+        //             'user_id'   => $user->id,
+        //             'otp'       => $otp,
+        //             'expire_at' => Carbon::now()->addMinutes(10),
+        //         ]
+        //     );
+
+        //     return response()->json([
+        //         'status'=> true,
+        //         'isOtpSend' => true,
+        //         'email' => $user->email,
+        //         'message'=> 'Otp Send to you ragistered Email'
+        //     ]);
+        // }
+
+        // dd($user);
 
         if ($user && empty($user->email_verified_at)) {
             return response()->json([
