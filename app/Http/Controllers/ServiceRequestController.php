@@ -7,6 +7,7 @@ use App\Models\ServiceRequest;
 use App\Models\User;
 use App\Models\UserService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ServiceRequestController extends Controller
 {
@@ -136,7 +137,10 @@ class ServiceRequestController extends Controller
     }
 
 
-    public function enabledServices(){
-        return view('Service.enabled-services');
+    public function enabledServices()
+    {
+        $userId = Auth::user()->id;
+        $services = UserService::with('service')->where('user_id', $userId)->where('is_active', '1')->orderBy('id', 'desc')->get();
+        return view('Service.enabled-services', compact('services'));
     }
 }

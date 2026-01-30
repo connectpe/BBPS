@@ -8,4 +8,10 @@ class LadgerController extends Controller
     {
         return view('ladger.index');
     }
+
+
+    public function reports()
+    {
+        return view('Reports.reports');
+    }
 }

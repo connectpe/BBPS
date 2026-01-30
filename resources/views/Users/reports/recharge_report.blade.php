@@ -15,11 +15,9 @@
         <div id="collapseFilter" class="accordion-collapse collapse" aria-labelledby="headingFilter" data-bs-parent="#filterAccordion">
             <div class="accordion-body">
                 <div class="row g-3 align-items-end">
-                    <!-- <div class="col-md-3">
-                        <label for="filterName" class="form-label">OrderId</label>
-                        <input type="text" class="form-control" id="filterOrderId" placeholder="Enter OrderId">
-                    </div> -->
 
+
+                    @if(Auth::user()->role_id == 1)
                     <div class="col-md-3">
                         <label for="filterUser" class="form-label">User</label>
                         <select id="filterUser" class="form-control">
@@ -29,6 +27,7 @@
                             @endforeach
                         </select>
                     </div>
+                    @endif
 
                     <div class="col-md-3">
                         <label for="filterreferenceId" class="form-label">ReferenceId</label>
@@ -171,6 +170,9 @@
                 },
                 {
                     data: 'created_at',
+                    render: function(data) {
+                        return formatDateTime(data);
+                    }
                 },
                 {
                     data: 'status',
@@ -207,13 +209,7 @@
             table.ajax.reload();
         });
 
-        function formatStatus(status) {
-            if (!status) return '';
 
-            return status
-                .toLowerCase()
-                .replace(/^\w/, c => c.toUpperCase());
-        }
     });
 </script>
 
