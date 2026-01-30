@@ -250,57 +250,31 @@
 
                     <hr class="my-4">
 
-                    {{-- Rooting --}}
-                    {{-- <form action="">
-                    @csrf
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="bi bi-diagram-3 text-primary fs-4 me-2"></i>
-                        <h6 class="fw-bold mb-0">Rooting</h6>
-                    </div>
-                    <div class="mb-3">
-                        <label for="routingSelect" class="form-label">Services Name</label>
-                        <select class="form-select" id="routingSelect" name="routing_option">
-                            <option value="default" {{ $userData->routing_option == 'default' ? 'selected' : '' }}>Default
-                            </option>
-                            <option value="custom" {{ $userData->routing_option == 'custom' ? 'selected' : '' }}>Custom</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="priorityInput" class="form-label">Provider Name</label>
-                        <select class="form-select" id="priorityInput" name="provider_name">
-                            <option value="provider1" {{ $userData->provider_name == 'provider1' ? 'selected' : '' }}>Provider 1
-                            </option>
-                            <option value="provider2" {{ $userData->provider_name == 'provider2' ? 'selected' : '' }}>Provider 2
-                            </option>
-                            <option value="provider3" {{ $userData->provider_name == 'provider3' ? 'selected' : '' }}>Provider 3
-                            </option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn buttonColor mb-3">Submit</button>
-
-                </form> --}}
-
                     <form id="routingForm">
                         @csrf
+                        <input type="hidden" id="userId" value="{{ $userData->id }}">
+
                         <div class="d-flex align-items-center mb-3">
                             <i class="bi bi-diagram-3 text-primary fs-4 me-2"></i>
                             <h6 class="fw-bold mb-0">Routing Configuration</h6>
                         </div>
 
+                        {{-- Service Dropdown --}}
                         <div class="mb-3">
-                            <label for="routingSelect" class="form-label fw-bold">Service Name</label>
-                            <select class="form-select" id="routingSelect" name="routing_option">
-                                <option value="default" {{ $userData->routing_option == 'default' ? 'selected' : '' }}>
-                                    Default Service</option>
-                                <option value="custom" {{ $userData->routing_option == 'custom' ? 'selected' : '' }}>
-                                    Custom Service</option>
-                                <option value="payout" {{ $userData->routing_option == 'payout' ? 'selected' : '' }}>
-                                    Payout Service</option>
+                            <label class="form-label fw-bold">Service Name</label>
+                            <select class="form-select" id="serviceSelect" name="service_id">
+                                <option value="">-- Select Service --</option>
+                                @foreach ($globalServices as $svc)
+                                    <option value="{{ $svc->id }}" data-service-name="{{ $svc->service_name }}">
+                                        {{ $svc->service_name }}
+                                    </option>
+                                @endforeach
                             </select>
                         </div>
 
+                        {{-- Provider Dropdown --}}
                         <div class="mb-3">
-                            <label class="form-label fw-bold">Assign Providers</label>
+                            <label class="form-label fw-bold">Assign Provider</label>
                             <div class="dropdown">
                                 <button
                                     class="btn btn-outline-secondary dropdown-toggle w-100 text-start d-flex justify-content-between align-items-center"
@@ -308,41 +282,26 @@
                                     aria-expanded="false">
                                     Select Provider
                                 </button>
-                                <ul class="dropdown-menu w-100 p-3" aria-labelledby="providerDropdown">
-                                    <li>
-                                        <div class="form-check">
-                                            <input class="form-check-input provider-chk" type="radio"
-                                                name="provider_option" value="Provider 1" id="p1">
-                                            <label class="form-check-label w-100" for="p1">Provider 1</label>
-                                        </div>
-                                    </li>
-                                    <li>
-                                        <div class="form-check">
-                                            <input class="form-check-input provider-chk" type="radio"
-                                                name="provider_option" value="Provider 2" id="p2">
-                                            <label class="form-check-label w-100" for="p2">Provider 2</label>
-                                        </div>
-                                    </li>
-                                    <li>
-                                        <div class="form-check">
-                                            <input class="form-check-input provider-chk" type="radio"
-                                                name="provider_option" value="Provider 3" id="p3">
-                                            <label class="form-check-label w-100" for="p3">Provider 3</label>
-                                        </div>
-                                    </li>
+                                <ul class="dropdown-menu w-100 p-3" aria-labelledby="providerDropdown"
+                                    id="providersList">
+                                    <li class="text-muted small">Select a service first</li>
                                 </ul>
                             </div>
                         </div>
-                        <button type="submit" class="btn buttonColor w-100 mb-3">Submit</button>
+
+                        <button type="submit" class="btn buttonColor w-100 mb-3 text-white"
+                            style="background-color: #5e72e4;">Submit</button>
+
                         <div class="card bg-light mb-3">
                             <div class="card-body py-2">
                                 <p class="mb-1 small text-muted text-uppercase fw-bold">Assignment Summary:</p>
                                 <div id="assignmentSummary">
-                                    <span class="text-secondary italic">No providers assigned yet.</span>
+                                    <span class="text-secondary fst-italic">No providers assigned yet.</span>
                                 </div>
                             </div>
                         </div>
                     </form>
+
 
                     <hr class="my-4">
 
@@ -541,36 +500,116 @@
 
 
     <script>
-    $(document).ready(function() {
-        function updateSummary() {
-            let serviceName = $("#routingSelect option:selected").text();
-            // Sirf ek hi selected value milegi
-            let selectedProvider = $(".provider-chk:checked").val();
+        $(document).ready(function() {
+            const userRoutings = @json($userRootings->pluck('provider_slug', 'service_id'));
+            const saveUrl = "{{ route('admin.users.routing.save', encrypt($userData->id)) }}";
 
-            let summaryHtml = `<strong>Service:</strong> ${serviceName} <br> <strong>Assigned to:</strong> `;
+            function refreshSummary() {
+                let html = '';
+                const serviceOptions = $("#serviceSelect option:not([value=''])");
 
-            if (selectedProvider) {
-                summaryHtml += `<span class="badge bg-primary text-uppercase">${selectedProvider}</span>`;
-                $("#providerDropdown").text(selectedProvider); // Button par naam dikhayega
-            } else {
-                summaryHtml += `<span class="text-danger small">No provider selected</span>`;
-                $("#providerDropdown").text("Select Provider");
+                serviceOptions.each(function() {
+                    const sId = $(this).val();
+                    const sName = $(this).text();
+                    if (userRoutings[sId]) {
+                        html += `
+                    <div class="mb-2">
+                        <small class="text-muted d-block">${sName}: <span class="badge bg-primary text-uppercase">${userRoutings[sId]}</span></small>
+                        
+                    </div>`;
+                    }
+                });
+
+                $("#assignmentSummary").html(html ||
+                    '<span class="text-secondary fst-italic">No providers assigned yet.</span>');
             }
+            refreshSummary();
 
-            $("#assignmentSummary").html(summaryHtml);
-        }
+            $("#serviceSelect").on("change", function() {
+                const serviceId = $(this).val();
+                const list = $("#providersList");
+                const dropdownBtn = $("#providerDropdown");
 
-        // Listen for changes
-        $(document).on('change', '.provider-chk, #routingSelect', function() {
-            updateSummary();
+                if (!serviceId) {
+                    list.html('<li class="text-muted small p-2">Select a service first</li>');
+                    dropdownBtn.text("Select Provider");
+                    return;
+                }
+
+                list.html(
+                    '<li class="text-muted small p-2 text-center"><div class="spinner-border spinner-border-sm text-primary"></div></li>'
+                    );
+
+                $.get(`/services/${serviceId}/providers`, {
+                    user_id: $("#userId").val()
+                }, function(res) {
+                    if (res.status && res.data.length > 0) {
+                        let html = '';
+                        let savedSlug = userRoutings[serviceId] || null;
+
+                        res.data.forEach(p => {
+                            let isChecked = (savedSlug === p.slug) ? 'checked' : '';
+                            html += `
+                        <li class="p-1">
+                            <div class="form-check">
+                                <input class="form-check-input provider-chk" type="radio" name="provider_slug" 
+                                       value="${p.slug}" id="p_${p.id}" data-name="${p.name}" ${isChecked}>
+                                <label class="form-check-label w-100 cursor-pointer" for="p_${p.id}">${p.name}</label>
+                            </div>
+                        </li>`;
+                        });
+                        list.html(html);
+
+                        let active = res.data.find(p => p.slug === savedSlug);
+                        dropdownBtn.text(active ? active.name : "Select Provider");
+                    } else {
+                        list.html('<li class="text-muted small p-2">No providers found</li>');
+                    }
+                });
+            });
+
+            $(document).on("change", ".provider-chk", function() {
+                $("#providerDropdown").text($(this).data('name'));
+            });
+
+            $("#routingForm").on("submit", function(e) {
+                e.preventDefault();
+                const serviceId = $("#serviceSelect").val();
+                const providerSlug = $("input[name='provider_slug']:checked").val();
+                const submitBtn = $(this).find("button[type='submit']");
+
+                if (!serviceId || !providerSlug) return alert("Select both service and provider.");
+
+                submitBtn.prop('disabled', true).html(
+                    '<span class="spinner-border spinner-border-sm"></span> Saving...');
+
+                $.post(saveUrl, {
+                        _token: "{{ csrf_token() }}",
+                        service_id: serviceId,
+                        provider_slug: providerSlug
+                    })
+                    .done(res => {
+                        if (res.status) {
+                            userRoutings[serviceId] = providerSlug;
+                            refreshSummary();
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Saved!',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                        }
+                    })
+                    .fail(xhr => {
+                        let msg = xhr.responseJSON?.message || "Error saving data";
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: msg
+                        });
+                    })
+                    .always(() => submitBtn.prop('disabled', false).text('Submit'));
+            });
         });
-
-        // Dropdown open rakhne ke liye jab radio click ho
-        $('.dropdown-menu').on('click', function(e) {
-            e.stopPropagation();
-        });
-
-        updateSummary();
-    });
-</script>
+    </script>
 @endsection
