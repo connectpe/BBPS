@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Active Services')
-@section('page-title', 'Active Services')
+@section('title', 'Services')
+@section('page-title', 'Services')
 
 @section('content')
 
@@ -15,18 +15,26 @@
         <div id="collapseFilter" class="accordion-collapse collapse" aria-labelledby="headingFilter" data-bs-parent="#filterAccordion">
             <div class="accordion-body">
                 <div class="row g-3 align-items-end">
-                    <!-- <div class="col-md-3">
-                        <label for="filterName" class="form-label">OrderId</label>
-                        <input type="text" class="form-control" id="filterOrderId" placeholder="Enter OrderId">
-                    </div> -->
 
-                    <!--                    
                     <div class="col-md-3">
-                        <label for="filterreferenceId" class="form-label">ReferenceId</label>
-                        <input type="text" class="form-control" id="filterreferenceId" placeholder="Enter ReferenceId">
-                    </div> -->
+                        <label for="filterName" class="form-label">Service</label>
+                        <select name="service" id="service" class="form-control">
+                            <option value="">--Selecte Service--</option>
+                            @foreach($services as $service)
+                            <option value="{{$service->id}}">{{$service?->service?->service_name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
 
-
+                    <div class="col-md-3">
+                        <label for="filterName" class="form-label">Status</label>
+                        <select name="status" id="status" class="form-control">
+                            <option value="">--Selecte Status--</option>
+                            <option value="pending">Pending</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                    </div>
 
                     <div class="col-md-3 d-flex gap-2">
                         <button class="btn buttonColor " id="applyFilter"> Filter</button>
@@ -38,14 +46,13 @@
     </div>
 </div>
 
-
 <div class="col-12 col-md-10 col-lg-12">
     <div class="card shadow-sm">
 
         <div class="card-body pt-4">
             <!-- Table -->
             <div class="table-responsive">
-                <table id="rechargeTable" class="table table-striped table-bordered table-hover w-100">
+                <table id="serviceTable" class="table table-striped table-bordered table-hover w-100">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -63,20 +70,19 @@
 <script>
     $(document).ready(function() {
 
-        var table = $('#rechargeTable').DataTable({
+        var table = $('#serviceTable').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
-
-                url: "{{url('fetch')}}/transactions/0",
+                url: "{{url('fetch')}}/serviceRequest/0",
                 type: 'POST',
 
                 data: function(d) {
                     d._token = $('meta[name="csrf-token"]').attr('content');
-                    d.user_id = $('#filterUser').val();
-                    d.reference_number = $('#filterreferenceId').val();
-                    d.status = $('#filterStatus').val();
+                    d.service_id = $('#service').val();
+                    d.status = $('#status').val();
                 }
+
             },
             pageLength: 10,
             lengthMenu: [5, 10, 25, 50],
@@ -97,30 +103,33 @@
                 }
             ],
             language: {
-                searchPlaceholder: "Search Transactions..."
+                searchPlaceholder: "Search Services..."
             },
-
             columns: [{
                     data: 'id'
                 },
                 {
-                    data: 'operator',
-                    render: function(data, type, row) {
-                        const operator = `${data.name} [${data.code}]`;
-                        return `${operator} `;
+                    data: 'service.service_name',
+                },
+                {
+                    data: 'created_at',
+                    render: function(data) {
+                        return formatDateTime(data);
                     }
                 },
                 {
-                    data: 'circle',
-                    render: function(data, type, row) {
-                        const circle = `${data.name} [${data.code}]`;
-                        return `${circle} `;
-                    }
-                },
-                {
-                    data: 'amount'
-                },
+                    data: 'status',
+                    render: function(data) {
+                        const color = {
+                            pending: 'warning',
+                            approved: 'success',
+                            rejected: 'danger',
+                        }
 
+                        status = formatStatus(data)
+                        return `<span class="fw-bold text-${color[data]}">${status}</span>`
+                    }
+                }
             ]
         });
 
@@ -131,9 +140,8 @@
 
         // Reset filter
         $('#resetFilter').on('click', function() {
-            $('#filterName').val('');
-            $('#filterEmail').val('');
-            $('#filterStatus').val('');
+            $('#service').val('');
+            $('#status').val('');
             table.ajax.reload();
         });
     });

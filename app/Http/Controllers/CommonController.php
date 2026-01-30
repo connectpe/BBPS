@@ -175,40 +175,9 @@ class CommonController extends Controller
 				break;
 			case 'serviceRequest':
 				$request['table'] = '\App\Models\UserService';
-				$request['searchData'] = ['user_id', 'is_active', 'service_id'];
+				$request['searchData'] = ['user_id', 'status', 'service_id', 'transaction_amount', 'created_at'];
 				$request['select'] = 'all';
-				// $request['with'] = ['business'];
-				$orderIndex = $request->get('order');
-				if (isset($orderIndex) && count($orderIndex)) {
-					$columnsIndex = $request->get('columns');
-					$columnIndex = $orderIndex[0]['column'];
-					$columnName = $columnsIndex[$columnIndex]['data'];
-					$columnSortOrder = $orderIndex[0]['dir'];
-					if ($columnName == 'new_created_at') {
-						$columnName = 'created_at';
-					}
-					if ($columnName == '0') {
-						$columnName = 'created_at';
-						$columnSortOrder = 'DESC';
-					}
-					$request['order'] = [$columnName, $columnSortOrder];
-				} else {
-					$request['order'] = ['id', 'DESC'];
-				}
-				$request['whereIn'] = 'id';
-				$request['parentData'] = [$request->id];
-				if (Auth::user()->role_id == '1') {
-					$request['parentData'] = 'all';
-				} else {
-					$request['whereIn'] = 'user_id';
-					$request['parentData'] = [Auth::user()->id];
-				}
-				break;
-			case 'serviceRequest':
-				$request['table'] = '\App\Models\UserService';
-				$request['searchData'] = ['user_id', 'is_active', 'service_id'];
-				$request['select'] = 'all';
-				// $request['with'] = ['business'];
+				$request['with'] = ['service'];
 				$orderIndex = $request->get('order');
 				if (isset($orderIndex) && count($orderIndex)) {
 					$columnsIndex = $request->get('columns');
@@ -244,7 +213,7 @@ class CommonController extends Controller
 			'global-service' => ['service_name', 'status'],
 			'insurance' => ['name', 'email', 'mobile', 'pan', 'agentId', 'status'],
 			'transactions' => ['reference_number', 'user_id', 'operator_id', 'circle_id', 'status', 'amount', 'transaction_type'],
-			'serviceRequest' => ['user_id', 'is_active', 'service_id', 'service_type'],
+			'serviceRequest' => ['status', 'service_id'],
 			// add more types and columns here
 		];
 
@@ -277,10 +246,10 @@ class CommonController extends Controller
 			$getOrderRefId = self::getOrderRefId($request->searchText);
 			$request->orderIdArray = $getOrderRefId;
 		}
-		if (isset($request->searchText) && !empty($request->searchText) && $type == 'serviceRequest') {
-			$getServiceId = self::getServiceId($request->searchText);
-			$request->serviceIdArray = $getServiceId;
-		}
+		// if (isset($request->searchText) && !empty($request->searchText) && $type == 'serviceRequest') {
+		// 	$getServiceId = self::getServiceId($request->searchText);
+		// 	$request->serviceIdArray = $getServiceId;
+		// }
 		if (isset($request->searchText) && !empty($request->searchText) && in_array($type, array('bulkpayouts', 'serviceRequest')) && \Auth::user()->is_admin == '1') {
 			$getUserId = self::getUserId($request->searchText);
 			$request->userIdArray = $getUserId;
@@ -292,6 +261,8 @@ class CommonController extends Controller
 			(isset($request->tr_type) && !empty($request->tr_type)) ||
 			(isset($request->account_number) && !empty($request->account_number)) ||
 			(isset($request->from) && !empty($request->from)) ||
+			(isset($request->date_from) && !empty($request->date_from)) ||
+			(isset($request->date_to) && !empty($request->date_to)) ||
 			(isset($request->status) && $request->status != '') ||
 			(isset($request->apes_status_array) && $request->apes_status_array != '') ||
 			(isset($request->area) && $request->area != '') ||
@@ -382,6 +353,16 @@ class CommonController extends Controller
 				$request['from'],
 				$request['to']
 			]);
+		}
+		if (!empty($request->get('date_from')) && !empty($request->get('date_to'))) {
+			$query->whereBetween(DB::raw('DATE(created_at)'), [
+				$request->get('date_from'),
+				$request->get('date_to')
+			]);
+		} elseif (!empty($request->get('date_from'))) {
+			$query->whereDate('created_at', '>=', $request->get('date_from'));
+		} elseif (!empty($request->get('date_to'))) {
+			$query->whereDate('created_at', '<=', $request->get('date_to'));
 		}
 
 

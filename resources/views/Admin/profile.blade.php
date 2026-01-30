@@ -133,7 +133,6 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                 <i class="bi bi-check-circle-fill fs-4 text-success mb-2"></i>
                 <h6 class="card-title mb-1">Completed Transaction</h6>
                 <p class="card-text fs-6 fw-bold">{{ number_format(2345) }}</p>
-
             </div>
         </div>
     </div>
@@ -372,7 +371,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
         img.replaceWith(div);
     }
 </script>
-@elseif($role == 2)
+@elseif($role == 2 || $role == 3)
 <div class="row align-items-center border rounded p-2 shadow-sm">
     <!-- User Image -->
     <div class="col">
@@ -399,12 +398,14 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
 
     <!-- Edit Profile Button -->
+    @if($role == 2)
     <div class="col-auto">
         <button type="button" class="btn buttonColor" data-bs-toggle="modal"
             data-bs-target="#completeProfileModal">
             <i class="bi bi-pencil-square me-1"></i> Complete Profile
         </button>
     </div>
+    @endif
 
 </div>
 
@@ -749,30 +750,15 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                     </button>
                 </div>
 
-
-                @php
-                $keys = [
-                [
-                'clientId' => '454v54545v656556brtyty657ht',
-                'clientKey' => 'key_1234567890',
-                ],
-                [
-                'clientId' => '984hfghf76876ghfgh',
-                'clientKey' => 'key_9876543210',
-                ],
-                ];
-                @endphp
                 <div class="row mb-2">
                     @foreach ($saltKeys as $key)
                     <div class="col-md-12 mb-2">
                         <div class="border rounded p-3">
                             <div class="row">
-
                                 <div class="col-12">
                                     <strong>Client ID:</strong> {{ $key['client_id'] }} <br />
                                     <strong>Client Key:</strong> {{ maskValue($key['client_secret']) }} <br />
                                 </div>
-
                             </div>
                         </div>
                     </div>
@@ -780,7 +766,6 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                 </div>
 
             </div>
-
 
         </div>
     </div>
@@ -1020,8 +1005,6 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             </div>
 
 
-
-
                             <div class="col-md-6">
                                 <label class="form-label">PAN Number</label>
                                 <input type="text" class="form-control validate"
@@ -1076,9 +1059,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                 @endif
                             </div>
                         </div>
-
                     </div>
-
                 </div>
 
                 <!-- STEP 4: Banking Details -->

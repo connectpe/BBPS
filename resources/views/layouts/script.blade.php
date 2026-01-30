@@ -169,4 +169,38 @@
             });
         });
     });
+
+    // Format status like pending => Pending
+    function formatStatus(status) {
+        if (!status) return '';
+
+        return status
+            .toLowerCase()
+            .replace(/^\w/, c => c.toUpperCase());
+    }
+
+    // Format daeTime like  formatDateTime(dateValue) => Jan-27 2026 03:14 pm
+    function formatDateTime(dateValue) {
+        if (!dateValue) return '';
+
+        const date = new Date(dateValue);
+
+        if (isNaN(date)) return '';
+
+        const month = date.toLocaleString('en-US', {
+            month: 'short'
+        });
+
+        const day = String(date.getDate()).padStart(2, '0');
+
+        const year = date.getFullYear();
+
+        let hours = date.getHours();
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const ampm = hours >= 12 ? 'pm' : 'am';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // convert 0 => 12
+
+        return `${month}-${day}-${year} ${hours}:${minutes} ${ampm}`;
+    }
 </script>
