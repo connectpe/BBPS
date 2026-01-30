@@ -136,6 +136,14 @@
             </a>
         </li>
 
+         <li class="nav-item">
+            <a href="{{ route('providers') }}"
+                class="nav-link text-white {{ Route::currentRouteName() == 'providers' ? 'sidebar-active' : '' }}">
+                <i class="bi bi-briefcase me-2"></i>
+                Providers
+            </a>
+        </li>
+
         <!-- Complaint Report -->
         <li class="nav-item">
             <a href="{{ route('complain.report') }}"

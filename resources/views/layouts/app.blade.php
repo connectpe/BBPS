@@ -34,7 +34,6 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
-
     <!-- Buttons extension JS -->
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
@@ -49,6 +48,9 @@
 
     <!-- Sweetalert  -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Chart Cdn -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 
     <style>
@@ -137,7 +139,7 @@
 
 <body class="d-flex">
 
-   
+
     {{-- Sidebar --}}
     @include('layouts.sidebar')
 

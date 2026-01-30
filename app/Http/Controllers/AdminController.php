@@ -10,6 +10,7 @@ use App\Models\BusinessCategory;
 use App\Models\BusinessInfo;
 use App\Models\GlobalService;
 use App\Models\OauthUser;
+use App\Models\Provider;
 use App\Models\User;
 use App\Models\UsersBank;
 use Illuminate\Support\Facades\Validator;
@@ -299,6 +300,54 @@ class AdminController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update user status. Please try again.'
+            ], 500);
+        }
+    }
+
+
+    public function providers()
+    {
+        $globalServices =  GlobalService::where('is_active', '1')->select('id', 'service_name')->orderBy('id', 'desc')->get();
+        return view('Provider.providers', compact('globalServices'));
+    }
+
+    public function addProvider(Request $request)
+    {
+        $request->validate(
+            [
+                'serviceId'    => 'required|exists:global_services,id',
+                'providerName' => 'required|string|max:100|unique:providers,provider_name',
+            ],
+            [
+                'serviceId.required' => 'Please select a service.',
+                'serviceId.exists'   => 'The selected service is invalid.',
+
+                'providerName.required' => 'Provider name is required.',
+                'providerName.string'   => 'Provider name must be a valid text.',
+                'providerName.max'      => 'Provider name may not be greater than 100 characters.',
+            ]
+        );
+
+        try {
+
+            $data = [
+                'service_id' => $request->serviceId,
+                'provider_name' => $request->providerName,
+                'provider_slug' => Str::slug($request->providerName),
+                'updated_by' => Auth::user()->id,
+            ];
+
+            $provider = Provider::create($data);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Provider Added Successfully',
+                'data' => $provider,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Error : ' . $e->getMessage(),
             ], 500);
         }
     }
