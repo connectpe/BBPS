@@ -307,7 +307,7 @@
                     _token: document.querySelector('input[name="_token"]').value
                 };
 
-                alert(payload.role)
+                
 
                 try {
                     const res = await fetch("{{ route('admin.signup') }}", {
@@ -454,6 +454,15 @@
     <script>
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            const loginForm = document.getElementById('loginForm');
+            const signupForm = document.getElementById('signupForm');
+            const otpForm = document.getElementById('otpForm');
+            function showOTP() {
+                otpForm.classList.remove('d-none');
+                signupForm.classList.add('d-none');
+                loginForm.classList.add('d-none');
+                document.querySelector('.otp-input').focus();
+            }
 
             const form = this;
             const loginButton = document.getElementById('loginButton');
@@ -483,11 +492,24 @@
 
 
                 if (res.ok && data.status) {
-                    Swal.fire('Success', data.message || 'Login successful', 'success')
+                    console.log(res);
+                    console.log(data);
+
+                    
+                    if(data.isOtpSend){
+                        console.log('inside the isotpSend');
+                        document.getElementById('otpEmail').value = data.email;
+                        // Swal.fire('Success', 'OTP sent to your email. Please verify.', 'success');
+                        showOTP();
+                       
+                    }else{
+                        Swal.fire('Success', data.message || 'Login successful', 'success')
                         .then(() => {
                             window.location.href = data.redirect;
                         });
-                    return;
+                        return;
+                    }
+                    
                 }
 
 
