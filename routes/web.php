@@ -112,7 +112,10 @@ Route::group(['middleware' => ['auth']], function () {
 
     // Complain Report Route
     Route::get('/complain-report', [ComplainReportController::class, 'complainReport'])->name('complain.report');
-    Route::post('/complain-report/{id}/update', [ComplainReportController::class, 'updateComplaint'])
+
+    Route::post('/complain-report/fetch', [ComplainReportController::class, 'fetchComplaints'])->name('complain.report.fetch');
+        Route::post('/complain-report/{id}/update', [ComplainReportController::class, 'updateComplaint'])
+
         ->name('complain.update');
 });
 
