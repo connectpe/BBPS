@@ -46,11 +46,10 @@ Route::group(['middleware' => ['auth']], function () {
 
         // Route::post('genrate-token',[BbpsRechargeController::class,'generateToken'])->name('bbps.generate_token');
         // Route::get('getPlans',[BbpsRechargeController::class,'getPlans'])->name('bbps.getPlans');
-        Route::post('balance',[BbpsRechargeController::class,'balance'])->name('bbps.balance');
-        Route::post('validateRecharge',[BbpsRechargeController::class,'validateRecharge'])->name('bbps.validateRecharge');
-        Route::post('payment',[BbpsRechargeController::class,'payment'])->name('bbps.payment');
-        Route::post('status',[BbpsRechargeController::class,'status'])->name('bbps.status');
-
+        Route::post('balance', [BbpsRechargeController::class, 'balance'])->name('bbps.balance');
+        Route::post('validateRecharge', [BbpsRechargeController::class, 'validateRecharge'])->name('bbps.validateRecharge');
+        Route::post('payment', [BbpsRechargeController::class, 'payment'])->name('bbps.payment');
+        Route::post('status', [BbpsRechargeController::class, 'status'])->name('bbps.status');
     });
     Route::post('change-password', [AuthController::class, 'passwordReset'])->name('admin.change_password');
 
@@ -69,6 +68,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('admin/service/edit/{id}', [AdminController::class, 'EditService'])
         ->name('admin.service.edit');
 
+
+    // Provider Related Route 
+    Route::get('providers', [AdminController::class, 'providers'])->name('providers');
+    Route::post('add-provider', [AdminController::class, 'addProvider'])->name('add_provider');
 
     Route::prefix('recharge')->group(function () {
         Route::post('/get-plans', [BbpsRechargeController::class, 'getPlans']);
@@ -114,7 +117,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/complain-report', [ComplainReportController::class, 'complainReport'])->name('complain.report');
 
     Route::post('/complain-report/fetch', [ComplainReportController::class, 'fetchComplaints'])->name('complain.report.fetch');
-        Route::post('/complain-report/{id}/update', [ComplainReportController::class, 'updateComplaint'])
+    Route::post('/complain-report/{id}/update', [ComplainReportController::class, 'updateComplaint'])
 
         ->name('complain.update');
 });

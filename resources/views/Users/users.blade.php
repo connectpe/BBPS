@@ -103,10 +103,8 @@
             processing: true,
             serverSide: true,
             ajax: {
-
                 url: "{{url('fetch')}}/users/0",
                 type: 'POST',
-
                 data: function(d) {
                     d._token = $('meta[name="csrf-token"]').attr('content');
                     d.id = $('#filterName').val();
@@ -201,9 +199,7 @@
 
                         dropdown += `</select>`;
                         return dropdown;
-                    },
-                    orderable: false,
-                    searchable: false
+                    }
                 }
             ]
         });
