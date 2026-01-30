@@ -5,6 +5,7 @@
 
 @section('content')
 
+
     <div class="accordion mb-3" id="filterAccordion">
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingFilter">
@@ -65,6 +66,7 @@
                             <button class="btn buttonColor " id="applyFilter"> Filter</button>
                             <button class="btn btn-secondary" id="resetFilter">Reset</button>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -176,12 +178,51 @@
                         }
                     },
 
-                    {
+                   {
                         data: 'operator',
                         render: function(data) {
                             if (!data) return '----';
                             return `${data.name} [${data.code}]`;
                         }
+                    }
+                },
+                
+                {
+                    data: 'circle',
+                    render: function(data, type, row) {
+                        const circle = `${data.name} [${data.code}]`;
+                        return `${circle} `;
+                    }
+                },
+                {
+                    data: 'amount'
+                },
+                {
+                    data: 'transaction_type'
+                },
+                {
+                    data: 'reference_number'
+                },
+                {
+                    data: 'created_at',
+                    render: function(data) {
+                        return formatDateTime(data);
+                    }
+                },
+                {
+                    data: 'status',
+                    render: function(data) {
+
+                        const colors = {
+                            pending: 'secondary', // gray – waiting
+                            processing: 'warning', // yellow – in progress
+                            processed: 'success', // green – done
+                            failed: 'danger', // red – error
+                            reversed: 'info', // blue – rolled back
+                        };
+
+                        const color = colors[data] || 'secondary';
+                        return `<span class="badge bg-${color}">${formatStatus(data)}</span>`;
                     },
 
                     {
@@ -244,8 +285,10 @@
                 table.ajax.reload();
             });
 
+
         });
     </script>
+
 
 
 @endsection

@@ -175,40 +175,9 @@ class CommonController extends Controller
 				break;
 			case 'serviceRequest':
 				$request['table'] = '\App\Models\UserService';
-				$request['searchData'] = ['user_id', 'is_active', 'service_id'];
+				$request['searchData'] = ['user_id', 'status', 'service_id', 'transaction_amount', 'created_at'];
 				$request['select'] = 'all';
-				// $request['with'] = ['business'];
-				$orderIndex = $request->get('order');
-				if (isset($orderIndex) && count($orderIndex)) {
-					$columnsIndex = $request->get('columns');
-					$columnIndex = $orderIndex[0]['column'];
-					$columnName = $columnsIndex[$columnIndex]['data'];
-					$columnSortOrder = $orderIndex[0]['dir'];
-					if ($columnName == 'new_created_at') {
-						$columnName = 'created_at';
-					}
-					if ($columnName == '0') {
-						$columnName = 'created_at';
-						$columnSortOrder = 'DESC';
-					}
-					$request['order'] = [$columnName, $columnSortOrder];
-				} else {
-					$request['order'] = ['id', 'DESC'];
-				}
-				$request['whereIn'] = 'id';
-				$request['parentData'] = [$request->id];
-				if (Auth::user()->role_id == '1') {
-					$request['parentData'] = 'all';
-				} else {
-					$request['whereIn'] = 'user_id';
-					$request['parentData'] = [Auth::user()->id];
-				}
-				break;
-			case 'serviceRequest':
-				$request['table'] = '\App\Models\UserService';
-				$request['searchData'] = ['user_id', 'is_active', 'service_id'];
-				$request['select'] = 'all';
-				// $request['with'] = ['business'];
+				$request['with'] = ['service'];
 				$orderIndex = $request->get('order');
 				if (isset($orderIndex) && count($orderIndex)) {
 					$columnsIndex = $request->get('columns');
@@ -244,7 +213,7 @@ class CommonController extends Controller
 			'global-service' => ['service_name', 'status'],
 			'insurance' => ['name', 'email', 'mobile', 'pan', 'agentId', 'status'],
 			'transactions' => ['reference_number', 'user_id', 'operator_id', 'circle_id', 'status', 'amount', 'transaction_type'],
-			'serviceRequest' => ['user_id', 'is_active', 'service_id', 'service_type'],
+			'serviceRequest' => ['status', 'service_id'],
 			// add more types and columns here
 		];
 
@@ -277,10 +246,10 @@ class CommonController extends Controller
 			$getOrderRefId = self::getOrderRefId($request->searchText);
 			$request->orderIdArray = $getOrderRefId;
 		}
-		if (isset($request->searchText) && !empty($request->searchText) && $type == 'serviceRequest') {
-			$getServiceId = self::getServiceId($request->searchText);
-			$request->serviceIdArray = $getServiceId;
-		}
+		// if (isset($request->searchText) && !empty($request->searchText) && $type == 'serviceRequest') {
+		// 	$getServiceId = self::getServiceId($request->searchText);
+		// 	$request->serviceIdArray = $getServiceId;
+		// }
 		if (isset($request->searchText) && !empty($request->searchText) && in_array($type, array('bulkpayouts', 'serviceRequest')) && \Auth::user()->is_admin == '1') {
 			$getUserId = self::getUserId($request->searchText);
 			$request->userIdArray = $getUserId;
