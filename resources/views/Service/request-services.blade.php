@@ -17,17 +17,17 @@
             <div id="collapseFilter" class="accordion-collapse collapse">
                 <div class="accordion-body">
                     <div class="row g-3 align-items-end">
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <label class="form-label">User</label>
                             <input type="text" id="filterUser" class="form-control">
                         </div>
 
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <label class="form-label">Service</label>
                             <input type="text" id="filterService" class="form-control">
                         </div>
 
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <label class="form-label">Status</label>
                             <select id="filterStatus" class="form-select">
                                 <option value="">All</option>
@@ -35,6 +35,15 @@
                                 <option value="approved">Approved</option>
                                 <option value="rejected">Rejected</option>
                             </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">From Date</label>
+                            <input type="date" id="filterDateFrom" class="form-control">
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">To Date</label>
+                            <input type="date" id="filterDateTo" class="form-control">
                         </div>
 
                         <div class="col-md-3 d-flex gap-2">
@@ -80,7 +89,6 @@
 
                                     <td>{{ $request->created_at?->format('d-m-Y H:i') }}</td>
 
-
                                     <td>
                                         @if (auth()->user()->role_id == 1)
                                             @if ($request->status == 'pending')
@@ -114,11 +122,48 @@
 
     <script>
         $(document).ready(function() {
+            function parseDMYHM(dateStr) {
+                if (!dateStr || dateStr === '-') return null;
+                const parts = dateStr.trim().split(' ');
+                const dmy = (parts[0] || '').split('-');
+                if (dmy.length !== 3) return null;
+
+                const dd = parseInt(dmy[0], 10);
+                const mm = parseInt(dmy[1], 10) - 1;
+                const yyyy = parseInt(dmy[2], 10);
+
+                let hh = 0,
+                    min = 0;
+                if (parts[1]) {
+                    const hm = parts[1].split(':');
+                    hh = parseInt(hm[0] || '0', 10);
+                    min = parseInt(hm[1] || '0', 10);
+                }
+
+                return new Date(yyyy, mm, dd, hh, min, 0);
+            }
+
+            const dateRangeFilter = function(settings, data, dataIndex) {
+                const fromVal = $('#filterDateFrom').val();
+                const toVal = $('#filterDateTo').val();
+
+                // created_at column index = 4
+                const createdText = data[4];
+                const rowDate = parseDMYHM(createdText);
+                if (!rowDate) return true;
+
+                const fromDate = fromVal ? new Date(fromVal + 'T00:00:00') : null;
+                const toDate = toVal ? new Date(toVal + 'T23:59:59') : null;
+
+                if (fromDate && rowDate < fromDate) return false;
+                if (toDate && rowDate > toDate) return false;
+
+                return true;
+            };
 
             let table = $('#serviceRequestTable').DataTable({
                 pageLength: 10,
                 responsive: true,
-                // responsive: true,
                 dom: "<'row mb-2'<'col-sm-4'l><'col-sm-4'f><'col-sm-4 text-end'B>>" +
                     "<'row'<'col-12'tr>>" +
                     "<'row mt-2'<'col-sm-6'i><'col-sm-6'p>>",
@@ -139,6 +184,11 @@
             });
 
             $('#applyFilter').on('click', function() {
+                $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(fn => fn !== dateRangeFilter);
+                if ($('#filterDateFrom').val() || $('#filterDateTo').val()) {
+                    $.fn.dataTable.ext.search.push(dateRangeFilter);
+                }
+
                 table
                     .column(1).search($('#filterUser').val())
                     .column(2).search($('#filterService').val())
@@ -150,6 +200,10 @@
                 $('#filterUser').val('');
                 $('#filterService').val('');
                 $('#filterStatus').val('');
+                $('#filterDateFrom').val('');
+                $('#filterDateTo').val('');
+                $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(fn => fn !== dateRangeFilter);
+
                 table.search('').columns().search('').draw();
             });
 

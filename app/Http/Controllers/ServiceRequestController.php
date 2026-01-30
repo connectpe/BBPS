@@ -90,7 +90,7 @@ class ServiceRequestController extends Controller
 
 
             UserService::create([
-                // 'user_id' => auth()->id(),
+                'user_id' => auth()->id(),
                 'service_id' => $request->service_id,
                 'status' => 'pending',
                 'is_api_enable' => '1',
