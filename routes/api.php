@@ -11,3 +11,7 @@ Route::get('/user', function (Request $request) {
 // Route::prefix('recharge')->group(function () {
 //     Route::post('/get-plans', [BbpsRechargeController::class, 'getPlans']);
 // });
+
+Route::post('generate-token',[BbpsRechargeController::class,'generateToken'])->name('bbps.generate_token');
+Route::get('getPlans/{operator_id}/{circle_id}/{plan_type?}',[BbpsRechargeController::class, 'getPlans'])->name('bbps.getPlans');
+
