@@ -17,17 +17,17 @@
             <div id="collapseFilter" class="accordion-collapse collapse">
                 <div class="accordion-body">
                     <div class="row g-3 align-items-end">
-                        <div class="col-md-4">
+                        <div class="col-md-2">
                             <label class="form-label">User</label>
                             <input type="text" id="filterUser" class="form-control">
                         </div>
 
-                        <div class="col-md-4">
+                        <div class="col-md-2">
                             <label class="form-label">Service</label>
                             <input type="text" id="filterService" class="form-control">
                         </div>
 
-                        <div class="col-md-4">
+                        <div class="col-md-2">
                             <label class="form-label">Status</label>
                             <select id="filterStatus" class="form-select">
                                 <option value="">All</option>
@@ -36,17 +36,17 @@
                                 <option value="rejected">Rejected</option>
                             </select>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label class="form-label">From Date</label>
                             <input type="date" id="filterDateFrom" class="form-control">
                         </div>
 
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label class="form-label">To Date</label>
                             <input type="date" id="filterDateTo" class="form-control">
                         </div>
 
-                        <div class="col-md-3 d-flex gap-2">
+                        <div class="col-md-2 d-flex gap-2">
                             <button type="button" class="btn buttonColor" id="applyFilter">Filter</button>
                             <button type="button" class="btn btn-secondary" id="resetFilter">Reset</button>
                         </div>

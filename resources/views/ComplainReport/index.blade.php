@@ -68,19 +68,19 @@
                             <div class="accordion-body">
                                 <div class="row align-items-end g-2">
 
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <label class="form-label">Reference No</label>
                                         <input type="text" id="filterReference" class="form-control"
                                             placeholder="Enter reference...">
                                     </div>
 
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <label class="form-label">User Name</label>
                                         <input type="text" id="filterUser" class="form-control"
                                             placeholder="Enter username...">
                                     </div>
 
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <label class="form-label">Priority</label>
                                         <select id="filterPriority" class="form-select">
                                             <option value="">All</option>
@@ -91,7 +91,7 @@
                                         </select>
                                     </div>
 
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <label class="form-label">Status</label>
                                         <select id="filterStatus" class="form-select">
                                             <option value="">All</option>
@@ -101,12 +101,12 @@
                                         </select>
                                     </div>
 
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <label class="form-label">From Date</label>
                                         <input type="date" id="filterDateFrom" class="form-control">
                                     </div>
 
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <label class="form-label">To Date</label>
                                         <input type="date" id="filterDateTo" class="form-control">
                                     </div>
