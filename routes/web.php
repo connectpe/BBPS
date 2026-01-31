@@ -14,6 +14,7 @@ use App\Http\Controllers\LadgerController;
 use App\Http\Controllers\ComplainReportController;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 
 Route::get('/', function () {
     return view('Front.user-register');
@@ -23,7 +24,7 @@ Route::post('admin/login', [AuthController::class, 'login'])->name('admin.login'
 Route::post('verify-otp', [AuthController::class, 'verifyOtp'])->name('verify_otp');
 Route::post('signup', [AuthController::class, 'signup'])->name('admin.signup');
 
-Route::group(['middleware' => ['auth']], function () {
+Route::group(['middleware' => ['auth', 'logs']], function () {
     Route::prefix('admin')->group(function () {
         Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
@@ -34,8 +35,8 @@ Route::group(['middleware' => ['auth']], function () {
 
         Route::post('servicetoggle', [AdminController::class, 'disableUserService'])->name('admin.service_toggle.user');
         Route::post('user-status-change', [AdminController::class, 'changeUserStatus'])->name('admin.user_status.change');
-        Route::post('add-service', [AdminController::class, 'AddService'])->name('admin.add_service');
-        Route::put('edit-service/{service_id}', [AdminController::class, 'EditService'])->name('admin.edit_service');
+        Route::post('add-service', [AdminController::class, 'addService'])->name('admin.add_service');
+        Route::put('edit-service/{service_id}', [AdminController::class, 'editService'])->name('admin.edit_service');
 
         Route::post('servicetoggle', [AdminController::class, 'disableUserService'])->name('admin.service_toggle');
 
@@ -52,6 +53,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('payment', [BbpsRechargeController::class, 'payment'])->name('bbps.payment');
         Route::post('status', [BbpsRechargeController::class, 'status'])->name('bbps.status');
     });
+
     Route::post('change-password', [AuthController::class, 'passwordReset'])->name('admin.change_password');
 
     Route::post('completeProfile/{user_id}', [UserController::class, 'completeProfile'])->name('admin.complete_profile');
@@ -82,8 +84,9 @@ Route::group(['middleware' => ['auth']], function () {
 
 
     Route::get('services', [ServiceRequestController::class, 'enabledServices'])->name('enabled_services');
-
     Route::get('request-services', [ServiceRequestController::class, 'index'])->name('request_services');
+    Route::post('active-user-service-status', [ServiceController::class, 'activeUserService'])->name('active_user_service_status');
+
 
     // Users Related Route
     Route::get('/users', [UserController::class, 'bbpsUsers'])->name('users');
@@ -130,8 +133,8 @@ Route::group(['middleware' => ['auth']], function () {
         ->name('admin.users.routing.save');
 
 
-    // Activity Log Related Route 
-    Route::get('activity-log', [UserController::class, 'activityLog'])->name('activity_log');
+    // Api Log Related Route 
+    Route::get('api-log', [UserController::class, 'ApiLog'])->name('api_log');
 });
 
 Route::prefix('admin', function () {

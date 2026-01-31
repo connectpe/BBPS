@@ -24,7 +24,6 @@ class UserController extends Controller
     public function bbpsUsers()
     {
         $users = User::where('role_id', '!=', '1')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
-
         return view('Users.users', compact('users'));
     }
 
@@ -531,9 +530,12 @@ class UserController extends Controller
     }
 
 
-    public function activityLog()
+    public function ApiLog()
     {
         $users = User::where('role_id', '!=', '1')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
-        return view('Users.activity-log', compact('users'));
+        return view('Users.api-log', compact('users'));
     }
+
+
+    
 }
