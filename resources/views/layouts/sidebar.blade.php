@@ -158,6 +158,13 @@
                 Complaint Report
             </a>
         </li>
+        <li class="nav-item">
+            <a href="{{ route('activity_log') }}"
+                class="nav-link text-white {{ Route::currentRouteName() == 'activity_log' ? 'sidebar-active' : '' }}">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                Activity Log
+            </a>
+        </li>
 
         <!-- Logout -->
         <li class="nav-item">

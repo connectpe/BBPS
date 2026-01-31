@@ -31,7 +31,7 @@ Route::group(['middleware' => ['auth']], function () {
         // Route::get('/dashboard', function () {
         //     return view('dashboard');
         // })->name('dashboard');
-        
+
         Route::post('servicetoggle', [AdminController::class, 'disableUserService'])->name('admin.service_toggle.user');
         Route::post('user-status-change', [AdminController::class, 'changeUserStatus'])->name('admin.user_status.change');
         Route::post('add-service', [AdminController::class, 'AddService'])->name('admin.add_service');
@@ -123,11 +123,15 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/complain-report/{id}/update', [ComplainReportController::class, 'updateComplaint'])
 
         ->name('complain.update');
-        Route::get('/services/{serviceId}/providers', [UserController::class, 'getServiceProviders'])
-            ->name('admin.services.providers');
+    Route::get('/services/{serviceId}/providers', [UserController::class, 'getServiceProviders'])
+        ->name('admin.services.providers');
 
-        Route::post('/users/{id}/routing/save', [UserController::class, 'saveUserRouting'])
-            ->name('admin.users.routing.save');
+    Route::post('/users/{id}/routing/save', [UserController::class, 'saveUserRouting'])
+        ->name('admin.users.routing.save');
+
+
+    // Activity Log Related Route 
+    Route::get('activity-log', [UserController::class, 'activityLog'])->name('activity_log');
 });
 
 Route::prefix('admin', function () {
