@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Client\ConnectionException;
+use App\Models\MobikwikToken;
 
 class BbpsRechargeController extends Controller
 {
@@ -24,6 +25,46 @@ class BbpsRechargeController extends Controller
         $this->clientId     = config('mobikwik.client_id');
         $this->publicKey     = file_get_contents(config('mobikwik.public_key'));
     }
+
+
+    public function generateToken()
+    {
+        try {
+            $response = Http::timeout(15)
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                ])
+                ->post(
+                    $this->baseUrl . '/recharge/v1/verify/retailer',
+                    [
+                        'clientId'     => $this->clientId,
+                        'clientSecret' => $this->clientSecret,
+                    ]
+                );
+
+
+            if (!$response->successful()) {
+                Log::error('Mobikwik Token API HTTP Error', [
+                    'status'   => $response->status(),
+                    'response' => $response->body(),
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unable to generate token',
+                ], $response->status());
+            }
+            $data = $response->json();
+            MobikwikToken::create([
+                'token' => $data->data->token,
+                'creation_time' => now(),
+                'response' => $data,
+                'created_at'=> now(),
+                'updated_at'=> now(),
+            ]);
+            
+            return response()->json($data, 200);
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
 
     // public function generateToken()
     // {
@@ -94,6 +135,7 @@ class BbpsRechargeController extends Controller
 
     //     return $token;
     // }
+
 
 
 
