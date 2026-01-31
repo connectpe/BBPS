@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\MobiKwikHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -10,34 +11,34 @@ use Illuminate\Http\Client\ConnectionException;
 class BbpsRechargeController extends Controller
 {
     private  $baseUrl;
-    private  $publicKey;    
+    private  $publicKey;
     private  $keyVersion;
     private  $clientId;
     private  $clientSecret;
 
     public function __construct()
     {
-        $this->baseUrl= 'https://alpha3.mobikwik.com';
-        // $this->publicKey = file_get_contents(storage_path('keys/bbps_public_key.pem'));
-        $this->keyVersion = '1.0';
-        $this->clientSecret = env('MOBIKWIK_CLIENT_SECRET');
-        $this->clientId = env('MOBIKWIK_CLIENT_ID');
+        $this->baseUrl      = config('mobikwik.base_url');
+        $this->keyVersion   = config('mobikwik.key_version');
+        $this->clientSecret = config('mobikwik.client_secret');
+        $this->clientId     = config('mobikwik.client_id');
+        $this->publicKey     = file_get_contents(config('mobikwik.public_key'));
     }
 
     public function generateToken()
     {
         try {
             $response = Http::timeout(15)
-            ->withHeaders([
-                'Content-Type' => 'application/json',
-            ])
-            ->post(
-                $this->baseUrl . '/recharge/v1/verify/retailer',
-                [
-                    'clientId'     => $this->clientId,
-                    'clientSecret' => $this->clientSecret,
-                ]
-            );
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                ])
+                ->post(
+                    $this->baseUrl . '/recharge/v1/verify/retailer',
+                    [
+                        'clientId'     => $this->clientId,
+                        'clientSecret' => $this->clientSecret,
+                    ]
+                );
 
 
             if (!$response->successful()) {
@@ -78,16 +79,16 @@ class BbpsRechargeController extends Controller
         }
     }
 
-   public function getPlans($operator_id, $circle_id, $plan_type = null)
-    {        
-        
+    public function getPlans($operator_id, $circle_id, $plan_type = null)
+    {
+
         try {
             $opId     = $operator_id;
             $cirId    = $circle_id;
             $planType = $plan_type; // optional
 
-           
-            $endpoint = "/recharge/v1/rechargePlansAPI/{$opId}/{$cirId}";           
+
+            $endpoint = "/recharge/v1/rechargePlansAPI/{$opId}/{$cirId}";
 
             // Append planType ONLY if provided
             if (!empty($planType)) {
@@ -95,13 +96,13 @@ class BbpsRechargeController extends Controller
             }
 
             $response = Http::withoutVerifying()
-            ->timeout(120)
-            ->retry(3, 3000)
-            ->withHeaders([
-                'Content-Type' => 'application/json',
-                'X-MClient'    => '14',
-            ])
-            ->get($this->baseUrl . $endpoint);
+                ->timeout(120)
+                ->retry(3, 3000)
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                    'X-MClient'    => '14',
+                ])
+                ->get($this->baseUrl . $endpoint);
 
             if (!$response->successful()) {
 
@@ -131,7 +132,6 @@ class BbpsRechargeController extends Controller
                 'success' => true,
                 'data'    => $data['data']['plans'] ?? [],
             ], 200);
-
         } catch (\Illuminate\Http\Client\ConnectionException $e) {
 
             Log::error('Mobikwik Plan API Timeout', [
@@ -142,7 +142,6 @@ class BbpsRechargeController extends Controller
                 'success' => false,
                 'message' => 'Provider timeout, please try again later',
             ], 504);
-
         } catch (\Exception $e) {
 
             Log::error('Mobikwik Plan API Exception', [
@@ -170,10 +169,12 @@ class BbpsRechargeController extends Controller
                 'memberId' => $request->memberId,
             ];
 
-            return $this->encryptedPost(
-                '/recharge/v3/retailerBalance',
-                $payload,
-                $request->bearerToken()
+            $mobikwikHelper = new MobiKwikHelper();
+
+            $response = $mobikwikHelper->sendRequest(
+                '/recharge/v3/retailerBalance',  // API endpoint
+                $payload,                        // Payload
+                $request->bearerToken()           // Bearer token
             );
         } catch (ConnectionException $e) {
 
@@ -285,7 +286,5 @@ class BbpsRechargeController extends Controller
         }
     }
 
-    public function viewBill(Request $request){
-
-    }
+    public function viewBill(Request $request) {}
 }
