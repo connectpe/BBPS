@@ -252,6 +252,39 @@ class AuthController extends Controller
         return response()->json($request->user());
     }
 
+    public function isInitiatedOrSuspendedOrTerminate(){
+        try{
+            if(Auth::user()->status == 0){
+                return response()->json([
+                'status' => false,
+                'message' => 'you are not a active person'
+                ]);
+
+            }else if(Auth::user()->status == 2){
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Your Account is suspended by the administrator'
+                ]);
+
+            }else if(Auth::user()->status == 3){
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Your Account is temporary Terminated by the admin'
+                ]);
+                
+            }
+
+        }catch(Exception $e){
+            return response()->json([
+                'status' => false,
+                'message' => 'some error occur',
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    
+
     public function logout(Request $request)
     {
         Auth::logout();
