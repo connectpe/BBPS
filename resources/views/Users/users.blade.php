@@ -76,6 +76,7 @@
                             <th>Aadhar NO.</th>
                             <th>Created at</th>
                             <th>Status</th>
+                            <th>Root</th>
                         </tr>
                     </thead>
                 </table>
@@ -103,10 +104,8 @@
             processing: true,
             serverSide: true,
             ajax: {
-
                 url: "{{url('fetch')}}/users/0",
                 type: 'POST',
-
                 data: function(d) {
                     d._token = $('meta[name="csrf-token"]').attr('content');
                     d.id = $('#filterName').val();
@@ -193,6 +192,30 @@
                         };
 
                         let dropdown = `<select class="form-select form-select-sm" onchange="changeStatusDropdown(this, ${row.id})" onfocus="this.setAttribute('data-prev', this.value)">`;
+
+                        for (const [value, label] of Object.entries(statusOptions)) {
+                            let selected = data == value ? 'selected' : '';
+                            dropdown += `<option value="${value}" ${selected}>${label}</option>`;
+                        }
+
+                        dropdown += `</select>`;
+                        return dropdown;
+                    },
+                    orderable: false,
+                    searchable: false
+                },
+                {
+                    data: null,
+                    render: function(data, type, row) {
+
+                        const statusOptions = {
+                            0:'Mobikwik',
+                            1:'Paysprint',
+                            2:'Test'
+                            
+                        };
+
+                        let dropdown = `<select class="form-select form-select-sm" onchange="changeRootDropdown(this, ${row.id})" onfocus="this.setAttribute('data-prev', this.value)">`;
 
                         for (const [value, label] of Object.entries(statusOptions)) {
                             let selected = data == value ? 'selected' : '';

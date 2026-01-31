@@ -11,11 +11,17 @@
             <i class="bi bi-x-lg"></i>
         </button>
     </div>
-
-    <h5 class="text-center mb-4">BBPS PANEL </h5>
     @php
     $role = Auth::user()->role_id;
     @endphp
+
+    @if ($role == 1)
+    <h5 class="text-center mb-4">ADMIN PANEL </h5>
+    @else
+        <h5 class="text-center mb-4">USER PANEL </h5>
+    @endif
+
+    
 
     @if ($role == 1)
     <ul class="nav nav-pills flex-column mb-auto">
@@ -133,6 +139,14 @@
                 class="nav-link text-white {{ Route::currentRouteName() == 'our_servicess' ? 'sidebar-active' : '' }}">
                 <i class="bi bi-briefcase me-2"></i>
                 Our Services
+            </a>
+        </li>
+
+         <li class="nav-item">
+            <a href="{{ route('providers') }}"
+                class="nav-link text-white {{ Route::currentRouteName() == 'providers' ? 'sidebar-active' : '' }}">
+                <i class="bi bi-briefcase me-2"></i>
+                Providers
             </a>
         </li>
 

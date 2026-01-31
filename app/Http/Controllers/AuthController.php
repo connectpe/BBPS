@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+
 use App\Models\Role;
 use App\Models\UsersLog;
 use App\Helpers\SendingMail;
@@ -21,36 +22,29 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Rule;
 
-
 class AuthController extends Controller
 {
-
     public function signup(Request $request)
     {
         DB::beginTransaction();
 
         try {
-
-            $user =  User::where('email', $request->email)->first();
+            $user = User::where('email', $request->email)->first();
 
             $request->validate([
-                'name'     => 'required|string|max:255',
+                'name' => 'required|string|max:255',
                 'email' => [
                     'required',
                     'email',
                     'max:50',
-                    $user && $user->status != '0'
-                        ? Rule::unique('users', 'email')
-                        : '',
+                    $user && $user->status != '0' ? Rule::unique('users', 'email') : '',
                     'regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
                 ],
                 'mobile' => [
                     'required',
                     'max:10',
                     'regex:/^[6-9][0-9]{9}$/',
-                    $user && $user->status != '0'
-                        ? Rule::unique('users', 'mobile')
-                        : '',
+                    $user && $user->status != '0' ? Rule::unique('users', 'mobile') : '',
                 ],
                 'password' => 'required|string|min:6|confirmed',
                 'role' => 'required|in:user,reseller'
@@ -59,34 +53,40 @@ class AuthController extends Controller
                 'role.in' => 'Please select a valid role',
             ]);
 
+            $roleSlug = $request->role;
+            $role = Role::where('slug', $roleSlug)->firstOrFail();
 
-            $role =  $request->role;
-            $role = Role::where('slug', $role)->firstOrFail();
             $otp = rand(1000, 9999);
 
-
             if ($user) {
-                User::updateOrCreate(
-                    ['email'    => $request->email],
+                $user = User::updateOrCreate(
+                    ['email' => $request->email],
                     [
+                        'name' => $request->name,
+                        'mobile' => $request->mobile,
                         'password' => bcrypt($request->password),
-                        'role_id'  => $role->id ?? 2,
+                        'role_id' => $role->id ?? 2,
+                        // keep email_verified_at null until OTP verified
+                        'email_verified_at' => null,
+                        'status' => '0',
                     ]
                 );
             } else {
                 $user = User::create([
-                    'name'     => $request->name,
-                    'email'    => $request->email,
-                    'mobile'    => $request->mobile,
-                    'role_id'  => $role->id ?? 2,
+                    'name' => $request->name,
+                    'email' => $request->email,
+                    'mobile' => $request->mobile,
+                    'role_id' => $role->id ?? 2,
                     'password' => bcrypt($request->password),
+                    'email_verified_at' => null,
+                    'status' => '0',
                 ]);
             }
 
             $isSend = SendingMail::sendMail([
-                'name'    => $request->name,
-                'email'   => $request->email,
-                'otp'     => $otp,
+                'name' => $request->name,
+                'email' => $request->email,
+                'otp' => $otp,
                 'subject' => 'Email Verification'
             ]);
 
@@ -97,8 +97,8 @@ class AuthController extends Controller
             EmailVerification::updateOrCreate(
                 ['user_id' => $user->id],
                 [
-                    'user_id'   => $user->id,
-                    'otp'       => $otp,
+                    'user_id' => $user->id,
+                    'otp' => $otp,
                     'expire_at' => Carbon::now()->addMinutes(10),
                 ]
             );
@@ -106,10 +106,11 @@ class AuthController extends Controller
             DB::commit();
 
             return response()->json([
-                'status'  => true,
-                'message' => 'User signup successfully',
-                'user'    => $user
+                'status' => true,
+                'message' => 'User signup successfully, OTP sent to email',
+                'user' => $user
             ], 201);
+
         } catch (\Exception $e) {
 
             DB::rollBack();
@@ -119,23 +120,21 @@ class AuthController extends Controller
             ]);
 
             return response()->json([
-                'status'  => false,
+                'status' => false,
                 'message' => $e->getMessage(),
                 'error' => $e->getMessage()
             ], 500);
         }
     }
 
-
     public function verifyOtp(Request $request)
     {
         $request->validate([
             'email' => 'required|email',
-            'otp'   => 'required|digits:4',
+            'otp' => 'required|digits:4',
         ]);
 
-        // Get user by email
-        $user = User::where('email', $request->email)->where('status', '0')->first();
+        $user = User::where('email', $request->email)->first();
 
         if (!$user) {
             return response()->json([
@@ -144,7 +143,6 @@ class AuthController extends Controller
             ], 404);
         }
 
-        // Get OTP verification record
         $otpData = EmailVerification::where('user_id', $user->id)
             ->where('otp', $request->otp)
             ->where('expire_at', '>', Carbon::now())
@@ -157,12 +155,9 @@ class AuthController extends Controller
             ], 401);
         }
 
-
-        $user->email_verified_at  = Carbon::now();
+        $user->email_verified_at = Carbon::now();
         $user->status = '1';
-
         $user->save();
-
 
         $otpData->delete();
 
@@ -172,15 +167,12 @@ class AuthController extends Controller
         ]);
     }
 
-
     public function login(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
-            'email'    => 'required|email',
+            'email' => 'required|email',
             'password' => 'required',
         ]);
-
 
         if ($validator->fails()) {
             return response()->json([
@@ -190,45 +182,70 @@ class AuthController extends Controller
             ], 422);
         }
 
-
         $user = User::where('email', $request->email)->first();
 
-
-        if ($user && empty($user->email_verified_at)) {
+        if (!$user) {
             return response()->json([
-                'status'  => false,
-                'message' => 'Email not verified. Please verify your email before logging in.',
-
-                'errors'  => [
-                    'verify_email' => ['Email not verified. Please verify your email before logging in.']
-                ],
-            ], 422);
+                'status' => false,
+                'message' => 'User not found',
+            ], 404);
         }
 
+        if (empty($user->email_verified_at)) {
 
+            $otp = rand(1000, 9999);
+
+            $isSend = SendingMail::sendMail([
+                'name' => $user->name,
+                'email' => $user->email,
+                'otp' => $otp,
+                'subject' => 'Email Verification'
+            ]);
+
+            if (!$isSend) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'OTP could not be sent. Please try again.',
+                ], 500);
+            }
+
+            EmailVerification::updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'user_id' => $user->id,
+                    'otp' => $otp,
+                    'expire_at' => Carbon::now()->addMinutes(10),
+                ]
+            );
+
+            return response()->json([
+                'status' => true,
+                'isOtpSend' => true,
+                'email' => $user->email,
+                'message' => 'OTP sent to your email. Please verify to login.',
+            ], 200);
+        }
         if (!Auth::attempt(
             $request->only('email', 'password'),
             $request->boolean('remember')
         )) {
             return response()->json([
-                'status'  => false,
+                'status' => false,
                 'message' => 'Invalid credentials',
-                'errors'  => [
+                'errors' => [
                     'email' => ['Invalid credentials'],
                 ],
             ], 422);
         }
 
-
         $request->session()->regenerate();
 
         return response()->json([
-            'status'   => true,
-            'message'  => 'Login successful',
+            'status' => true,
+            'message' => 'Login successful',
             'redirect' => route('dashboard'),
         ]);
     }
-
 
     public function me(Request $request)
     {
@@ -253,6 +270,7 @@ class AuthController extends Controller
             ]);
 
             $user = auth()->user();
+
             if (!Hash::check($request->current_password, $user->password)) {
                 return response()->json([
                     'status' => false,
@@ -260,25 +278,14 @@ class AuthController extends Controller
                 ], 422);
             }
 
-
             $user->password = Hash::make($request->new_password);
             $user->updated_at = now();
-
-            // dd($user->updated_at);
             $user->save();
 
-
             return response()->json([
-
                 'status' => true,
                 'message' => 'Password updated successfully'
             ]);
-
-            // return response()->with([
-            //     'data'=>'userPassUpdated'
-            //     'status' => true,
-            //     'message' => 'Password updated successfully'
-            // ]);
 
         } catch (ValidationException $e) {
             return response()->json([
