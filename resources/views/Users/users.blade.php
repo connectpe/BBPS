@@ -38,6 +38,15 @@
                             <option value="2">Inactive</option>
                         </select>
                     </div>
+                     <div class="col-md-3">
+                        <label for="filterDateFrom" class="form-label">From Date</label>
+                        <input type="date" class="form-control" id="filterDateFrom">
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="filterDateTo" class="form-label">To Date</label>
+                        <input type="date" class="form-control" id="filterDateTo">
+                    </div>
                     <div class="col-md-3 d-flex gap-2">
                         <!-- Buttons aligned with input fields -->
                         <button class="btn buttonColor " id="applyFilter"> Filter</button>
@@ -93,6 +102,9 @@
                     d.id = $('#filterName').val();
                     d.email = $('#filterEmail').val();
                     d.status = $('#filterStatus').val();
+
+                    d.date_from = $('#filterDateFrom').val(); 
+                    d.date_to = $('#filterDateTo').val();
                 }
             },
             pageLength: 10,
