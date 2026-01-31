@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Client\ConnectionException;
+use App\Models\MobikwikToken;
 
 class BbpsRechargeController extends Controller
 {
@@ -52,8 +53,16 @@ class BbpsRechargeController extends Controller
                     'message' => 'Unable to generate token',
                 ], $response->status());
             }
-
-            return response()->json($response->json(), 200);
+            $data = $response->json();
+            MobikwikToken::create([
+                'token' => $data->data->token,
+                'creation_time' => now(),
+                'response' => $data,
+                'created_at'=> now(),
+                'updated_at'=> now(),
+            ]);
+            
+            return response()->json($data, 200);
         } catch (\Illuminate\Http\Client\ConnectionException $e) {
 
             Log::error('Mobikwik Token API Timeout', [
