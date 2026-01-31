@@ -34,17 +34,33 @@
 
     <div class="d-flex align-items-center gap-3">
 
-        <!-- Wallet Balance -->
-        <div class="text-end">
-            <small class="text-muted">Wallet</small>
-            <div class="fw-semibold text-success">₹ {{ number_format(12500, 2) }}</div>
-        </div>
+        @php 
+
+            $role = Auth::user()->role_id;
+        @endphp
+
+        @if($role == 1)
+            <div class="text-end">
+            <small class="text-muted">Main Wallet</small>
+            <div class="fw-semibold text-success">₹ {{ number_format(0, 2) }}</div>
+            </div>
 
         <!-- AEPS Balance -->
         <div class="text-end">
-            <small class="text-muted">AEPS</small>
-            <div class="fw-semibold text-primary">₹ {{ number_format(8420, 2) }}</div>
+            <small class="text-muted">Business Wallet</small>
+            <div class="fw-semibold text-primary">₹ {{ number_format(0, 2) }}</div>
         </div>
+
+        @else
+            <div class="text-end">
+            <small class="text-muted">Business Wallet</small>
+            <div class="fw-semibold text-success">₹ {{ number_format(0, 2) }}</div>
+            </div>
+        @endif
+
+
+        <!-- Wallet Balance -->
+        
 
         <!-- Notification + Profile -->
         <div class="dropdown">

@@ -66,14 +66,14 @@ class FileUploadHelper
             return null;
         }
 
-        // Multiple files
+       
         if (is_array($files)) {
             return array_map(function ($file) {
-                return asset('storage/' . ltrim($file, '/'));
+                return asset('storage/app/public/' . ltrim($file, '/'));
             }, $files);
         }
 
-        // Single file
-        return asset('storage/' . ltrim($files, '/'));
+       
+        return asset('storage/app/public/' . ltrim($files, '/'));
     }
 }

@@ -113,7 +113,7 @@ class ComplainReportController extends Controller
                 'status' => $c->status ?? '-',
                 'description' => $c->description ?? '',
                 'admin_notes' => $c->admin_notes ?? '-',
-                'attachment_url' => $c->attachment_path ? asset('storage/' . $c->attachment_path) : null,
+                'attachment_url' => $c->attachment_path ? asset('storage/app/public/' . $c->attachment_path) : null,
                 'created_at' => $c->created_at ? $c->created_at->toISOString() : null,
             ];
         }

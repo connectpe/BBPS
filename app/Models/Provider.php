@@ -13,8 +13,12 @@ class Provider extends Model
         return $this->belongsTo(GlobalService::class, 'service_id');
     }
 
+
     public function updatedBy()
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
+
 }
+
+
