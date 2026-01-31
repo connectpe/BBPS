@@ -22,59 +22,60 @@ class MobiKwikHelper
         $this->clientId     = config('mobikwik.client_id');
     }
 
-    // public function generateToken()
-    // {
-    //     try {
-    //         $response = Http::timeout(15)
-    //             ->withHeaders([
-    //                 'Content-Type' => 'application/json',
-    //             ])
-    //             ->post(
-    //                 $this->baseUrl . '/recharge/v1/verify/retailer',
-    //                 [
-    //                     'clientId'     => $this->clientId,
-    //                     'clientSecret' => $this->clientSecret,
-    //                 ]
-    //             );
+    function generateMobikwikToken()
+    {
+        try {
+            $response = Http::timeout(15)
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                ])
+                ->post(
+                    config('mobikwik.base_url') . '/recharge/v1/verify/retailer',
+                    [
+                        'clientId'     => config('mobikwik.client_id'),
+                        'clientSecret' => config('mobikwik.client_secret'),
+                    ]
+                );
 
+            if (!$response->successful()) {
+                Log::error('Mobikwik Token API HTTP Error', [
+                    'status'   => $response->status(),
+                    'response' => $response->body(),
+                ]);
 
-    //         if (!$response->successful()) {
-    //             Log::error('Mobikwik Token API HTTP Error', [
-    //                 'status'   => $response->status(),
-    //                 'response' => $response->body(),
-    //             ]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unable to generate token',
+                ], $response->status());
 
-    //             return response()->json([
-    //                 'success' => false,
-    //                 'message' => 'Unable to generate token',
-    //             ], $response->status());
-    //         }
+            }
 
-    //         return response()->json($response->json(), 200);
-    //     } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            $data = $response->json();
 
-    //         Log::error('Mobikwik Token API Timeout', [
-    //             'error' => $e->getMessage(),
-    //         ]);
+            return $data['data']['token'] ?? null;
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
 
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Connection timeout, please try again later',
-    //         ], 504);
-    //     } catch (\Exception $e) {
+            Log::error('Mobikwik Token API Timeout', [
+                'error' => $e->getMessage(),
+            ]);
 
-    //         Log::error('Mobikwik Token API Exception', [
-    //             'error' => $e->getMessage(),
-    //             'file'  => $e->getFile(),
-    //             'line'  => $e->getLine(),
-    //         ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Connection timeout, please try again later',
+            ], 504);
+        } catch (\Exception $e) {
 
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Internal server error',
-    //         ], 500);
-    //     }
-    // }
+            Log::error('Mobikwik Token API Exception', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Internal server error',
+            ], 500);
+        }
+    }
+
 
     public function sendRequest(string $endpoint, array $payload, string $bearerToken)
     {

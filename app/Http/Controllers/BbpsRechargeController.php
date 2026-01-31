@@ -26,6 +26,7 @@ class BbpsRechargeController extends Controller
         $this->publicKey     = file_get_contents(config('mobikwik.public_key'));
     }
 
+
     public function generateToken()
     {
         try {
@@ -65,32 +66,81 @@ class BbpsRechargeController extends Controller
             return response()->json($data, 200);
         } catch (\Illuminate\Http\Client\ConnectionException $e) {
 
-            Log::error('Mobikwik Token API Timeout', [
-                'error' => $e->getMessage(),
-            ]);
+    // public function generateToken()
+    // {
+    //     try {
+    //         $response = Http::timeout(15)
+    //             ->withHeaders([
+    //                 'Content-Type' => 'application/json',
+    //             ])
+    //             ->post(
+    //                 $this->baseUrl . '/recharge/v1/verify/retailer',
+    //                 [
+    //                     'clientId'     => $this->clientId,
+    //                     'clientSecret' => $this->clientSecret,
+    //                 ]
+    //             );
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Connection timeout, please try again later',
-            ], 504);
-        } catch (\Exception $e) {
 
-            Log::error('Mobikwik Token API Exception', [
-                'error' => $e->getMessage(),
-                'file'  => $e->getFile(),
-                'line'  => $e->getLine(),
-            ]);
+    //         if (!$response->successful()) {
+    //             Log::error('Mobikwik Token API HTTP Error', [
+    //                 'status'   => $response->status(),
+    //                 'response' => $response->body(),
+    //             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error',
-            ], 500);
-        }
-    }
+    //             return response()->json([
+    //                 'success' => false,
+    //                 'message' => 'Unable to generate token',
+    //             ], $response->status());
+    //         }
+
+    //         return response()->json($response->json(), 200);
+    //     } catch (\Illuminate\Http\Client\ConnectionException $e) {
+
+    //         Log::error('Mobikwik Token API Timeout', [
+    //             'error' => $e->getMessage(),
+    //         ]);
+
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Connection timeout, please try again later',
+    //         ], 504);
+    //     } catch (\Exception $e) {
+
+    //         Log::error('Mobikwik Token API Exception', [
+    //             'error' => $e->getMessage(),
+    //             'file'  => $e->getFile(),
+    //             'line'  => $e->getLine(),
+    //         ]);
+
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Internal server error',
+    //         ], 500);
+    //     }
+    // }
+
+    // public function testToken()
+    // {
+    //     $mobikwikHelper = new MobiKwikHelper();
+    //     $token = $mobikwikHelper->generateMobikwikToken();
+    //     dd($token);
+
+    //     if (!$token) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Token generation failed'
+    //         ], 500);
+    //     }
+
+    //     return $token;
+    // }
+
+
+
 
     public function getPlans($operator_id, $circle_id, $plan_type = null)
     {
-
         try {
             $opId     = $operator_id;
             $cirId    = $circle_id;
@@ -111,7 +161,7 @@ class BbpsRechargeController extends Controller
                     'Content-Type' => 'application/json',
                     'X-MClient'    => '14',
                 ])
-                ->get($this->baseUrl . $endpoint);
+                ->get($this->baseUrl . $endpoint);   
 
             if (!$response->successful()) {
 
@@ -139,7 +189,7 @@ class BbpsRechargeController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data'    => $data['data']['plans'] ?? [],
+                'data'    => $data['data']['plans']?? [],
             ], 200);
         } catch (\Illuminate\Http\Client\ConnectionException $e) {
 
@@ -177,14 +227,19 @@ class BbpsRechargeController extends Controller
             $payload = [
                 'memberId' => $request->memberId,
             ];
+            
 
             $mobikwikHelper = new MobiKwikHelper();
+            $token = $mobikwikHelper->generateMobikwikToken();
+            
 
             $response = $mobikwikHelper->sendRequest(
-                '/recharge/v3/retailerBalance',  // API endpoint
-                $payload,                        // Payload
-                $request->bearerToken()           // Bearer token
+                '/recharge/v3/retailerBalance',
+                $payload,
+                $token
             );
+            dd($response);
+
         } catch (ConnectionException $e) {
 
             Log::error('Mobikwik Balance API Timeout', [

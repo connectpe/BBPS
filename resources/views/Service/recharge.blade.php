@@ -204,9 +204,9 @@
 
 
 $rechargeOperators = [
+['name' => 'Jio', 'icon' => 'bi-telephone-fill', 'op_id' => 140],
 ['name' => 'Airtel', 'icon' => 'bi-telephone-fill', 'op_id' => 1],
 ['name' => 'Vodafone Idea (Vi)', 'icon' => 'bi-telephone-fill', 'op_id' => 2],
-['name' => 'Jio', 'icon' => 'bi-telephone-fill', 'op_id' => 3],
 ['name' => 'BSNL (Vodafone Idea)', 'icon' => 'bi-telephone-fill', 'op_id' => 4],
 ['name' => 'BSNL', 'icon' => 'bi-telephone-fill', 'op_id' => 5],
 ['name' => 'MTNL (Vodafone Idea)', 'icon' => 'bi-telephone-fill', 'op_id' => 6],
@@ -244,12 +244,12 @@ $rechargeCircles = [
 
 
 $rechargePlanTypes = [
-['name' => 'Popular', 'code' => 'POPULAR'],
-['name' => 'Unlimited', 'code' => 'UNLIMITED'],
-['name' => 'Data', 'code' => 'DATA'],
-['name' => 'Talktime', 'code' => 'TALKTIME'],
-['name' => 'SMS', 'code' => 'SMS'],
-['name' => 'Roaming', 'code' => 'ROAMING'],
+['name' => 'Data', 'code' => 'DATA','plan_id'=>3],
+['name' => 'Popular', 'code' => 'POPULAR','plan_id'=>1],
+['name' => 'Unlimited', 'code' => 'UNLIMITED','plan_id'=>2],
+['name' => 'Talktime', 'code' => 'TALKTIME','plan_id'=>4],
+['name' => 'SMS', 'code' => 'SMS','plan_id'=>5],
+['name' => 'Roaming', 'code' => 'ROAMING','plan_id'=>6],
 ];
 
 
@@ -289,24 +289,26 @@ function buildCircleDropdown() {
             </select>
         </div>
     `;
-}
 
-//     function buildPlanTypeDropdown() {
-//     let options = `<option value="">Select Plan Type</option>`;
+    }
 
-//     window.rechargePlanTypes.forEach(plan => {
-//         options += `<option value="${plan.code}">${plan.name}</option>`;
-//     });
+    function buildPlanTypeDropdown() {
+        let options = `<option value="">Select Plan Type</option>`;
 
-//     return `
-//         <div class="mb-3">
-//             <label>Plan Type</label>
-//             <select class="form-select" id="planType">
-//                 ${options}
-//             </select>
-//         </div>
-//     `;
-//    }
+        window.rechargePlanTypes.forEach(plan => {
+            options += `<option value="${plan.plan_id}">${plan.name}</option>`;
+        });
+
+        return `
+            <div class="mb-3">
+                <label>Plan Type</label>
+                <select class="form-select" id="planType">
+                    ${options}
+                </select>
+            </div>
+        `;
+    }
+
 </script>
 
 
@@ -325,6 +327,7 @@ const serviceConfig = {
             </div>
             ${buildOperatorDropdown()}
             ${buildCircleDropdown()}
+            ${buildPlanTypeDropdown()}
         `
     },
 
@@ -440,24 +443,36 @@ const serviceConfig = {
                 </button>
             </div>
         `
-    }
-};
 
-/* ===============================
-   GLOBAL STATE
-================================ */
-let currentService = '';
-let stepIndex = 0;
-let selectedAmount = 0;
+        }
+    };
 
-/* ===============================
-   INIT
-================================ */
-$(document).ready(function() {
+    /* ===============================
+       GLOBAL STATE
+    ================================ */
+    let currentService = '';
+    let stepIndex = 0;
+    let selectedAmount = 0;
 
-    window.rechargeOperators = @json($rechargeOperators);
-    window.rechargeCircles = @json($rechargeCircles);
-    // window.rechargePlanTypes = @json($rechargePlanTypes);
+    /* ===============================
+       INIT
+    ================================ */
+    $(document).ready(function() {
+
+        window.rechargeOperators = @json($rechargeOperators);
+        window.rechargeCircles = @json($rechargeCircles);
+        window.rechargePlanTypes = @json($rechargePlanTypes);
+
+        $('.service-btn').on('click', function() {
+            currentService = $(this).data('service');
+            stepIndex = 0;
+            selectedAmount = 0;
+
+            $('#modalTitle').text(currentService);
+            loadStep();
+            $('#rechargeModal').modal('show');
+        });
+
 
     $('.service-btn').on('click', function() {
         currentService = $(this).data('service');
@@ -512,6 +527,7 @@ function loadStep() {
                 </div>
             `);
 
+
             $('.plan').on('click', function() {
                 selectedAmount = $(this).data('amt');
                 $('#nextBtn').show();
@@ -520,6 +536,57 @@ function loadStep() {
             });
         }, 1200);
         return;
+
+            setTimeout(() => {
+                selectedAmount = 399;
+                stepIndex++;
+                loadStep();
+            }, 1200);
+            return;
+        }
+
+        // if (step === "FETCH_PLANS") {
+        //     $('#nextBtn').hide();
+        //     $('#modalBody').html(loader("Fetching recharge plans..."));
+
+        //     setTimeout(() => {
+        //         $('#modalBody').html(`
+        //         <div class="list-group">
+        //             <button class="list-group-item plan" data-amt="239">₹239 – 28 Days</button>
+        //             <button class="list-group-item plan" data-a+mt="299">₹299 – 28 Days</button>
+        //             <button class="list-group-item plan" data-amt="719">₹719 – 84 Days</button>
+        //         </div>
+        //     `);
+
+        //         $('.plan').on('click', function() {
+        //             selectedAmount = $(this).data('amt');
+        //             $('#nextBtn').show();
+        //             stepIndex++;
+        //             loadStep();
+        //         });
+        //     }, 1200);
+        //     return;
+        // }
+
+        // if (step === "PAY") {
+        //     $('#nextBtn').text('Pay Now');
+        //     $('#modalBody').html(`
+        //     <div class="mb-3">
+        //         <label>Amount</label>
+        //         <input class="form-control" value="₹${selectedAmount || 399}" readonly>
+        //     </div>
+        //     <div class="mb-3">
+        //         <label>Payment Method</label>
+        //         <select class="form-select">
+        //             <option>UPI</option>
+        //             <option>Wallet</option>
+        //             <option>Debit Card</option>
+        //             <option>Net Banking</option>
+        //         </select>
+        //     </div>
+        // `);
+        // }
+
     }
 
     if (step === "PAY") {
@@ -575,28 +642,42 @@ function loader(text) {
 </script>
 
 <script>
-document.getElementById('nextBtn').addEventListener('click', function() {
 
-    const mobile = document.getElementById('mobile').value;
-    const operator_id = document.getElementById('operator').value;
-    const circle_id = document.getElementById('circle').value;
 
-    if (!mobile || !operator_id || !circle_id) {
-        alert('Please fill all fields');
-        return;
-    }
+    document.getElementById('nextBtn').addEventListener('click', function() {
 
-    fetch('/recharge/get-plans', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document
-                    .querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({
-                mobile: mobile,
-                operator_id: operator_id,
-                circle_id: circle_id,
+        const mobile = document.getElementById('mobile').value;
+        const operator_id = document.getElementById('operator').value;
+        const circle_id = document.getElementById('circle').value;
+        const plan_type = document.getElementById('planType').value;
+
+        if (!mobile || !operator_id || !circle_id || !plan_type) {
+            alert('Please fill all fields');
+            return;
+        }
+
+        fetch('/bbps-recharge/getPlans/' + operator_id + '/' + circle_id + '/' + plan_type, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document
+                        .querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    mobile: mobile,
+                    operator_id: operator_id,
+                    circle_id: circle_id,
+                    plan_type: plan_type,
+                })
+            })
+            .then(res => res.json())
+            .then(response => {
+                console.log(response);
+                alert('Plans fetched successfully!');
+                alert(JSON.stringify(response.data));
+                // currentStepIndex++;
+                // loadStep();
+
             })
         })
         .then(res => res.json())
