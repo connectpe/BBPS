@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Client\ConnectionException;
+use App\Models\MobikwikToken;
 
 class BbpsRechargeController extends Controller
 {
@@ -172,7 +173,26 @@ class BbpsRechargeController extends Controller
         }
     }
 
-
+    protected function isTokenPresent()
+    {
+        try {
+            $data =  MobikwikToken::whereDate('created_at', today())->select('token')->first();
+            $token = '';
+            if (!$data) {
+                $mobikwikHelper = new MobiKwikHelper();
+                $token = $mobikwikHelper->generateMobikwikToken();
+            } else {
+                $token = $data->token;
+            }
+            return $token;
+        } catch (\Exception $e) {
+            Log::error('Mobikwik Token Present Exception', [
+                'error' => $e->getMessage(),
+                'file'  => $e->getFile(),
+                'line'  => $e->getLine(),
+            ]);
+        }
+    }
     public function balance(Request $request)
     {
         try {
@@ -184,17 +204,15 @@ class BbpsRechargeController extends Controller
                 'memberId' => $request->memberId,
             ];
 
-
             $mobikwikHelper = new MobiKwikHelper();
-            $token = $mobikwikHelper->generateMobikwikToken();
-
-
+            $token = $this->isTokenPresent();
+            // dd($token);
             $response = $mobikwikHelper->sendRequest(
                 '/recharge/v3/retailerBalance',
                 $payload,
                 $token
             );
-            dd($response);
+            // dd($response);
         } catch (ConnectionException $e) {
 
             Log::error('Mobikwik Balance API Timeout', [
