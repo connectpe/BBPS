@@ -15,7 +15,7 @@
         <div id="collapseFilter" class="accordion-collapse collapse" aria-labelledby="headingFilter" data-bs-parent="#filterAccordion">
             <div class="accordion-body">
                 <div class="row g-3 align-items-end">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="filterName" class="form-label">User</label>
                         <select name="filterName" id="filterName" class="form-control">
                             <option value="">--Select User--</option>
@@ -24,12 +24,12 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="filterEmail" class="form-label">Email</label>
                         <input type="email" class="form-control" id="filterEmail" placeholder="Enter Email">
                     </div>
-
-                    <div class="col-md-4">
+                   
+                    <div class="col-md-3">
                         <label for="filterStatus" class="form-label">Status</label>
                         <select class="form-select" id="filterStatus">
                             <option value="">All</option>
@@ -38,18 +38,10 @@
                             <option value="2">Inactive</option>
                         </select>
                     </div>
-                    <div class="col-md-3">
-                        <label for="filterDateFrom" class="form-label">From Date</label>
-                        <input type="date" class="form-control" id="filterDateFrom">
-                    </div>
-
-                    <div class="col-md-3">
-                        <label for="filterDateTo" class="form-label">To Date</label>
-                        <input type="date" class="form-control" id="filterDateTo">
-                    </div>
-
                     <div class="col-md-3 d-flex gap-2">
+                        <!-- Buttons aligned with input fields -->
                         <button class="btn buttonColor " id="applyFilter"> Filter</button>
+
                         <button class="btn btn-secondary" id="resetFilter">Reset</button>
                     </div>
                 </div>
@@ -88,33 +80,19 @@
 <script>
     $(document).ready(function() {
 
-        // ✅ Helper: ISO date -> "dd-mm-yyyy hh:mm"
-        function formatDateTime(dt) {
-            if (!dt) return '-';
-            const d = new Date(dt); // "2026-01-16T01:25:53.000000Z"
-            const dd = String(d.getDate()).padStart(2, '0');
-            const mm = String(d.getMonth() + 1).padStart(2, '0');
-            const yyyy = d.getFullYear();
-            const hh = String(d.getHours()).padStart(2, '0');
-            const min = String(d.getMinutes()).padStart(2, '0');
-            return `${dd}-${mm}-${yyyy} ${hh}:${min}`;
-        }
-
         var table = $('#usersTable').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
+
                 url: "{{url('fetch')}}/users/0",
                 type: 'POST',
+
                 data: function(d) {
                     d._token = $('meta[name="csrf-token"]').attr('content');
                     d.id = $('#filterName').val();
                     d.email = $('#filterEmail').val();
                     d.status = $('#filterStatus').val();
-
-                    // ✅ ADDED: date range send to server
-                    d.date_from = $('#filterDateFrom').val(); // yyyy-mm-dd
-                    d.date_to = $('#filterDateTo').val();     // yyyy-mm-dd
                 }
             },
             pageLength: 10,
@@ -175,8 +153,8 @@
                 },
                 {
                     data: 'created_at',
-                    render: function(data, type, row) {
-                        return formatDateTime(data);
+                    render:function(data){
+                        return formatDateTime(data)
                     }
                 },
                 {
@@ -203,6 +181,7 @@
                     },
                     orderable: false,
                     searchable: false
+
                 },
                 {
                     data: null,
@@ -227,6 +206,7 @@
                     },
                     orderable: false,
                     searchable: false
+
                 }
             ]
         });
@@ -241,9 +221,6 @@
             $('#filterName').val('');
             $('#filterEmail').val('');
             $('#filterStatus').val('');
-            $('#filterDateFrom').val('');
-            $('#filterDateTo').val('');
-
             table.ajax.reload();
         });
     });

@@ -73,6 +73,8 @@ Route::group(['middleware' => ['auth']], function () {
     // Provider Related Route 
     Route::get('providers', [AdminController::class, 'providers'])->name('providers');
     Route::post('add-provider', [AdminController::class, 'addProvider'])->name('add_provider');
+    Route::post('edit-provider/{id}', [AdminController::class, 'editProvider'])->name('edit_provider');
+    Route::get('status-provider/{id}', [AdminController::class, 'statusProvider'])->name('status_provider');
 
     Route::prefix('recharge')->group(function () {
         Route::post('/get-plans', [BbpsRechargeController::class, 'getPlans']);

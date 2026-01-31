@@ -42,7 +42,7 @@
         <form id="providerForm">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add Provider</h5>
+                    <h5 class="modal-title" id="providerModalTitle">Add Provider</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
 
@@ -67,9 +67,8 @@
                     </div>
                 </div>
 
-                <input type="hidden" id="edit_service_id">
+                <input type="hidden" id="edit_provider_id">
                 <input type="hidden" id="form_type" value="add">
-
 
                 <div class="modal-footer">
                     <button type="submit" class="btn buttonColor">Submit</button>
@@ -86,7 +85,7 @@
             processing: true,
             serverSide: true,
             ajax: {
-                url: "{{ url('fetch') }}/global-service/0",
+                url: "{{ url('fetch') }}/providers/0",
                 type: 'POST',
                 data: function(d) {
                     d._token = $('meta[name="csrf-token"]').attr('content');
@@ -118,13 +117,13 @@
                     data: 'id'
                 },
                 {
-                    data: 'service_name'
+                    data: 'service.service_name'
                 },
                 {
-                    data: 'slug',
+                    data: 'provider_name',
                 },
                 {
-                    data: 'service_type'
+                    data: 'provider_slug'
                 },
                 {
                     data: 'is_active',
@@ -133,7 +132,7 @@
                         return `
                             <div class="form-check form-switch">
                                 <input class="form-check-input cursor-pointer" type="checkbox" ${checked}
-                                    onchange="changeService('${row.id}', 'is_active','Service')">
+                                    onchange="changeStatus('${row.id}')">
                             </div>
                         `;
                     },
@@ -144,14 +143,12 @@
                     data: null,
                     render: function(data, type, row) {
                         return `
-            <button class="btn btn-sm btn-primary"
-                onclick="openEditService(${row.id}, '${row.service_name}')">
-                <i class="fa fa-edit"></i>
-            </button>
-        `;
-                    },
-                    orderable: false,
-                    searchable: false
+                            <button class="btn btn-sm btn-primary"
+                                onclick="openEditService(${row.id}, '${row.provider_name}','${row.service_id }')">
+                                <i class="fa fa-edit"></i>
+                            </button>
+                        `;
+                    }
                 }
             ]
         });
@@ -168,9 +165,13 @@
         // });
     });
 
-    function changeService(id, type, text = 'This Record') {
+
+    function changeStatus(id) {
+
+        let url = "{{ route('status_provider', ['id' => ':id']) }}";
+        url = url.replace(':id', id);
         Swal.fire({
-            title: 'Are you sure to change status of ' + text + '?',
+            title: 'Are you sure to change status of Provider?',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
@@ -180,13 +181,8 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: "{{ route('admin.service_toggle') }}",
-                    type: 'POST',
-                    data: {
-                        _token: $('meta[name="csrf-token"]').attr('content'),
-                        service_id: id,
-                        type: type
-                    },
+                    url: url,
+                    type: 'GET',
                     success: function(response) {
                         Swal.fire({
                             icon: 'success',
@@ -200,16 +196,7 @@
                         let title = 'Error';
                         let message = 'Something went wrong!';
 
-                        if (xhr.status === 422) {
-                            title = 'Validation Error';
-
-                            if (xhr.responseJSON && xhr.responseJSON.errors) {
-                                let firstKey = Object.keys(xhr.responseJSON.errors)[0];
-                                message = xhr.responseJSON.errors[firstKey][0];
-                            }
-                        } else if (xhr.responseJSON && xhr.responseJSON.message) {
-                            message = xhr.responseJSON.message;
-                        }
+                        message = xhr.responseJSON.message;
 
                         Swal.fire({
                             icon: 'error',
@@ -236,13 +223,14 @@
             let serviceId = $('#service_id').val();
             let providerName = $('#provider_name').val();
             let formType = $('#form_type').val();
+            let id = $("#edit_provider_id").val();
 
             let url = "{{ route('add_provider') }}";
 
-            if (formType === 'edit') {
-                url = "{{ url('admin/service/edit') }}/" + serviceId;
+            if (formType == 'edit') {
+                url = "{{ route('edit_provider', ['id' => ':id']) }}";
+                url = url.replace(':id', id);
             }
-
             $.ajax({
                 url: url,
                 type: "POST",
@@ -263,7 +251,7 @@
                         $('#providerModal').modal('hide');
                         $('#providerForm')[0].reset();
                         $('#form_type').val('add');
-                        $('#edit_service_id').val('');
+                        $('#edit_provider_id').val('');
                         $('#providerTable').DataTable().ajax.reload(null, false);
                     }
                 },
@@ -289,14 +277,14 @@
 
             });
         });
-
     });
 
-    function openEditService(id, name) {
-        $('#service_name').val(name);
-        $('#edit_service_id').val(id);
+    function openEditService(id, providerName, serviceId) {
+        $('#provider_name').val(providerName);
+        $('#edit_provider_id').val(id);
+        $('#service_id').val(serviceId);
         $('#form_type').val('edit');
-        $('#providerModalTitle').text('Edit Service');
+        $('#providerModalTitle').text('Edit Provider');
         $('#providerModal').modal('show');
     }
 </script>
@@ -304,8 +292,8 @@
     $('#providerModal').on('hidden.bs.modal', function() {
         $('#providerForm')[0].reset();
         $('#form_type').val('add');
-        $('#edit_service_id').val('');
-        $('.modal-title').text('Create Service');
+        $('#edit_provider_id').val('');
+        $('#providerModalTitle').text('Add Provider');
     });
 </script>
 

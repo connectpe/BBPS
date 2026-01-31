@@ -7,14 +7,18 @@ use Illuminate\Database\Eloquent\Model;
 class Provider extends Model
 {
     protected $fillable = ['service_id', 'provider_name', 'provider_slug', 'updated_by', 'is_active'];
-    
-    /**
-     * Relationship: A provider belongs to a service
-     */
+
     public function service()
     {
         return $this->belongsTo(GlobalService::class, 'service_id');
     }
+
+
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
 }
 
 

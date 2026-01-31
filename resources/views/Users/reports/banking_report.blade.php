@@ -150,7 +150,6 @@
                     `;
                         }
                     },
-
                     {
                         data: 'business.pan_number'
                     },

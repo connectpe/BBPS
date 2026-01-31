@@ -3,14 +3,6 @@
 @section('title', 'Complaint Report')
 @section('page-title', 'Complaint Report')
 
-<style>
-    /* #complaintTable { width: 100% !important; table-layout: fixed; } */
-    #complaintTable th,#complaintTable td { word-break: break-word; }
-    #complaintTable th{ font-size: 12px !important; }
-    #complaintTable td{ font-size: 13px !important; }
-    /* .table-scroll-wrapper { overflow-y: auto; overflow-x: auto; border-radius: 0.25rem; } */
-    /* #complaintTable thead th { position: sticky; top: 0; background-color: #f8f9fa; z-index: 10; } */
-</style>
 
 @section('content')
 
@@ -90,7 +82,7 @@
             {{-- TABLE --}}
             <div class="card shadow-sm">
                 <div class="card-body pt-4">
-                    <div class="table-scroll-wrapper">
+                    <div class="table-responsive">
                         <table id="complaintTable" class="table table-striped table-bordered table-hover w-100">
                             <thead class="table-light">
                                 <tr>
