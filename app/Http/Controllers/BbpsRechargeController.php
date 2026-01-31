@@ -22,7 +22,7 @@ class BbpsRechargeController extends Controller
         $this->keyVersion   = config('mobikwik.key_version');
         $this->clientSecret = config('mobikwik.client_secret');
         $this->clientId     = config('mobikwik.client_id');
-        $this->publicKey     = file_get_contents(config('mobikwik.public_key'));
+        // $this->publicKey     = file_get_contents(config('mobikwik.public_key'));
     }
 
     // public function generateToken()
