@@ -95,8 +95,6 @@ class BbpsRechargeController extends Controller
     //     return $token;
     // }
 
-
-
     public function getPlans($operator_id, $circle_id, $plan_type = null)
     {
         try {
@@ -119,7 +117,7 @@ class BbpsRechargeController extends Controller
                     'Content-Type' => 'application/json',
                     'X-MClient'    => '14',
                 ])
-                ->get($this->baseUrl . $endpoint);   
+                ->get($this->baseUrl . $endpoint);
 
             if (!$response->successful()) {
 
@@ -147,7 +145,7 @@ class BbpsRechargeController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data'    => $data['data']['plans']?? [],
+                'data'    => $data['data']['plans'] ?? [],
             ], 200);
         } catch (\Illuminate\Http\Client\ConnectionException $e) {
 
@@ -185,11 +183,11 @@ class BbpsRechargeController extends Controller
             $payload = [
                 'memberId' => $request->memberId,
             ];
-            
+
 
             $mobikwikHelper = new MobiKwikHelper();
             $token = $mobikwikHelper->generateMobikwikToken();
-            
+
 
             $response = $mobikwikHelper->sendRequest(
                 '/recharge/v3/retailerBalance',
@@ -197,7 +195,6 @@ class BbpsRechargeController extends Controller
                 $token
             );
             dd($response);
-
         } catch (ConnectionException $e) {
 
             Log::error('Mobikwik Balance API Timeout', [
