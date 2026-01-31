@@ -204,16 +204,16 @@
 
 
 $rechargeOperators = [
+['name' => 'Jio', 'icon' => 'bi-telephone-fill', 'op_id' => 140],
 ['name' => 'Airtel', 'icon' => 'bi-telephone-fill', 'op_id' => 1],
 ['name' => 'Vodafone Idea (Vi)', 'icon' => 'bi-telephone-fill', 'op_id' => 2],
-['name' => 'Jio', 'icon' => 'bi-telephone-fill', 'op_id' => 3],
 ['name' => 'BSNL (Vodafone Idea)', 'icon' => 'bi-telephone-fill', 'op_id' => 4],
 ['name' => 'BSNL', 'icon' => 'bi-telephone-fill', 'op_id' => 5],
 ['name' => 'MTNL (Vodafone Idea)', 'icon' => 'bi-telephone-fill', 'op_id' => 6],
 ['name' => 'MTNL', 'icon' => 'bi-telephone-fill', 'op_id' => 7],
-['name' => 'Tata Docomo', 'icon' => 'bi-telephone-fill', 'op_id' => 8], 
-['name' => 'Aircel', 'icon' => 'bi-telephone-fill', 'op_id' => 9], 
-['name' => 'Idea Cellular', 'icon' => 'bi-telephone-fill', 'op_id' => 10], 
+['name' => 'Tata Docomo', 'icon' => 'bi-telephone-fill', 'op_id' => 8],
+['name' => 'Aircel', 'icon' => 'bi-telephone-fill', 'op_id' => 9],
+['name' => 'Idea Cellular', 'icon' => 'bi-telephone-fill', 'op_id' => 10],
 ];
 
 $rechargeCircles = [
@@ -244,12 +244,12 @@ $rechargeCircles = [
 
 
 $rechargePlanTypes = [
-['name' => 'Popular', 'code' => 'POPULAR'],
-['name' => 'Unlimited', 'code' => 'UNLIMITED'],
-['name' => 'Data', 'code' => 'DATA'],
-['name' => 'Talktime', 'code' => 'TALKTIME'],
-['name' => 'SMS', 'code' => 'SMS'],
-['name' => 'Roaming', 'code' => 'ROAMING'],
+['name' => 'Data', 'code' => 'DATA','plan_id'=>3],
+['name' => 'Popular', 'code' => 'POPULAR','plan_id'=>1],
+['name' => 'Unlimited', 'code' => 'UNLIMITED','plan_id'=>2],
+['name' => 'Talktime', 'code' => 'TALKTIME','plan_id'=>4],
+['name' => 'SMS', 'code' => 'SMS','plan_id'=>5],
+['name' => 'Roaming', 'code' => 'ROAMING','plan_id'=>6],
 ];
 
 
@@ -291,22 +291,22 @@ $rechargePlanTypes = [
     `;
     }
 
-    //     function buildPlanTypeDropdown() {
-    //     let options = `<option value="">Select Plan Type</option>`;
+    function buildPlanTypeDropdown() {
+        let options = `<option value="">Select Plan Type</option>`;
 
-    //     window.rechargePlanTypes.forEach(plan => {
-    //         options += `<option value="${plan.code}">${plan.name}</option>`;
-    //     });
+        window.rechargePlanTypes.forEach(plan => {
+            options += `<option value="${plan.plan_id}">${plan.name}</option>`;
+        });
 
-    //     return `
-    //         <div class="mb-3">
-    //             <label>Plan Type</label>
-    //             <select class="form-select" id="planType">
-    //                 ${options}
-    //             </select>
-    //         </div>
-    //     `;
-    //    }
+        return `
+            <div class="mb-3">
+                <label>Plan Type</label>
+                <select class="form-select" id="planType">
+                    ${options}
+                </select>
+            </div>
+        `;
+    }
 </script>
 
 
@@ -325,6 +325,7 @@ $rechargePlanTypes = [
             </div>
             ${buildOperatorDropdown()}
             ${buildCircleDropdown()}
+            ${buildPlanTypeDropdown()}
         `
         },
 
@@ -457,7 +458,7 @@ $rechargePlanTypes = [
 
         window.rechargeOperators = @json($rechargeOperators);
         window.rechargeCircles = @json($rechargeCircles);
-        // window.rechargePlanTypes = @json($rechargePlanTypes);
+        window.rechargePlanTypes = @json($rechargePlanTypes);
 
         $('.service-btn').on('click', function() {
             currentService = $(this).data('service');
@@ -492,7 +493,7 @@ $rechargePlanTypes = [
             $('#modalBody').html(loader("Fetching bill details..."));
 
             setTimeout(() => {
-                selectedAmount = 399; 
+                selectedAmount = 399;
                 stepIndex++;
                 loadStep();
             }, 1200);
@@ -507,7 +508,7 @@ $rechargePlanTypes = [
         //         $('#modalBody').html(`
         //         <div class="list-group">
         //             <button class="list-group-item plan" data-amt="239">₹239 – 28 Days</button>
-        //             <button class="list-group-item plan" data-amt="299">₹299 – 28 Days</button>
+        //             <button class="list-group-item plan" data-a+mt="299">₹299 – 28 Days</button>
         //             <button class="list-group-item plan" data-amt="719">₹719 – 84 Days</button>
         //         </div>
         //     `);
@@ -580,13 +581,14 @@ $rechargePlanTypes = [
         const mobile = document.getElementById('mobile').value;
         const operator_id = document.getElementById('operator').value;
         const circle_id = document.getElementById('circle').value;
+        const plan_type = document.getElementById('planType').value;
 
-        if (!mobile || !operator_id || !circle_id) {
+        if (!mobile || !operator_id || !circle_id || !plan_type) {
             alert('Please fill all fields');
             return;
         }
 
-        fetch('/recharge/get-plans', {
+        fetch('/bbps-recharge/getPlans/' + operator_id + '/' + circle_id + '/' + plan_type, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -597,13 +599,16 @@ $rechargePlanTypes = [
                     mobile: mobile,
                     operator_id: operator_id,
                     circle_id: circle_id,
+                    plan_type: plan_type,
                 })
             })
             .then(res => res.json())
             .then(response => {
                 console.log(response);
+                alert('Plans fetched successfully!');
+                alert(JSON.stringify(response.data));
                 // currentStepIndex++;
-                loadStep();
+                // loadStep();
             })
             .catch(error => {
                 console.error(error);
