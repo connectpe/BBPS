@@ -23,7 +23,7 @@ Route::post('admin/login', [AuthController::class, 'login'])->name('admin.login'
 Route::post('verify-otp', [AuthController::class, 'verifyOtp'])->name('verify_otp');
 Route::post('signup', [AuthController::class, 'signup'])->name('admin.signup');
 
-Route::group(['middleware' => ['auth']], function () {
+Route::group(['middleware' => ['auth','logs']], function () {
     Route::prefix('admin')->group(function () {
         Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
