@@ -15,7 +15,7 @@
         <div id="collapseFilter" class="accordion-collapse collapse" aria-labelledby="headingFilter" data-bs-parent="#filterAccordion">
             <div class="accordion-body">
                 <div class="row g-3 align-items-end">
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label for="filterName" class="form-label">User</label>
                         <select name="filterName" id="filterName" class="form-control">
                             <option value="">--Select User--</option>
@@ -24,12 +24,12 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label for="filterEmail" class="form-label">Email</label>
                         <input type="email" class="form-control" id="filterEmail" placeholder="Enter Email">
                     </div>
                    
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label for="filterStatus" class="form-label">Status</label>
                         <select class="form-select" id="filterStatus">
                             <option value="">All</option>
@@ -38,7 +38,16 @@
                             <option value="2">Inactive</option>
                         </select>
                     </div>
-                    <div class="col-md-3 d-flex gap-2">
+                     <div class="col-md-2">
+                        <label for="filterDateFrom" class="form-label">From Date</label>
+                        <input type="date" class="form-control" id="filterDateFrom">
+                    </div>
+
+                    <div class="col-md-2">
+                        <label for="filterDateTo" class="form-label">To Date</label>
+                        <input type="date" class="form-control" id="filterDateTo">
+                    </div>
+                    <div class="col-md-2 d-flex gap-2">
                         <!-- Buttons aligned with input fields -->
                         <button class="btn buttonColor " id="applyFilter"> Filter</button>
 
@@ -93,6 +102,9 @@
                     d.id = $('#filterName').val();
                     d.email = $('#filterEmail').val();
                     d.status = $('#filterStatus').val();
+
+                    d.date_from = $('#filterDateFrom').val(); 
+                    d.date_to = $('#filterDateTo').val();
                 }
             },
             pageLength: 10,
