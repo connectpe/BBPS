@@ -117,7 +117,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('fetch/{type}/{id?}/{returntype?}', [CommonController::class, 'fetchData']);
     Route::post('/service-request', [ServiceRequestController::class, 'store'])
         ->name('service.request');
-    Route::post('/service-request/{id}/approve', [ServiceRequestController::class, 'approve'])->name('service.approve');
+    Route::post('service-request-approve-reject', [ServiceRequestController::class, 'approveRejectRequestService'])->name('service_request_approve_reject');
 
     // ladger  Route
     Route::get('/ledger', [LadgerController::class, 'index'])->name('ladger.index');

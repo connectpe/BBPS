@@ -14,18 +14,18 @@
             <!-- <h6 class="mb-0">Dashboard</h6> -->
             @php
 
-                $role = Auth::user()->role_id;
+            $role = Auth::user()->role_id;
 
             @endphp
 
             @if ($role == 1)
-                {{-- <button class="btn btn-primary ms-2 mb-3" data-bs-toggle="modal" data-bs-target="#serviceModall">
+            {{-- <button class="btn btn-primary ms-2 mb-3" data-bs-toggle="modal" data-bs-target="#serviceModall">
                     <i class="fa-solid fa-table-list"></i> Services
                 </button> --}}
             @elseif($role == 2)
-                <button class="btn btn-primary ms-2 mb-3" data-bs-toggle="modal" data-bs-target="#serviceModall">
-                    <i class="fa-solid fa-table-list"></i> Services
-                </button>
+            <button class="btn btn-primary ms-2 mb-3" data-bs-toggle="modal" data-bs-target="#serviceModall">
+                <i class="fa-solid fa-table-list"></i> Services
+            </button>
             @endif
 
 
@@ -34,16 +34,16 @@
 
     <div class="d-flex align-items-center gap-3">
 
-        @php 
+        @php
 
-            $role = Auth::user()->role_id;
+        $role = Auth::user()->role_id;
         @endphp
 
         @if($role == 1)
-            <div class="text-end">
+        <div class="text-end">
             <small class="text-muted">Main Wallet</small>
             <div class="fw-semibold text-success">₹ {{ number_format(0, 2) }}</div>
-            </div>
+        </div>
 
         <!-- AEPS Balance -->
         <div class="text-end">
@@ -52,15 +52,15 @@
         </div>
 
         @else
-            <div class="text-end">
+        <div class="text-end">
             <small class="text-muted">Business Wallet</small>
             <div class="fw-semibold text-success">₹ {{ number_format(0, 2) }}</div>
-            </div>
+        </div>
         @endif
 
 
         <!-- Wallet Balance -->
-        
+
 
         <!-- Notification + Profile -->
         <div class="dropdown">
@@ -120,74 +120,65 @@
 
                     <tbody>
                         @php
-                            $isAdmin = auth()->check() && auth()->user()->role_id == 1;
+                        $isAdmin = auth()->check() && auth()->user()->role_id == 1;
                         @endphp
 
                         @foreach ($services as $service)
-                            @php
-                                $request = $requestedServices->get($service->id);
-                            @endphp
+                        @php
+                        $request = $requestedServices->get($service->id);
+                        @endphp
 
-                            <tr>
-                                <td>{{ $service->service_name }}</td>
+                        <tr>
+                            <td>{{ $service->service_name }}</td>
 
-                                <td>
-                                    {{-- IF REQUEST EXISTS --}}
-                                    @if ($request)
+                            <td>
+                                {{-- IF REQUEST EXISTS --}}
+                                @if ($request)
 
-                                        {{-- APPROVED --}}
-                                        @if ($request->status === 'approved')
-                                            <button class="btn btn-success btn-sm w-100">
-                                                Activated
-                                            </button>
+                                {{-- APPROVED --}}
+                                @if ($request->status === 'approved')
+                                <button class="btn btn-success btn-sm w-100">
+                                    Activated
+                                </button>
 
-                                        {{-- PENDING --}}
-                                        @elseif ($request->status === 'pending')
+                                {{-- PENDING --}}
+                                @elseif ($request->status === 'pending')
 
-                                            {{-- ADMIN CAN APPROVE --}}
-                                            @if ($isAdmin)
-                                                <form action="{{ route('service.approve', $request->id) }}"
-                                                      method="POST"
-                                                      class="approve-request-form">
-                                                    @csrf
-                                                    <button type="submit"
-                                                        class="btn btn-warning btn-sm w-100">
-                                                        Requested
-                                                    </button>
-                                                </form>
+                                {{-- ADMIN CAN APPROVE --}}
+                                @if ($isAdmin)
 
-                                            {{-- USER VIEW --}}
-                                            @else
-                                                <button class="btn btn-secondary btn-sm w-100">
-                                                    Requested
-                                                </button>
-                                            @endif
-                                        @endif
+                                {{-- USER VIEW --}}
+                                @else
+                                <button class="btn btn-secondary btn-sm w-100">
+                                    Requested
+                                </button>
+                                @endif
+                                @endif
 
-                                    {{-- NO REQUEST --}}
-                                    @else
+                                {{-- NO REQUEST --}}
+                                @else
 
-                                        {{-- ADMIN --}}
-                                        @if ($isAdmin)
-                                            <span class="text-muted">Not Requested</span>
+                                {{-- ADMIN --}}
+                                @if ($isAdmin)
+                                <span class="text-muted">Not Requested</span>
 
-                                        {{-- USER --}}
-                                        @else
-                                            <form action="{{ route('service.request') }}"
-                                                  method="POST"
-                                                  class="raise-request-form">
-                                                @csrf
-                                                <input type="hidden" name="service_id"
-                                                       value="{{ $service->id }}">
-                                                <button class="btn btn-primary btn-sm w-100">
-                                                    Raise Request
-                                                </button>
-                                            </form>
-                                        @endif
+                                {{-- USER --}}
+                                @else
+                                <form action="{{ route('service.request') }}"
+                                    method="POST"
+                                    class="raise-request-form">
+                                    @csrf
+                                    <input type="hidden" name="service_id"
+                                        value="{{ $service->id }}">
+                                    <button class="btn btn-primary btn-sm w-100">
+                                        Raise Request
+                                    </button>
+                                </form>
+                                @endif
 
-                                    @endif
-                                </td>
-                            </tr>
+                                @endif
+                            </td>
+                        </tr>
                         @endforeach
                     </tbody>
                 </table>
@@ -196,4 +187,3 @@
         </div>
     </div>
 </div>
-
