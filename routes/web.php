@@ -141,6 +141,9 @@ Route::group(['middleware' => ['auth', 'logs']], function () {
     Route::post('/users/{id}/routing/save', [UserController::class, 'saveUserRouting'])
         ->name('admin.users.routing.save');
 
+
+    // Scheme Related Route 
+    Route::post('add-scheme-rule', [AdminController::class, 'addSchemeAndRule'])->name('add_scheme_rule');
 });
 
 Route::prefix('admin', function () {
