@@ -45,10 +45,10 @@ Route::group(['middleware' => ['auth', 'logs']], function () {
 
     // RECHARGE RELATED ROUTE 8010801087
     Route::prefix('bbps-recharge')->group(function () {
-
+        Route::post('getPlans/{operator_id}/{circle_id}/{plan_type?}', [BbpsRechargeController::class, 'getPlans'])->name('bbps.getPlans');
         // Route::post('genrate-token',[BbpsRechargeController::class,'generateToken'])->name('bbps.generate_token');
-        // Route::get('getPlans',[BbpsRechargeController::class,'getPlans'])->name('bbps.getPlans');
-        Route::post('balance', [BbpsRechargeController::class, 'balance'])->name('bbps.balance');
+
+        // Route::post('balance', [BbpsRechargeController::class, 'balance'])->name('bbps.balance');
         Route::post('validateRecharge', [BbpsRechargeController::class, 'validateRecharge'])->name('bbps.validateRecharge');
         Route::post('payment', [BbpsRechargeController::class, 'payment'])->name('bbps.payment');
         Route::post('status', [BbpsRechargeController::class, 'status'])->name('bbps.status');
@@ -78,9 +78,9 @@ Route::group(['middleware' => ['auth', 'logs']], function () {
     Route::post('edit-provider/{id}', [AdminController::class, 'editProvider'])->name('edit_provider');
     Route::get('status-provider/{id}', [AdminController::class, 'statusProvider'])->name('status_provider');
 
-    Route::prefix('recharge')->group(function () {
-        Route::post('/get-plans', [BbpsRechargeController::class, 'getPlans']);
-    });
+    // Route::prefix('recharge')->group(function () {
+    //     Route::post('/get-plans', [BbpsRechargeController::class, 'getPlans']);
+    // });
 
 
     Route::get('services', [ServiceRequestController::class, 'enabledServices'])->name('enabled_services');
@@ -129,12 +129,18 @@ Route::group(['middleware' => ['auth', 'logs']], function () {
     Route::get('/services/{serviceId}/providers', [UserController::class, 'getServiceProviders'])
         ->name('admin.services.providers');
 
+
     Route::post('/users/{id}/routing/save', [UserController::class, 'saveUserRouting'])
         ->name('admin.users.routing.save');
 
 
     // Api Log Related Route 
     Route::get('api-log', [UserController::class, 'ApiLog'])->name('api_log');
+
+
+    Route::post('/users/{id}/routing/save', [UserController::class, 'saveUserRouting'])
+        ->name('admin.users.routing.save');
+
 });
 
 Route::prefix('admin', function () {

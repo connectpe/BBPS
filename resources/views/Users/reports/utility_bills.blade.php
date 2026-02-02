@@ -120,35 +120,16 @@
                         data: 'id'
                     },
                     {
-                        data: 'business.business_name',
+                        data: 'user.name'
+                    },
+                    {
+                        data: 'order_id',
                         render: function(data, type, row) {
-                            let url = "{{ route('view_user', ['id' => 'id']) }}".replace('id', row.id);
-                            return `
-                                <a href="${url}" class="text-primary fw-semibold text-decoration-none">
-                                    ${data ?? '----'}
-                                </a>
-                            `;
+                            return data ?? '----';
                         }
                     },
                     {
-                        data: 'name',
-                        render: function(data, type, row) {
-                            let url = "{{ route('view_user', ['id' => 'id']) }}".replace('id', row.id);
-                            return `
-                                <a href="${url}" class="text-primary fw-semibold text-decoration-none">
-                                    ${data}
-                                </a>
-                            `;
-                        }
-                    },
-                    {
-                        data: 'business.pan_number'
-                    },
-                    {
-                        data: 'business.aadhar_number'
-                    },
-                    {
-                        data: 'created_at'
+                        data: 'reference_number'
                     },
                     {
                         data: 'status',
@@ -156,6 +137,20 @@
                             return data == '1' ?
                                 '<span class="fw-bold text-success">ACTIVE</span>' :
                                 '<span class="fw-bold text-danger">INACTIVE</span>';
+                        },
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'utr',
+                        render: function(data, type, row) {
+                            return data ?? '----';
+                        }
+                    },
+                    {
+                        data: 'id',
+                        render: function(data, type, row) {
+                            return `<button class="btn btn-sm btn-primary">View</button>`;
                         },
                         orderable: false,
                         searchable: false

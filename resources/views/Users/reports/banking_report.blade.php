@@ -89,16 +89,15 @@
                 processing: true,
                 serverSide: true,
                 ajax: {
-
                     url: "{{ url('fetch') }}/transactions/0",
                     type: 'POST',
-
-
                     data: function(d) {
                         d._token = $('meta[name="csrf-token"]').attr('content');
                         d.name = $('#filterName').val();
                         d.email = $('#filterEmail').val();
                         d.status = $('#filterStatus').val();
+                        d.date_from = $('#filterDateFrom').val();
+                        d.date_to = $('#filterDateTo').val();
                     }
                 },
                 pageLength: 10,
@@ -127,37 +126,19 @@
                         data: 'id'
                     },
                     {
-                        data: 'business.business_name',
+                        data: 'user.name',
                         render: function(data, type, row) {
-                            let url = "{{ route('view_user', ['id' => 'id']) }}".replace('id', row
-                                .id);
-                            return `
-                        <a href="${url}" class="text-primary fw-semibold text-decoration-none">
-                            ${data ?? '----'}
-                        </a>
-                    `;
+                            return data ?? '----';
                         }
                     },
                     {
-                        data: 'name',
+                        data: 'order_id',
                         render: function(data, type, row) {
-                            let url = "{{ route('view_user', ['id' => 'id']) }}".replace('id', row
-                                .id);
-                            return `
-                        <a href="${url}" class="text-primary fw-semibold text-decoration-none">
-                            ${data}
-                        </a>
-                    `;
+                            return data ?? '----';
                         }
                     },
                     {
-                        data: 'business.pan_number'
-                    },
-                    {
-                        data: 'business.aadhar_number'
-                    },
-                    {
-                        data: 'created_at'
+                        data: 'reference_number'
                     },
                     {
                         data: 'status',
@@ -169,16 +150,20 @@
                         orderable: false,
                         searchable: false
                     },
-                    data: function(d) {
-                        d._token = $('meta[name="csrf-token"]').attr('content');
-                        d.name = $('#filterName').val();
-                        d.email = $('#filterEmail').val();
-                        d.status = $('#filterStatus').val();
-                        d.date_from = $('#filterDateFrom').val();
-                        d.date_to = $('#filterDateTo').val();
+                    {
+                        data: 'utr',
+                        render: function(data, type, row) {
+                            return data ?? '----';
+                        }
+                    },
+                    {
+                        data: 'id',
+                        render: function(data, type, row) {
+                            return `<button class="btn btn-sm btn-primary">View</button>`;
+                        },
+                        orderable: false,
+                        searchable: false
                     }
-                    s
-
                 ]
             });
 
