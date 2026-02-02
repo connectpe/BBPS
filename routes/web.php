@@ -12,6 +12,7 @@ use App\Http\Controllers\users\ReportController;
 use App\Http\Controllers\users\UserController;
 use App\Http\Controllers\LadgerController;
 use App\Http\Controllers\ComplainReportController;
+use App\Http\Controllers\SchemeController;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
@@ -140,6 +141,11 @@ Route::group(['middleware' => ['auth', 'logs']], function () {
 
     Route::post('/users/{id}/routing/save', [UserController::class, 'saveUserRouting'])
         ->name('admin.users.routing.save');
+
+
+
+        // Scheme Report Route
+    Route::get('/schemes', [SchemeController::class, 'index']) ->name('schemes.index');
 
 });
 
