@@ -197,13 +197,6 @@
                                 </a>
                             </li>
 
-                            <li class="nav-item">
-                                <a href="{{ route('scheme') }}"
-                                    class="nav-link text-white {{ Route::currentRouteName() == 'scheme' ? 'sidebar-active' : '' }}">
-                                    <i class="bi bi-person-badge me-2"></i> Scheme
-                                </a>
-                            </li>
-
                         </ul>
                     </div>
                 </li>
