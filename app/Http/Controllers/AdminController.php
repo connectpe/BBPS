@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-
 use App\Helpers\CommonHelper;
 use App\Models\BusinessCategory;
 use App\Models\BusinessInfo;
@@ -15,12 +12,11 @@ use App\Models\Scheme;
 use App\Models\SchemeRule;
 use App\Models\User;
 use App\Models\UsersBank;
-use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-
 
 class AdminController extends Controller
 {
@@ -190,12 +186,12 @@ class AdminController extends Controller
             }
 
             $request->validate([
-                'service_name' => 'required|string|max:50|unique:global_services,service_name,' . $serviceId,
+                'service_name' => 'required|string|max:50|unique:global_services,service_name,'.$serviceId,
             ]);
 
             $service = GlobalService::where('id', $serviceId)->first();
 
-            if (!$service) {
+            if (! $service) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Service not found',
@@ -207,12 +203,14 @@ class AdminController extends Controller
             $service->save();
 
             DB::commit();
+
             return response()->json([
                 'status' => true,
                 'message' => 'Service name updated successfully',
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -272,8 +270,8 @@ class AdminController extends Controller
     public function changeUserStatus(Request $request)
     {
         $request->validate([
-            'id'     => 'required|exists:users,id',
-            'status' => 'required|in:0,1,2,3,4'
+            'id' => 'required|exists:users,id',
+            'status' => 'required|in:0,1,2,3,4',
         ]);
 
         DB::beginTransaction();
@@ -288,22 +286,22 @@ class AdminController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'User status updated successfully.'
+                'message' => 'User status updated successfully.',
             ]);
         } catch (\Throwable $e) {
             DB::rollBack();
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update user status. Please try again.'
+                'message' => 'Failed to update user status. Please try again.',
             ], 500);
         }
     }
 
-
     public function providers()
     {
-        $globalServices =  GlobalService::where('is_active', '1')->select('id', 'service_name')->orderBy('id', 'desc')->get();
+        $globalServices = GlobalService::where('is_active', '1')->select('id', 'service_name')->orderBy('id', 'desc')->get();
+
         return view('Provider.providers', compact('globalServices'));
     }
 
@@ -311,17 +309,17 @@ class AdminController extends Controller
     {
         $request->validate(
             [
-                'serviceId'    => 'required|exists:global_services,id',
+                'serviceId' => 'required|exists:global_services,id',
                 'providerName' => 'required|string|max:100|unique:providers,provider_name',
             ],
             [
                 'serviceId.required' => 'Please select a service.',
-                'serviceId.exists'   => 'The selected service is invalid.',
+                'serviceId.exists' => 'The selected service is invalid.',
 
                 'providerName.required' => 'Provider name is required.',
-                'providerName.string'   => 'Provider name must be a valid text.',
-                'providerName.max'      => 'Provider name may not be greater than 100 characters.',
-                'providerName.unique'   => 'Duplicate Provider Name.'
+                'providerName.string' => 'Provider name must be a valid text.',
+                'providerName.max' => 'Provider name may not be greater than 100 characters.',
+                'providerName.unique' => 'Duplicate Provider Name.',
             ]
         );
 
@@ -339,6 +337,7 @@ class AdminController extends Controller
             $provider = Provider::create($data);
 
             DB::commit();
+
             return response()->json([
                 'status' => true,
                 'message' => 'Provider Added Successfully',
@@ -346,29 +345,29 @@ class AdminController extends Controller
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'status' => false,
-                'message' => 'Error : ' . $e->getMessage(),
+                'message' => 'Error : '.$e->getMessage(),
             ], 500);
         }
     }
-
 
     public function editProvider(Request $request, $Id)
     {
 
         $request->validate(
             [
-                'serviceId'    => 'required|exists:global_services,id',
-                'providerName' => 'required|string|max:100|unique:providers,provider_name,' . $Id,
+                'serviceId' => 'required|exists:global_services,id',
+                'providerName' => 'required|string|max:100|unique:providers,provider_name,'.$Id,
             ],
             [
                 'serviceId.required' => 'Please select a service.',
-                'serviceId.exists'   => 'The selected service is invalid.',
+                'serviceId.exists' => 'The selected service is invalid.',
                 'providerName.required' => 'Provider name is required.',
-                'providerName.string'   => 'Provider name must be a valid text.',
-                'providerName.max'      => 'Provider name may not be greater than 100 characters.',
-                'providerName.unique'   => 'Duplicate Provider Name.'
+                'providerName.string' => 'Provider name must be a valid text.',
+                'providerName.max' => 'Provider name may not be greater than 100 characters.',
+                'providerName.unique' => 'Duplicate Provider Name.',
             ]
         );
 
@@ -386,6 +385,7 @@ class AdminController extends Controller
             $provider = Provider::find($Id)->update($data);
 
             DB::commit();
+
             return response()->json([
                 'status' => true,
                 'message' => 'Provider Updated Successfully',
@@ -393,9 +393,10 @@ class AdminController extends Controller
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'status' => false,
-                'message' => 'Error : ' . $e->getMessage(),
+                'message' => 'Error : '.$e->getMessage(),
             ], 500);
         }
     }
@@ -405,10 +406,10 @@ class AdminController extends Controller
         DB::beginTransaction();
         try {
             $provider = Provider::find($Id);
-            if (!$provider) {
+            if (! $provider) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Provider not Found'
+                    'message' => 'Provider not Found',
                 ]);
             }
 
@@ -416,72 +417,74 @@ class AdminController extends Controller
             $provider->save();
 
             DB::commit();
+
             return response()->json([
                 'status' => true,
-                'message' => 'Provider Status Changed Sucessfully'
+                'message' => 'Provider Status Changed Sucessfully',
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'status' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ]);
         }
     }
-
-
 
     public function addSchemeAndRule(Request $request)
     {
 
         $validator = Validator::make($request->all(), [
             'scheme_name' => 'required|string|max:255',
-            'rules'                  => 'required|array|min:1',
-            'rules.*.service_id'      => 'required|integer|exists:global_services,id',
-            'rules.*.start_value'     => 'required|numeric|min:0',
-            'rules.*.end_value'       => 'required|numeric|gte:rules.*.start_value',
-            'rules.*.type'            => 'required|in:Percentage,Fixed',
-            'rules.*.fee'             => 'required|numeric|min:0',
-            'rules.*.min_fee'         => 'required|numeric|min:0',
-            'rules.*.max_fee'         => 'required|numeric|gte:rules.*.min_fee',
+            'rules' => 'required|array|min:1',
+            'rules.*.service_id' => 'required|integer|exists:global_services,id',
+            'rules.*.start_value' => 'required|numeric|min:0',
+            'rules.*.end_value' => 'required|numeric|gte:rules.*.start_value',
+            'rules.*.type' => 'required|in:Percentage,Fixed',
+            'rules.*.fee' => 'required|numeric|min:0',
+            'rules.*.min_fee' => 'required|numeric|min:0',
+            'rules.*.max_fee' => 'required|numeric|gte:rules.*.min_fee',
+            'rules.*.is_active' => 'required|in:0,1',
         ], [
 
             'scheme_name.required' => 'Scheme name is required.',
-            'scheme_name.string'   => 'Scheme name must be a string.',
-            'scheme_name.max'      => 'Scheme name may not be greater than 255 characters.',
+            'scheme_name.string' => 'Scheme name must be a string.',
+            'scheme_name.max' => 'Scheme name may not be greater than 255 characters.',
 
             // Rules array
             'rules.required' => 'At least one rule is required.',
-            'rules.array'    => 'Rules must be an array.',
-            'rules.min'      => 'At least one rule must be provided.',
+            'rules.array' => 'Rules must be an array.',
+            'rules.min' => 'At least one rule must be provided.',
 
             // Rules.* fields
             'rules.*.service_id.required' => 'Service ID is required.',
-            'rules.*.service_id.integer'  => 'Service ID must be a number.',
-            'rules.*.service_id.exists'   => 'Selected service does not exist.',
+            'rules.*.service_id.integer' => 'Service ID must be a number.',
+            'rules.*.service_id.exists' => 'Selected service does not exist.',
 
             'rules.*.start_value.required' => 'Start value is required.',
-            'rules.*.start_value.numeric'  => 'Start value must be a number.',
-            'rules.*.start_value.min'      => 'Start value must be at least 0.',
+            'rules.*.start_value.numeric' => 'Start value must be a number.',
+            'rules.*.start_value.min' => 'Start value must be at least 0.',
 
             'rules.*.end_value.required' => 'End value is required.',
-            'rules.*.end_value.numeric'  => 'End value must be a number.',
-            'rules.*.end_value.gte'      => 'End value must be greater than or equal to start value.',
+            'rules.*.end_value.numeric' => 'End value must be a number.',
+            'rules.*.end_value.gte' => 'End value must be greater than or equal to start value.',
 
             'rules.*.type.required' => 'Type is required.',
-            'rules.*.type.in'       => 'Type must be either Percentage or Fixed.',
+            'rules.*.type.in' => 'Type must be either Percentage or Fixed.',
 
             'rules.*.fee.required' => 'Fee is required.',
-            'rules.*.fee.numeric'  => 'Fee must be a number.',
-            'rules.*.fee.min'      => 'Fee must be at least 0.',
+            'rules.*.fee.numeric' => 'Fee must be a number.',
+            'rules.*.fee.min' => 'Fee must be at least 0.',
 
             'rules.*.min_fee.required' => 'Minimum fee is required.',
-            'rules.*.min_fee.numeric'  => 'Minimum fee must be a number.',
-            'rules.*.min_fee.min'      => 'Minimum fee must be at least 0.',
+            'rules.*.min_fee.numeric' => 'Minimum fee must be a number.',
+            'rules.*.min_fee.min' => 'Minimum fee must be at least 0.',
 
             'rules.*.max_fee.required' => 'Maximum fee is required.',
-            'rules.*.max_fee.numeric'  => 'Maximum fee must be a number.',
-            'rules.*.max_fee.gte'      => 'Maximum fee must be greater than or equal to minimum fee.',
+            'rules.*.max_fee.numeric' => 'Maximum fee must be a number.',
+            'rules.*.max_fee.gte' => 'Maximum fee must be greater than or equal to minimum fee.',
+            'rules.*.is_active.in' => 'Status must be Active or Inactive.',
 
         ]);
 
@@ -489,7 +492,7 @@ class AdminController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Validation Error',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -501,36 +504,186 @@ class AdminController extends Controller
 
             $scheme = Scheme::create([
                 'scheme_name' => $request->scheme_name,
-                'updated_by'  => $updatedBy,
+                'updated_by' => $updatedBy,
             ]);
-
 
             foreach ($request->rules as $rule) {
                 SchemeRule::create([
-                    'scheme_id'   => $scheme->id,
-                    'service_id'  => $rule['service_id'],
+                    'scheme_id' => $scheme->id,
+                    'service_id' => $rule['service_id'],
                     'start_value' => $rule['start_value'],
-                    'end_value'   => $rule['end_value'],
-                    'type'        => $rule['type'],
-                    'fee'         => $rule['fee'],
-                    'min_fee'     => $rule['min_fee'],
-                    'max_fee'     => $rule['max_fee'],
-                    'updated_by'  => $updatedBy,
+                    'end_value' => $rule['end_value'],
+                    'type' => $rule['type'],
+                    'fee' => $rule['fee'],
+                    'min_fee' => $rule['min_fee'],
+                    'max_fee' => $rule['max_fee'],
+                    'updated_by' => $updatedBy,
                 ]);
             }
 
             DB::commit();
+
             return response()->json([
                 'status' => true,
-                'message' => "Scheme and Rules are Created Successfully",
+                'message' => 'Scheme and Rules are Created Successfully',
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json([
                 'status' => false,
-                'message' => "Error : " . $e->getMessage()
+                'message' => 'Error : '.$e->getMessage(),
             ]);
+        }
+    }
+
+    public function editScheme($id)
+    {
+        $scheme = Scheme::with('rules')->find($id);
+
+        if (! $scheme) {
+            return response()->json(['status' => false, 'message' => 'Scheme not found'], 404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'scheme' => $scheme,
+        ]);
+    }
+
+    public function updateSchemeAndRule(Request $request, $schemeId)
+    {
+        // Validation
+        $validator = Validator::make($request->all(), [
+            'scheme_name' => 'required|string|max:255|unique:schemes,scheme_name,'.$schemeId,
+            'rules' => 'required|array|min:1',
+            'rules.*.rule_id' => 'nullable|integer|exists:scheme_rules,id',
+            'rules.*.service_id' => 'required|integer|exists:global_services,id',
+            'rules.*.start_value' => 'required|numeric|min:0',
+            'rules.*.end_value' => 'required|numeric|gte:rules.*.start_value',
+            'rules.*.type' => 'required|in:Percentage,Fixed',
+            'rules.*.fee' => 'required|numeric|min:0',
+            'rules.*.min_fee' => 'required|numeric|min:0',
+            'rules.*.max_fee' => 'required|numeric|gte:rules.*.min_fee',
+            'rules.*.is_active' => 'nullable|boolean',
+        ], [
+            'scheme_name.required' => 'Scheme name is required.',
+            'scheme_name.string' => 'Scheme name must be a string.',
+            'scheme_name.max' => 'Scheme name may not be greater than 255 characters.',
+
+            'rules.required' => 'At least one rule is required.',
+            'rules.array' => 'Rules must be an array.',
+            'rules.min' => 'At least one rule must be provided.',
+
+            'rules.*.service_id.required' => 'Service ID is required.',
+            'rules.*.service_id.integer' => 'Service ID must be a number.',
+            'rules.*.service_id.exists' => 'Selected service does not exist.',
+
+            'rules.*.start_value.required' => 'Start value is required.',
+            'rules.*.start_value.numeric' => 'Start value must be a number.',
+            'rules.*.start_value.min' => 'Start value must be at least 0.',
+
+            'rules.*.end_value.required' => 'End value is required.',
+            'rules.*.end_value.numeric' => 'End value must be a number.',
+            'rules.*.end_value.gte' => 'End value must be greater than or equal to start value.',
+
+            'rules.*.type.required' => 'Type is required.',
+            'rules.*.type.in' => 'Type must be either Percentage or Fixed.',
+
+            'rules.*.fee.required' => 'Fee is required.',
+            'rules.*.fee.numeric' => 'Fee must be a number.',
+            'rules.*.fee.min' => 'Fee must be at least 0.',
+
+            'rules.*.min_fee.required' => 'Minimum fee is required.',
+            'rules.*.min_fee.numeric' => 'Minimum fee must be a number.',
+            'rules.*.min_fee.min' => 'Minimum fee must be at least 0.',
+
+            'rules.*.max_fee.required' => 'Maximum fee is required.',
+            'rules.*.max_fee.numeric' => 'Maximum fee must be a number.',
+            'rules.*.max_fee.gte' => 'Maximum fee must be greater than or equal to minimum fee.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation Error',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+
+            $updatedBy = Auth::user()->id;
+            $scheme = Scheme::findOrFail($schemeId);
+
+            if (! $scheme) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Scheme not found',
+                ]);
+            }
+
+            $scheme->update([
+                'scheme_name' => $request->scheme_name,
+                'updated_by' => $updatedBy,
+            ]);
+
+            $existingRuleIds = [];
+
+            foreach ($request->rules as $ruleData) {
+                if (! empty($ruleData['rule_id'])) {
+                    // Update existing rule
+                    $rule = SchemeRule::findOrFail($ruleData['rule_id']);
+                    $rule->update([
+                        'service_id' => $ruleData['service_id'],
+                        'start_value' => (float) $ruleData['start_value'],
+                        'end_value' => (float) $ruleData['end_value'],
+                        'type' => $ruleData['type'],
+                        'fee' => (float) $ruleData['fee'],
+                        'min_fee' => (float) $ruleData['min_fee'],
+                        'max_fee' => (float) $ruleData['max_fee'],
+                        'updated_by' => $updatedBy,
+                    ]);
+
+                    $existingRuleIds[] = $rule->id;
+                } else {
+                    // Insert new rule
+                    $newRule = SchemeRule::create([
+                        'scheme_id' => $scheme->id,
+                        'service_id' => $ruleData['service_id'],
+                        'start_value' => (float) $ruleData['start_value'],
+                        'end_value' => (float) $ruleData['end_value'],
+                        'type' => $ruleData['type'],
+                        'fee' => (float) $ruleData['fee'],
+                        'min_fee' => (float) $ruleData['min_fee'],
+                        'max_fee' => (float) $ruleData['max_fee'],
+                        'updated_by' => $updatedBy,
+                    ]);
+
+                    $existingRuleIds[] = $newRule->id;
+                }
+            }
+
+            // Optional: delete rules removed from the request
+            SchemeRule::where('scheme_id', $scheme->id)
+                ->whereNotIn('id', $existingRuleIds)
+                ->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Scheme and Rules Updated Successfully',
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Error: '.$e->getMessage(),
+            ], 500);
         }
     }
 }
