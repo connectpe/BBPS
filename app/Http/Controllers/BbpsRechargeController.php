@@ -26,46 +26,6 @@ class BbpsRechargeController extends Controller
         $this->publicKey     = file_get_contents(config('mobikwik.public_key'));
     }
 
-
-    public function generateToken()
-    {
-        try {
-            $response = Http::timeout(15)
-                ->withHeaders([
-                    'Content-Type' => 'application/json',
-                ])
-                ->post(
-                    $this->baseUrl . '/recharge/v1/verify/retailer',
-                    [
-                        'clientId'     => $this->clientId,
-                        'clientSecret' => $this->clientSecret,
-                    ]
-                );
-
-
-            if (!$response->successful()) {
-                Log::error('Mobikwik Token API HTTP Error', [
-                    'status'   => $response->status(),
-                    'response' => $response->body(),
-                ]);
-
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unable to generate token',
-                ], $response->status());
-            }
-            $data = $response->json();
-            MobikwikToken::create([
-                'token' => $data->data->token,
-                'creation_time' => now(),
-                'response' => $data,
-                'created_at'=> now(),
-                'updated_at'=> now(),
-            ]);
-            
-            return response()->json($data, 200);
-        } catch (\Illuminate\Http\Client\ConnectionException $e) {
-
     // public function generateToken()
     // {
     //     try {
@@ -136,9 +96,6 @@ class BbpsRechargeController extends Controller
     //     return $token;
     // }
 
-
-
-
     public function getPlans($operator_id, $circle_id, $plan_type = null)
     {
         try {
@@ -161,7 +118,7 @@ class BbpsRechargeController extends Controller
                     'Content-Type' => 'application/json',
                     'X-MClient'    => '14',
                 ])
-                ->get($this->baseUrl . $endpoint);   
+                ->get($this->baseUrl . $endpoint);
 
             if (!$response->successful()) {
 
@@ -189,7 +146,7 @@ class BbpsRechargeController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data'    => $data['data']['plans']?? [],
+                'data'    => $data['data']['plans'] ?? [],
             ], 200);
         } catch (\Illuminate\Http\Client\ConnectionException $e) {
 
@@ -216,7 +173,26 @@ class BbpsRechargeController extends Controller
         }
     }
 
-
+    protected function isTokenPresent()
+    {
+        try {
+            $data =  MobikwikToken::whereDate('created_at', today())->select('token')->first();
+            $token = '';
+            if (!$data) {
+                $mobikwikHelper = new MobiKwikHelper();
+                $token = $mobikwikHelper->generateMobikwikToken();
+            } else {
+                $token = $data->token;
+            }
+            return $token;
+        } catch (\Exception $e) {
+            Log::error('Mobikwik Token Present Exception', [
+                'error' => $e->getMessage(),
+                'file'  => $e->getFile(),
+                'line'  => $e->getLine(),
+            ]);
+        }
+    }
     public function balance(Request $request)
     {
         try {
@@ -227,19 +203,16 @@ class BbpsRechargeController extends Controller
             $payload = [
                 'memberId' => $request->memberId,
             ];
-            
 
             $mobikwikHelper = new MobiKwikHelper();
-            $token = $mobikwikHelper->generateMobikwikToken();
-            
-
+            $token = $this->isTokenPresent();
+            // dd($token);
             $response = $mobikwikHelper->sendRequest(
                 '/recharge/v3/retailerBalance',
                 $payload,
                 $token
             );
-            dd($response);
-
+            // dd($response);
         } catch (ConnectionException $e) {
 
             Log::error('Mobikwik Balance API Timeout', [
