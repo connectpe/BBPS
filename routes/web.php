@@ -49,7 +49,7 @@ Route::group(['middleware' => ['auth', 'logs']], function () {
         // Route::post('genrate-token',[BbpsRechargeController::class,'generateToken'])->name('bbps.generate_token');
 
         // Route::post('balance', [BbpsRechargeController::class, 'balance'])->name('bbps.balance');
-        Route::post('validateRecharge', [BbpsRechargeController::class, 'validateRecharge'])->name('bbps.validateRecharge');
+        // Route::post('validateRecharge', [BbpsRechargeController::class, 'validateRecharge'])->name('bbps.validateRecharge');
         Route::post('payment', [BbpsRechargeController::class, 'payment'])->name('bbps.payment');
         Route::post('status', [BbpsRechargeController::class, 'status'])->name('bbps.status');
     });

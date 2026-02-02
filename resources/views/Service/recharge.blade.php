@@ -568,7 +568,7 @@ $rechargePlanTypes = [
         // }
 
         // if (step === "PAY") {
-        //     $('#nextBtn').text('Pay Now');
+        //     $('#nextBtn').text('Pay Now');   
         //     $('#modalBody').html(`
         //     <div class="mb-3">
         //         <label>Amount</label>
@@ -606,7 +606,7 @@ $rechargePlanTypes = [
             </div>
         `);
     }
-    }
+    
 
     /* ===============================
        BUTTON HANDLERS

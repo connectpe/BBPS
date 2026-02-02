@@ -212,7 +212,7 @@ class BbpsRechargeController extends Controller
                 $payload,
                 $token
             );
-            // dd($response);
+            return $response;
         } catch (ConnectionException $e) {
 
             Log::error('Mobikwik Balance API Timeout', [
@@ -244,23 +244,29 @@ class BbpsRechargeController extends Controller
         }
     }
 
-    public function validateRecharge(Request $request)
+    public function validateRecharge($amt, $cn, $op, $cir, $planCode, $adParams = [])
     {
         try {
             $payload = [
-                'amt'      => $request->amt,
-                'cn'       => $request->cn,
-                'op'       => $request->op,
-                'cir'      => $request->cir,
-                'planCode' => $request->planCode,
-                'adParams' => (object)[]
+                'amt'      => $amt,
+                'cn'       => $cn,
+                'op'       => $op,
+                'cir'      => $cir,
+                'planCode' => $planCode,
+                'adParams' => (object)$adParams
             ];
 
-            return $this->encryptedPost(
+            $mobikwikHelper = new MobiKwikHelper();
+            $token = $this->isTokenPresent();
+
+            $response = $mobikwikHelper->sendRequest(
                 '/recharge/v3/retailerValidation',
                 $payload,
-                $request->bearerToken()
+                $token
             );
+
+            return $response;
+            
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
