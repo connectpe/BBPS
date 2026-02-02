@@ -204,6 +204,106 @@ class CommonController extends Controller
 					$request['parentData'] = [Auth::user()->id];
 				}
 				break;
+
+
+			case 'providers':
+				$request['table'] = '\App\Models\Provider';
+				$request['searchData'] = ['provider_name', 'provider_slug', 'service_id', 'created_at'];
+				$request['select'] = 'all';
+				$request['with'] = ['service', 'updatedBy'];
+
+				$orderIndex = $request->get('order');
+				if (isset($orderIndex) && count($orderIndex)) {
+					$columnsIndex = $request->get('columns');
+					$columnIndex = $orderIndex[0]['column'];
+					$columnName = $columnsIndex[$columnIndex]['data'];
+					$columnSortOrder = $orderIndex[0]['dir'];
+					if ($columnName == 'new_created_at') {
+						$columnName = 'created_at';
+					}
+					if ($columnName == '0') {
+						$columnName = 'created_at';
+						$columnSortOrder = 'DESC';
+					}
+					$request['order'] = [$columnName, $columnSortOrder];
+				} else {
+					$request['order'] = ['id', 'DESC'];
+				}
+				$request['whereIn'] = 'id';
+				$request['parentData'] = [$request->id];
+				if (Auth::user()->role_id == '1') {
+					$request['parentData'] = 'all';
+				} else {
+					$request['whereIn'] = 'user_id';
+					$request['parentData'] = [Auth::user()->id];
+				}
+				break;
+
+			case 'api-logs':
+				$request['table'] = '\App\Models\ApiLog';
+				$request['searchData'] = ['user_id', 'method', 'endpoint', 'request_body', 'response_body', 'status_code', 'ip_address', 'user_agent', 'execution_time', 'created_at'];
+				$request['select'] = 'all';
+				$request['with'] = ['user', 'user.business'];
+
+				$orderIndex = $request->get('order');
+				if (isset($orderIndex) && count($orderIndex)) {
+					$columnsIndex = $request->get('columns');
+					$columnIndex = $orderIndex[0]['column'];
+					$columnName = $columnsIndex[$columnIndex]['data'];
+					$columnSortOrder = $orderIndex[0]['dir'];
+					if ($columnName == 'new_created_at') {
+						$columnName = 'created_at';
+					}
+					if ($columnName == '0') {
+						$columnName = 'created_at';
+						$columnSortOrder = 'DESC';
+					}
+					$request['order'] = [$columnName, $columnSortOrder];
+				} else {
+					$request['order'] = ['id', 'DESC'];
+				}
+				$request['whereIn'] = 'id';
+				$request['parentData'] = [$request->id];
+				if (Auth::user()->role_id == '1') {
+					$request['parentData'] = 'all';
+				} else {
+					$request['whereIn'] = 'user_id';
+					$request['parentData'] = [Auth::user()->id];
+				}
+				break;
+
+			case 'enabled-services':
+				$request['table'] = '\App\Models\UserService';
+				$request['searchData'] = ['user_id', 'transaction_amount', 'is_active', 'is_api_enable', 'service_id', 'user_id'];
+				$request['select'] = 'all';
+				$request['with'] = ['user', 'user.business','service'];
+
+				$orderIndex = $request->get('order');
+				if (isset($orderIndex) && count($orderIndex)) {
+					$columnsIndex = $request->get('columns');
+					$columnIndex = $orderIndex[0]['column'];
+					$columnName = $columnsIndex[$columnIndex]['data'];
+					$columnSortOrder = $orderIndex[0]['dir'];
+					if ($columnName == 'new_created_at') {
+						$columnName = 'created_at';
+					}
+					if ($columnName == '0') {
+						$columnName = 'created_at';
+						$columnSortOrder = 'DESC';
+					}
+					$request['order'] = [$columnName, $columnSortOrder];
+				} else {
+					$request['order'] = ['id', 'DESC'];
+				}
+				$request['whereIn'] = 'id';
+				$request['parentData'] = [$request->id];
+				if (Auth::user()->role_id == '1') {
+					$request['parentData'] = 'all';
+				} else {
+					$request['whereIn'] = 'user_id';
+					$request['parentData'] = [Auth::user()->id];
+				}
+				break;
 		}
 
 
@@ -214,6 +314,9 @@ class CommonController extends Controller
 			'insurance' => ['name', 'email', 'mobile', 'pan', 'agentId', 'status'],
 			'transactions' => ['reference_number', 'user_id', 'operator_id', 'circle_id', 'status', 'amount', 'transaction_type'],
 			'serviceRequest' => ['status', 'service_id'],
+			'providers' => ['status', 'service_id'],
+			'api-logs' => ['status', 'user_id'],
+			'enabled-services' => ['service_id', 'user_id'],
 			// add more types and columns here
 		];
 
@@ -227,9 +330,7 @@ class CommonController extends Controller
 			}
 		}
 
-
 		$request->merge(['filters' => $filters]);
-
 
 		try {
 			$totalData = $this->getData($request, 'count');
@@ -246,10 +347,12 @@ class CommonController extends Controller
 			$getOrderRefId = self::getOrderRefId($request->searchText);
 			$request->orderIdArray = $getOrderRefId;
 		}
+		
 		// if (isset($request->searchText) && !empty($request->searchText) && $type == 'serviceRequest') {
 		// 	$getServiceId = self::getServiceId($request->searchText);
 		// 	$request->serviceIdArray = $getServiceId;
 		// }
+		
 		if (isset($request->searchText) && !empty($request->searchText) && in_array($type, array('bulkpayouts', 'serviceRequest')) && \Auth::user()->is_admin == '1') {
 			$getUserId = self::getUserId($request->searchText);
 			$request->userIdArray = $getUserId;

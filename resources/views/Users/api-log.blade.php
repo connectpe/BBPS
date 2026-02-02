@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Users')
-@section('page-title', 'Users')
+@section('title', 'API Log')
+@section('page-title', 'API Log')
 
 @section('content')
 
@@ -9,13 +9,14 @@
     <div class="accordion-item">
         <h2 class="accordion-header" id="headingFilter">
             <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
-                Filter Users
+                Filter
             </button>
         </h2>
         <div id="collapseFilter" class="accordion-collapse collapse" aria-labelledby="headingFilter" data-bs-parent="#filterAccordion">
             <div class="accordion-body">
                 <div class="row g-3 align-items-end">
-                    <div class="col-md-2">
+
+                    <div class="col-md-3">
                         <label for="filterName" class="form-label">User</label>
                         <select name="filterName" id="filterName" class="form-control">
                             <option value="">--Select User--</option>
@@ -24,33 +25,19 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-2">
-                        <label for="filterEmail" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="filterEmail" placeholder="Enter Email">
-                    </div>
-                   
-                    <div class="col-md-2">
-                        <label for="filterStatus" class="form-label">Status</label>
-                        <select class="form-select" id="filterStatus">
-                            <option value="">All</option>
-                            <option value="0">Initiated</option>
-                            <option value="1">Active</option>
-                            <option value="2">Inactive</option>
-                        </select>
-                    </div>
-                     <div class="col-md-2">
-                        <label for="filterDateFrom" class="form-label">From Date</label>
-                        <input type="date" class="form-control" id="filterDateFrom">
+
+                    <div class="col-md-3">
+                        <label for="date_from" class="form-label">From</label>
+                        <input type="date" class="form-control" id="date_from">
                     </div>
 
-                    <div class="col-md-2">
-                        <label for="filterDateTo" class="form-label">To Date</label>
-                        <input type="date" class="form-control" id="filterDateTo">
+                    <div class="col-md-3">
+                        <label for="date_to" class="form-label">To</label>
+                        <input type="date" class="form-control" id="date_to">
                     </div>
-                    <div class="col-md-2 d-flex gap-2">
-                        <!-- Buttons aligned with input fields -->
+
+                    <div class="col-md-3 d-flex gap-2">
                         <button class="btn buttonColor " id="applyFilter"> Filter</button>
-
                         <button class="btn btn-secondary" id="resetFilter">Reset</button>
                     </div>
                 </div>
@@ -59,25 +46,27 @@
     </div>
 </div>
 
-
 <div class="col-12 col-md-10 col-lg-12">
     <div class="card shadow-sm">
 
         <div class="card-body pt-4">
             <!-- Table -->
             <div class="table-responsive">
-                <table id="usersTable" class="table table-striped table-bordered table-hover w-100">
+                <table id="logTable" class="table table-striped table-bordered table-hover w-100">
                     <thead>
                         <tr>
                             <th>ID</th>
                             <th>Organization Name</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>PanNO.</th>
-                            <th>Aadhar NO.</th>
-                            <th>Created at</th>
-                            <th>Status</th>
-                            <th>Root</th>
+                            <th>User Name</th>
+                            <th>Method</th>
+                            <th>EndPoint</th>
+                            <th>Request Body</th>
+                            <th>Response Body</th>
+                            <th>Status Code</th>
+                            <th>IP</th>
+                            <th>User Agent</th>
+                            <th>Execution time</th>
+                            <th>Date Time</th>
                         </tr>
                     </thead>
                 </table>
@@ -89,22 +78,19 @@
 <script>
     $(document).ready(function() {
 
-        var table = $('#usersTable').DataTable({
+        var table = $('#logTable').DataTable({
             processing: true,
             serverSide: true,
+            orderable: false,
+            searchable: false,
             ajax: {
-
-                url: "{{url('fetch')}}/users/0",
+                url: "{{url('fetch')}}/api-logs/0",
                 type: 'POST',
-
                 data: function(d) {
                     d._token = $('meta[name="csrf-token"]').attr('content');
-                    d.id = $('#filterName').val();
-                    d.email = $('#filterEmail').val();
-                    d.status = $('#filterStatus').val();
-
-                    d.date_from = $('#filterDateFrom').val(); 
-                    d.date_to = $('#filterDateTo').val();
+                    d.user_id = $('#filterName').val();
+                    d.date_from = $('#date_from').val();
+                    d.date_to = $('#date_to').val();
                 }
             },
             pageLength: 10,
@@ -126,99 +112,74 @@
                 }
             ],
             language: {
-                searchPlaceholder: "Search users..."
+                searchPlaceholder: "Search Activity..."
             },
 
             columns: [{
                     data: 'id'
                 },
                 {
-                    data: 'business.business_name',
-                    render: function(data, type, row) {
-                        let url = "{{route('view_user',['id' => 'id'])}}".replace('id', row.id);
+                    data: function(row) {
+                        const businessName = row.user?.business?.business_name || '----';
+                        const url = "{{ route('view_user', ['id' => 'id']) }}".replace('id', row.user_id);
                         return `
                         <a href="${url}" class="text-primary fw-semibold text-decoration-none">
-                            ${data ?? '----'}
+                            ${businessName}
                         </a>
                     `;
                     }
                 },
                 {
-                    data: 'name',
-                    render: function(data, type, row) {
-                        let url = "{{route('view_user',['id' => 'id'])}}".replace('id', row.id);
+                    data: function(row) {
+                        const userName = row.user?.name || '----';
+                        const url = "{{ route('view_user', ['id' => 'id']) }}".replace('id', row.user_id);
                         return `
                         <a href="${url}" class="text-primary fw-semibold text-decoration-none">
-                            ${data}
+                            ${userName}
                         </a>
                     `;
                     }
                 },
                 {
-                    data: 'email'
+                    data: 'method'
                 },
                 {
-                    data: 'business.pan_number'
+                    data: 'endpoint'
                 },
                 {
-                    data: 'business.aadhar_number'
-                },
-                {
-                    data: 'created_at',
-                    render:function(data){
-                        return formatDateTime(data)
+                    data: function(row) {
+                        return `<i class="fas fa-eye cursor-pointer viewModalBtn"
+                        data-title="API Request Body"
+                        data-content='${JSON.stringify(row.request_body)}'></i>`;
                     }
                 },
                 {
-                    data: 'status',
-                    render: function(data, type, row) {
-
-                        const statusOptions = {
-                            0: 'INITIATED',
-                            1: 'ACTIVE',
-                            2: 'INACTIVE',
-                            3: 'PENDING',
-                            4: 'SUSPENDED'
-                        };
-
-                        let dropdown = `<select class="form-select form-select-sm" onchange="changeStatusDropdown(this, ${row.id})" onfocus="this.setAttribute('data-prev', this.value)">`;
-
-                        for (const [value, label] of Object.entries(statusOptions)) {
-                            let selected = data == value ? 'selected' : '';
-                            dropdown += `<option value="${value}" ${selected}>${label}</option>`;
-                        }
-
-                        dropdown += `</select>`;
-                        return dropdown;
-                    },
-                    orderable: false,
-                    searchable: false
-
+                    data: function(row) {
+                        return `<i class="fas fa-eye cursor-pointer viewModalBtn"
+                        data-title="API Response Body"
+                        data-content='${JSON.stringify(row.response_body)}'></i>`;
+                    }
                 },
                 {
-                    data: null,
-                    render: function(data, type, row) {
-
-                        const statusOptions = {
-                            0:'Mobikwik',
-                            1:'Paysprint',
-                            2:'Test'
-                            
-                        };
-
-                        let dropdown = `<select class="form-select form-select-sm" onchange="changeRootDropdown(this, ${row.id})" onfocus="this.setAttribute('data-prev', this.value)">`;
-
-                        for (const [value, label] of Object.entries(statusOptions)) {
-                            let selected = data == value ? 'selected' : '';
-                            dropdown += `<option value="${value}" ${selected}>${label}</option>`;
-                        }
-
-                        dropdown += `</select>`;
-                        return dropdown;
-                    },
-                    orderable: false,
-                    searchable: false
-
+                    data: 'status_code'
+                },
+                {
+                    data: 'ip_address'
+                },
+                {
+                    data: function(row) {
+                        return `<i class="fas fa-eye cursor-pointer viewModalBtn"
+                        data-title="User Agent"
+                        data-content='${JSON.stringify(row.user_agent)}'></i>`;
+                    }
+                },
+                {
+                    data: 'execution_time'
+                },
+                {
+                    data: function(row) {
+                        return formatDateTime(row.created_at)
+                    }
                 }
             ]
         });
@@ -231,8 +192,8 @@
         // Reset filter
         $('#resetFilter').on('click', function() {
             $('#filterName').val('');
-            $('#filterEmail').val('');
-            $('#filterStatus').val('');
+            $('#date_from').val('');
+            $('#date_to').val('');
             table.ajax.reload();
         });
     });

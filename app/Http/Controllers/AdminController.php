@@ -10,6 +10,7 @@ use App\Models\BusinessCategory;
 use App\Models\BusinessInfo;
 use App\Models\GlobalService;
 use App\Models\OauthUser;
+use App\Models\Provider;
 use App\Models\User;
 use App\Models\UsersBank;
 use Illuminate\Support\Facades\Validator;
@@ -137,7 +138,7 @@ class AdminController extends Controller
         }
     }
 
-    public function AddService(Request $request)
+    public function addService(Request $request)
     {
         try {
 
@@ -150,16 +151,15 @@ class AdminController extends Controller
             }
 
             $request->validate([
-                'service_name' => 'required|string|max:50',
+                'service_name' => 'required|string|max:50|unique:global_services,service_name',
             ]);
-            $slug = Str::slug($request->service_name);
-            $service = GlobalService::create([
-                'user_id' => auth()->id(),
+
+            $data = [
                 'service_name' => $request->service_name,
-                'slug' => $slug,
-                'is_active' => 1,
-                'is_activation_allowed' => 1,
-            ]);
+                'slug' => Str::slug($request->service_name),
+            ];
+
+            $service = GlobalService::create($data);
 
             return response()->json([
                 'status' => true,
@@ -167,7 +167,6 @@ class AdminController extends Controller
                 'data' => $service,
             ], 201);
         } catch (\Exception $e) {
-
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -175,47 +174,43 @@ class AdminController extends Controller
         }
     }
 
-    public function EditService(Request $request, $serviceId)
+    public function editService(Request $request, $serviceId)
     {
+
+        DB::beginTransaction();
         try {
 
             if (! auth()->check() || auth()->user()->role_id != 1) {
-
                 return response()->json([
                     'status' => false,
                     'message' => 'Unauthorized',
                 ], 401);
             }
+
             $request->validate([
-                'service_name' => 'required|string|max:50',
+                'service_name' => 'required|string|max:50|unique:global_services,service_name,' . $serviceId,
             ]);
-            $slug = Str::slug($request->service_name);
-            $service = GlobalService::where('id', $serviceId)->first();
-
-
-            $slug = Str::strtolower($request->service_name);
 
             $service = GlobalService::where('id', $serviceId)->first();
+
             if (!$service) {
-
-
                 return response()->json([
                     'status' => false,
                     'message' => 'Service not found',
                 ], 404);
             }
+
             $service->service_name = $request->service_name;
-            $service->slug = $slug;
-            $service->updated_at = now();
+            $service->slug = Str::slug($request->service_name);
             $service->save();
 
+            DB::commit();
             return response()->json([
                 'status' => true,
-
                 'message' => 'Service name updated successfully',
             ], 200);
         } catch (\Exception $e) {
-
+            DB::rollBack();
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -302,4 +297,135 @@ class AdminController extends Controller
             ], 500);
         }
     }
+
+
+    public function providers()
+    {
+        $globalServices =  GlobalService::where('is_active', '1')->select('id', 'service_name')->orderBy('id', 'desc')->get();
+        return view('Provider.providers', compact('globalServices'));
+    }
+
+    public function addProvider(Request $request)
+    {
+        $request->validate(
+            [
+                'serviceId'    => 'required|exists:global_services,id',
+                'providerName' => 'required|string|max:100|unique:providers,provider_name',
+            ],
+            [
+                'serviceId.required' => 'Please select a service.',
+                'serviceId.exists'   => 'The selected service is invalid.',
+
+                'providerName.required' => 'Provider name is required.',
+                'providerName.string'   => 'Provider name must be a valid text.',
+                'providerName.max'      => 'Provider name may not be greater than 100 characters.',
+                'providerName.unique'   => 'Duplicate Provider Name.'
+            ]
+        );
+
+        DB::beginTransaction();
+
+        try {
+
+            $data = [
+                'service_id' => $request->serviceId,
+                'provider_name' => $request->providerName,
+                'provider_slug' => Str::slug($request->providerName),
+                'updated_by' => Auth::user()->id,
+            ];
+
+            $provider = Provider::create($data);
+
+            DB::commit();
+            return response()->json([
+                'status' => true,
+                'message' => 'Provider Added Successfully',
+                'data' => $provider,
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'message' => 'Error : ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+    public function editProvider(Request $request, $Id)
+    {
+
+        $request->validate(
+            [
+                'serviceId'    => 'required|exists:global_services,id',
+                'providerName' => 'required|string|max:100|unique:providers,provider_name,' . $Id,
+            ],
+            [
+                'serviceId.required' => 'Please select a service.',
+                'serviceId.exists'   => 'The selected service is invalid.',
+                'providerName.required' => 'Provider name is required.',
+                'providerName.string'   => 'Provider name must be a valid text.',
+                'providerName.max'      => 'Provider name may not be greater than 100 characters.',
+                'providerName.unique'   => 'Duplicate Provider Name.'
+            ]
+        );
+
+        DB::beginTransaction();
+
+        try {
+
+            $data = [
+                'service_id' => $request->serviceId,
+                'provider_name' => $request->providerName,
+                'provider_slug' => Str::slug($request->providerName),
+                'updated_by' => Auth::user()->id,
+            ];
+
+            $provider = Provider::find($Id)->update($data);
+
+            DB::commit();
+            return response()->json([
+                'status' => true,
+                'message' => 'Provider Updated Successfully',
+                'data' => $provider,
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'message' => 'Error : ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function statusProvider(Request $request, $Id)
+    {
+        DB::beginTransaction();
+        try {
+            $provider = Provider::find($Id);
+            if (!$provider) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Provider not Found'
+                ]);
+            }
+
+            $provider->is_active = $provider->is_active == '1' ? '0' : '1';
+            $provider->save();
+
+            DB::commit();
+            return response()->json([
+                'status' => true,
+                'message' => 'Provider Status Changed Sucessfully'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+   
 }

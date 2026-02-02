@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BbpsRechargeController;
 use App\Http\Controllers\CommonController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ServiceController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\LadgerController;
 use App\Http\Controllers\ComplainReportController;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 
 Route::get('/', function () {
     return view('Front.user-register');
@@ -22,7 +24,7 @@ Route::post('admin/login', [AuthController::class, 'login'])->name('admin.login'
 Route::post('verify-otp', [AuthController::class, 'verifyOtp'])->name('verify_otp');
 Route::post('signup', [AuthController::class, 'signup'])->name('admin.signup');
 
-Route::group(['middleware' => ['auth']], function () {
+Route::group(['middleware' => ['auth', 'logs']], function () {
     Route::prefix('admin')->group(function () {
         Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
@@ -33,8 +35,8 @@ Route::group(['middleware' => ['auth']], function () {
 
         Route::post('servicetoggle', [AdminController::class, 'disableUserService'])->name('admin.service_toggle.user');
         Route::post('user-status-change', [AdminController::class, 'changeUserStatus'])->name('admin.user_status.change');
-        Route::post('add-service', [AdminController::class, 'AddService'])->name('admin.add_service');
-        Route::put('edit-service/{service_id}', [AdminController::class, 'EditService'])->name('admin.edit_service');
+        Route::post('add-service', [AdminController::class, 'addService'])->name('admin.add_service');
+        Route::put('edit-service/{service_id}', [AdminController::class, 'editService'])->name('admin.edit_service');
 
         Route::post('servicetoggle', [AdminController::class, 'disableUserService'])->name('admin.service_toggle');
 
@@ -43,15 +45,15 @@ Route::group(['middleware' => ['auth']], function () {
 
     // RECHARGE RELATED ROUTE 8010801087
     Route::prefix('bbps-recharge')->group(function () {
-
+        Route::post('getPlans/{operator_id}/{circle_id}/{plan_type?}', [BbpsRechargeController::class, 'getPlans'])->name('bbps.getPlans');
         // Route::post('genrate-token',[BbpsRechargeController::class,'generateToken'])->name('bbps.generate_token');
-        // Route::get('getPlans',[BbpsRechargeController::class,'getPlans'])->name('bbps.getPlans');
-        Route::post('balance',[BbpsRechargeController::class,'balance'])->name('bbps.balance');
-        Route::post('validateRecharge',[BbpsRechargeController::class,'validateRecharge'])->name('bbps.validateRecharge');
-        Route::post('payment',[BbpsRechargeController::class,'payment'])->name('bbps.payment');
-        Route::post('status',[BbpsRechargeController::class,'status'])->name('bbps.status');
 
+        // Route::post('balance', [BbpsRechargeController::class, 'balance'])->name('bbps.balance');
+        Route::post('validateRecharge', [BbpsRechargeController::class, 'validateRecharge'])->name('bbps.validateRecharge');
+        Route::post('payment', [BbpsRechargeController::class, 'payment'])->name('bbps.payment');
+        Route::post('status', [BbpsRechargeController::class, 'status'])->name('bbps.status');
     });
+
     Route::post('change-password', [AuthController::class, 'passwordReset'])->name('admin.change_password');
 
     Route::post('completeProfile/{user_id}', [UserController::class, 'completeProfile'])->name('admin.complete_profile');
@@ -70,14 +72,21 @@ Route::group(['middleware' => ['auth']], function () {
         ->name('admin.service.edit');
 
 
-    Route::prefix('recharge')->group(function () {
-        Route::post('/get-plans', [BbpsRechargeController::class, 'getPlans']);
-    });
+    // Provider Related Route 
+    Route::get('providers', [AdminController::class, 'providers'])->name('providers');
+    Route::post('add-provider', [AdminController::class, 'addProvider'])->name('add_provider');
+    Route::post('edit-provider/{id}', [AdminController::class, 'editProvider'])->name('edit_provider');
+    Route::get('status-provider/{id}', [AdminController::class, 'statusProvider'])->name('status_provider');
+
+    // Route::prefix('recharge')->group(function () {
+    //     Route::post('/get-plans', [BbpsRechargeController::class, 'getPlans']);
+    // });
 
 
     Route::get('services', [ServiceRequestController::class, 'enabledServices'])->name('enabled_services');
-
     Route::get('request-services', [ServiceRequestController::class, 'index'])->name('request_services');
+    Route::post('active-user-service-status', [ServiceController::class, 'activeUserService'])->name('active_user_service_status');
+
 
     // Users Related Route
     Route::get('/users', [UserController::class, 'bbpsUsers'])->name('users');
@@ -114,9 +123,24 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/complain-report', [ComplainReportController::class, 'complainReport'])->name('complain.report');
 
     Route::post('/complain-report/fetch', [ComplainReportController::class, 'fetchComplaints'])->name('complain.report.fetch');
-        Route::post('/complain-report/{id}/update', [ComplainReportController::class, 'updateComplaint'])
+    Route::post('/complain-report/{id}/update', [ComplainReportController::class, 'updateComplaint'])
 
         ->name('complain.update');
+    Route::get('/services/{serviceId}/providers', [UserController::class, 'getServiceProviders'])
+        ->name('admin.services.providers');
+
+
+    Route::post('/users/{id}/routing/save', [UserController::class, 'saveUserRouting'])
+        ->name('admin.users.routing.save');
+
+
+    // Api Log Related Route 
+    Route::get('api-log', [UserController::class, 'ApiLog'])->name('api_log');
+
+
+    Route::post('/users/{id}/routing/save', [UserController::class, 'saveUserRouting'])
+        ->name('admin.users.routing.save');
+
 });
 
 Route::prefix('admin', function () {

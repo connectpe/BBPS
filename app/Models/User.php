@@ -72,7 +72,7 @@ class User extends Authenticatable
 
     public function logs()
     {
-        return $this->hasMany(UserLog::class);
+        return $this->hasMany(UsersLog::class);
     }
 
     public function isAdmin()

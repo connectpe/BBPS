@@ -2,36 +2,30 @@
 
 namespace App\Http\Controllers\users;
 
+use App\Facades\FileUpload;
 use App\Helpers\CommonHelper;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use App\Models\OauthUser;
-use Illuminate\Support\Facades\DB;
-use App\Models\GlobalService;
-use App\Facades\FileUpload;
-use Illuminate\Support\Facades\Auth;
 use App\Models\BusinessInfo;
-use App\Models\BusinessCategory;
-use App\Models\ServiceRequest;
-use App\Models\UsersBank;
+use App\Models\GlobalService;
+use App\Models\OauthUser;
+use App\Models\Provider;
 use App\Models\User;
+use App\Models\UserRooting;
+use App\Models\UsersBank;
 use App\Models\UserService;
-use Exception;
-use App\Policies\IsUser;
-use App\Helpers\UploadFileHelper;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
-
     public function bbpsUsers()
     {
         $users = User::where('role_id', '!=', '1')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
         return view('Users.users', compact('users'));
     }
-
 
     public function ajaxBbpsUsers(Request $request)
     {
@@ -55,17 +49,15 @@ class UserController extends Controller
             ];
         }
 
-
-        if (!empty($request->name)) {
+        if (! empty($request->name)) {
             $users = array_filter($users, fn($u) => str_contains(strtolower($u['name']), strtolower($request->name)));
         }
-        if (!empty($request->email)) {
+        if (! empty($request->email)) {
             $users = array_filter($users, fn($u) => str_contains(strtolower($u['email']), strtolower($request->email)));
         }
-        if (!empty($request->status)) {
+        if (! empty($request->status)) {
             $users = array_filter($users, fn($u) => $u['status'] == $request->status);
         }
-
 
         $filteredCount = count($users);
 
@@ -80,25 +72,22 @@ class UserController extends Controller
         ]);
     }
 
-
     public function completeProfile(Request $request, $userId)
     {
         DB::beginTransaction();
         try {
 
-
             $businessData = BusinessInfo::where('user_id', $userId)->first();
             $bankDetail = UsersBank::where('user_id', $userId)->first();
             $user = User::find($userId);
 
-
             $validator = Validator::make(
                 $request->all(),
                 [
-                    'profile_image'      => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-                    'business_name'      => 'required|string|max:255',
-                    'business_category'  => 'required|exists:business_categories,id',
-                    'business_type'      => 'required|string|max:255',
+                    'profile_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+                    'business_name' => 'required|string|max:255',
+                    'business_category' => 'required|exists:business_categories,id',
+                    'business_type' => 'required|string|max:255',
 
                     // 'cin_number'         => 'nullable|string|max:50|unique:business_infos,cin_no',
                     // 'gst_number'         => 'required|string|max:50|unique:business_infos,gst_number',
@@ -106,181 +95,172 @@ class UserController extends Controller
                     // 'business_email'     => 'nullable|email|max:255|unique:business_infos,business_email ',
                     // 'business_phone'     => 'nullable|string|max:20|unique:business_infos,business_phone ',
 
-
-                    'cin_number'     => 'nullable|string|max:50|unique:business_infos,cin_no,' . ($businessData->id ?? 'NULL') . ',id|regex:/^[A-Z]{1}[0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$/i',
-                    'gst_number'     => 'required|string|max:50|unique:business_infos,gst_number,' . ($businessData->id ?? 'NULL') . ',id|regex:/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/i',
-                    'business_pan'   => 'required|string|max:50|unique:business_infos,business_pan_number,' . ($businessData->id ?? 'NULL') . ',id|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i',
+                    'cin_number' => 'nullable|string|max:50|unique:business_infos,cin_no,' . ($businessData->id ?? 'NULL') . ',id|regex:/^[A-Z]{1}[0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$/i',
+                    'gst_number' => 'required|string|max:50|unique:business_infos,gst_number,' . ($businessData->id ?? 'NULL') . ',id|regex:/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/i',
+                    'business_pan' => 'required|string|max:50|unique:business_infos,business_pan_number,' . ($businessData->id ?? 'NULL') . ',id|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i',
                     'business_email' => 'nullable|email|max:255|unique:business_infos,business_email,' . ($businessData->id ?? 'NULL') . ',id',
                     'business_phone' => 'nullable|string|max:20|unique:business_infos,business_phone,' . ($businessData->id ?? 'NULL') . ',id|regex:/^[6-9]\d{9}$/',
 
-                    'business_docs.*'    => 'nullable|file|mimes:pdf,jpg,png|max:5120',
+                    'business_docs.*' => 'nullable|file|mimes:pdf,jpg,png|max:5120',
 
-                    'state'              => 'required|string|max:255',
-                    'city'               => 'required|string|max:255',
-                    'pincode'            => 'required|string|max:10',
-                    'business_address'   => 'required|string|max:500',
+                    'state' => 'required|string|max:255',
+                    'city' => 'required|string|max:255',
+                    'pincode' => 'required|string|max:10',
+                    'business_address' => 'required|string|max:500',
 
-                    'adhar_number'       => 'required|string|max:20|regex:/^\d{12}$/|unique:business_infos,aadhar_number,' . ($businessData->id ?? 'NULL') . ',id',
-                    'pan_number'         => 'required|string|max:20|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i|unique:business_infos,pan_number,' . ($businessData->id ?? 'NULL') . ',id',
-                    'adhar_front_image'  => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-                    'adhar_back_image'   => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-                    'pan_card_image'     => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-
+                    'adhar_number' => 'required|string|max:20|regex:/^\d{12}$/|unique:business_infos,aadhar_number,' . ($businessData->id ?? 'NULL') . ',id',
+                    'pan_number' => 'required|string|max:20|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i|unique:business_infos,pan_number,' . ($businessData->id ?? 'NULL') . ',id',
+                    'adhar_front_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+                    'adhar_back_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+                    'pan_card_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
 
                     'account_holder_name' => 'required|string|max:255',
-                    'account_number'     => 'required|string|max:30|unique:users_banks,account_number,' . ($bankDetail->id ?? 'NULL') . ',id',
-                    'ifsc_code'          => 'required|string|max:20',
-                    'branch_name'        => 'required|string|max:255',
-                    'bank_docs'        => 'nullable|file|mimes:pdf,jpg,png|max:2048',
+                    'account_number' => 'required|string|max:30|unique:users_banks,account_number,' . ($bankDetail->id ?? 'NULL') . ',id',
+                    'ifsc_code' => 'required|string|max:20',
+                    'branch_name' => 'required|string|max:255',
+                    'bank_docs' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
                 ],
                 [
-                    'profile_image.image'        => 'Profile image must be an image file.',
-                    'profile_image.mimes'        => 'Profile image must be a file of type: jpeg, png, jpg.',
-                    'profile_image.max'          => 'Profile image size must not exceed 2MB.',
+                    'profile_image.image' => 'Profile image must be an image file.',
+                    'profile_image.mimes' => 'Profile image must be a file of type: jpeg, png, jpg.',
+                    'profile_image.max' => 'Profile image size must not exceed 2MB.',
 
-                    'business_name.required'     => 'Business name is required.',
-                    'business_name.string'       => 'Business name must be a valid string.',
-                    'business_name.max'          => 'Business name must not exceed 255 characters.',
+                    'business_name.required' => 'Business name is required.',
+                    'business_name.string' => 'Business name must be a valid string.',
+                    'business_name.max' => 'Business name must not exceed 255 characters.',
 
-                    'business_type.required'     => 'Business type is required.',
-                    'business_type.string'       => 'Business type must be a valid string.',
-                    'business_type.max'          => 'Business type must not exceed 255 characters.',
+                    'business_type.required' => 'Business type is required.',
+                    'business_type.string' => 'Business type must be a valid string.',
+                    'business_type.max' => 'Business type must not exceed 255 characters.',
 
-                    'business_category.required'  => 'Business Category is required',
-                    'business_category.exists'  => 'Invalid Business Category',
+                    'business_category.required' => 'Business Category is required',
+                    'business_category.exists' => 'Invalid Business Category',
 
-                    'industry.string'            => 'Industry must be a valid string.',
-                    'industry.max'               => 'Industry must not exceed 255 characters.',
+                    'industry.string' => 'Industry must be a valid string.',
+                    'industry.max' => 'Industry must not exceed 255 characters.',
 
-                    'cin_number.string'          => 'CIN number must be a valid string.',
-                    'cin_number.max'             => 'CIN number must not exceed 50 characters.',
-                    'cin_number.unique'       => 'This CIN number has already been taken.',
-                    'cin_number.regex'       => 'The CIN number must be a valid Indian CIN format.',
+                    'cin_number.string' => 'CIN number must be a valid string.',
+                    'cin_number.max' => 'CIN number must not exceed 50 characters.',
+                    'cin_number.unique' => 'This CIN number has already been taken.',
+                    'cin_number.regex' => 'The CIN number must be a valid Indian CIN format.',
 
-                    'gst_number.required'        => 'GST number is required.',
-                    'gst_number.string'          => 'GST number must be a valid string.',
-                    'gst_number.max'             => 'GST number must not exceed 50 characters.',
-                    'gst_number.unique'       => 'This GST number has already been taken.',
-                    'gst_number.regex'       => 'The GST number must be a valid Indian GST format (15 characters).',
+                    'gst_number.required' => 'GST number is required.',
+                    'gst_number.string' => 'GST number must be a valid string.',
+                    'gst_number.max' => 'GST number must not exceed 50 characters.',
+                    'gst_number.unique' => 'This GST number has already been taken.',
+                    'gst_number.regex' => 'The GST number must be a valid Indian GST format (15 characters).',
 
-                    'business_pan.required'      => 'Business PAN is required.',
-                    'business_pan.string'        => 'Business PAN must be a valid string.',
-                    'business_pan.max'           => 'Business PAN must not exceed 50 characters.',
-                    'business_pan.regex'     => 'The PAN number must be a valid Indian PAN format (e.g., ABCDE1234F).',
-                    'business_pan.unique'     => 'This Business PAN number has already been taken.',
+                    'business_pan.required' => 'Business PAN is required.',
+                    'business_pan.string' => 'Business PAN must be a valid string.',
+                    'business_pan.max' => 'Business PAN must not exceed 50 characters.',
+                    'business_pan.regex' => 'The PAN number must be a valid Indian PAN format (e.g., ABCDE1234F).',
+                    'business_pan.unique' => 'This Business PAN number has already been taken.',
 
-                    'business_email.email'       => 'Business email must be a valid email address.',
-                    'business_email.max'         => 'Business email must not exceed 255 characters.',
-                    'business_email.unique'   => 'This Business Email has already been taken.',
+                    'business_email.email' => 'Business email must be a valid email address.',
+                    'business_email.max' => 'Business email must not exceed 255 characters.',
+                    'business_email.unique' => 'This Business Email has already been taken.',
 
-                    'business_phone.string'      => 'Business phone must be a valid string.',
-                    'business_phone.max'         => 'Business phone must not exceed 20 characters.',
-                    'business_phone.unique'   => 'This Business Phone has already been taken.',
-                    'business_phone.regex'   => 'The phone number must be a valid 10-digit Indian mobile number starting with 6-9.',
+                    'business_phone.string' => 'Business phone must be a valid string.',
+                    'business_phone.max' => 'Business phone must not exceed 20 characters.',
+                    'business_phone.unique' => 'This Business Phone has already been taken.',
+                    'business_phone.regex' => 'The phone number must be a valid 10-digit Indian mobile number starting with 6-9.',
 
+                    'business_docs.*.file' => 'Each business document must be a valid file.',
+                    'business_docs.*.mimes' => 'Business documents must be a file of type: pdf, jpg, png.',
+                    'business_docs.*.max' => 'Business documents must not exceed 5MB each.',
 
-                    'business_docs.*.file'       => 'Each business document must be a valid file.',
-                    'business_docs.*.mimes'      => 'Business documents must be a file of type: pdf, jpg, png.',
-                    'business_docs.*.max'        => 'Business documents must not exceed 5MB each.',
+                    'state.required' => 'State is required.',
+                    'state.string' => 'State must be a valid string.',
+                    'state.max' => 'State must not exceed 255 characters.',
 
-                    'state.required'             => 'State is required.',
-                    'state.string'               => 'State must be a valid string.',
-                    'state.max'                  => 'State must not exceed 255 characters.',
+                    'city.required' => 'City is required.',
+                    'city.string' => 'City must be a valid string.',
+                    'city.max' => 'City must not exceed 255 characters.',
 
-                    'city.required'              => 'City is required.',
-                    'city.string'                => 'City must be a valid string.',
-                    'city.max'                   => 'City must not exceed 255 characters.',
+                    'pincode.required' => 'Pincode is required.',
+                    'pincode.string' => 'Pincode must be a valid string.',
+                    'pincode.max' => 'Pincode must not exceed 10 characters.',
 
-                    'pincode.required'           => 'Pincode is required.',
-                    'pincode.string'             => 'Pincode must be a valid string.',
-                    'pincode.max'                => 'Pincode must not exceed 10 characters.',
+                    'business_address.required' => 'Business address is required.',
+                    'business_address.string' => 'Business address must be a valid string.',
+                    'business_address.max' => 'Business address must not exceed 500 characters.',
 
-                    'business_address.required'  => 'Business address is required.',
-                    'business_address.string'    => 'Business address must be a valid string.',
-                    'business_address.max'       => 'Business address must not exceed 500 characters.',
-
-                    'adhar_number.required'      => 'Aadhar number is required.',
-                    'adhar_number.string'        => 'Aadhar number must be a valid string.',
-                    'adhar_number.max'           => 'Aadhar number must not exceed 20 characters.',
-                    'adhar_number.unique'       => 'This Aadhaar has already been taken.',
+                    'adhar_number.required' => 'Aadhar number is required.',
+                    'adhar_number.string' => 'Aadhar number must be a valid string.',
+                    'adhar_number.max' => 'Aadhar number must not exceed 20 characters.',
+                    'adhar_number.unique' => 'This Aadhaar has already been taken.',
                     'adhar_number.regex' => 'The Aadhaar number must be exactly 12 digits.',
 
-                    'pan_number.regex'   => 'The PAN number must be in a valid format (e.g., ABCDE1234F).',
-                    'pan_number.required'        => 'PAN number is required.',
-                    'pan_number.string'          => 'PAN number must be a valid string.',
-                    'pan_number.max'             => 'PAN number must not exceed 20 characters.',
-                    'pan_number.unique'       => 'This Pan has already been taken.',
+                    'pan_number.regex' => 'The PAN number must be in a valid format (e.g., ABCDE1234F).',
+                    'pan_number.required' => 'PAN number is required.',
+                    'pan_number.string' => 'PAN number must be a valid string.',
+                    'pan_number.max' => 'PAN number must not exceed 20 characters.',
+                    'pan_number.unique' => 'This Pan has already been taken.',
 
+                    'adhar_front_image.image' => 'Aadhar front image must be an image file.',
+                    'adhar_front_image.mimes' => 'Aadhar front image must be a file of type: jpeg, png, jpg.',
+                    'adhar_front_image.max' => 'Aadhar front image size must not exceed 2MB.',
 
-                    'adhar_front_image.image'    => 'Aadhar front image must be an image file.',
-                    'adhar_front_image.mimes'    => 'Aadhar front image must be a file of type: jpeg, png, jpg.',
-                    'adhar_front_image.max'      => 'Aadhar front image size must not exceed 2MB.',
+                    'adhar_back_image.image' => 'Aadhar back image must be an image file.',
+                    'adhar_back_image.mimes' => 'Aadhar back image must be a file of type: jpeg, png, jpg.',
+                    'adhar_back_image.max' => 'Aadhar back image size must not exceed 2MB.',
 
-                    'adhar_back_image.image'     => 'Aadhar back image must be an image file.',
-                    'adhar_back_image.mimes'     => 'Aadhar back image must be a file of type: jpeg, png, jpg.',
-                    'adhar_back_image.max'       => 'Aadhar back image size must not exceed 2MB.',
-
-                    'pan_card_image.image'       => 'PAN card image must be an image file.',
-                    'pan_card_image.mimes'       => 'PAN card image must be a file of type: jpeg, png, jpg.',
-                    'pan_card_image.max'         => 'PAN card image size must not exceed 2MB.',
+                    'pan_card_image.image' => 'PAN card image must be an image file.',
+                    'pan_card_image.mimes' => 'PAN card image must be a file of type: jpeg, png, jpg.',
+                    'pan_card_image.max' => 'PAN card image size must not exceed 2MB.',
 
                     'account_holder_name.required' => 'Account holder name is required.',
-                    'account_holder_name.string'   => 'Account holder name must be a valid string.',
-                    'account_holder_name.max'      => 'Account holder name must not exceed 255 characters.',
+                    'account_holder_name.string' => 'Account holder name must be a valid string.',
+                    'account_holder_name.max' => 'Account holder name must not exceed 255 characters.',
 
-                    'account_number.required'    => 'Account number is required.',
-                    'account_number.string'      => 'Account number must be a valid string.',
-                    'account_number.max'         => 'Account number must not exceed 30 characters.',
-                    'account_number.unique'     => 'This Account number has already been taken.',
+                    'account_number.required' => 'Account number is required.',
+                    'account_number.string' => 'Account number must be a valid string.',
+                    'account_number.max' => 'Account number must not exceed 30 characters.',
+                    'account_number.unique' => 'This Account number has already been taken.',
 
+                    'ifsc_code.required' => 'IFSC code is required.',
+                    'ifsc_code.string' => 'IFSC code must be a valid string.',
+                    'ifsc_code.max' => 'IFSC code must not exceed 20 characters.',
 
-                    'ifsc_code.required'         => 'IFSC code is required.',
-                    'ifsc_code.string'           => 'IFSC code must be a valid string.',
-                    'ifsc_code.max'              => 'IFSC code must not exceed 20 characters.',
+                    'branch_name.required' => 'Branch name is required.',
+                    'branch_name.string' => 'Branch name must be a valid string.',
+                    'branch_name.max' => 'Branch name must not exceed 255 characters.',
 
-                    'branch_name.required'       => 'Branch name is required.',
-                    'branch_name.string'         => 'Branch name must be a valid string.',
-                    'branch_name.max'            => 'Branch name must not exceed 255 characters.',
-
-                    'bank_docs.file'           => 'Each bank document must be a valid file.',
-                    'bank_docs.mimes'          => 'Bank documents must be a file of type: pdf, jpg, png.',
-                    'bank_docs.max'            => 'Bank documents must not exceed 5MB each.',
+                    'bank_docs.file' => 'Each bank document must be a valid file.',
+                    'bank_docs.mimes' => 'Bank documents must be a file of type: pdf, jpg, png.',
+                    'bank_docs.max' => 'Bank documents must not exceed 5MB each.',
                 ]
             );
 
             if ($validator->fails()) {
                 return response()->json([
                     'status' => 'error',
-                    'errors' => $validator->errors()
+                    'errors' => $validator->errors(),
                 ], 422);
             }
 
-
             $profilePicPath = $user->profile_image ?? null;
             if ($request->hasFile('profile_image')) {
-                $profilePicPath =  FileUpload::uploadFile($request->profile_image, "profile_pictures/$userId", $user->profile_image ?? null);
+                $profilePicPath = FileUpload::uploadFile($request->profile_image, "profile_pictures/$userId", $user->profile_image ?? null);
                 User::where('id', $userId)->update(['profile_image' => $profilePicPath]);
             }
 
             $businessDocsPath = null;
             if ($request->hasFile('business_docs')) {
                 $oldDoc = $businessData->business_document ? json_decode($businessData->business_document, true) : null;
-                $businessDocs = FileUpload::uploadFile($request->business_docs, "business_documents/$userId",  $oldDoc);
+                $businessDocs = FileUpload::uploadFile($request->business_docs, "business_documents/$userId", $oldDoc);
                 $businessDocsPath = json_encode($businessDocs);
             }
-
 
             $adharFrontPath = $businessData->aadhar_front_image ?? null;
             if ($request->hasFile('adhar_front_image')) {
                 $adharFrontPath = FileUpload::uploadFile($request->adhar_front_image, "kyc_documents/$userId", $businessData->aadhar_front_image ?? null);
             }
 
-
             $adharBackPath = $businessData->aadhar_back_image ?? null;
             if ($request->hasFile('adhar_back_image')) {
                 $adharBackPath = FileUpload::uploadFile($request->adhar_back_image, "kyc_documents/$userId", $businessData->aadhar_back_image ?? null);
             }
-
 
             $panCardPath = $businessData->pancard_image ?? null;
             if ($request->hasFile('pan_card_image')) {
@@ -289,29 +269,29 @@ class UserController extends Controller
 
             $bankDocsPath = $bankDetail->bank_docs ?? null;
             if ($request->hasFile('bank_docs')) {
-                $bankDocsPath =  FileUpload::uploadFile($request->bank_docs, "bank_documents/$userId", $bankDetail->bank_docs ?? null);
+                $bankDocsPath = FileUpload::uploadFile($request->bank_docs, "bank_documents/$userId", $bankDetail->bank_docs ?? null);
             }
 
-            $data =  [
-                'business_name'          => $request->business_name,
-                'industry'               => $request->industry,
-                'cin_no'             => $request->cin_number,
-                'gst_number'             => $request->gst_number,
-                'business_pan_number'    => $request->business_pan,
-                'business_email'         => $request->business_email,
-                'business_phone'         => $request->business_phone,
-                'business_type'          => $request->business_type,
-                'aadhar_number'          => $request->adhar_number,
+            $data = [
+                'business_name' => $request->business_name,
+                'industry' => $request->industry,
+                'cin_no' => $request->cin_number,
+                'gst_number' => $request->gst_number,
+                'business_pan_number' => $request->business_pan,
+                'business_email' => $request->business_email,
+                'business_phone' => $request->business_phone,
+                'business_type' => $request->business_type,
+                'aadhar_number' => $request->adhar_number,
 
-                'pan_number'             => $request->pan_number,
-                'address'                => $request->business_address,
-                'city'                   => $request->city,
-                'state'                  => $request->state,
-                'pincode'                => $request->pincode,
+                'pan_number' => $request->pan_number,
+                'address' => $request->business_address,
+                'city' => $request->city,
+                'state' => $request->state,
+                'pincode' => $request->pincode,
 
-                'aadhar_front_image'      => $adharFrontPath,
-                'aadhar_back_image'       => $adharBackPath,
-                'pancard_image'         => $panCardPath,
+                'aadhar_front_image' => $adharFrontPath,
+                'aadhar_back_image' => $adharBackPath,
+                'pancard_image' => $panCardPath,
 
             ];
 
@@ -320,38 +300,36 @@ class UserController extends Controller
             }
 
             $businessInfo = BusinessInfo::updateOrCreate([
-                'user_id'                => $userId,
-                'business_category_id'   => $request->business_category,
+                'user_id' => $userId,
+                'business_category_id' => $request->business_category,
             ], $data);
-
 
             UsersBank::updateOrCreate(
                 [
-                    'user_id'            => $userId,
-                    'business_info_id'   => $businessInfo->id,
+                    'user_id' => $userId,
+                    'business_info_id' => $businessInfo->id,
                 ],
                 [
-                    'benificiary_name'   => $request->account_holder_name,
-                    'branch_name'          => $request->branch_name,
-                    'account_number'     => $request->account_number,
-                    'ifsc_code'          => $request->ifsc_code,
-                    'bank_docs'          => $bankDocsPath,
+                    'benificiary_name' => $request->account_holder_name,
+                    'branch_name' => $request->branch_name,
+                    'account_number' => $request->account_number,
+                    'ifsc_code' => $request->ifsc_code,
+                    'bank_docs' => $bankDocsPath,
                 ]
             );
-
 
             DB::commit();
 
             return response()->json([
-                'status'  => true,
+                'status' => true,
                 'message' => 'Profile completed successfully',
-                'user'    => $user,
+                'user' => $user,
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json([
-                'status'  => false,
+                'status' => false,
                 'message' => 'Error: ' . $e->getMessage(),
             ], 500);
         }
@@ -360,10 +338,10 @@ class UserController extends Controller
     public function generateClientCredentials(Request $request)
     {
 
-        if (!auth()->check() && auth::user()->role_id != '2') {
+        if (! auth()->check() && auth::user()->role_id != '2') {
             return response()->json([
                 'status' => false,
-                'message' => 'Unauthorized'
+                'message' => 'Unauthorized',
             ], 401);
         }
 
@@ -376,10 +354,10 @@ class UserController extends Controller
         DB::beginTransaction();
 
         $service = GlobalService::where('slug', $request->service)->select('id')->first();
-        if (!$service) {
+        if (! $service) {
             return response()->json([
                 'status' => false,
-                'message' => 'Service not found'
+                'message' => 'Service not found',
             ], 404);
         }
         // dd($service);
@@ -394,7 +372,6 @@ class UserController extends Controller
                 ->where('service_id', $service->id)
                 ->count();
 
-
             if ($secretCount > 1) {
                 // If existing credentials found, deactivate them
                 OauthUser::where('user_id', $userId)
@@ -403,20 +380,20 @@ class UserController extends Controller
             }
 
             $credential = OauthUser::create([
-                'user_id'       => $userId,
-                'service_id'     => $service->id,
-                'client_id'     => $clientId,
+                'user_id' => $userId,
+                'service_id' => $service->id,
+                'client_id' => $clientId,
                 'client_secret' => $clientSecret,
-                'is_active'    => '1',
+                'is_active' => '1',
             ]);
 
             DB::commit();
 
             return response()->json([
-                'status'  => true,
+                'status' => true,
                 'message' => 'Client credentials generated successfully',
-                'data'    => [
-                    'client_id'     => $credential->client_id,
+                'data' => [
+                    'client_id' => $credential->client_id,
                     'client_secret' => $credential->client_secret,
                 ],
             ], 201);
@@ -429,14 +406,12 @@ class UserController extends Controller
             ]);
 
             return response()->json([
-                'status'  => false,
+                'status' => false,
                 'message' => 'Something went wrong while generating credentials',
                 'error' => $e->getMessage(),
             ], 500);
         }
     }
-
-
 
     public function viewSingleUsers($Id)
     {
@@ -444,12 +419,21 @@ class UserController extends Controller
             CommonHelper::checkAuthUser();
             $userId = $Id;
 
-            $data['userData'] = User::where('id', $userId)->select('name', 'email', 'mobile', 'status', 'role_id')->first();
-            $data['businessInfo'] = BusinessInfo::where('user_id', $userId)->first();
+            $data['userData'] = User::where('id', $userId)
+                ->select('id', 'name', 'email', 'mobile', 'status', 'role_id')
+                ->firstOrFail();
 
+            $data['businessInfo'] = BusinessInfo::where('user_id', $userId)->first();
             $data['usersBank'] = UsersBank::where('user_id', $userId)->first();
+
             $data['serviceEnabled'] = UserService::where('user_id', $userId)->where('status', 'approved')->get();
             $data['serviceRequest'] = UserService::where('user_id', $userId)->where('status', 'pending')->get();
+
+            $data['globalServices'] = GlobalService::where('is_active', '1')
+                ->select('id', 'service_name', 'slug')
+                ->orderBy('service_name')
+                ->get();
+            $data['userRootings'] = UserRooting::where('user_id', $userId)->get()->keyBy('service_id');
 
             return view('Users.view-user')->with($data);
         } catch (\Exception $e) {
@@ -459,4 +443,99 @@ class UserController extends Controller
             ]);
         }
     }
+
+    public function getProvidersByService(Request $request, $service_id)
+    {
+        try {
+            $providers = Provider::where('service_id', $service_id)->get();
+
+            return response()->json([
+                'status' => true,
+                'providers' => $providers,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['status' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function saveUserRouting(Request $request, $id)
+    {
+        $request->validate([
+            'service_id' => 'required|exists:global_services,id',
+            'provider_slug' => 'required|string|max:255',
+        ]);
+
+        try {
+            $userId = decrypt($id);
+            $userRouting = UserRooting::updateOrCreate(
+                [
+                    'user_id' => $userId,
+                    'service_id' => $request->service_id,
+                ],
+                [
+                    'provider_slug' => $request->provider_slug,
+                    'service_unique_id' => null,
+                    'updated_at' => now(),
+                ]
+            );
+
+            \Log::info('UserRouting saved', [
+                'user_id' => $userId,
+                'service_id' => $request->service_id,
+                'provider_slug' => $request->provider_slug,
+                'created' => $userRouting->wasRecentlyCreated,
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Routing configuration saved successfully!',
+                'data' => $userRouting,
+            ], 200);
+        } catch (\Exception $e) {
+            \Log::error('Error saving user routing', [
+                'error' => $e->getMessage(),
+                'user_id' => $id,
+                'service_id' => $request->service_id ?? null,
+            ]);
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Error: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getServiceProviders(Request $request, $serviceId)
+    {
+        try {
+            $providers = Provider::where('service_id', $serviceId)
+                ->select('id', 'provider_name as name', 'provider_slug as slug')
+                ->get();
+
+            return response()->json([
+                'status' => true,
+                'data' => $providers,
+            ], 200);
+        } catch (\Exception $e) {
+            \Log::error('Error fetching providers', [
+                'error' => $e->getMessage(),
+                'service_id' => $serviceId,
+            ]);
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Error fetching providers: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+    public function ApiLog()
+    {
+        $users = User::where('role_id', '!=', '1')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
+        return view('Users.api-log', compact('users'));
+    }
+
+
+    
 }

@@ -11,11 +11,17 @@
             <i class="bi bi-x-lg"></i>
         </button>
     </div>
-
-    <h5 class="text-center mb-4">BBPS PANEL </h5>
     @php
     $role = Auth::user()->role_id;
     @endphp
+
+    @if ($role == 1)
+    <h5 class="text-center mb-4">ADMIN PANEL </h5>
+    @else
+    <h5 class="text-center mb-4">USER PANEL </h5>
+    @endif
+
+
 
     @if ($role == 1)
     <ul class="nav nav-pills flex-column mb-auto">
@@ -27,6 +33,7 @@
                 <i class="bi bi-speedometer2 me-2"></i> Dashboard
             </a>
         </li>
+
 
         <!-- User Management -->
         <li class="nav-item mt-2">
@@ -118,30 +125,90 @@
             </ul>
         </li>
 
+        <!-- Reports -->
+        <li class="nav-item mt-2">
+            <ul class="nav nav-pills flex-column mb-auto">
+                @php
+                $reportRoute = ['complain.report','api_log'];
+                $reportActive = in_array(Route::currentRouteName(), $reportRoute);
+                @endphp
+
+                <li class="nav-item">
+                    <a class="nav-link text-white d-flex justify-content-between align-items-center {{ $reportActive ? '' : 'collapsed' }} {{ $reportActive ? 'sidebar-active' : '' }}"
+                        data-bs-toggle="collapse" href="#reportRoute" role="button"
+                        aria-expanded="{{ $reportActive ? 'true' : 'false' }}">
+                        <span><i class="bi bi-file-earmark-text me-2"></i> Reports
+                        </span>
+                        <i class="bi bi-chevron-down small"></i>
+                    </a>
+
+                    <div class="collapse {{ $reportActive ? 'show' : '' }} ms-3" id="reportRoute">
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a href="{{ route('complain.report') }}"
+                                    class="nav-link text-white {{ Route::currentRouteName() == 'complain.report' ? 'sidebar-active' : '' }}">
+                                    <i class="bi bi-file-earmark-text me-2"></i> Complaint
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('api_log') }}"
+                                    class="nav-link text-white {{ Route::currentRouteName() == 'api_log' ? 'sidebar-active' : '' }}">
+                                    <i class="bi bi-journal-text me-2"></i> API
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </li>
+
+          <!-- Matster Settings -->
+        <li class="nav-item mt-2">
+            <ul class="nav nav-pills flex-column mb-auto">
+                @php
+                $masterRoute = ['our_servicess','providers'];
+                $masterActive = in_array(Route::currentRouteName(), $masterRoute);
+                @endphp
+
+                <li class="nav-item">
+                    <a class="nav-link text-white d-flex justify-content-between align-items-center {{ $masterActive ? '' : 'collapsed' }} {{ $masterActive ? 'sidebar-active' : '' }}"
+                        data-bs-toggle="collapse" href="#masterRoute" role="button"
+                        aria-expanded="{{ $masterActive ? 'true' : 'false' }}">
+                        <span><i class="bi bi-gear me-2"></i> Master Setting
+                        </span>
+                        <i class="bi bi-chevron-down small"></i>
+                    </a>
+
+                    <div class="collapse {{ $masterActive ? 'show' : '' }} ms-3" id="masterRoute">
+                        <ul class="nav flex-column">
+
+                            <li class="nav-item">
+                                <a href="{{ route('our_servicess') }}"
+                                    class="nav-link text-white {{ Route::currentRouteName() == 'our_servicess' ? 'sidebar-active' : '' }}">
+                                    <i class="bi bi-briefcase me-2"></i>
+                                    Our Services
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href="{{ route('providers') }}"
+                                    class="nav-link text-white {{ Route::currentRouteName() == 'providers' ? 'sidebar-active' : '' }}">
+                                    <i class="bi bi-person-badge me-2"></i> Providers
+                                </a>
+                            </li>
+
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </li>
+
         <!-- Ledger -->
         <li class="nav-item">
             <a href="{{ route('ladger.index') }}"
                 class="nav-link text-white {{ Route::currentRouteName() == 'ladger.index' ? 'sidebar-active' : '' }}">
                 <i class="bi bi-journal-text me-2"></i>
                 Ledger
-            </a>
-        </li>
-
-        <!-- Our Services -->
-        <li class="nav-item">
-            <a href="{{ route('our_servicess') }}"
-                class="nav-link text-white {{ Route::currentRouteName() == 'our_servicess' ? 'sidebar-active' : '' }}">
-                <i class="bi bi-briefcase me-2"></i>
-                Our Services
-            </a>
-        </li>
-
-        <!-- Complaint Report -->
-        <li class="nav-item">
-            <a href="{{ route('complain.report') }}"
-                class="nav-link text-white {{ Route::currentRouteName() == 'complain.report' ? 'sidebar-active' : '' }}">
-                <i class="bi bi-exclamation-triangle me-2"></i>
-                Complaint Report
             </a>
         </li>
 
@@ -431,7 +498,7 @@
                 </li>
             </ul>
         </li>
-<!-- 
+        <!-- 
         <li class="nav-item">
             <a href="{{ route('reseller_reports') }}"
                 class="nav-link text-white {{ Route::is('reseller_reports') ? 'sidebar-active' : '' }}">
