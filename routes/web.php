@@ -23,7 +23,10 @@ Route::post('admin/login', [AuthController::class, 'login'])->name('admin.login'
 Route::post('verify-otp', [AuthController::class, 'verifyOtp'])->name('verify_otp');
 Route::post('signup', [AuthController::class, 'signup'])->name('admin.signup');
 
-Route::group(['middleware' => ['auth', 'logs']], function () {
+
+// 'logs' : Middleware for the logs.
+
+Route::group(['middleware' => ['auth']], function () {
     Route::prefix('admin')->group(function () {
         Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
@@ -144,7 +147,9 @@ Route::group(['middleware' => ['auth', 'logs']], function () {
     Route::post('update-scheme-rule/{id}', [AdminController::class, 'updateSchemeAndRule'])->name('update_scheme_rule');
 
     Route::post('assign-schema', [AdminController::class, 'assign_user_scheme'])->name('assign_user_scheme');
-
+    
+    Route::post('assign-scheme', [AdminController::class, 'assignSchemetoUser'])->name('assign_scheme');
+    Route::post('update-user-assigned-scheme/{id}', [AdminController::class, 'updateAssignedSchemetoUser'])->name('update_user_assigned_scheme');
 });
 
 Route::prefix('admin', function () {
