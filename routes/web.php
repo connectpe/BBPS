@@ -147,6 +147,9 @@ Route::group(['middleware' => ['auth', 'logs']], function () {
         // Scheme Report Route
     Route::get('/schemes', [SchemeController::class, 'index']) ->name('schemes.index');
 
+    // Scheme Related Route 
+    Route::post('add-scheme-rule', [AdminController::class, 'addSchemeAndRule'])->name('add_scheme_rule');
+
 });
 
 Route::prefix('admin', function () {
