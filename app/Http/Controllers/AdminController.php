@@ -138,7 +138,7 @@ class AdminController extends Controller
         }
     }
 
-    public function AddService(Request $request)
+    public function addService(Request $request)
     {
         try {
 
@@ -151,16 +151,15 @@ class AdminController extends Controller
             }
 
             $request->validate([
-                'service_name' => 'required|string|max:50',
+                'service_name' => 'required|string|max:50|unique:global_services,service_name',
             ]);
-            $slug = Str::slug($request->service_name);
-            $service = GlobalService::create([
-                'user_id' => auth()->id(),
+
+            $data = [
                 'service_name' => $request->service_name,
-                'slug' => $slug,
-                'is_active' => 1,
-                'is_activation_allowed' => 1,
-            ]);
+                'slug' => Str::slug($request->service_name),
+            ];
+
+            $service = GlobalService::create($data);
 
             return response()->json([
                 'status' => true,
@@ -168,7 +167,6 @@ class AdminController extends Controller
                 'data' => $service,
             ], 201);
         } catch (\Exception $e) {
-
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -176,47 +174,43 @@ class AdminController extends Controller
         }
     }
 
-    public function EditService(Request $request, $serviceId)
+    public function editService(Request $request, $serviceId)
     {
+
+        DB::beginTransaction();
         try {
 
             if (! auth()->check() || auth()->user()->role_id != 1) {
-
                 return response()->json([
                     'status' => false,
                     'message' => 'Unauthorized',
                 ], 401);
             }
+
             $request->validate([
-                'service_name' => 'required|string|max:50',
+                'service_name' => 'required|string|max:50|unique:global_services,service_name,' . $serviceId,
             ]);
-            $slug = Str::slug($request->service_name);
-            $service = GlobalService::where('id', $serviceId)->first();
-
-
-            $slug = Str::strtolower($request->service_name);
 
             $service = GlobalService::where('id', $serviceId)->first();
+
             if (!$service) {
-
-
                 return response()->json([
                     'status' => false,
                     'message' => 'Service not found',
                 ], 404);
             }
+
             $service->service_name = $request->service_name;
-            $service->slug = $slug;
-            $service->updated_at = now();
+            $service->slug = Str::slug($request->service_name);
             $service->save();
 
+            DB::commit();
             return response()->json([
                 'status' => true,
-
                 'message' => 'Service name updated successfully',
             ], 200);
         } catch (\Exception $e) {
-
+            DB::rollBack();
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -432,4 +426,6 @@ class AdminController extends Controller
             ]);
         }
     }
+
+   
 }

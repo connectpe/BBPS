@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Models\MobikwikToken;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -47,10 +48,15 @@ class MobiKwikHelper
                     'success' => false,
                     'message' => 'Unable to generate token',
                 ], $response->status());
-
             }
 
             $data = $response->json();
+
+            MobikwikToken::create([
+                'token' => $data['data']['token'],
+                'creation_time' => now()->toDateTimeString(),
+                'response' => json_encode($data),
+            ]);
 
             return $data['data']['token'] ?? null;
         } catch (\Illuminate\Http\Client\ConnectionException $e) {

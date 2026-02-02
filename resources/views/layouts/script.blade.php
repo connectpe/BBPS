@@ -14,6 +14,53 @@
 </div>
 
 
+<!-- Show the Content -->
+<div class="modal fade" id="showContentModal" tabindex="-1" aria-labelledby="showContentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="showContentModalLabel">Title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="white-space: pre-wrap; word-wrap: break-word; max-height: 70vh; overflow-y: auto;">
+                Content goes here...
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).on('click', '.viewModalBtn', function() {
+        var title = $(this).data('title');
+        var content = $(this).data('content');
+        showModal(title, content);
+    });
+
+
+    function showModal(title, text) {
+        var $modal = $('#showContentModal');
+        if (!$modal.length) return;
+
+        $('#showContentModalLabel').text(title);
+
+        // Render text safely
+        if (typeof text === 'string') {
+            var isHTML = /<\/?[a-z][\s\S]*>/i.test(text);
+            if (isHTML) {
+                $modal.find('.modal-body').html(text);
+            } else {
+                $modal.find('.modal-body').text(text);
+            }
+        } else {
+            $modal.find('.modal-body').text(JSON.stringify(text, null, 2));
+        }
+
+        var bsModal = new bootstrap.Modal($modal[0]);
+        bsModal.show();
+    }
+</script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const sidebar = document.getElementById('sidebar');
@@ -203,5 +250,4 @@
 
         return `${month}-${day}-${year} ${hours}:${minutes} ${ampm}`;
     }
-
 </script>
