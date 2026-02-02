@@ -99,7 +99,7 @@ class MobiKwikHelper
         ];
 
         $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $bearerToken,
+            'Authorization' => $bearerToken,
             'Content-Type'  => 'application/json',
         ])->post($this->baseUrl . $endpoint, $requestData);
 
