@@ -146,10 +146,11 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('edit-scheme/{id}', [AdminController::class, 'editScheme'])->name('edit_scheme');
     Route::post('update-scheme-rule/{id}', [AdminController::class, 'updateSchemeAndRule'])->name('update_scheme_rule');
 
-    Route::post('assign-schema', [AdminController::class, 'assign_user_scheme'])->name('assign_user_scheme');
-    
+
+    Route::get('edit-assigned-scheme/{id}', [AdminController::class, 'editAssignedScheme']);
     Route::post('assign-scheme', [AdminController::class, 'assignSchemetoUser'])->name('assign_scheme');
     Route::post('update-user-assigned-scheme/{id}', [AdminController::class, 'updateAssignedSchemetoUser'])->name('update_user_assigned_scheme');
+    Route::get('delete-assigned-scheme/{id}', [AdminController::class, 'deleteAssignedScheme']);
 });
 
 Route::prefix('admin', function () {
