@@ -212,6 +212,13 @@
                 Ledger
             </a>
         </li>
+         <li class="nav-item">
+                <a href="{{ route('schemes.index') }}"
+                    class="nav-link text-white {{ Route::currentRouteName() == 'schemes.index' ? 'sidebar-active' : '' }}">
+                    <i class="bi bi-diagram-3 me-2"></i> Schemes
+                </a>
+        </li>
+
 
         <!-- Logout -->
         <li class="nav-item">
