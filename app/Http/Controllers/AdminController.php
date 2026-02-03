@@ -64,7 +64,7 @@ class AdminController extends Controller
     {
         $role = Auth::user()->role_id;
 
-        if (in_array($role, [1, 2])) {
+        if (in_array($role, [1, 2, 4])) {
             return view('dashboard');
         } elseif (in_array($role, [3])) {
             return view('api-dashboard');
@@ -781,7 +781,7 @@ class AdminController extends Controller
                         $existingRuleIds[] = $rule->id;
                     } else {
                         $newRule = SchemeRule::create([
-                            'scheme_id' => $request->scheme_id, // यहाँ $scheme->id की जगह $request->scheme_id आएगा
+                            'scheme_id' => $request->scheme_id, 
                             'service_id' => $ruleData['service_id'],
                             'start_value' => (float) $ruleData['start_value'],
                             'end_value' => (float) $ruleData['end_value'],
@@ -794,7 +794,6 @@ class AdminController extends Controller
                         $existingRuleIds[] = $newRule->id;
                     }
                 }
-                // पुराने रूल्स डिलीट करना (सिर्फ तभी जब रूल्स भेजे गए हों)
                 SchemeRule::where('scheme_id', $request->scheme_id)
                     ->whereNotIn('id', $existingRuleIds)
                     ->delete();
