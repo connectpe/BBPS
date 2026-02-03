@@ -195,7 +195,7 @@
                                 <a href="{{ route('providers') }}"
                                     class="nav-link text-white {{ Route::currentRouteName() == 'providers' ? 'sidebar-active' : '' }}">
                                     <i class="bi bi-person-badge me-2"></i> Providers
-                                </a>
+                                </a> 
                             </li>
 
                         </ul>
