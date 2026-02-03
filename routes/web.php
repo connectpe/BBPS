@@ -144,7 +144,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('add-scheme-rule', [AdminController::class, 'addSchemeAndRule'])->name('add_scheme_rule');
     // Scheme ka data fetch karne ke liye (Edit Modal ke liye)
     Route::get('edit-scheme/{id}', [AdminController::class, 'editScheme'])->name('edit_scheme');
-    Route::post('update-scheme-rule/{id}', [AdminController::class, 'updateSchemeAndRule'])->name('update_scheme_rule');
 
 
 
@@ -153,9 +152,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('update-user-assigned-scheme/{id}', [AdminController::class, 'updateAssignedSchemetoUser'])->name('update_user_assigned_scheme');
     Route::get('delete-assigned-scheme/{id}', [AdminController::class, 'deleteAssignedScheme']);
     Route::post('update-scheme-rule/{id}', [AdminController::class, 'updateSchemeAndRule'])->name('update_scheme_rule');
-   
-    
-
 });
 
 Route::prefix('admin', function () {

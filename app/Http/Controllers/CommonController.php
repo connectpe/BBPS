@@ -142,8 +142,8 @@ class CommonController extends Controller
 
 
 			case 'transactions':
-				$request['table'] = '\App\Models\Transaction';
 
+				$request['table'] = '\App\Models\Transaction';
 				$request['searchData'] = ['id',  'created_at', 'reference_number', 'user_id', 'operator_id', 'circle_id', 'status', 'amount', 'transaction_type'];
 
 				$request['select'] = 'all';
@@ -302,7 +302,9 @@ class CommonController extends Controller
 				$request['parentData'] = [$request->id];
 				if (Auth::user()->role_id == '1') {
 					$request['parentData'] = 'all';
-					$request['status'] = 'approved';
+					
+					$request['whereIn'] = 'status';
+					$request['parentData'] = 'approved';
 				} else {
 					$request['whereIn'] = 'user_id';
 					$request['parentData'] = [Auth::user()->id];
@@ -310,7 +312,6 @@ class CommonController extends Controller
 				
 				break;
 		}
-
 
 		// For filter the Records 
 		$filterColumnsMap = [
