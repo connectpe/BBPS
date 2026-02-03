@@ -6,7 +6,7 @@
         <div class="card shadow-sm mb-5">
             <div class="card-header d-flex justify-content-between align-items-center bg-white">
                 <h5 class="mb-0 text-dark font-weight-bold">List of Created Schemes</h5>
-                <button class="btn btn-primary btn-sm btn-add-new" data-bs-toggle="modal" data-bs-target="#schemeModal">
+                <button class="btn buttonColor btn-sm btn-add-new" data-bs-toggle="modal" data-bs-target="#schemeModal">
                     <i class="fas fa-plus"></i> Add New Scheme
                 </button>
             </div>
@@ -30,7 +30,7 @@
         <div class="card shadow-sm mt-4">
             <div class="card-header d-flex justify-content-between align-items-center bg-white">
                 <h5 class="mb-0 text-dark font-weight-bold">Scheme and User Relations</h5>
-                <button class="btn btn-primary btn-sm btn-assign-new" data-bs-toggle="modal"
+                <button class="btn buttonColor btn-sm btn-assign-new" data-bs-toggle="modal"
                     data-bs-target="#assignUserModal">
                     Assign Scheme to User
                 </button>
@@ -60,9 +60,9 @@
                         <button class="btn btn-warning text-white px-4 shadow-sm" onclick="location.reload()">Reset</button>
                     </div> --}}
                     <div class="col-md-4 d-flex align-items-end">
-                        <button class="btn btn-primary me-2 px-4 shadow-sm" id="searchBtn">Search</button>
+                        <button class="btn buttonColor me-2 px-4 shadow-sm" id="searchBtn">Search</button>
 
-                        <button class="btn btn-warning text-white px-4 shadow-sm"
+                        <button class="btn btn-secondary text-white px-4 shadow-sm"
                             onclick="window.location.reload()">Reset</button>
                     </div>
                 </div>
@@ -122,14 +122,14 @@
                             </table>
                         </div>
                         <div class="text-center">
-                            <button type="button" id="addMoreRules" class="btn btn-primary btn-sm mt-2">
+                            <button type="button" id="addMoreRules" class="btn buttonColor btn-sm mt-2">
                                 <i class="fas fa-plus"></i> Add More Rules
                             </button>
                         </div>
                     </div>
                     <div class="modal-footer border-top-0">
                         <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary btn-sm px-4" id="submitBtn">Save Changes</button>
+                        <button type="submit" class="btn buttonColor btn-sm px-4" id="submitBtn">Save Changes</button>
                     </div>
                 </form>
             </div>
@@ -172,7 +172,7 @@
                     <div class="modal-footer border-top-0">
                         <button type="button" class="btn btn-secondary btn-sm px-4"
                             data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary btn-sm px-4" id="assignSubmitBtn">Submit</button>
+                        <button type="submit" class="btn buttonColor btn-sm px-4" id="assignSubmitBtn">Submit</button>
                     </div>
                 </form>
             </div>
@@ -207,7 +207,7 @@
                 buttons: [{
                     extend: 'excelHtml5',
                     text: 'Excel',
-                    className: 'btn btn-success btn-sm'
+                    className: 'btn buttonColor btn-sm'
                 }],
                 ajax: {
                     url: "{{ url('fetch/schemes') }}",
@@ -243,6 +243,13 @@
             let relationTable = $('#relationTable').DataTable({
                 processing: true,
                 serverSide: true,
+                 dom: "<'row mb-2'<'col-sm-4'l><'col-sm-4'f><'col-sm-4 text-end'B>>" +
+                    "<'row'<'col-12'tr>>" + "<'row mt-2'<'col-sm-6'i><'col-sm-6'p>>",
+                buttons: [{
+                    extend: 'excelHtml5',
+                    text: 'Excel',
+                    className: 'btn buttonColor btn-sm'
+                }],
                 ajax: {
                     url: "{{ url('fetch/scheme-relations') }}",
                     type: "POST",
