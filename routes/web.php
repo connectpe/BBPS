@@ -13,6 +13,7 @@ use App\Http\Controllers\ServiceRequestController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\users\ReportController;
 use App\Http\Controllers\users\UserController;
+use App\Http\Controllers\SupportDashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -30,7 +31,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::prefix('admin')->group(function () {
         Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-
         // Route::get('/dashboard', function () {
         //     return view('dashboard');
         // })->name('dashboard');
@@ -152,6 +152,15 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('update-user-assigned-scheme/{id}', [AdminController::class, 'updateAssignedSchemetoUser'])->name('update_user_assigned_scheme');
     Route::get('delete-assigned-scheme/{id}', [AdminController::class, 'deleteAssignedScheme']);
     Route::post('update-scheme-rule/{id}', [AdminController::class, 'updateSchemeAndRule'])->name('update_scheme_rule');
+
+
+    // support panel route
+    Route::get('/support-userlist', [SupportDashboardController::class, 'supportUserList'])->name('support_userlist');
+    Route::get('/user-assign-to-support', [AdminController::class, 'UserassigntoSupport'])->name('user_assign_to_support');
+
+    Route::prefix('support')->group(function () {
+        Route::get('complaints-report', [SupportDashboardController::class, 'userComplaints'])->name('complaints_report');
+    });
 });
 
 Route::prefix('admin', function () {

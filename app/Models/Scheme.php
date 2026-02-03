@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -8,12 +9,14 @@ class Scheme extends Model
 {
     protected $fillable = ['scheme_name', 'is_active', 'updated_by'];
 
-    /**
-     * Relationship: Ek Scheme ke paas bahut saare Rules ho sakte hain.
-     */
+    protected $casts = [
+        'created_at' => 'datetime:d-m-Y h:i A',
+    ];
+
+    
     public function rules(): HasMany
     {
-        // Yahan 'scheme_id' foreign key hai jo scheme_rules table mein hai
+       
         return $this->hasMany(SchemeRule::class, 'scheme_id', 'id');
     }
 }

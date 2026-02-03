@@ -12,14 +12,15 @@ class Complaint extends Model
     protected $fillable = [
         'reference_number',
         'user_id',
-        'service_name',
+        'service_id',
         'description',
         'status',
         'resolved_at',
-        'admin_notes',
+        'remark',
         'attachment_path',
         'priority',
-        'category',
+        'complaints_category',
+        'updated_by ',
     ];
 
     protected $casts = [
@@ -28,6 +29,16 @@ class Complaint extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    public function service()
+    {
+        return $this->belongsTo(GlobalService::class, 'service_id');
     }
 }
