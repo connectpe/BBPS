@@ -7,7 +7,7 @@
 
 <div class="row g-4">
 
-   @php
+    @php
     use Illuminate\Support\Facades\Auth;
     @endphp
 
@@ -27,8 +27,6 @@
                     ['name' => 'DTH Recharge', 'icon' => 'bi-tv'],
                     ['name' => 'OTT', 'icon' => 'bi-play-btn'],
                     ['name' => 'OTH Recharge', 'icon' => 'bi-phone'],
-                    ['name' => 'Scan Pay', 'icon' => 'bi-qr-code-scan'],
-                    ['name' => 'Uber', 'icon' => 'bi-car-front'],
                     ];
 
                     $colors = ['#f94144','#f3722c','#f8961e','#f9c74f','#90be6d','#43aa8b','#577590','#277da1','#9d4edd','#ff6d00','#1982c4','#6a4c93'];
@@ -56,8 +54,6 @@
         </div>
     </div>
 
-
-
     <!-- Card 3 : Welcome + User Details + Actions -->
     <div class="col-md-4">
         <div class="card shadow-sm h-100 position-relative text-white"
@@ -65,7 +61,7 @@
 
             <div class="card-body d-flex flex-column align-items-center justify-content-between py-4">
                 @php
-                    $user = Auth::user();
+                $user = Auth::user();
                 @endphp
                 <!-- Top Spacer -->
                 <div></div>
@@ -73,14 +69,13 @@
                 <!-- Heading -->
                 <h5 class="fw-bold mb-4 text-center">Welcome <strong class="text-success">{{$user->name}}</strong></h5>
 
-
                 <!-- User Profile Image -->
                 <img src="{{asset('assets\image\user.jpg')}}" alt="User Profile"
                     class="rounded-circle mb-3"
                     style="width:75px; height:75px; object-fit:cover;">
 
                 <!-- Profile Details -->
-               
+
                 <div class="row g-2 small w-100" style="max-width: 300px;">
                     <div class="col-6 opacity-75">User Type</div>
                     <div class="col-6 fw-semibold">E-mail</div>
@@ -94,16 +89,11 @@
                     <div class="col-6 opacity-75">Individual</div>
                     <div class="col-6 fw-semibold">{{$user->email ?? ''}}</div>
                 </div>
-
                 <!-- Bottom Spacer -->
                 <div></div>
-
             </div>
         </div>
     </div>
-
-
-
 </div>
 
 <!-- Row: Date & Text Inputs + Search Button -->
@@ -184,10 +174,6 @@
             </div>
         </div>
     </div>
-
 </div>
-
-
-
 
 @endsection

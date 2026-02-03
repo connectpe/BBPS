@@ -25,7 +25,10 @@ Route::post('admin/login', [AuthController::class, 'login'])->name('admin.login'
 Route::post('verify-otp', [AuthController::class, 'verifyOtp'])->name('verify_otp');
 Route::post('signup', [AuthController::class, 'signup'])->name('admin.signup');
 
-Route::group(['middleware' => ['auth', 'logs']], function () {
+
+// 'logs' : Middleware for the logs.
+
+Route::group(['middleware' => ['auth']], function () {
     Route::prefix('admin')->group(function () {
         Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
@@ -115,7 +118,7 @@ Route::group(['middleware' => ['auth', 'logs']], function () {
     Route::post('fetch/{type}/{id?}/{returntype?}', [CommonController::class, 'fetchData']);
     Route::post('/service-request', [ServiceRequestController::class, 'store'])
         ->name('service.request');
-    Route::post('/service-request/{id}/approve', [ServiceRequestController::class, 'approve'])->name('service.approve');
+    Route::post('service-request-approve-reject', [ServiceRequestController::class, 'approveRejectRequestService'])->name('service_request_approve_reject');
 
     // ladger  Route
     Route::get('/ledger', [LadgerController::class, 'index'])->name('ladger.index');
@@ -149,6 +152,10 @@ Route::group(['middleware' => ['auth', 'logs']], function () {
 
     // Scheme Related Route 
     Route::post('add-scheme-rule', [AdminController::class, 'addSchemeAndRule'])->name('add_scheme_rule');
+
+    Route::post('update-scheme-rule/{id}', [AdminController::class, 'updateSchemeAndRule'])->name('update_scheme_rule');
+    Route::post('assign-scheme', [AdminController::class, 'assignSchemetoUser'])->name('assign_scheme');
+    Route::post('update-user-assigned-scheme/{id}', [AdminController::class, 'updateAssignedSchemetoUser'])->name('update_user_assigned_scheme');
 
 });
 
