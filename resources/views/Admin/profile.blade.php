@@ -193,11 +193,11 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                     data-bs-target="#activity" type="button" role="tab" aria-controls="activity"
                     aria-selected="false">Activity Log</button>
             </li>
-            <li class="nav-item" role="presentation">
+            {{-- <li class="nav-item" role="presentation">
                 <button class="nav-link fw-bold text-dark" id="serviceRequest-tab" data-bs-toggle="tab"
                     data-bs-target="#serviceRequest" type="button" role="tab" aria-controls="serviceRequest"
                     aria-selected="false">Service Request</button>
-            </li>
+            </li> --}}
         </ul>
         <!-- Tabs content -->
         <div class="tab-content border p-3" id="profileTabContent">

@@ -4,18 +4,16 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BbpsRechargeController;
 use App\Http\Controllers\CommonController;
+use App\Http\Controllers\ComplainReportController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\LadgerController;
+use App\Http\Controllers\SchemeController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ServiceRequestController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\users\ReportController;
 use App\Http\Controllers\users\UserController;
-use App\Http\Controllers\LadgerController;
-use App\Http\Controllers\ComplainReportController;
-use App\Http\Controllers\SchemeController;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Str;
 
 Route::get('/', function () {
     return view('Front.user-register');
@@ -75,8 +73,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('admin/service/edit/{id}', [AdminController::class, 'EditService'])
         ->name('admin.service.edit');
 
-
-    // Provider Related Route 
+    // Provider Related Route
     Route::get('providers', [AdminController::class, 'providers'])->name('providers');
     Route::post('add-provider', [AdminController::class, 'addProvider'])->name('add_provider');
     Route::post('edit-provider/{id}', [AdminController::class, 'editProvider'])->name('edit_provider');
@@ -86,11 +83,9 @@ Route::group(['middleware' => ['auth']], function () {
     //     Route::post('/get-plans', [BbpsRechargeController::class, 'getPlans']);
     // });
 
-
     Route::get('services', [ServiceRequestController::class, 'enabledServices'])->name('enabled_services');
     Route::get('request-services', [ServiceRequestController::class, 'index'])->name('request_services');
     Route::post('active-user-service-status', [ServiceController::class, 'activeUserService'])->name('active_user_service_status');
-
 
     // Users Related Route
     Route::get('/users', [UserController::class, 'bbpsUsers'])->name('users');
@@ -133,29 +128,33 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/services/{serviceId}/providers', [UserController::class, 'getServiceProviders'])
         ->name('admin.services.providers');
 
-
     Route::post('/users/{id}/routing/save', [UserController::class, 'saveUserRouting'])
         ->name('admin.users.routing.save');
 
-
-    // Api Log Related Route 
+    // Api Log Related Route
     Route::get('api-log', [UserController::class, 'ApiLog'])->name('api_log');
 
-
     Route::post('/users/{id}/routing/save', [UserController::class, 'saveUserRouting'])
         ->name('admin.users.routing.save');
 
+    // Scheme Report Route
+    Route::get('/schemes', [SchemeController::class, 'index'])->name('schemes.index');
 
-
-        // Scheme Report Route
-    Route::get('/schemes', [SchemeController::class, 'index']) ->name('schemes.index');
-
-    // Scheme Related Route 
+    // Scheme Related Route
     Route::post('add-scheme-rule', [AdminController::class, 'addSchemeAndRule'])->name('add_scheme_rule');
-
+    // Scheme ka data fetch karne ke liye (Edit Modal ke liye)
+    Route::get('edit-scheme/{id}', [AdminController::class, 'editScheme'])->name('edit_scheme');
     Route::post('update-scheme-rule/{id}', [AdminController::class, 'updateSchemeAndRule'])->name('update_scheme_rule');
+
+
+
+    Route::get('edit-assigned-scheme/{id}', [AdminController::class, 'editAssignedScheme']);
     Route::post('assign-scheme', [AdminController::class, 'assignSchemetoUser'])->name('assign_scheme');
     Route::post('update-user-assigned-scheme/{id}', [AdminController::class, 'updateAssignedSchemetoUser'])->name('update_user_assigned_scheme');
+    Route::get('delete-assigned-scheme/{id}', [AdminController::class, 'deleteAssignedScheme']);
+    Route::post('update-scheme-rule/{id}', [AdminController::class, 'updateSchemeAndRule'])->name('update_scheme_rule');
+   
+    
 
 });
 
