@@ -20,5 +20,5 @@ class UserConfig extends Model
     }
 }
 
-}
+
 
