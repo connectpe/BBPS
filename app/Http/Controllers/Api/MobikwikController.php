@@ -449,7 +449,7 @@ class MobikwikController extends Controller
         
     }
 
-    public function payment(Request $requestm,$type)
+    public function mobikwikPayment(Request $request,$type)
     {
         $this->ValidateUsers($request);
         $request->validate([
@@ -457,11 +457,49 @@ class MobikwikController extends Controller
             'operator'=> 'required',
             'circle'=> 'required',
             'amount'=> 'required',
-
+            'requestId'=> 'required',
+            'customerMobile'=>'required',
+            'remitterName'=> 'required',
+            'paymentRefID'=> 'required',
+            'paymentMode'=> 'required',
+            'paymentAccountInfo'=> 'required',
+            'additionalPrm1'=>'nullable',
+            'additionalPrm2'=>'nullable'
         ]);
 
         switch($type){
             case 'mobikwik-payment':
+                try {
+                    $payload = [
+                        "cn" => $request->customerNUmber,
+                        "op" => $request->operator,
+                        "cir" => $request->circle,
+                        "amt" => $request->amount,
+                        "reqid" => $request->requestId,
+                        "customerMobile"=>$request->customerMobile,
+                        "remitterName" => $request->remitterName,
+                        "paymentRefID" => $request->paymentRefID,
+                        "paymentMode" => 'Wallet',
+                        "paymentAccountInfo" => '9999999999',
+                    ];
+                    $mobikwikHelper = new MobiKwikHelper();
+                    $token = $this->isTokenPresent();
+                    $response = $mobikwikHelper->sendRequest(
+                        '/recharge/v3/retailerValidation',
+                        $payload,
+                        $token
+                    );
+
+                    return response()->json([
+                        'status'=> true,
+                        'data'=> $response
+                    ]);
+                } catch (\Exception $e) {
+                    return response()->json([
+                        "status" => false,
+                        "message" => $e->getMessage(),
+                    ]);
+                }
 
 
 
@@ -473,55 +511,92 @@ class MobikwikController extends Controller
                     'message'=> "Some error occur while you are doing the payment"
                 ]);
         }
-        try {
-            $payload = [
-                "cn" => $request->cn,
-                "op" => $request->op,
-                "cir" => $request->cir,
-                "amt" => $request->amt,
-                "reqid" => $request->reqid,
-                "remitterName" => $request->remitterName,
-                "paymentRefID" => $request->paymentRefID,
-                "paymentMode" => $request->paymentMode,
-                "paymentAccountInfo" => $request->paymentAccountInfo,
-            ];
-
-            return $this->encryptedPost(
-                "/recharge/v3/retailerPayment",
-                $payload,
-                $request->bearerToken()
-            );
-        } catch (\Exception $e) {
-            return response()->json([
-                "status" => false,
-                "message" => $e->getMessage(),
-            ]);
-        }
+        
     }
 
-    public function status(Request $request)
-    {
-        try {
-            $payload = [
-                "txId" => $request->txId,
-            ];
+    public function fetchPostpaidBill(Request $request,$type){
+        $this->ValidateUsers($request);
 
-            $data = $this->encryptedPost(
-                "/recharge/v3/retailerStatus",
-                $payload,
-                $request->bearerToken()
-            );
+        $request->validate([
+            'connectionNumber'=> 'required|string',
+            'operatorId'=> 'required|string',
+            'circleId'=> 'required|string',
+            'adParams'=> 'nullable'
+        ]);
 
-            return response()->json([
-                "status" => false,
-                "response" => $data,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                "status" => false,
-                "message" => $e->getMessage(),
-            ]);
+        switch($type){
+            case 'mobikwik-view-bill':
+                $payload = [
+                    'cn'=> $request->connectionNumber,
+                    'op'=> $request->operatorId,
+                    'cir'=> $request->circleId,
+                    'adParams'=> $request->adParams,
+
+                ];
+
+                $mobikwikHelper = new MobiKwikHelper();
+                $token = $this->isTokenPresent();
+
+                $response = $mobikwikHelper->sendRequest(
+                    '/recharge/v3/retailerViewbill',
+                    $payload,
+                    $token
+                );
+
+                return response()->json([
+                    'status'=> false,
+                    'data'=> $response
+                ]);
+
+            break;
+            default:
+                return response()->json([
+                    'status'=> false,
+                    'message'=> 'API Error'
+                ]);
         }
+        
+    }
+
+    public function mobikwikStatus(Request $request,$type)
+    {
+        $this->ValidateUsers($request);
+        $request->validate([
+            'txnId'=> 'required|string',
+        ]);
+
+        switch($type){
+
+            case 'mobikwik-status':
+                try {
+                    $payload = [
+                        "txId" => $request->txId,
+                    ];
+
+                    $data = $this->encryptedPost(
+                        "/recharge/v3/retailerStatus",
+                        $payload,
+                        $request->bearerToken()
+                    );
+
+                    return response()->json([
+                        "status" => false,
+                        "response" => $data,
+                    ]);
+                } catch (\Exception $e) {
+                    return response()->json([
+                        "status" => false,
+                        "message" => $e->getMessage(),
+                    ]);
+                }
+
+            default:
+                return response()->json([
+                    'status'=> false,
+                    'message'=> 'API Error'
+                ]);
+        }
+        
     }
 
     public function viewBill(Request $request)
