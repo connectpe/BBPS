@@ -21,4 +21,20 @@ class OauthUser extends Model
     {
         return $this->hasOne(GlobalService::class, 'id', 'service_id');
     }
+
+    /**
+     * Verify client secret
+     * 
+     * @param string $plainSecret
+     * @return bool
+     */
+    public function verifyClientSecret($plainSecret)
+    {
+        try {
+            $decryptedSecret = decrypt($this->client_secret);
+            return $decryptedSecret === $plainSecret;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
 }
