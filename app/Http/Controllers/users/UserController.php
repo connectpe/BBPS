@@ -367,7 +367,9 @@ class UserController extends Controller
             $userId = auth()->id();
 
             $clientId = 'RAFI' . strtoupper($request->service) . '_' . Str::random(16);
-            $clientSecret = hash('sha256', Str::random(32) . now());
+            $plainSecret = Str::random(32);
+            $encryptedSecret = encrypt($plainSecret);
+            
             $secretCount = OauthUser::where('user_id', $userId)
                 ->where('service_id', $service->id)
                 ->count();
@@ -383,7 +385,7 @@ class UserController extends Controller
                 'user_id' => $userId,
                 'service_id' => $service->id,
                 'client_id' => $clientId,
-                'client_secret' => $clientSecret,
+                'client_secret' => $encryptedSecret,
                 'is_active' => '1',
             ]);
 
@@ -394,7 +396,7 @@ class UserController extends Controller
                 'message' => 'Client credentials generated successfully',
                 'data' => [
                     'client_id' => $credential->client_id,
-                    'client_secret' => $credential->client_secret,
+                    'client_secret' => $plainSecret,
                 ],
             ], 201);
         } catch (\Exception $e) {

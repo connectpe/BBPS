@@ -21,7 +21,7 @@ use Illuminate\Contracts\Support\ValidatedData;
 use Illuminate\Support\Facades\Validator;
 
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
+
 use Illuminate\Support\Str;
 
 class AdminController extends Controller
@@ -561,7 +561,9 @@ class AdminController extends Controller
             'scheme' => $scheme,
         ]);
     }
-
+    public function updateSchemeAndRule(Request $request, $schemeId)
+    {
+      
         try {
             $validator = Validator::make($request->all(), [
                 'scheme_name' => 'required|string|max:255|unique:schemes,scheme_name',
@@ -671,147 +673,7 @@ class AdminController extends Controller
 
 
 
-    public function updateSchemeAndRule(Request $request, $schemeId)
-    {
-        // Validation
-        $validator = Validator::make($request->all(), [
-
-            'scheme_name' => 'required|string|max:255|unique:schemes,scheme_name,'.$schemeId,
-            'rules' => 'required|array|min:1',
-            'rules.*.rule_id' => 'nullable|integer|exists:scheme_rules,id',
-            'rules.*.service_id' => 'required|integer|exists:global_services,id',
-            'rules.*.start_value' => 'required|numeric|min:0',
-            'rules.*.end_value' => 'required|numeric|gte:rules.*.start_value',
-            'rules.*.type' => 'required|in:Percentage,Fixed',
-            'rules.*.fee' => 'required|numeric|min:0',
-            'rules.*.min_fee' => 'required|numeric|min:0',
-            'rules.*.max_fee' => 'required|numeric|gte:rules.*.min_fee',
-            'rules.*.is_active' => 'nullable|boolean',
-
-        ], [
-            'scheme_name.required' => 'Scheme name is required.',
-            'scheme_name.string' => 'Scheme name must be a string.',
-            'scheme_name.max' => 'Scheme name may not be greater than 255 characters.',
-
-            'rules.required' => 'At least one rule is required.',
-            'rules.array' => 'Rules must be an array.',
-            'rules.min' => 'At least one rule must be provided.',
-
-            'rules.*.service_id.required' => 'Service ID is required.',
-            'rules.*.service_id.integer' => 'Service ID must be a number.',
-            'rules.*.service_id.exists' => 'Selected service does not exist.',
-
-            'rules.*.start_value.required' => 'Start value is required.',
-            'rules.*.start_value.numeric' => 'Start value must be a number.',
-            'rules.*.start_value.min' => 'Start value must be at least 0.',
-
-            'rules.*.end_value.required' => 'End value is required.',
-            'rules.*.end_value.numeric' => 'End value must be a number.',
-            'rules.*.end_value.gte' => 'End value must be greater than or equal to start value.',
-
-            'rules.*.type.required' => 'Type is required.',
-            'rules.*.type.in' => 'Type must be either Percentage or Fixed.',
-
-            'rules.*.fee.required' => 'Fee is required.',
-            'rules.*.fee.numeric' => 'Fee must be a number.',
-            'rules.*.fee.min' => 'Fee must be at least 0.',
-
-            'rules.*.min_fee.required' => 'Minimum fee is required.',
-            'rules.*.min_fee.numeric' => 'Minimum fee must be a number.',
-            'rules.*.min_fee.min' => 'Minimum fee must be at least 0.',
-
-            'rules.*.max_fee.required' => 'Maximum fee is required.',
-
-            'rules.*.max_fee.numeric'  => 'Maximum fee must be a number.',
-            'rules.*.max_fee.gte'      => 'Maximum fee must be greater than or equal to minimum fee.',
-
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Validation Error',
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
-        DB::beginTransaction();
-
-        try {
-
-            $updatedBy = Auth::user()->id;
-            $scheme = Scheme::findOrFail($schemeId);
-
-
-            if (!$scheme) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Scheme not found'
-
-                ]);
-            }
-
-            $scheme->update([
-                'scheme_name' => $request->scheme_name,
-                'updated_by' => $updatedBy,
-            ]);
-
-            $existingRuleIds = [];
-
-            foreach ($request->rules as $ruleData) {
-                if (! empty($ruleData['rule_id'])) {
-                    // Update existing rule
-                    $rule = SchemeRule::findOrFail($ruleData['rule_id']);
-                    $rule->update([
-                        'service_id' => $ruleData['service_id'],
-                        'start_value' => (float) $ruleData['start_value'],
-                        'end_value' => (float) $ruleData['end_value'],
-                        'type' => $ruleData['type'],
-                        'fee' => (float) $ruleData['fee'],
-                        'min_fee' => (float) $ruleData['min_fee'],
-                        'max_fee' => (float) $ruleData['max_fee'],
-                        'updated_by' => $updatedBy,
-                    ]);
-
-                    $existingRuleIds[] = $rule->id;
-                } else {
-                    // Insert new rule
-                    $newRule = SchemeRule::create([
-                        'scheme_id' => $scheme->id,
-                        'service_id' => $ruleData['service_id'],
-                        'start_value' => (float) $ruleData['start_value'],
-                        'end_value' => (float) $ruleData['end_value'],
-                        'type' => $ruleData['type'],
-                        'fee' => (float) $ruleData['fee'],
-                        'min_fee' => (float) $ruleData['min_fee'],
-                        'max_fee' => (float) $ruleData['max_fee'],
-                        'updated_by' => $updatedBy,
-                    ]);
-
-                    $existingRuleIds[] = $newRule->id;
-                }
-            }
-
-            // Optional: delete rules removed from the request
-            SchemeRule::where('scheme_id', $scheme->id)
-                ->whereNotIn('id', $existingRuleIds)
-                ->delete();
-
-            DB::commit();
-
-            return response()->json([
-                'status' => true,
-                'message' => 'Scheme and Rules Updated Successfully',
-            ], 200);
-        } catch (\Exception $e) {
-            DB::rollBack();
-
-            return response()->json([
-                'status' => false,
-                'message' => 'Error: '.$e->getMessage(),
-            ], 500);
-        }
-    }
+    
 
     public function assignSchemetoUser(Request $request)
     {
@@ -977,54 +839,7 @@ class AdminController extends Controller
         }
     }
 
-    public function assignSchemetoUser(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'user_id' => 'required|exists:users,id|unique:user_configs,user_id',
-            'scheme_id' => 'required|exists:schemes,id',
-        ], [
-            'user_id.required' => 'User Id is required',
-            'user_id.exists' => 'User Id doesn\'t exists',
-            'user_id.unique' => 'Scheme already assigned to this user',
-
-            'scheme_id.required' => 'Scheme Id is required',
-            'scheme_id.exists' => 'Scheme Id doesn\'t exists',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Validation Error',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        DB::beginTransaction();
-        try {
-
-            $updatedBy = Auth::user()->id;
-
-            $data = [
-                'user_id' => $request->user_id,
-                'scheme_id' => $request->scheme_id,
-                'updated_by' => $updatedBy,
-            ];
-
-            $insert = UserConfig::create($data);
-
-            DB::commit();
-            return response()->json([
-                'status' => true,
-                'message' => "Scheme assigned Successfully",
-            ]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
-            ]);
-        }
-    }
+    
 
     public function deleteAssignedScheme($id)
     {
@@ -1046,62 +861,7 @@ class AdminController extends Controller
     }
 
 
-    public function updateAssignedSchemetoUser(Request $request, $configId)
-    {
-        $validator = Validator::make($request->all(), [
-            'user_id' => 'required|exists:users,id|unique:user_configs,user_id,' . $configId,
-            'scheme_id' => 'required|exists:schemes,id',
-        ], [
-            'user_id.required' => 'User Id is required',
-            'user_id.exists' => 'User Id doesn\'t exists',
-            'user_id.unique' => 'Scheme already assigned to this user',
-
-            'scheme_id.required' => 'Scheme Id is required',
-            'scheme_id.exists' => 'Scheme Id doesn\'t exists',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Validation Error',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        DB::beginTransaction();
-        try {
-
-            $config = UserConfig::find($configId);
-            $updatedBy = Auth::user()->id;
-
-            if (!$config) {
-                return response()->json([
-                    'status' => false,
-                    'message' => "User Configuration not found",
-                ]);
-            }
-
-            $data = [
-                'user_id' => $request->user_id,
-                'scheme_id' => $request->scheme_id,
-                'updated_by' => $updatedBy,
-            ];
-
-            $update =  $config->update($data);
-
-            DB::commit();
-            return response()->json([
-                'status' => true,
-                'message' => "User Configuration Updated Successfully",
-            ]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'status' => false,
-                'message' => "Error : " . $e->getMessage()
-            ]);
     
+
     }
 
-
-}
