@@ -8,6 +8,11 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Client\ConnectionException;
 use App\Models\MobikwikToken;
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use App\Jobs\MobikwikPaymentApiCallJob;
+use App\Helpers\CommonHelper;
+
 
 class BbpsRechargeController extends Controller
 {
@@ -24,6 +29,77 @@ class BbpsRechargeController extends Controller
         $this->clientSecret = config('mobikwik.client_secret');
         $this->clientId     = config('mobikwik.client_id');
         // $this->publicKey     = file_get_contents(config('mobikwik.public_key'));
+    }
+
+    public function mpinAuth(Request $request)
+    {
+        try {
+            // dd($request->all());
+            $request->validate([
+                'mpin' => 'required|numeric',
+                'mobile' => 'required|string',
+                'operator_id' => 'required|string',
+                'circle_id' => 'required|string',
+                'amount' => 'required|string',
+                'plan_id' => 'required|string',
+            ]);
+            // dd($request->mpin);
+
+            $userid = Auth::id();
+
+            if (!$userid) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User not authenticated',
+                ]);
+            }
+
+            $user = User::where('id', $userid)->first();
+
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User not found',
+                ]);
+            }
+
+            if ($request->mpin != 1122) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Invalid MPIN',
+                ]);
+            }
+
+            $commonHelper = new CommonHelper();
+
+            $payload = [
+                'cn' => $request->mobile,
+                'op' => $request->operator_id,
+                'cir' => $request->circle_id,
+                'amt' => $request->amount,
+                'customerMobile' => $request->mobile,
+                'remitterName' => $user->name,
+                'paymentMode' => 'Wallet',
+                'paymentAccountInfo' => $user->mobile,
+                'reqid' => $commonHelper->generateTransactionId(),
+                'paymentRefID' => $commonHelper->generatePaymentRefId(),
+                'plan' => $request->plan_id,
+                'userid' => $userid,
+            ];
+
+            // Dispatch the job to handle the API call
+            MobikwikPaymentApiCallJob::dispatch($payload);
+
+            return response()->json([
+                'status'  => 'Success',
+                'message' => 'MPIN verified. Recharge processing started.',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
     }
 
     public function getPlans($operator_id, $circle_id, $plan_type = null)
@@ -101,27 +177,6 @@ class BbpsRechargeController extends Controller
         }
     }
 
-    protected function isTokenPresent()
-    {
-        try {
-            $data =  MobikwikToken::whereDate('created_at', today())->select('token')->first();
-            $token = '';
-            if (!$data) {
-                $mobikwikHelper = new MobiKwikHelper();
-                $token = $mobikwikHelper->generateMobikwikToken();
-            } else {
-                $token = $data->token;
-            }
-            return $token;
-        } catch (\Exception $e) {
-            Log::error('Mobikwik Token Present Exception', [
-                'error' => $e->getMessage(),
-                'file'  => $e->getFile(),
-                'line'  => $e->getLine(),
-            ]);
-        }
-    }
-
     public function balance(Request $request)
     {
         try {
@@ -134,7 +189,7 @@ class BbpsRechargeController extends Controller
             ];
 
             $mobikwikHelper = new MobiKwikHelper();
-            $token = $this->isTokenPresent();
+            $token = CommonHelper::isTokenPresent();
 
             $response = $mobikwikHelper->sendRequest(
                 '/recharge/v3/retailerBalance',
@@ -197,7 +252,8 @@ class BbpsRechargeController extends Controller
             ];
 
             $mobikwikHelper = new MobiKwikHelper();
-            $token = $this->isTokenPresent();
+            // $commonHelper = new CommonHelper();
+            $token = CommonHelper::isTokenPresent();
 
             $response = $mobikwikHelper->sendRequest(
                 '/recharge/v3/retailerValidation',
@@ -217,6 +273,18 @@ class BbpsRechargeController extends Controller
     public function payment(Request $request)
     {
         try {
+            $request->validate([
+                'cn'                  => 'required|string',
+                'op'                  => 'required|string',
+                'cir'                 => 'required|string',
+                'amt'                 => 'required|string',
+                'reqid'               => 'required|string',
+                'remitterName'        => 'required|string',
+                'paymentRefID'        => 'required|string',
+                'paymentMode'         => 'required|string',
+                'paymentAccountInfo'  => 'required|string',
+            ]);
+
             $payload = [
                 'cn'                  => $request->cn,
                 'op'                  => $request->op,
@@ -229,10 +297,13 @@ class BbpsRechargeController extends Controller
                 'paymentAccountInfo'  => $request->paymentAccountInfo,
             ];
 
-            return $this->encryptedPost(
+            $mobikwikHelper = new MobiKwikHelper();
+            $token = CommonHelper::isTokenPresent();
+
+            return $mobikwikHelper->sendRequest(
                 '/recharge/v3/retailerPayment',
                 $payload,
-                $request->bearerToken()
+                $token
             );
         } catch (\Exception $e) {
             return response()->json([

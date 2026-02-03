@@ -399,8 +399,6 @@ class MobikwikController extends Controller
             'adParams'=> []
         ]);
 
-        
-
         switch($type){
             case "mobiwik-recharge-validation":
                     try {

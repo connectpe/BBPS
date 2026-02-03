@@ -361,6 +361,64 @@
     </div>
 </div>
 
+<!-- Mpin model to enter mpin  -->
+<div class="modal fade" id="mpinModal" tabindex="-1" aria-labelledby="mpinModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <form id="mpinForm" onsubmit="submitMpin(event)">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="mpinModalLabel">Enter MPIN</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body text-center">
+                    <p class="text-muted mb-3">
+                        Please enter your 4-digit MPIN to proceed with recharge
+                    </p>
+
+                    <!-- MPIN INPUT -->
+                    <input
+                        type="password"
+                        name="mpin"
+                        id="mpinInput"
+                        class="form-control text-center fw-bold"
+                        maxlength="4"
+                        inputmode="numeric"
+                        placeholder="Enter your MPIN"
+                        style="letter-spacing: 10px; font-size: 22px;"
+                        required />
+
+                    <input type="hidden" name="amount" id="rechargeAmount">
+                    <input type="hidden" name="mobile" id="rechargeMobile">
+                    <input type="hidden" name="operator_id" id="rechargeOperatorId">
+                    <input type="hidden" name="circle_id" id="rechargeCircleId">
+                    <input type="hidden" name="plan_id" id="rechargePlanId">
+
+                    <div class="text-danger mt-2 d-none" id="mpinError">
+                        Invalid MPIN
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+
+                    <button type="submit" class="btn btn-primary">
+                        Confirm Recharge
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+
+
 @php
 
 $rechargeOperators = [
@@ -1009,17 +1067,109 @@ $rechargePlanTypes = [
             })
             .then(res => res.json())
             .then(res => {
-                if (!res.success) {
-                    alert(res.message || 'Validation failed');
-                    return;
-                }
+                if (res.message?.code === "RECHARGEVALIDATIONSUCCESS") {
 
-                console.log('Validation Success', res);
+                    Swal.fire({
+                        icon: 'error',
+                        title: `<span style="font-size:15px; color: #AA4A44;">${res.message?.code || 'N/A'}</span>`,
+                        html: `<p>${res.message?.text || 'Validation failed. Please try again.'}</p>`,
+                        confirmButtonText: 'OK'
+                    });
+                    return;
+
+                } else if (res.message?.code === "RECHARGEVALIDATIONFAILURE") {
+
+                    const currentModalEl = document.querySelector('#rechargeModal.modal.show');
+
+                    if (currentModalEl) {
+                        const currentModal = bootstrap.Modal.getInstance(currentModalEl);
+                        currentModal.hide();
+                    }
+
+                    document.getElementById('rechargeAmount').value = selectedMeta.amount;
+                    document.getElementById('rechargeMobile').value = selectedMeta.mobile;
+                    document.getElementById('rechargeOperatorId').value = selectedMeta.operator_id;
+                    document.getElementById('rechargeCircleId').value = selectedMeta.circle_id;
+                    document.getElementById('rechargePlanId').value = selectedMeta.plan_id;
+
+                    // Open MPIN modal
+                    const mpinModal = new bootstrap.Modal(
+                        document.getElementById('mpinModal')
+                    );
+                    mpinModal.show();
+
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: `<span style="font-size:15px; color: #AA4A44;">${res.message|| 'N/A'}</span>`,
+                        html: `<p>${res.message || 'Validation failed. Please try again.'}</p>`,
+                        confirmButtonText: 'OK'
+                    });
+                }
 
             })
             .catch(err => {
                 console.error(err);
                 alert('Recharge validation error');
+            });
+    }
+
+    function submitMpin(e) {
+        e.preventDefault();
+
+        const form = document.getElementById('mpinForm');
+        const formData = new FormData(form);
+
+        const mpin = formData.get('mpin');
+
+        if (!/^\d{4}$/.test(mpin)) {
+            document.getElementById('mpinError').classList.remove('d-none');
+            return;
+        }
+        document.getElementById('mpinError').classList.add('d-none');
+
+        fetch("{{ route('bbps.mpin_auth') }}", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+            .then(res => res.json())
+            .then(res => {
+                if (res.status == 'Success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'MPIN Verified',
+                        html: res.message?.text || res.message || 'MPIN verified successfully',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        // hide modal after user clicks OK
+                        const mpinModalEl = document.getElementById('mpinModal');
+                        const mpinModal = bootstrap.Modal.getInstance(mpinModalEl);
+                        if (mpinModal) mpinModal.hide();
+
+                        // clear MPIN input for next time
+                        document.getElementById('mpinInput').value = '';
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'MPIN Verification Failed',
+                        html: `<p>${res.message?.text || res.message || 'There was an error verifying your MPIN.'}</p>`,
+                        confirmButtonText: 'OK'
+                    });
+                }
+
+            })
+            .catch(err => {
+                console.error(err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Something went wrong',
+                    text: err.message || 'An error occurred while processing your request.',
+                    confirmButtonText: 'OK'
+                });
             });
     }
 </script>
