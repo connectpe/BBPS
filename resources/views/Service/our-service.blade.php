@@ -369,7 +369,7 @@
 
         $('#resetFilterServicesTable').on('click', function() {
             $('#userId').val('');
-            $('#serviceId').val('');
+            $('#globalService').val('');
             $('#date_from').val('');
             $('#date_to').val('');
             table.ajax.reload();
