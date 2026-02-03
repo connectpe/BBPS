@@ -1,11 +1,10 @@
 @extends('layouts.app')
 
 @section('title', 'Support Assignment')
-@section('page-title', 'Support Assignment')
+@section('page-title', 'Support')
 
 @section('content')
     <div class="container-fluid py-4">
-
         <div class="row">
             <div class="col-12">
                 <div class="accordion mb-3" id="filterAccordion">
@@ -18,12 +17,12 @@
                         </h2>
                         <div id="collapseFilter" class="accordion-collapse collapse">
                             <div class="accordion-body">
-                                <div class="row align-items-end g-2">
+                               <div class="row align-items-end g-2">
                                     <div class="col-md-3">
                                         <label class="form-label small fw-bold">User Name</label>
-                                        <select id="filterUser" class="form-select searchable-filter">
+                                        <select id="filterUser" class="form-select">
                                             <option value="">-- All Assigned Users --</option>
-                                          
+
                                                 <option value="User">User</option>
                                             
                                         </select>
@@ -31,7 +30,7 @@
 
                                     <div class="col-md-3">
                                         <label class="form-label small fw-bold">Support Name</label>
-                                        <select id="filterSupport" class="form-select searchable-filter">
+                                        <select id="filterSupport" class="form-select">
                                             <option value="">-- All Assigned Support --</option>
                                                 <option value="Support">Support</option>
                                         </select>
@@ -93,16 +92,18 @@
                             <select name="user_id[]" id="user_id" class="form-control searchable-select"
                                 multiple="multiple" required>
                                 @foreach ($users as $user)
-                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                    @php $isAssigned = in_array($user->id, $alreadyAssignedIds); @endphp
+                                    <option value="{{ $user->id }}" data-assigned="{{ $isAssigned ? 'true' : 'false' }}">
+                                        {{ $user->name }}
+                                    </option>
                                 @endforeach
                             </select>
-                            
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label small fw-bold">Assign To Support</label>
                             <select name="assined_to" id="assined_to" class="form-select shadow-none" required>
-                                <option value="" selected disabled>-- Select Support Staff --</option>
+                                <option value="" selected disabled>-- Select Support --</option>
                                 @foreach ($supportStaffs as $staff)
                                     <option value="{{ $staff->id }}">{{ $staff->name }}</option>
                                 @endforeach
@@ -118,6 +119,8 @@
         </div>
     </div>
 
+    
+
     <script>
         $(document).ready(function() {
             $.ajaxSetup({
@@ -125,18 +128,41 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
+            function formatUserOption(state) {
+                if (!state.id) return state.text;
+                var isAssigned = $(state.element).data('assigned');
+                var editingUserId = window.currentEditingUserId || null;
+
+                if ((isAssigned === true || isAssigned === "true") && state.id != editingUserId) {
+                    return $('<div class="d-flex justify-content-between align-items-center"><span>' + state.text + '</span><span class="text-success small fw-bold">Assigned <i class="fas fa-check"></i></span></div>');
+                }
+                return state.text;
+            }
 
             let userSelect = $('.searchable-select').select2({
                 dropdownParent: $('#assignSupportModal'),
                 width: '100%',
                 placeholder: "-- Search & Select Users --",
                 allowClear: true,
+                templateResult: formatUserOption, 
                 closeOnSelect: false
             });
 
+            $('.searchable-filter').select2({ width: '100%', allowClear: true });
+
             $('#btnAddNew').click(function() {
+                window.currentEditingUserId = null; 
                 $('#assignment_id').val('');
                 $('#assignSupportForm')[0].reset();
+                
+                $('#user_id option').each(function() {
+                    if ($(this).data('assigned') == true || $(this).data('assigned') == "true") {
+                        $(this).prop('disabled', true);
+                    } else {
+                        $(this).prop('disabled', false);
+                    }
+                });
+
                 $('#user_id').val(null).trigger('change');
                 $('#modalTitle').text('Assign Support Staff');
                 $('#assignSupportModal').modal('show');
@@ -155,8 +181,10 @@
                 ajax: {
                     url: "{{ url('fetch/support-assignments') }}",
                     type: "POST",
-                    data: {
-                        _token: "{{ csrf_token() }}"
+                    data: function(d) {
+                        d._token = "{{ csrf_token() }}";
+                        d.user_id = $('#filterUser').val();
+                        d.assined_to = $('#filterSupport').val();
                     }
                 },
                 columns: [{
@@ -187,6 +215,9 @@
                     }
                 ]
             });
+
+            
+
             $(document).on('click', '.edit-btn', function() {
                 let id = $(this).data('id');
                 $.ajax({
@@ -195,6 +226,15 @@
                     success: function(res) {
                         if (res.status) {
                             $('#assignment_id').val(res.data.id);
+                            window.currentEditingUserId = res.data.user_id;
+                            $('#user_id option').each(function() {
+                                if ($(this).val() == res.data.user_id) {
+                                    $(this).prop('disabled', false);
+                                } else if ($(this).data('assigned') == true || $(this).data('assigned') == "true") {
+                                    $(this).prop('disabled', true);
+                                }
+                            });
+
                             $('#user_id').val([res.data.user_id]).trigger('change');
                             $('#assined_to').val(res.data.assined_to);
 
@@ -219,9 +259,9 @@
                             Swal.fire('Success!', res.message, 'success');
                             $('#assignSupportModal').modal('hide');
                             $('#assignSupportForm')[0].reset();
-                            $('#user_id').val(null).trigger(
-                                'change');
+                            $('#user_id').val(null).trigger('change');
                             supportTable.ajax.reload();
+                            location.reload(); 
                         } else {
                             Swal.fire('Error!', res.message, 'error');
                         }
@@ -236,7 +276,7 @@
                 });
             });
 
-            $(document).on('click', '.delete-btn', function() {
+              $(document).on('click', '.delete-btn', function() {
                 let id = $(this).data('id');
                 Swal.fire({
                     title: 'Are you sure?',

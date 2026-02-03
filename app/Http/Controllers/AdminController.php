@@ -834,6 +834,8 @@ class AdminController extends Controller
     {
         $data['users'] = User::whereNotIn('role_id', [1, 4])->where('status', '1')->get();
         $data['supportStaffs'] = User::where('role_id', 4)->where('status', '1')->get();
+        $data['alreadyAssignedIds'] = UserAssignedToSupport::pluck('user_id')->toArray();
+
         return view('AssignuserSupport.index', $data);
     }
 
@@ -853,18 +855,6 @@ class AdminController extends Controller
             $updatedBy = auth()->id();
             $userIds = $request->user_id;
             $isEdit = $request->filled('assignment_id');
-            $query = UserAssignedToSupport::whereIn('user_id', $userIds);
-            if ($isEdit) {
-                $query->where('id', '!=', $request->assignment_id);
-            }
-            $alreadyAssigned = $query->pluck('user_id')->toArray();
-            if (! empty($alreadyAssigned)) {
-                $userNames = User::whereIn('id', $alreadyAssigned)->pluck('name')->implode(', ');
-                return response()->json([
-                    'status' => false,
-                    'message' => 'The users are already assigned: '.$userNames,
-                ], 422);
-            }
             if ($isEdit) {
                 UserAssignedToSupport::where('id', $request->assignment_id)->delete();
                 $msg = 'Assignment updated successfully!';
