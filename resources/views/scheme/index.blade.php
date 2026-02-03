@@ -22,26 +22,6 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($schemes as $key => $scheme)
-                            <tr>
-                                <td>{{ $key + 1 }}</td>
-                                <td class="text-primary scheme-name-text">{{ $scheme->scheme_name }}</td>
-                                <td>
-                                    @if ($scheme->is_active == '1')
-                                        <span class="badge bg-success">Active</span>
-                                    @else
-                                        <span class="badge bg-danger">Inactive</span>
-                                    @endif
-                                </td>
-                                <td>{{ $scheme->created_at }}</td>
-                                <td>
-                                    <button class="btn btn-sm btn-outline-primary edit-scheme-btn"
-                                        data-id="{{ $scheme->id }}">
-                                         <i class="fas fa-edit"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -98,24 +78,6 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($relations as $index => $rel)
-                            <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td>{{ $rel->user->name ?? 'N/A' }}</td>
-                                <td>{{ $rel->user->email ?? 'N/A' }}</td>
-                                <td>{{ $rel->scheme->scheme_name ?? 'N/A' }}</td>
-                                <td class="text-center">
-                                    <button class="btn btn-sm btn-outline-primary edit-assigned-btn"
-                                        data-id="{{ $rel->id }}">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger delete-assigned-btn"
-                                        data-id="{{ $rel->id }}">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -139,7 +101,6 @@
                                 <input type="text" name="scheme_name" id="scheme_name" class="form-control shadow-none"
                                     placeholder="Enter scheme name" required>
                             </div>
-
                         </div>
                         <div class="table-responsive">
                             <table class="table table-sm table-bordered text-center" id="rulesTable">
@@ -209,7 +170,8 @@
                         </div>
                     </div>
                     <div class="modal-footer border-top-0">
-                        <button type="button" class="btn btn-secondary btn-sm px-4" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-secondary btn-sm px-4"
+                            data-bs-dismiss="modal">Close</button>
                         <button type="submit" class="btn btn-primary btn-sm px-4" id="assignSubmitBtn">Submit</button>
                     </div>
                 </form>
@@ -237,16 +199,92 @@
                 });
             });
 
-            $('#schemeTable, #relationTable').DataTable({
+            let schemeTable = $('#schemeTable').DataTable({
+                processing: true,
+                serverSide: true,
                 dom: "<'row mb-2'<'col-sm-4'l><'col-sm-4'f><'col-sm-4 text-end'B>>" +
                     "<'row'<'col-12'tr>>" + "<'row mt-2'<'col-sm-6'i><'col-sm-6'p>>",
                 buttons: [{
                     extend: 'excelHtml5',
                     text: 'Excel',
                     className: 'btn btn-success btn-sm'
-                }]
+                }],
+                ajax: {
+                    url: "{{ url('fetch/schemes') }}",
+                    type: "POST"
+                },
+                columns: [{
+                        data: null,
+                        render: (data, type, row, meta) => meta.row + meta.settings._iDisplayStart + 1
+                    },
+                    {
+                        data: 'scheme_name',
+                        name: 'scheme_name',
+                        className: 'text-primary'
+                    },
+                    {
+                        data: 'is_active',
+                        render: data => data == '1' ? '<span class="badge bg-success">Active</span>' :
+                            '<span class="badge bg-danger">Inactive</span>'
+                    },
+                    {
+                        data: 'created_at',
+                        name: 'created_at'
+                    },
+                    {
+                        data: 'id',
+                        orderable: false,
+                        render: id =>
+                            `<button class="btn btn-sm btn-outline-primary edit-scheme-btn" data-id="${id}"><i class="fas fa-edit"></i></button>`
+                    }
+                ]
             });
 
+            let relationTable = $('#relationTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "{{ url('fetch/scheme-relations') }}",
+                    type: "POST",
+                    data: function(d) {
+                        d._token = "{{ csrf_token() }}";
+                        d.user_id = $('#filter_user').val();
+                        d.scheme_id = $('#filter_scheme').val();
+                    },
+                    error: function(xhr) {
+                        console.log("Error details:", xhr.responseText);
+                    }
+                },
+                columns: [{
+                        data: null,
+                        render: (data, type, row, meta) => meta.row + meta.settings._iDisplayStart + 1
+                    },
+                    {
+                        data: 'user.name',
+                        name: 'user.name',
+                        defaultContent: 'N/A'
+                    },
+                    {
+                        data: 'user.email',
+                        name: 'user.email',
+                        defaultContent: 'N/A'
+                    },
+                    {
+                        data: 'scheme.scheme_name',
+                        name: 'scheme.scheme_name',
+                        defaultContent: 'N/A'
+                    },
+                    {
+                        data: 'id',
+                        className: 'text-center',
+                        orderable: false,
+                        render: id =>
+                            `
+                            <button class="btn btn-sm btn-outline-primary edit-assigned-btn" data-id="${id}"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-outline-danger delete-assigned-btn" data-id="${id}"><i class="fas fa-trash"></i></button>`
+                    }
+                ]
+            });
             const globalServices = @json($globalServices);
 
             function getRowHtml(data = {}) {
@@ -289,7 +327,6 @@
                         if (res.status) {
                             $('#scheme_id').val(res.scheme.id);
                             $('#scheme_name').val(res.scheme.scheme_name);
-                            $('#scheme_status').val(res.scheme.is_active);
                             res.scheme.rules.forEach(rule => {
                                 $('#rulesTable tbody').append(getRowHtml(rule));
                             });
@@ -302,12 +339,13 @@
             $('#addMoreRules').click(function() {
                 $('#rulesTable tbody').append(getRowHtml());
             });
+
             $(document).on('click', '.remove-row', function() {
                 $(this).closest('tr').remove();
             });
+
             $('#schemeForm').on('submit', function(e) {
                 e.preventDefault();
-
                 let rules = [];
                 $('.rule-row').each(function() {
                     rules.push({
@@ -329,11 +367,10 @@
 
                 $.ajax({
                     url: url,
-                    type: "POST", 
+                    type: "POST",
                     data: {
-                        _token: "{{ csrf_token() }}", 
+                        _token: "{{ csrf_token() }}",
                         scheme_name: $('#scheme_name').val(),
-                        scheme_status: $('#scheme_status').val(),
                         rules: rules
                     },
                     beforeSend: function() {
@@ -342,24 +379,24 @@
                     success: function(res) {
                         if (res.status) {
                             Swal.fire({
-                                icon: 'success',
-                                title: 'Success!',
-                                text: res.message,
-                                timer: 1500,
-                                showConfirmButton: false
-                            }).then(() => location.reload());
+                                    icon: 'success',
+                                    title: 'Success!',
+                                    text: res.message,
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                })
+                                .then(() => location.reload());
                         } else {
                             Swal.fire('Error', res.message, 'error');
                             $('#submitBtn').prop('disabled', false).text('Save Changes');
                         }
                     },
-                    error: function(xhr) {
+                    error: function() {
                         $('#submitBtn').prop('disabled', false).text('Save Changes');
-                        console.log(xhr.responseText);
-                        Swal.fire('Failed', 'Something went wrong on the server.', 'error');
                     }
                 });
             });
+
             $('.btn-assign-new').click(function() {
                 $('#assignModalTitle').text('Assign Scheme to User');
                 $('#config_id').val('');
@@ -371,7 +408,7 @@
                 let id = $(this).data('id');
                 $('#assignModalTitle').text('Update Assigned Scheme');
                 $.ajax({
-                    url: "{{ url('edit-assigned-scheme') }}/" + id, 
+                    url: "{{ url('edit-assigned-scheme') }}/" + id,
                     type: "GET",
                     success: function(res) {
                         if (res.status) {
@@ -389,7 +426,6 @@
                 let configId = $('#config_id').val();
                 let url = configId ? "{{ url('update-user-assigned-scheme') }}/" + configId :
                     "{{ route('assign_scheme') }}";
-
                 $.ajax({
                     url: url,
                     type: "POST",
@@ -400,12 +436,13 @@
                     success: function(res) {
                         if (res.status) {
                             Swal.fire({
-                                icon: 'success',
-                                title: 'Success!',
-                                text: res.message,
-                                timer: 1500,
-                                showConfirmButton: false
-                            }).then(() => location.reload());
+                                    icon: 'success',
+                                    title: 'Success!',
+                                    text: res.message,
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                })
+                                .then(() => location.reload());
                         }
                     },
                     error: function(err) {
@@ -415,30 +452,17 @@
                     }
                 });
             });
-            
+
             $('#searchBtn').on('click', function() {
-                let userText = $('#filter_user option:selected').text().trim();
-                let schemeText = $('#filter_scheme option:selected').text().trim();
-
-                let table = $('#relationTable').DataTable();
-                if ($('#filter_user').val() == "") userText = "";
-                if ($('#filter_scheme').val() == "") schemeText = "";
-                table.column(1).search(userText);
-                table.column(3).search(schemeText);
-
-                table.draw(); 
+                relationTable.ajax.reload();
             });
 
             $(document).on('click', '.delete-assigned-btn', function() {
                 let id = $(this).data('id');
-
                 Swal.fire({
                     title: 'Are you sure?',
-                    text: "You want to delete this user relation!",
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
                     confirmButtonText: 'Yes, delete it!'
                 }).then((result) => {
                     if (result.isConfirmed) {
@@ -448,18 +472,13 @@
                             success: function(res) {
                                 if (res.status) {
                                     Swal.fire({
-                                        icon: 'success',
-                                        title: 'Deleted!',
-                                        text: res.message,
-                                        timer: 1500,
-                                        showConfirmButton: false
-                                    }).then(() => location.reload());
-                                } else {
-                                    Swal.fire('Error!', res.message, 'error');
+                                            icon: 'success',
+                                            title: 'Deleted!',
+                                            timer: 1500,
+                                            showConfirmButton: false
+                                        })
+                                        .then(() => location.reload());
                                 }
-                            },
-                            error: function() {
-                                Swal.fire('Error!', 'Something went wrong.', 'error');
                             }
                         });
                     }
