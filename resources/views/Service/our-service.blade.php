@@ -457,7 +457,9 @@
                 Swal.fire('Error', 'Service name is required', 'error');
                 return;
             }
+            
             let url = "{{ route('admin.service.add') }}";
+
             if (formType === 'edit') {
                 url = "{{ url('admin/service/edit') }}/" + serviceId;
             }

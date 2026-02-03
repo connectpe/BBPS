@@ -19,6 +19,7 @@ Route::post('testToken', [BbpsRechargeController::class, 'testToken'])->name('bb
 Route::post('balance', [BbpsRechargeController::class, 'balance'])->name('bbps.balance');
 
 
+
 Route::group(['middleware' => ['logs']], function () {
     Route::prefix('bbps')->group(function () {
         Route::post('getplans/{provider}/{circle}/{operator}/{plan_type?}',[MobikwikController::class, 'getplans']);
@@ -26,4 +27,7 @@ Route::group(['middleware' => ['logs']], function () {
         Route::post('recharge-validation/{type}',[MobikwikController::class, 'validateRecharge']);
     });
 });
+
+
+// Route::post('validateRecharge', [BbpsRechargeController::class, 'validateRecharge'])->name('bbps.validateRecharge');
 

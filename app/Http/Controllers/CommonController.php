@@ -13,6 +13,7 @@ class CommonController extends Controller
 	{
 		// dd($this->authrize('isUser'));
 
+		// dd($request->all());
 
 		$request['return'] = 'all';
 		$request->orderIdArray = [];
@@ -177,7 +178,7 @@ class CommonController extends Controller
 				$request['table'] = '\App\Models\UserService';
 				$request['searchData'] = ['user_id', 'status', 'service_id', 'transaction_amount', 'created_at'];
 				$request['select'] = 'all';
-				$request['with'] = ['service'];
+				$request['with'] = ['service', 'user', 'user.business'];
 				$orderIndex = $request->get('order');
 				if (isset($orderIndex) && count($orderIndex)) {
 					$columnsIndex = $request->get('columns');
@@ -203,6 +204,8 @@ class CommonController extends Controller
 					$request['whereIn'] = 'user_id';
 					$request['parentData'] = [Auth::user()->id];
 				}
+
+				$request['status'] = 'pending';
 				break;
 
 
@@ -274,9 +277,9 @@ class CommonController extends Controller
 
 			case 'enabled-services':
 				$request['table'] = '\App\Models\UserService';
-				$request['searchData'] = ['user_id', 'transaction_amount', 'is_active', 'is_api_enable', 'service_id', 'user_id'];
+				$request['searchData'] = ['user_id', 'transaction_amount', 'is_active', 'is_api_enable', 'service_id', 'status'];
 				$request['select'] = 'all';
-				$request['with'] = ['user', 'user.business','service'];
+				$request['with'] = ['user', 'user.business', 'service'];
 
 				$orderIndex = $request->get('order');
 				if (isset($orderIndex) && count($orderIndex)) {
@@ -299,10 +302,12 @@ class CommonController extends Controller
 				$request['parentData'] = [$request->id];
 				if (Auth::user()->role_id == '1') {
 					$request['parentData'] = 'all';
+					$request['status'] = 'approved';
 				} else {
 					$request['whereIn'] = 'user_id';
 					$request['parentData'] = [Auth::user()->id];
 				}
+				
 				break;
 		}
 
@@ -347,12 +352,12 @@ class CommonController extends Controller
 			$getOrderRefId = self::getOrderRefId($request->searchText);
 			$request->orderIdArray = $getOrderRefId;
 		}
-		
+
 		// if (isset($request->searchText) && !empty($request->searchText) && $type == 'serviceRequest') {
 		// 	$getServiceId = self::getServiceId($request->searchText);
 		// 	$request->serviceIdArray = $getServiceId;
 		// }
-		
+
 		if (isset($request->searchText) && !empty($request->searchText) && in_array($type, array('bulkpayouts', 'serviceRequest')) && \Auth::user()->is_admin == '1') {
 			$getUserId = self::getUserId($request->searchText);
 			$request->userIdArray = $getUserId;

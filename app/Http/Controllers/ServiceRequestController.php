@@ -8,6 +8,8 @@ use App\Models\User;
 use App\Models\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class ServiceRequestController extends Controller
 {
@@ -20,14 +22,14 @@ class ServiceRequestController extends Controller
         //     ->latest()
         //     ->get();
 
-        $requests = UserService::with(['user', 'service'])
-            ->latest()
-            ->get();
+        // $requests = UserService::with(['user', 'service'])
+        //     ->latest()
+        //     ->get();
 
         $users = User::where('role_id', '!=', '1')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
         $globalServices = GlobalService::where('is_active', '1')->orderBy('id', 'desc')->get();
 
-        return view('Service.request-services', compact('requests', 'users', 'globalServices'));
+        return view('Service.request-services', compact('users', 'globalServices'));
     }
 
     /**
@@ -117,23 +119,44 @@ class ServiceRequestController extends Controller
     /**
      * Approve / Unapprove service
      */
-    public function approve($id)
+    public function approveRejectRequestService(Request $request)
     {
-        $service = UserService::findOrFail($id);
 
-        if ($service->status === 'approved') {
-            $service->status = 'pending';
-            $service->is_active = '0';
-            $message = 'Service deactivated successfully';
-        } else {
-            $service->status = 'approved';
-            $service->is_active = '1';
-            $message = 'Service activated successfully';
+        $request->validate([
+            'serviceId' => 'required|exists:user_services,id',
+            'status' => 'required|in:approved,rejected',
+        ]);
+
+
+        DB::beginTransaction();
+        try {
+            $service = UserService::findOrFail($request->serviceId);
+
+            if (!$service) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Request Service not found'
+                ]);
+            }
+
+            $service->status = $request->status;
+            $service->save();
+
+            $message =  $request->status == 'approved'  ? 'Approved'  : 'Rejected';
+
+            DB::commit();
+            return response()->json([
+                'status' => true,
+                'message' => "Service Request $message Successfully"
+            ]);
+        } catch (\Exception $e) {
+
+            DB::rollback();
+            return response()->json([
+                'status' => false,
+                'message' => 'Error : ' . $e->getMessage()
+            ]);
         }
-
-        $service->save();
-
-        return back()->with('success', $message);
     }
 
 
