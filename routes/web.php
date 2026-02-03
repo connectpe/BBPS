@@ -113,7 +113,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('fetch/{type}/{id?}/{returntype?}', [CommonController::class, 'fetchData']);
     Route::post('/service-request', [ServiceRequestController::class, 'store'])
         ->name('service.request');
-    Route::post('/service-request/{id}/approve', [ServiceRequestController::class, 'approve'])->name('service.approve');
+    Route::post('service-request-approve-reject', [ServiceRequestController::class, 'approveRejectRequestService'])->name('service_request_approve_reject');
 
     // ladger  Route
     Route::get('/ledger', [LadgerController::class, 'index'])->name('ladger.index');
@@ -147,10 +147,15 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('update-scheme-rule/{id}', [AdminController::class, 'updateSchemeAndRule'])->name('update_scheme_rule');
 
 
+
     Route::get('edit-assigned-scheme/{id}', [AdminController::class, 'editAssignedScheme']);
     Route::post('assign-scheme', [AdminController::class, 'assignSchemetoUser'])->name('assign_scheme');
     Route::post('update-user-assigned-scheme/{id}', [AdminController::class, 'updateAssignedSchemetoUser'])->name('update_user_assigned_scheme');
     Route::get('delete-assigned-scheme/{id}', [AdminController::class, 'deleteAssignedScheme']);
+    Route::post('update-scheme-rule/{id}', [AdminController::class, 'updateSchemeAndRule'])->name('update_scheme_rule');
+   
+    
+
 });
 
 Route::prefix('admin', function () {

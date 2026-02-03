@@ -28,7 +28,7 @@
                         <label for="filterEmail" class="form-label">Email</label>
                         <input type="email" class="form-control" id="filterEmail" placeholder="Enter Email">
                     </div>
-                   
+
                     <div class="col-md-2">
                         <label for="filterStatus" class="form-label">Status</label>
                         <select class="form-select" id="filterStatus">
@@ -38,7 +38,7 @@
                             <option value="2">Inactive</option>
                         </select>
                     </div>
-                     <div class="col-md-2">
+                    <div class="col-md-2">
                         <label for="filterDateFrom" class="form-label">From Date</label>
                         <input type="date" class="form-control" id="filterDateFrom">
                     </div>
@@ -60,11 +60,9 @@
 </div>
 
 
-<div class="col-12 col-md-10 col-lg-12">
+<div class="col-12">
     <div class="card shadow-sm">
-
         <div class="card-body pt-4">
-            <!-- Table -->
             <div class="table-responsive">
                 <table id="usersTable" class="table table-striped table-bordered table-hover w-100">
                     <thead>
@@ -80,6 +78,9 @@
                             <th>Root</th>
                         </tr>
                     </thead>
+                    <tbody>
+
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -102,8 +103,7 @@
                     d.id = $('#filterName').val();
                     d.email = $('#filterEmail').val();
                     d.status = $('#filterStatus').val();
-
-                    d.date_from = $('#filterDateFrom').val(); 
+                    d.date_from = $('#filterDateFrom').val();
                     d.date_to = $('#filterDateTo').val();
                 }
             },
@@ -165,7 +165,7 @@
                 },
                 {
                     data: 'created_at',
-                    render:function(data){
+                    render: function(data) {
                         return formatDateTime(data)
                     }
                 },
@@ -200,10 +200,10 @@
                     render: function(data, type, row) {
 
                         const statusOptions = {
-                            0:'Mobikwik',
-                            1:'Paysprint',
-                            2:'Test'
-                            
+                            0: 'Mobikwik',
+                            1: 'Paysprint',
+                            2: 'Test'
+
                         };
 
                         let dropdown = `<select class="form-select form-select-sm" onchange="changeRootDropdown(this, ${row.id})" onfocus="this.setAttribute('data-prev', this.value)">`;
