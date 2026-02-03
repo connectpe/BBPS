@@ -298,21 +298,28 @@ class CommonController extends Controller
                     $request['parentData'] = [Auth::user()->id];
                 }
             case 'schemes':
-                $request['table'] = '\App\Models\Scheme'; // Ensure your model path is correct
+                $request['table'] = '\App\Models\Scheme'; 
                 $request['searchData'] = ['id', 'scheme_name', 'created_at'];
                 $request['select'] = 'all';
                 $request['order'] = ['id', 'DESC'];
                 $request['parentData'] = 'all';
                 break;
 
-           
             case 'scheme-relations':
-                $request['table'] = '\App\Models\UserConfig'; 
+                $request['table'] = '\App\Models\UserConfig';
                 $request['searchData'] = ['id'];
                 $request['select'] = 'all';
                 $request['with'] = ['user', 'scheme'];
                 $request['order'] = ['id', 'DESC'];
                 $filterColumnsMap['scheme-relations'] = ['user_id', 'scheme_id'];
+                break;
+            case 'support-assignments':
+                $request['table'] = '\App\Models\UserAssignedToSupport';
+                $request['searchData'] = ['id'];
+                $request['select'] = 'all';
+                $request['with'] = ['user', 'assigned_support', 'creator'];
+                $request['order'] = ['id', 'DESC'];
+                $request['parentData'] = 'all';
                 break;
         }
 
@@ -326,7 +333,7 @@ class CommonController extends Controller
             'providers' => ['status', 'service_id'],
             'api-logs' => ['status', 'user_id'],
             'enabled-services' => ['service_id', 'user_id'],
-			 'scheme-relations' => ['user_id', 'scheme_id'],
+            'scheme-relations' => ['user_id', 'scheme_id'],
             // add more types and columns here
         ];
 

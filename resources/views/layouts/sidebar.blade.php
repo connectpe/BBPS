@@ -211,13 +211,21 @@
                 </ul>
             </li>
 
-        
-         <li class="nav-item">
-            <a href="{{ route('schemes.index') }}"
-                class="nav-link text-white {{ Route::currentRouteName() == 'schemes.index' ? 'sidebar-active' : '' }}">
-                <i class="bi bi-diagram-3 me-2"></i> Schemes
-            </a>
-        </li>
+
+            <li class="nav-item">
+                <a href="{{ route('schemes.index') }}"
+                    class="nav-link text-white {{ Route::currentRouteName() == 'schemes.index' ? 'sidebar-active' : '' }}">
+                    <i class="bi bi-diagram-3 me-2"></i> Schemes
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('user_assign_to_support') }}"
+                    class="nav-link text-white {{ Route::is('user_assign_to_support') ? 'sidebar-active' : '' }}">
+                    <i class="bi bi-person-check me-2"></i>
+                    Assign User to Support
+                </a>
+            </li>
+
 
             <!-- Ledger -->
             <li class="nav-item">
@@ -536,12 +544,12 @@
                     <i class="bi bi-speedometer2 me-2"></i> Dashboard
                 </a>
             </li>
-             <li class="nav-item">
-            <a href="{{ route('support_userlist') }}"
-               class="nav-link text-white {{ Route::is('support_userlist') ? 'sidebar-active' : '' }}">
-                <i class="bi bi-people-fill me-2"></i> Users List
-            </a>
-        </li>
+            <li class="nav-item">
+                <a href="{{ route('support_userlist') }}"
+                    class="nav-link text-white {{ Route::is('support_userlist') ? 'sidebar-active' : '' }}">
+                    <i class="bi bi-people-fill me-2"></i> Users List
+                </a>
+            </li>
         </ul>
     @endif
 
