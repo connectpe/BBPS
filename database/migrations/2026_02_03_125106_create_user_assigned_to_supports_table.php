@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('user_assigned_to_supports', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('assined_to')->constrained('users')->cascadeOnDelete();
             $table->foreignId('updated_by')->constrained('users')->cascadeOnDelete();
             $table->timestamps();
         });
