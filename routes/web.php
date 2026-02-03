@@ -12,6 +12,7 @@ use App\Http\Controllers\users\ReportController;
 use App\Http\Controllers\users\UserController;
 use App\Http\Controllers\LadgerController;
 use App\Http\Controllers\ComplainReportController;
+use App\Http\Controllers\SchemeController;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
@@ -145,11 +146,17 @@ Route::group(['middleware' => ['auth']], function () {
         ->name('admin.users.routing.save');
 
 
+
+        // Scheme Report Route
+    Route::get('/schemes', [SchemeController::class, 'index']) ->name('schemes.index');
+
     // Scheme Related Route 
     Route::post('add-scheme-rule', [AdminController::class, 'addSchemeAndRule'])->name('add_scheme_rule');
+
     Route::post('update-scheme-rule/{id}', [AdminController::class, 'updateSchemeAndRule'])->name('update_scheme_rule');
     Route::post('assign-scheme', [AdminController::class, 'assignSchemetoUser'])->name('assign_scheme');
     Route::post('update-user-assigned-scheme/{id}', [AdminController::class, 'updateAssignedSchemetoUser'])->name('update_user_assigned_scheme');
+
 });
 
 Route::prefix('admin', function () {

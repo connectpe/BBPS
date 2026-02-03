@@ -16,3 +16,4 @@ Route::get('/user', function (Request $request) {
 Route::post('testToken', [BbpsRechargeController::class, 'testToken'])->name('bbps.test_token');
 // Route::get('getPlans/{operator_id}/{circle_id}/{plan_type?}', [BbpsRechargeController::class, 'getPlans'])->name('bbps.getPlans');
 Route::post('balance', [BbpsRechargeController::class, 'balance'])->name('bbps.balance');
+// Route::post('validateRecharge', [BbpsRechargeController::class, 'validateRecharge'])->name('bbps.validateRecharge');
