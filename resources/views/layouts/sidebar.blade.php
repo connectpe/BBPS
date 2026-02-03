@@ -211,14 +211,7 @@
                 </ul>
             </li>
 
-        <!-- Ledger -->
-        <li class="nav-item">
-            <a href="{{ route('ladger.index') }}"
-                class="nav-link text-white {{ Route::currentRouteName() == 'ladger.index' ? 'sidebar-active' : '' }}">
-                <i class="bi bi-journal-text me-2"></i>
-                Ledger
-            </a>
-        </li>
+        
          <li class="nav-item">
             <a href="{{ route('schemes.index') }}"
                 class="nav-link text-white {{ Route::currentRouteName() == 'schemes.index' ? 'sidebar-active' : '' }}">
