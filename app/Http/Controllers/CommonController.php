@@ -370,6 +370,7 @@ class CommonController extends Controller
             'api-logs' => ['status', 'user_id'],
             'enabled-services' => ['service_id', 'user_id'],
             'scheme-relations' => ['user_id', 'scheme_id'],
+            'support-assignments' => ['user_id', 'assined_to'],
             // add more types and columns here
         ];
 
