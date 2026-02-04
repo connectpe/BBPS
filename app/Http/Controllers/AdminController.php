@@ -62,16 +62,16 @@ class AdminController extends Controller
         return view('Admin.profile')->with($data);
     }
 
-     public function dashboard()
+    public function dashboard()
     {
         $role = Auth::user()->role_id;
 
         if ($role == 1) {
-        return view('Dashboard.dashboard');
-    } elseif ($role == 2) {
-        return view('Dashboard.user-dashboard');
-    } elseif ($role == 3) {
-        return view('Dashboard.api-dashboard');
+            return view('Dashboard.dashboard');
+        } elseif ($role == 2) {
+            return view('Dashboard.user-dashboard');
+        } elseif ($role == 3) {
+            return view('Dashboard.api-dashboard');
         } elseif ($role == 4) {
             return view('Dashboard.support-dashboard');
         }
@@ -842,6 +842,7 @@ class AdminController extends Controller
         $data['alreadyAssignedIds'] = UserAssignedToSupport::pluck('user_id')->toArray();
         $data['assignedUsers'] = User::whereIn('id', UserAssignedToSupport::query()->distinct()->pluck('user_id'))->orderBy('name')->get();
         $data['assignedSupports'] = User::whereIn('id', UserAssignedToSupport::query()->distinct()->pluck('assined_to'))->orderBy('name')->get();
+
         return view('AssignuserSupport.index', $data);
     }
 
@@ -875,9 +876,11 @@ class AdminController extends Controller
                 ]);
             }
             DB::commit();
+
             return response()->json(['status' => true, 'message' => $msg]);
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json(['status' => false, 'message' => 'Error: '.$e->getMessage()], 500);
         }
     }
@@ -916,6 +919,102 @@ class AdminController extends Controller
                 'status' => false,
                 'message' => 'Error: '.$e->getMessage(),
             ], 500);
+        }
+    }
+
+    public function supportdetails()
+    {
+        return view('AssignuserSupport.support-user-details');
+    }
+
+    public function addSupportMember(Request $request)
+    {
+        try {
+            if (! Auth::user()->role_id == 1) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'unauthorized access',
+                ]);
+
+            }
+            $request->validate([
+                'name' => 'required|string|min:3',
+                'email' => 'required|email|unique:users',
+                'mobile' => 'required|max:10',
+                'password' => 'required|min:6',
+                'password' => 'required|min:6|confirmed',
+            ]);
+
+            $payload = [
+                'name' => $request->name,
+                'email' => $request->email,
+                'mobile' => $request->mobile,
+                'password' => bcrypt($request->password),
+                'email_verfied_at' => now(),
+                'role_id' => '4',
+                'status' => '1',
+            ];
+
+            $member = User::create($payload);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Member created Successfully',
+            ]);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function getSupportMember($id)
+    {
+        $user = User::find($id);
+
+        return $user ? response()->json(['status' => true, 'data' => $user]) : response()->json(['status' => false]);
+    }
+
+    public function editSupportMember(Request $request, $user_id)
+    {
+        try {
+            if (Auth::user()->role_id != 1) {
+                return response()->json(['status' => false, 'message' => 'unauthorized access']);
+            }
+
+            $member = User::find($user_id);
+            if (! $member) {
+                return response()->json(['status' => false, 'message' => 'User not found']);
+            }
+
+            $request->validate([
+                'name' => 'required|string|min:3',
+                'email' => 'required|email|unique:users,email,'.$user_id,
+                'mobile' => 'required|digits:10|unique:users,mobile,'.$user_id,
+            ]);
+
+            $member->name = $request->name;
+            $member->email = $request->email;
+            $member->mobile = $request->mobile;
+            $member->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Member updated Successfully',
+            ]);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ]);
         }
     }
 }

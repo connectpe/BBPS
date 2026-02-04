@@ -302,7 +302,7 @@ class CommonController extends Controller
                 }
                 break;
             case 'schemes':
-                $request['table'] = '\App\Models\Scheme'; 
+                $request['table'] = '\App\Models\Scheme';
                 $request['searchData'] = ['id', 'scheme_name', 'created_at'];
                 $request['select'] = 'all';
                 $request['order'] = ['id', 'DESC'];
@@ -357,6 +357,14 @@ class CommonController extends Controller
                     $request['whereIn'] = 'assined_to';
                     $request['parentData'] = [Auth::user()->id];
                 }
+                break;
+            case 'support-user-list-server':
+                $request['table'] = '\App\Models\User';
+                $request['searchData'] = ['id', 'name', 'email', 'mobile'];
+                $request['select'] = ['id', 'name', 'email', 'mobile', 'created_at'];
+                $request['whereIn'] = 'role_id';
+                $request['parentData'] = [4];
+                $request['order'] = ['id', 'DESC'];
                 break;
 
         }
@@ -488,7 +496,7 @@ class CommonController extends Controller
                 if (is_numeric($value)) {
                     $query->where($column, $value);
                 } else {
-                    $query->where($column, 'LIKE', '%' . $value . '%');
+                    $query->where($column, 'LIKE', '%'.$value.'%');
                 }
             }
         }
@@ -496,7 +504,7 @@ class CommonController extends Controller
         if (isset($request['where']) && $request['where'] == 1 && isset($request->searchText) && ! empty($request->searchText)) {
             $query->where(function ($q) use ($request) {
                 foreach ($request['searchData'] as $column) {
-                    $q->orWhere($column, 'LIKE', '%' . $request->searchText . '%');
+                    $q->orWhere($column, 'LIKE', '%'.$request->searchText.'%');
                 }
             });
         }

@@ -75,6 +75,13 @@
                                         Service Requests
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('support_details') }}"
+                                        class="nav-link text-white {{ Route::currentRouteName() == 'support_details' ? 'sidebar-active' : '' }}">
+                                        <i class="bi bi-person-plus-fill me-2"></i> Add New Support User
+                                    </a>
+                                </li>
+
 
                             </ul>
                         </div>
@@ -132,13 +139,8 @@
                 </ul>
             </li>
 
-      
-         <li class="nav-item">
-                <a href="{{ route('schemes.index') }}"
-                    class="nav-link text-white {{ Route::currentRouteName() == 'schemes.index' ? 'sidebar-active' : '' }}">
-                    <i class="bi bi-diagram-3 me-2"></i> Schemes
-                </a>
-        </li>
+
+
 
 
             <!-- Reports -->
@@ -562,13 +564,13 @@
             <li class="nav-item">
                 <a href="{{ route('complaints_report') }}"
                     class="nav-link text-white {{ Route::is('complaints_report') ? 'sidebar-active' : '' }}">
-                   <i class="bi bi-clipboard-data me-2"></i> Complaints Report
+                    <i class="bi bi-clipboard-data me-2"></i> Complaints Report
 
                 </a>
             </li>
 
 
-             <li class="nav-item">
+            <li class="nav-item">
                 <form action="{{ route('admin.logout') }}" method="POST">
                     @csrf
                     <button type="submit"
