@@ -29,7 +29,7 @@ class ApiActivityLog
             'method'        => $request->method(),
             'endpoint'      => $request->path(),
             'request_body'  => json_encode($request->except(['password','pin'])),
-            'response_body' => json_encode([]),
+            'response_body' => json_encode([$response->getContent()]),
             'status_code'   => $response->status(),
             'ip_address'    => $request->ip(),
             'user_agent'    => $request->userAgent(),
