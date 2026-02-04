@@ -17,23 +17,27 @@
                         </h2>
                         <div id="collapseFilter" class="accordion-collapse collapse">
                             <div class="accordion-body">
-                               <div class="row align-items-end g-2">
+                                <div class="row align-items-end g-2">
                                     <div class="col-md-3">
                                         <label class="form-label small fw-bold">User Name</label>
                                         <select id="filterUser" class="form-select">
                                             <option value="">-- All Assigned Users --</option>
-
-                                                <option value="User">User</option>
-                                            
+                                            @foreach ($assignedUsers as $u)
+                                                <option value="{{ $u->id }}">{{ $u->name }}</option>
+                                            @endforeach
                                         </select>
+
                                     </div>
 
                                     <div class="col-md-3">
                                         <label class="form-label small fw-bold">Support Name</label>
                                         <select id="filterSupport" class="form-select">
                                             <option value="">-- All Assigned Support --</option>
-                                                <option value="Support">Support</option>
+                                            @foreach ($assignedSupports as $s)
+                                                <option value="{{ $s->id }}">{{ $s->name }}</option>
+                                            @endforeach
                                         </select>
+
                                     </div>
 
                                     <div class="col-md-6 d-flex gap-2 mt-2">
@@ -77,7 +81,7 @@
         <div class="modal-dialog modal-md">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header border-bottom-0">
-                    <h5 class="modal-title fw-bold" id="modalTitle">Assign Support Staff</h5>
+                    <h5 class="modal-title fw-bold" id="modalTitle">Assign Support</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form id="assignSupportForm">
@@ -93,7 +97,8 @@
                                 multiple="multiple" required>
                                 @foreach ($users as $user)
                                     @php $isAssigned = in_array($user->id, $alreadyAssignedIds); @endphp
-                                    <option value="{{ $user->id }}" data-assigned="{{ $isAssigned ? 'true' : 'false' }}">
+                                    <option value="{{ $user->id }}"
+                                        data-assigned="{{ $isAssigned ? 'true' : 'false' }}">
                                         {{ $user->name }}
                                     </option>
                                 @endforeach
@@ -119,7 +124,7 @@
         </div>
     </div>
 
-    
+
 
     <script>
         $(document).ready(function() {
@@ -128,13 +133,16 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
+
             function formatUserOption(state) {
                 if (!state.id) return state.text;
                 var isAssigned = $(state.element).data('assigned');
                 var editingUserId = window.currentEditingUserId || null;
 
                 if ((isAssigned === true || isAssigned === "true") && state.id != editingUserId) {
-                    return $('<div class="d-flex justify-content-between align-items-center"><span>' + state.text + '</span><span class="text-success small fw-bold">Assigned <i class="fas fa-check"></i></span></div>');
+                    return $('<div class="d-flex justify-content-between align-items-center"><span>' + state.text +
+                        '</span><span class="text-success small fw-bold">Assigned <i class="fas fa-check"></i></span></div>'
+                    );
                 }
                 return state.text;
             }
@@ -144,17 +152,20 @@
                 width: '100%',
                 placeholder: "-- Search & Select Users --",
                 allowClear: true,
-                templateResult: formatUserOption, 
+                templateResult: formatUserOption,
                 closeOnSelect: false
             });
 
-            $('.searchable-filter').select2({ width: '100%', allowClear: true });
+            $('.searchable-filter').select2({
+                width: '100%',
+                allowClear: true
+            });
 
             $('#btnAddNew').click(function() {
-                window.currentEditingUserId = null; 
+                window.currentEditingUserId = null;
                 $('#assignment_id').val('');
                 $('#assignSupportForm')[0].reset();
-                
+
                 $('#user_id option').each(function() {
                     if ($(this).data('assigned') == true || $(this).data('assigned') == "true") {
                         $(this).prop('disabled', true);
@@ -164,7 +175,7 @@
                 });
 
                 $('#user_id').val(null).trigger('change');
-                $('#modalTitle').text('Assign Support Staff');
+                $('#modalTitle').text('Assign Support');
                 $('#assignSupportModal').modal('show');
             });
 
@@ -216,7 +227,19 @@
                 ]
             });
 
-            
+            $('#applyFilter').on('click', function(e) {
+                e.preventDefault();
+                supportTable.ajax.reload();
+            });
+            $('#resetFilter').on('click', function(e) {
+                e.preventDefault();
+                $('#filterUser').val('').trigger('change');
+                $('#filterSupport').val('').trigger('change');
+                supportTable.ajax.reload();
+            });
+
+
+
 
             $(document).on('click', '.edit-btn', function() {
                 let id = $(this).data('id');
@@ -230,7 +253,8 @@
                             $('#user_id option').each(function() {
                                 if ($(this).val() == res.data.user_id) {
                                     $(this).prop('disabled', false);
-                                } else if ($(this).data('assigned') == true || $(this).data('assigned') == "true") {
+                                } else if ($(this).data('assigned') == true || $(this)
+                                    .data('assigned') == "true") {
                                     $(this).prop('disabled', true);
                                 }
                             });
@@ -261,7 +285,7 @@
                             $('#assignSupportForm')[0].reset();
                             $('#user_id').val(null).trigger('change');
                             supportTable.ajax.reload();
-                            location.reload(); 
+                            location.reload();
                         } else {
                             Swal.fire('Error!', res.message, 'error');
                         }
@@ -276,7 +300,7 @@
                 });
             });
 
-              $(document).on('click', '.delete-btn', function() {
+            $(document).on('click', '.delete-btn', function() {
                 let id = $(this).data('id');
                 Swal.fire({
                     title: 'Are you sure?',

@@ -835,7 +835,8 @@ class AdminController extends Controller
         $data['users'] = User::whereNotIn('role_id', [1, 4])->where('status', '1')->get();
         $data['supportStaffs'] = User::where('role_id', 4)->where('status', '1')->get();
         $data['alreadyAssignedIds'] = UserAssignedToSupport::pluck('user_id')->toArray();
-
+        $data['assignedUsers'] = User::whereIn('id', UserAssignedToSupport::query()->distinct()->pluck('user_id'))->orderBy('name')->get();
+        $data['assignedSupports'] = User::whereIn('id', UserAssignedToSupport::query()->distinct()->pluck('assined_to'))->orderBy('name')->get();
         return view('AssignuserSupport.index', $data);
     }
 
