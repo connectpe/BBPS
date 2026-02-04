@@ -29,7 +29,7 @@ class AdminController extends Controller
             $userId = auth()->id();
             $role = Auth::user()->role_id;
 
-            if (in_array($role, [2, 3])) {
+            if (in_array($role, [2, 3, 4])) {
                 $data['saltKeys'] = OauthUser::where('user_id', auth()->id())
                     ->where('is_active', '1')
                     ->select('client_id', 'client_secret', 'created_at')
