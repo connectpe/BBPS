@@ -785,17 +785,17 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
                                 <div class="d-flex justify-content-between mb-2">
                                     <span class="fw-semibold">Name:</span>
-                                    <span class="text-muted">{{$supportRepresentative?->user?->name ?? '----'}}</span>
+                                    <span class="text-muted">{{ $supportRepresentative?->assigned_support?->name ?? '----' }}</span>
                                 </div>
 
                                 <div class="d-flex justify-content-between mb-2">
                                     <span class="fw-semibold">Email:</span>
-                                    <span class="text-muted">{{$supportRepresentative?->user?->email ?? '----' }}</span>
+                                    <span class="text-muted">{{ $supportRepresentative?->assigned_support?->email ?? '----' }}</span>
                                 </div>
 
                                 <div class="d-flex justify-content-between mb-2">
                                     <span class="fw-semibold">Mobile:</span>
-                                    <span class="text-muted">{{$supportRepresentative?->user?->mobile ?? '----' }}</span>
+                                    <span class="text-muted">{{ $supportRepresentative?->assigned_support?->mobile ?? '----' }}</span>
                                 </div>
 
                             </div>

@@ -43,6 +43,7 @@ class AdminController extends Controller
             $data['userdata'] = User::where('id', $userId)->select('name', 'email', 'mobile', 'status', 'role_id', 'profile_image')->first();
             $data['businessInfo'] = BusinessInfo::where('user_id', $userId)->first();
             $data['businessCategory'] = BusinessCategory::where('status', 1)->orderBy('id', 'desc')->get();
+            $data['supportRepresentative'] = UserAssignedToSupport::where('user_id', $userId)->with('assigned_support')->first();
 
             $data['usersBank'] = UsersBank::where('user_id', $userId)->first();
 
@@ -61,14 +62,16 @@ class AdminController extends Controller
         return view('Admin.profile')->with($data);
     }
 
-    public function dashboard()
+     public function dashboard()
     {
         $role = Auth::user()->role_id;
 
-        if (in_array($role, [1, 2])) {
-            return view('Dashboard.dashboard');
-        } elseif (in_array($role, [3])) {
-            return view('Dashboard.api-dashboard');
+        if ($role == 1) {
+        return view('Dashboard.dashboard');
+    } elseif ($role == 2) {
+        return view('Dashboard.user-dashboard');
+    } elseif ($role == 3) {
+        return view('Dashboard.api-dashboard');
         } elseif ($role == 4) {
             return view('Dashboard.support-dashboard');
         }
