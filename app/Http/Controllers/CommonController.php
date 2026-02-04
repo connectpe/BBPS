@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\UserAssignedToSupport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -301,8 +302,45 @@ class CommonController extends Controller
                     $request['parentData'] = [Auth::user()->id];
                 }
                 break;
+            case 'transaction-complaint':
+                $request['table'] = '\App\Models\Complaint';
+                $request['searchData'] = ['id', 'ticket_number', 'priority', 'status'];
+                $request['select'] = 'all';
+                $request['with'] = ['user', 'user.business', 'service', 'category'];
+
+                $orderIndex = $request->get('order');
+                if (isset($orderIndex) && count($orderIndex)) {
+                    $columnsIndex = $request->get('columns');
+                    $columnIndex = $orderIndex[0]['column'];
+                    $columnName = $columnsIndex[$columnIndex]['data'];
+                    $columnSortOrder = $orderIndex[0]['dir'];
+                    if ($columnName == 'new_created_at') {
+                        $columnName = 'created_at';
+                    }
+                    if ($columnName == '0') {
+                        $columnName = 'created_at';
+                        $columnSortOrder = 'DESC';
+                    }
+                    $request['order'] = [$columnName, $columnSortOrder];
+                } else {
+                    $request['order'] = ['id', 'DESC'];
+                }
+                $request['whereIn'] = 'id';
+                $request['parentData'] = [$request->id];
+
+                if (Auth::user()->role_id == '1') {
+                    $request['parentData'] = 'all';
+                } elseif (Auth::user()->role_id == 2) {
+                    $request['whereIn'] = 'user_id';
+                    $request['parentData'] = [Auth::user()->id];
+                } elseif (Auth::user()->role_id == 4) {
+                    $assignedUser =  UserAssignedToSupport::where('assined_to', Auth::user()->id)->pluck('user_id')->toArray();
+                    $request['whereIn'] = 'user_id';
+                    $request['parentData'] = $assignedUser;
+                }
+                break;
             case 'schemes':
-                $request['table'] = '\App\Models\Scheme'; 
+                $request['table'] = '\App\Models\Scheme';
                 $request['searchData'] = ['id', 'scheme_name', 'created_at'];
                 $request['select'] = 'all';
                 $request['order'] = ['id', 'DESC'];
@@ -358,7 +396,6 @@ class CommonController extends Controller
                     $request['parentData'] = [Auth::user()->id];
                 }
                 break;
-
         }
 
         // For filter the Records
@@ -373,6 +410,7 @@ class CommonController extends Controller
             'enabled-services' => ['service_id', 'user_id'],
             'scheme-relations' => ['user_id', 'scheme_id'],
             'support-assignments' => ['user_id', 'assined_to'],
+            'transaction-complaint' => ['ticket_number', 'status', 'user_id'],
             // add more types and columns here
         ];
 
