@@ -302,7 +302,7 @@ class CommonController extends Controller
                 }
                 break;
             case 'schemes':
-                $request['table'] = '\App\Models\Scheme'; // Ensure your model path is correct
+                $request['table'] = '\App\Models\Scheme'; 
                 $request['searchData'] = ['id', 'scheme_name', 'created_at'];
                 $request['select'] = 'all';
                 $request['order'] = ['id', 'DESC'];
@@ -325,6 +325,7 @@ class CommonController extends Controller
                 $request['order'] = ['id', 'DESC'];
                 $request['parentData'] = 'all';
                 break;
+
             case 'support-user-list':
                 $request['table'] = '\App\Models\UserAssignedToSupport';
                 $request['searchData'] = ['user_id'];
@@ -357,6 +358,7 @@ class CommonController extends Controller
                     $request['parentData'] = [Auth::user()->id];
                 }
                 break;
+
         }
 
         // For filter the Records

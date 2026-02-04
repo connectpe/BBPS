@@ -562,6 +562,7 @@
                     <i class="bi bi-people-fill me-2"></i> Users List
                 </a>
             </li>
+
             <li class="nav-item">
                 <a href="{{ route('complaints_report') }}"
                     class="nav-link text-white {{ Route::is('complaints_report') ? 'sidebar-active' : '' }}">
@@ -569,6 +570,7 @@
 
                 </a>
             </li>
+
         </ul>
     @endif
 

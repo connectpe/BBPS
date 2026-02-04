@@ -157,7 +157,17 @@ Route::group(['middleware' => ['auth']], function () {
 
     // support panel route
     Route::get('/support-userlist', [SupportDashboardController::class, 'supportUserList'])->name('support_userlist');
+
+
+
+    // assign user to support 
     Route::get('/user-assign-to-support', [AdminController::class, 'UserassigntoSupport'])->name('user_assign_to_support');
+    Route::post('/assign-user-to-support', [AdminController::class, 'UserAssignedtoSupportuser'])->name('save_support_assignment');
+    Route::get('/edit-support-assignment/{id}', [AdminController::class, 'editSupportAssignment']);
+    Route::delete('delete-support-assignment/{id}', [AdminController::class, 'deleteSupportAssignment']);
+   
+    
+
 
     Route::prefix('support')->group(function () {
         Route::get('complaints-report', [SupportDashboardController::class, 'userComplaints'])->name('complaints_report');
