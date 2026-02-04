@@ -13,16 +13,17 @@ return new class extends Migration
     {
         Schema::create('complaints', function (Blueprint $table) {
             $table->id();
-            $table->string('reference_number')->unique();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('service_name');
-            $table->text('description');
-            $table->enum('status', ['open', 'in_progress', 'resolved', 'closed'])->default('open');
+            $table->string('ticket_number')->unique();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('service_id')->constrained('global_services')->cascadeOnDelete();
+            $table->foreignId('complaints_category')->constrained('complaints_categories')->cascadeOnDelete();
+            $table->enum('priority', ['Low', 'Medium', 'High'])->default('Low');
+            $table->text('remark')->nullable();
             $table->timestamp('resolved_at')->nullable();
-            $table->text('admin_notes')->nullable();
-            $table->string('attachment_path')->nullable();
-            $table->string('priority')->default('normal');
-            $table->string('category')->nullable();
+            $table->string('attachment_file')->nullable();
+            $table->enum('status', ['Open', 'In Progress', 'Resolved', 'Closed'])->default('Open');
+            $table->text('description');
+            $table->foreignId('updated_by')->constrained('users')->cascadeOnDelete();
             $table->timestamps();
         });
     }

@@ -5,114 +5,133 @@
 
 @section('content')
 
-<div class="container">
-    <div class="row g-4">
-
-        {{-- Complaint Form --}}
-        <div class="col-12">
-            <div class="card border shadow-sm">
-                <div class="card-header">
-                    <h5 class="mb-0">Register Complaint</h5>
-                </div>
-
-                <div class="card-body">
-                    <form id="complaintForm" enctype="multipart/form-data">
-                        @csrf
-
-                        <div class="row g-3 align-items-end">
-
-                            <div class="col-12 col-md-6">
-                                <label class="form-label">Service Name</label>
-                                <select name="service_name" class="form-control" required>
-                                    <option value="">-- Select Service --</option>
-                                    @foreach ($services as $service)
-                                    <option value="{{ $service->service_name }}">{{ $service->service_name }}
-                                    </option>
-                                    @endforeach
-                                </select>
-                                <small class="text-danger d-none" id="err_service_name"></small>
-                            </div>
-
-                            <div class="col-12 col-md-3">
-                                <label class="form-label">Priority</label>
-                                <select name="priority" class="form-control" required>
-                                    @foreach ($priorities as $p)
-                                    <option value="{{ $p }}" {{ $p == 'normal' ? 'selected' : '' }}>
-                                        {{ ucfirst($p) }}
-                                    </option>
-                                    @endforeach
-                                </select>
-                                <small class="text-danger d-none" id="err_priority"></small>
-                            </div>
-
-                            <div class="col-12 col-md-3">
-                                <label class="form-label">Category</label>
-                                <select name="category" class="form-control">
-                                    <option value="">-- Select Category --</option>
-                                    @foreach ($categories as $value)
-                                    <option value="{{ $value->id }}">{{ $value->category_name }}</option>
-                                    @endforeach
-                                </select>
-                                <small class="text-danger d-none" id="err_category"></small>
-                            </div>
-
-                            <div class="col-12 col-md-6">
-                                <label class="form-label">Description</label>
-                                <textarea name="description" class="form-control" rows="3" placeholder="Write complaint..." required></textarea>
-                                <small class="text-danger d-none" id="err_description"></small>
-                            </div>
-
-                            <div class="col-12 col-md-6">
-                                <label class="form-label">Attachment (optional)</label>
-                                <input type="file" name="attachment" class="form-control"
-                                    accept=".jpg,.jpeg,.png,.pdf">
-                                <small class="text-danger d-none" id="err_attachment"></small>
-                            </div>
-
-                            <div class="col-12">
-                                <button type="submit" class="btn buttonColor w-100">
-                                    Register Complaint
-                                </button>
-                            </div>
-
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        {{-- Complaints Table --}}
-        <div class="col-12">
-            <div class="card border shadow-sm">
-                <div class="card-header d-flex align-items-center justify-content-between">
-                    <h5 class="mb-0">Registered Complaints</h5>
-                </div>
-
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-bordered align-middle" id="complaintsTable">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Reference No</th>
-                                    <th>Service</th>
-                                    <th>Status</th>
-                                    <th>Resolved At</th>
-                                    <th>Admin Notes</th>
-                                    <th>Attachment</th>
-                                    <th>Priority</th>
-                                    <th>Created</th>
-                                </tr>
-                            </thead>
-                        </table>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-
+<div class="row align-items-center mb-2">
+    <div class="col-auto ms-auto">
+        <button type="button" class="btn buttonColor" data-bs-toggle="modal" data-bs-target="#serviceModal">
+            <i class="bi bi-plus fs-6 me-1"></i> Service
+        </button>
     </div>
 </div>
+
+<div class="row g-4">
+
+    {{-- Complaints Table --}}
+    <div class="col-12">
+        <div class="card border shadow-sm">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <h5 class="mb-0">Registered Complaints</h5>
+            </div>
+
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle" id="complaintsTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Reference No</th>
+                                <th>Service</th>
+                                <th>Status</th>
+                                <th>Resolved At</th>
+                                <th>Admin Notes</th>
+                                <th>Attachment</th>
+                                <th>Priority</th>
+                                <th>Created</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Register Complaints Modal -->
+
+<div class="modal fade" id="serviceModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Register Complaint</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="complaintForm" enctype="multipart/form-data">
+                    @csrf
+
+                    <div class="row g-3">
+
+                        <div class="col-12">
+                            <label class="form-label">Service Name<span class="text-danger">*</span></label>
+                            <select name="service_id" class="form-select" required>
+                                <option value="">-- Select Service --</option>
+                                @foreach ($services as $service)
+                                <option value="{{ $service->id }}">
+                                    {{ $service->service_name }}
+                                </option>
+                                @endforeach
+                            </select>
+                            <small class="text-danger d-none" id="err_service_id"></small>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Priority</label>
+                            <select name="priority" class="form-select" required>
+                                @foreach ($priorities as $p)
+                                <option value="{{ $p }}" {{ $p == 'normal' ? 'selected' : '' }}>
+                                    {{ ucfirst($p) }}
+                                </option>
+                                @endforeach
+                            </select>
+                            <small class="text-danger d-none" id="err_priority"></small>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Category<span class="text-danger">*</span></label>
+                            <select name="category" class="form-select">
+                                <option value="">-- Select Category --</option>
+                                @foreach ($categories as $value)
+                                <option value="{{ $value->id }}">{{ $value->category_name }}</option>
+                                @endforeach
+                            </select>
+                            <small class="text-danger d-none" id="err_category"></small>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Attachment </label>
+                            <input type="file" name="attachment" class="form-control"
+                                accept=".jpg,.jpeg,.png,.pdf">
+                            <small class="text-danger d-none" id="err_attachment"></small>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Description<span class="text-danger">*</span></label>
+                            <textarea name="description" class="form-control" rows="3"
+                                placeholder="Write complaint..." required min="20"></textarea>
+                            <small class="text-danger d-none" id="err_description"></small>
+                        </div>
+
+
+                        <div class="col-12 d-flex justify-content-end gap-2">
+                            <button type="submit" class="btn buttonColor">
+                                Register
+                            </button>
+                            <button type="button" class="btn btn-secondary">
+                                Cancel
+                            </button>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 

@@ -10,16 +10,16 @@ class Complaint extends Model
     use HasFactory;
 
     protected $fillable = [
-        'reference_number',
+        'ticket_number ',
         'user_id',
         'service_id',
-        'description',
-        'status',
-        'resolved_at',
-        'remark',
-        'attachment_path',
-        'priority',
         'complaints_category',
+        'priority',
+        'remark',
+        'resolved_at',
+        'attachment_path',
+        'status',
+        'description',
         'updated_by ',
     ];
 
@@ -40,5 +40,10 @@ class Complaint extends Model
     public function service()
     {
         return $this->belongsTo(GlobalService::class, 'service_id');
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(ComplaintsCategory::class, 'complaints_category');
     }
 }
