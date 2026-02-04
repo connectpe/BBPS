@@ -45,8 +45,7 @@ class AdminController extends Controller
             $data['businessCategory'] = BusinessCategory::where('status', 1)->orderBy('id', 'desc')->get();
 
             $data['usersBank'] = UsersBank::where('user_id', $userId)->first();
-            $data['supportRepresentative'] = UserAssignedToSupport::with('user')->where('user_id', $userId)->first();
-           
+
             return view('Admin.profile')->with($data);
         } catch (\Exception $e) {
             return response()->json([
@@ -67,11 +66,9 @@ class AdminController extends Controller
         $role = Auth::user()->role_id;
 
         if (in_array($role, [1, 2, 4])) {
-            return view('Dashboard.dashboard');
+            return view('dashboard');
         } elseif (in_array($role, [3])) {
-            return view('Dashboard.api-dashboard');
-        } elseif ($role == 4) {
-            return view('Dashboard.support-dashboard');
+            return view('api-dashboard');
         }
     }
 
@@ -191,7 +188,7 @@ class AdminController extends Controller
             }
 
             $request->validate([
-                'service_name' => 'required|string|max:50|unique:global_services,service_name,' . $serviceId,
+                'service_name' => 'required|string|max:50|unique:global_services,service_name,'.$serviceId,
             ]);
 
             $service = GlobalService::where('id', $serviceId)->first();
@@ -353,7 +350,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : ' . $e->getMessage(),
+                'message' => 'Error : '.$e->getMessage(),
             ], 500);
         }
     }
@@ -364,7 +361,7 @@ class AdminController extends Controller
         $request->validate(
             [
                 'serviceId' => 'required|exists:global_services,id',
-                'providerName' => 'required|string|max:100|unique:providers,provider_name,' . $Id,
+                'providerName' => 'required|string|max:100|unique:providers,provider_name,'.$Id,
             ],
             [
                 'serviceId.required' => 'Please select a service.',
@@ -401,7 +398,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : ' . $e->getMessage(),
+                'message' => 'Error : '.$e->getMessage(),
             ], 500);
         }
     }
@@ -535,13 +532,13 @@ class AdminController extends Controller
 
                 return response()->json([
                     'status' => false,
-                    'message' => 'Error : ' . $e->getMessage(),
+                    'message' => 'Error : '.$e->getMessage(),
                 ]);
             }
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error : ' . $e->getMessage(),
+                'message' => 'Error : '.$e->getMessage(),
             ]);
         }
     }
@@ -660,13 +657,13 @@ class AdminController extends Controller
 
                 return response()->json([
                     'status' => false,
-                    'message' => 'Error : ' . $e->getMessage(),
+                    'message' => 'Error : '.$e->getMessage(),
                 ]);
             }
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error : ' . $e->getMessage(),
+                'message' => 'Error : '.$e->getMessage(),
             ]);
         }
     }
@@ -717,7 +714,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : ' . $e->getMessage(),
+                'message' => 'Error : '.$e->getMessage(),
             ]);
         }
     }
@@ -735,7 +732,7 @@ class AdminController extends Controller
     public function updateAssignedSchemetoUser(Request $request, $configId)
     {
         $validator = Validator::make($request->all(), [
-            'user_id' => 'required|exists:users,id|unique:user_configs,user_id,' . $configId,
+            'user_id' => 'required|exists:users,id|unique:user_configs,user_id,'.$configId,
             'scheme_id' => 'required|exists:schemes,id',
         ], [
             'user_id.required' => 'User Id is required',
@@ -806,10 +803,11 @@ class AdminController extends Controller
             DB::commit();
 
             return response()->json(['status' => true, 'message' => 'User Scheme Relation Updated Successfully'], 200);
+
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json(['status' => false, 'message' => 'Error: ' . $e->getMessage()], 500);
+            return response()->json(['status' => false, 'message' => 'Error: '.$e->getMessage()], 500);
         }
     }
 
@@ -834,48 +832,85 @@ class AdminController extends Controller
 
     public function UserassigntoSupport()
     {
-
         $data['users'] = User::whereNotIn('role_id', [1, 4])->where('status', '1')->get();
         $data['supportStaffs'] = User::where('role_id', 4)->where('status', '1')->get();
+        $data['alreadyAssignedIds'] = UserAssignedToSupport::pluck('user_id')->toArray();
+        $data['assignedUsers'] = User::whereIn('id', UserAssignedToSupport::query()->distinct()->pluck('user_id'))->orderBy('name')->get();
+        $data['assignedSupports'] = User::whereIn('id', UserAssignedToSupport::query()->distinct()->pluck('assined_to'))->orderBy('name')->get();
         return view('AssignuserSupport.index', $data);
     }
 
-    public function saveSupportAssignment(Request $request)
+    public function UserAssignedtoSupportuser(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|array',
             'user_id.*' => 'exists:users,id',
             'assined_to' => 'required|exists:users,id',
         ]);
-
         if ($validator->fails()) {
             return response()->json(['status' => false, 'message' => $validator->errors()->first()], 422);
         }
-
         try {
             DB::beginTransaction();
-
-            $userIds = $request->user_id;
             $assignedTo = $request->assined_to;
             $updatedBy = auth()->id();
-
-            foreach ($userIds as $userId) {
-                UserAssignedToSupport::updateOrCreate(
-                    ['user_id' => $userId],
-                    [
-                        'assined_to' => $assignedTo,
-                        'updated_by' => $updatedBy,
-                    ]
-                );
+            $userIds = $request->user_id;
+            $isEdit = $request->filled('assignment_id');
+            if ($isEdit) {
+                UserAssignedToSupport::where('id', $request->assignment_id)->delete();
+                $msg = 'Assignment updated successfully!';
+            } else {
+                $msg = 'Users assigned successfully!';
             }
-
+            foreach ($userIds as $userId) {
+                UserAssignedToSupport::create([
+                    'user_id' => $userId,
+                    'assined_to' => $assignedTo,
+                    'updated_by' => $updatedBy,
+                ]);
+            }
             DB::commit();
-
-            return response()->json(['status' => true, 'message' => 'All users assigned successfully!']);
+            return response()->json(['status' => true, 'message' => $msg]);
         } catch (\Exception $e) {
             DB::rollBack();
+            return response()->json(['status' => false, 'message' => 'Error: '.$e->getMessage()], 500);
+        }
+    }
 
-            return response()->json(['status' => false, 'message' => 'Error: ' . $e->getMessage()], 500);
+    public function editSupportAssignment($id)
+    {
+        $data = UserAssignedToSupport::find($id);
+        if ($data) {
+            return response()->json(['status' => true, 'data' => $data]);
+        }
+
+        return response()->json(['status' => false, 'message' => 'Not Found']);
+    }
+
+    public function deleteSupportAssignment($id)
+    {
+        try {
+            $assignment = UserAssignedToSupport::find($id);
+
+            if (! $assignment) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Record not found or already deleted.',
+                ], 404);
+            }
+
+            $assignment->delete();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Assignment removed successfully!',
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Error: '.$e->getMessage(),
+            ], 500);
         }
     }
 }

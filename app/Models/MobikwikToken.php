@@ -11,6 +11,7 @@ class MobikwikToken extends Model
     protected $fillable = [
         'token',
         'creation_time',
+        'expire_at',
         'response',
     ];
 }
