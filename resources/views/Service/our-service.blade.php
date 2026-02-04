@@ -96,6 +96,8 @@
                         <input type="date" class="form-control" id="date_to">
                     </div>
 
+
+
                     <div class="col-md-3 d-flex gap-2">
                         <button class="btn buttonColor " id="applyFilterServicesTable"> Filter</button>
                         <button class="btn btn-secondary" id="resetFilterServicesTable">Reset</button>
@@ -457,7 +459,7 @@
                 Swal.fire('Error', 'Service name is required', 'error');
                 return;
             }
-            
+
             let url = "{{ route('admin.service.add') }}";
 
             if (formType === 'edit') {
@@ -518,8 +520,5 @@
         $('.modal-title').text('Create Service');
     });
 </script>
-
-
-
 
 @endsection

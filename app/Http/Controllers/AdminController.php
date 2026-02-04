@@ -11,6 +11,7 @@ use App\Models\Provider;
 use App\Models\Scheme;
 use App\Models\SchemeRule;
 use App\Models\User;
+use App\Models\UserAssignedToSupport;
 use App\Models\UserConfig;
 use App\Models\UsersBank;
 use Illuminate\Http\Request;
@@ -831,49 +832,85 @@ class AdminController extends Controller
 
     public function UserassigntoSupport()
     {
-
         $data['users'] = User::whereNotIn('role_id', [1, 4])->where('status', '1')->get();
         $data['supportStaffs'] = User::where('role_id', 4)->where('status', '1')->get();
+        $data['alreadyAssignedIds'] = UserAssignedToSupport::pluck('user_id')->toArray();
+        $data['assignedUsers'] = User::whereIn('id', UserAssignedToSupport::query()->distinct()->pluck('user_id'))->orderBy('name')->get();
+        $data['assignedSupports'] = User::whereIn('id', UserAssignedToSupport::query()->distinct()->pluck('assined_to'))->orderBy('name')->get();
         return view('AssignuserSupport.index', $data);
     }
 
-    public function saveSupportAssignment(Request $request)
+    public function UserAssignedtoSupportuser(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|array',
-            'user_id.*' => 'exists:users,id', 
+            'user_id.*' => 'exists:users,id',
             'assined_to' => 'required|exists:users,id',
         ]);
-
         if ($validator->fails()) {
             return response()->json(['status' => false, 'message' => $validator->errors()->first()], 422);
         }
-
         try {
             DB::beginTransaction();
-
-            $userIds = $request->user_id; 
             $assignedTo = $request->assined_to;
             $updatedBy = auth()->id();
-
-            foreach ($userIds as $userId) {
-                UserAssignedToSupport::updateOrCreate(
-                    ['user_id' => $userId], 
-                    [
-                        'assined_to' => $assignedTo,
-                        'updated_by' => $updatedBy,
-                    ]
-                );
+            $userIds = $request->user_id;
+            $isEdit = $request->filled('assignment_id');
+            if ($isEdit) {
+                UserAssignedToSupport::where('id', $request->assignment_id)->delete();
+                $msg = 'Assignment updated successfully!';
+            } else {
+                $msg = 'Users assigned successfully!';
             }
-
+            foreach ($userIds as $userId) {
+                UserAssignedToSupport::create([
+                    'user_id' => $userId,
+                    'assined_to' => $assignedTo,
+                    'updated_by' => $updatedBy,
+                ]);
+            }
             DB::commit();
-
-            return response()->json(['status' => true, 'message' => 'All users assigned successfully!']);
-
+            return response()->json(['status' => true, 'message' => $msg]);
         } catch (\Exception $e) {
             DB::rollBack();
-
             return response()->json(['status' => false, 'message' => 'Error: '.$e->getMessage()], 500);
+        }
+    }
+
+    public function editSupportAssignment($id)
+    {
+        $data = UserAssignedToSupport::find($id);
+        if ($data) {
+            return response()->json(['status' => true, 'data' => $data]);
+        }
+
+        return response()->json(['status' => false, 'message' => 'Not Found']);
+    }
+
+    public function deleteSupportAssignment($id)
+    {
+        try {
+            $assignment = UserAssignedToSupport::find($id);
+
+            if (! $assignment) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Record not found or already deleted.',
+                ], 404);
+            }
+
+            $assignment->delete();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Assignment removed successfully!',
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Error: '.$e->getMessage(),
+            ], 500);
         }
     }
 }
