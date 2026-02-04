@@ -10,7 +10,13 @@ class UserAssignedToSupport extends Model
         'user_id',
         'assined_to', 
         'updated_by',
+
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 
     public $timestamps = true;
 

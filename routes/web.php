@@ -52,8 +52,9 @@ Route::group(['middleware' => ['auth']], function () {
 
         // Route::post('balance', [BbpsRechargeController::class, 'balance'])->name('bbps.balance');
         Route::post('validateRecharge', [BbpsRechargeController::class, 'validateRecharge'])->name('bbps.validateRecharge');
-        Route::post('payment', [BbpsRechargeController::class, 'payment'])->name('bbps.payment');
+        // Route::post('payment', [BbpsRechargeController::class, 'payment'])->name('bbps.payment');
         Route::post('status', [BbpsRechargeController::class, 'status'])->name('bbps.status');
+        Route::post('mpin-auth', [BbpsRechargeController::class, 'mpinAuth'])->name('bbps.mpin_auth');
     });
 
     Route::post('change-password', [AuthController::class, 'passwordReset'])->name('admin.change_password');
@@ -144,7 +145,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('add-scheme-rule', [AdminController::class, 'addSchemeAndRule'])->name('add_scheme_rule');
     // Scheme ka data fetch karne ke liye (Edit Modal ke liye)
     Route::get('edit-scheme/{id}', [AdminController::class, 'editScheme'])->name('edit_scheme');
-    Route::post('update-scheme-rule/{id}', [AdminController::class, 'updateSchemeAndRule'])->name('update_scheme_rule');
 
 
 
@@ -154,8 +154,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('delete-assigned-scheme/{id}', [AdminController::class, 'deleteAssignedScheme']);
     Route::post('update-scheme-rule/{id}', [AdminController::class, 'updateSchemeAndRule'])->name('update_scheme_rule');
 
+
     // support panel route
     Route::get('/support-userlist', [SupportDashboardController::class, 'supportUserList'])->name('support_userlist');
+
 
 
     // assign user to support 
@@ -166,6 +168,10 @@ Route::group(['middleware' => ['auth']], function () {
    
     
 
+
+    Route::prefix('support')->group(function () {
+        Route::get('complaints-report', [SupportDashboardController::class, 'userComplaints'])->name('complaints_report');
+    });
 });
 
 Route::prefix('admin', function () {

@@ -10,4 +10,9 @@ class SupportDashboardController extends Controller
     {
         return view('SupportDashboard.userlist');
     }
+
+    public function userComplaints()
+    {
+        return view('ComplainReport.support-complaint-list');
+    }
 }

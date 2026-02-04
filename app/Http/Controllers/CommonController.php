@@ -293,10 +293,14 @@ class CommonController extends Controller
                 $request['parentData'] = [$request->id];
                 if (Auth::user()->role_id == '1') {
                     $request['parentData'] = 'all';
+
+                    $request['whereIn'] = 'status';
+                    $request['parentData'] = 'approved';
                 } else {
                     $request['whereIn'] = 'user_id';
                     $request['parentData'] = [Auth::user()->id];
                 }
+                break;
             case 'schemes':
                 $request['table'] = '\App\Models\Scheme'; 
                 $request['searchData'] = ['id', 'scheme_name', 'created_at'];
@@ -321,6 +325,40 @@ class CommonController extends Controller
                 $request['order'] = ['id', 'DESC'];
                 $request['parentData'] = 'all';
                 break;
+
+            case 'support-user-list':
+                $request['table'] = '\App\Models\UserAssignedToSupport';
+                $request['searchData'] = ['user_id'];
+                $request['select'] = 'all';
+                $request['with'] = ['user', 'user.business'];
+
+                $orderIndex = $request->get('order');
+                if (isset($orderIndex) && count($orderIndex)) {
+                    $columnsIndex = $request->get('columns');
+                    $columnIndex = $orderIndex[0]['column'];
+                    $columnName = $columnsIndex[$columnIndex]['data'];
+                    $columnSortOrder = $orderIndex[0]['dir'];
+                    if ($columnName == 'new_created_at') {
+                        $columnName = 'created_at';
+                    }
+                    if ($columnName == '0') {
+                        $columnName = 'created_at';
+                        $columnSortOrder = 'DESC';
+                    }
+                    $request['order'] = [$columnName, $columnSortOrder];
+                } else {
+                    $request['order'] = ['id', 'DESC'];
+                }
+                $request['whereIn'] = 'id';
+                $request['parentData'] = [$request->id];
+                if (Auth::user()->role_id == '1') {
+                    $request['parentData'] = 'all';
+                } else {
+                    $request['whereIn'] = 'assined_to';
+                    $request['parentData'] = [Auth::user()->id];
+                }
+                break;
+
         }
 
         // For filter the Records
@@ -450,7 +488,7 @@ class CommonController extends Controller
                 if (is_numeric($value)) {
                     $query->where($column, $value);
                 } else {
-                    $query->where($column, 'LIKE', '%'.$value.'%');
+                    $query->where($column, 'LIKE', '%' . $value . '%');
                 }
             }
         }
@@ -458,7 +496,7 @@ class CommonController extends Controller
         if (isset($request['where']) && $request['where'] == 1 && isset($request->searchText) && ! empty($request->searchText)) {
             $query->where(function ($q) use ($request) {
                 foreach ($request['searchData'] as $column) {
-                    $q->orWhere($column, 'LIKE', '%'.$request->searchText.'%');
+                    $q->orWhere($column, 'LIKE', '%' . $request->searchText . '%');
                 }
             });
         }

@@ -29,8 +29,6 @@
     @endif
 
 
-
-
     @if ($role == 1)
         <ul class="nav nav-pills flex-column mb-auto">
 
@@ -120,6 +118,7 @@
                                     </a>
                                 </li>
 
+
                                 <li class="nav-item">
                                     <a href="{{ url('reports/utility') }}"
                                         class="nav-link text-white {{ request()->is('reports/utility') ? 'sidebar-active' : '' }}">
@@ -132,6 +131,19 @@
                     </li>
                 </ul>
             </li>
+
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </li>
+         <li class="nav-item">
+                <a href="{{ route('schemes.index') }}"
+                    class="nav-link text-white {{ Route::currentRouteName() == 'schemes.index' ? 'sidebar-active' : '' }}">
+                    <i class="bi bi-diagram-3 me-2"></i> Schemes
+                </a>
+        </li>
+
 
             <!-- Reports -->
             <li class="nav-item mt-2">
@@ -550,6 +562,15 @@
                     <i class="bi bi-people-fill me-2"></i> Users List
                 </a>
             </li>
+
+            <li class="nav-item">
+                <a href="{{ route('complaints_report') }}"
+                    class="nav-link text-white {{ Route::is('complaints_report') ? 'sidebar-active' : '' }}">
+                   <i class="bi bi-clipboard-data me-2"></i> Complaints Report
+
+                </a>
+            </li>
+
         </ul>
     @endif
 

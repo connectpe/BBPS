@@ -1,13 +1,15 @@
 <?php
 
 if (!function_exists('maskValue')) {
-    function maskValue(string $value, int $visible = 4): string
+    function maskValue(string $value, int $visible = 4, int $totalLength = 10): string
     {
+        // If value is shorter than visible chars, return as-is
         if (strlen($value) <= $visible) {
-            return $value;
+            return str_pad($value, $totalLength, '*');
         }
 
-        return substr($value, 0, $visible)
-            . str_repeat('*', strlen($value) - $visible);
+        $visiblePart = substr($value, 0, $visible);
+
+        return $visiblePart . str_repeat('*', max(0, $totalLength - $visible));
     }
 }
