@@ -567,6 +567,19 @@
                 </a>
             </li>
 
+
+             <li class="nav-item">
+                <form action="{{ route('admin.logout') }}" method="POST">
+                    @csrf
+                    <button type="submit"
+                        class="nav-link btn btn-link text-white w-100 text-start d-flex align-items-center gap-2 px-3"
+                        style="background-color: #e76666;">
+                        <i class="bi bi-box-arrow-right fs-5"></i>
+                        <span>Logout</span>
+                    </button>
+                </form>
+            </li>
+
         </ul>
     @endif
 
