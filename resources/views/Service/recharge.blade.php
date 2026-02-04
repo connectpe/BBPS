@@ -287,6 +287,7 @@
 
         </div>
     </div>
+
     @php
     $services = [
     ['name' => 'Mobile Postpaid', 'icon' => 'bi-phone'],
@@ -328,38 +329,38 @@
             </div>
         </div>
     </div>
-
-
 </div>
-
-
-<!-- <div class="row g-4 mt-3">
-                        ... (aapka commented section same as-is)
-                    </div> -->
-
 
 <!-- Recharge Modal -->
 <div class="modal fade" id="rechargeModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
+            <!-- FORM START -->
+            <form id="rechargeForm">
 
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalTitle">Recharge</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Recharge</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
 
-            <div class="modal-body" id="modalBody">
-                <!-- Step content loads here -->
-            </div>
+                <div class="modal-body" id="modalBody">
+                    <!-- Dynamic content will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary d-none" id="backBtn">
+                        Back
+                    </button>
 
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary d-none" id="backBtn">Back</button>
-                <button type="button" class="btn btn-primary" id="nextBtn">View Plans</button>
-            </div>
-
+                    <button type="submit" class="btn btn-primary" id="nextBtn">
+                        View Plans
+                    </button>
+                </div>
+            </form>
+            <!-- FORM END -->
         </div>
     </div>
 </div>
+
 
 <!-- Mpin model to enter mpin  -->
 <div class="modal fade" id="mpinModal" tabindex="-1" aria-labelledby="mpinModalLabel" aria-hidden="true">
@@ -549,9 +550,10 @@ $rechargePlanTypes = [
             input: () => `
                     <div class="mb-3">
                         <label>Mobile Number</label>
-                        <input class="form-control" id="accountInput">
+                        <input class="form-control" id="mobile" name="mobile" type="text">
                     </div>
                     ${buildOperatorDropdown()}
+                    ${buildCircleDropdown()}
                 `
         },
 
@@ -659,7 +661,7 @@ $rechargePlanTypes = [
         }
     };
 
-    /* ===============================
+    /*===============================
        GLOBAL STATE
     ================================ */
     let currentService = '';
@@ -1173,5 +1175,67 @@ $rechargePlanTypes = [
             });
     }
 </script>
+
+<!-- ----------------------------------------------------------------------------------------------------------->
+<!-------------------------------------Postpaid Recharge JS Starts Here------------------------------------------>
+<script>
+__fetchingPlans = false;
+
+document.getElementById('nextBtn').addEventListener('click', function (e) {
+    e.preventDefault(); 
+
+    if (currentService !== "Mobile Postpaid") return;
+    if (__fetchingPlans) return;
+
+    const form = document.getElementById('rechargeForm');
+    if (!form) return;
+
+    const formData = new FormData(form);
+    const mobile   = formData.get('mobile');
+    const operator = formData.get('operator');
+    const circle   = formData.get('circle');
+
+    if (!mobile || !operator || !circle) {
+        alert('Please fill all fields');
+        return;
+    }
+
+    __fetchingPlans = true;
+    stepIndex = 1;
+    loadStep();
+
+    fetch("{{ route('bbps.postpaid_villBill') }}", {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document
+                .querySelector('meta[name="csrf-token"]')
+                .getAttribute('content')
+        },
+        body: formData  
+    })
+    .then(res => res.json())
+    .then(data => {
+        __fetchingPlans = false;
+
+        if (!data.success) {
+            alert(data.message || 'Unable to fetch bill');
+            return;
+        }
+
+        console.log('Bill Details:', data.data);
+
+    })
+    .catch(err => {
+        __fetchingPlans = false;
+        console.error(err);
+        alert('Something went wrong');
+    });
+});
+</script>
+
+
+
+
+
 
 @endsection
