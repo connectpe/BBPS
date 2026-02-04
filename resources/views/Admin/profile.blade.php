@@ -411,7 +411,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 <div class="row mt-3 g-3">
 
     <!-- Card 1: Completed Transaction -->
-
+@if($role != 4)
     <div class="col-md-3">
         <div class="card shadow-lg text-center p-3 card-hover">
             <div class="card-body">
@@ -455,6 +455,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
         </div>
     </div>
 </div>
+@endif
 
 
 <div class="row mt-3">
