@@ -26,6 +26,7 @@ class MobiKwikHelper
     function generateMobikwikToken()
     {
         try {
+            
             $response = Http::timeout(15)
                 ->withHeaders([
                     'Content-Type' => 'application/json',
@@ -52,9 +53,12 @@ class MobiKwikHelper
 
             $data = $response->json();
 
+            
+
             MobikwikToken::create([
                 'token' => $data['data']['token'],
                 'creation_time' => now()->toDateTimeString(),
+                'expire_at'=> $data['data']['expiryTime'],
                 'response' => json_encode($data),
             ]);
 
@@ -99,7 +103,7 @@ class MobiKwikHelper
         ];
 
         $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $bearerToken,
+            'Authorization' => $bearerToken,
             'Content-Type'  => 'application/json',
         ])->post($this->baseUrl . $endpoint, $requestData);
 

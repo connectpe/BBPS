@@ -10,16 +10,17 @@ class Complaint extends Model
     use HasFactory;
 
     protected $fillable = [
-        'reference_number',
+        'ticket_number ',
         'user_id',
-        'service_name',
-        'description',
-        'status',
-        'resolved_at',
-        'admin_notes',
-        'attachment_path',
+        'service_id',
+        'complaints_category',
         'priority',
-        'category',
+        'remark',
+        'resolved_at',
+        'attachment_path',
+        'status',
+        'description',
+        'updated_by ',
     ];
 
     protected $casts = [
@@ -28,6 +29,21 @@ class Complaint extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    public function service()
+    {
+        return $this->belongsTo(GlobalService::class, 'service_id');
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(ComplaintsCategory::class, 'complaints_category');
     }
 }

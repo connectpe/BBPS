@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Complaint;
+use App\Models\ComplaintsCategory;
 use App\Models\GlobalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,29 +18,20 @@ class TransactionController extends Controller
 
     public function transactionComplaint()
     {
-        $services = GlobalService::where('is_active', '1')->orderBy('service_name')->get();
-        $complaints = Complaint::where('user_id', auth()->id())->latest()->get();
-
-        // if you want normal first, use this:
-        $priorities = ['normal', 'low', 'high'];
-
-        $categories = ['transaction', 'refund', 'service', 'other'];
-
-        return view('Transaction.transaction-complaint', compact(
-            'services',
-            'complaints',
-            'priorities',
-            'categories'
-        ));
+        $priorities = ['Low', 'Medium', 'High'];
+        $services = GlobalService::where('is_active', '1')->orderBy('id', 'desc')->get();
+        $categories = ComplaintsCategory::where('status', '1')->orderBy('id', 'desc')->get();
+        return view('Transaction.transaction-complaint', compact('services',  'priorities', 'categories'));
     }
 
     public function store(Request $request)
     {
+
         $request->validate([
-            'service_name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'priority' => 'required|in:low,normal,high', // fixed
-            'category' => 'required|in:transaction,refund,service,other', // make required
+            'service_id' => 'required|exists:global_services,id',
+            'description' => 'required|string|min:20|max:500',
+            'priority' => 'required|in:Low,High,Medium',
+            'category' => 'required|exists:complaints_categories,id',
             'attachment' => 'nullable|file|max:2048',
         ]);
 
@@ -48,14 +40,16 @@ class TransactionController extends Controller
             $attachmentPath = $request->file('attachment')->store('complaints', 'public');
         }
 
-        do {
-            $ref = 'CMP-'.strtoupper(Str::random(10));
-        } while (Complaint::where('reference_number', $ref)->exists());
+        // do {
+        //     $ref = 'CMP-' . strtoupper(Str::random(10));
+        // } while (Complaint::where('reference_number', $ref)->exists());
+
+        // dd($request->all());
 
         $complaint = Complaint::create([
             'reference_number' => $ref,
             'user_id' => Auth::id(),
-            'service_name' => $request->service_name,
+            'service_id' => $request->service_id,
             'description' => $request->description,
             'status' => 'open',
             'priority' => $request->priority,
@@ -75,7 +69,6 @@ class TransactionController extends Controller
     public function complaintStatus()
     {
         $categories = ['transaction', 'refund', 'service', 'other'];
-
         return view('Transaction.complaint-status', compact('categories'));
     }
 

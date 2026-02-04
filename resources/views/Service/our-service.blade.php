@@ -96,6 +96,8 @@
                         <input type="date" class="form-control" id="date_to">
                     </div>
 
+
+
                     <div class="col-md-3 d-flex gap-2">
                         <button class="btn buttonColor " id="applyFilterServicesTable"> Filter</button>
                         <button class="btn btn-secondary" id="resetFilterServicesTable">Reset</button>
@@ -369,7 +371,7 @@
 
         $('#resetFilterServicesTable').on('click', function() {
             $('#userId').val('');
-            $('#serviceId').val('');
+            $('#globalService').val('');
             $('#date_from').val('');
             $('#date_to').val('');
             table.ajax.reload();
@@ -457,7 +459,9 @@
                 Swal.fire('Error', 'Service name is required', 'error');
                 return;
             }
+
             let url = "{{ route('admin.service.add') }}";
+
             if (formType === 'edit') {
                 url = "{{ url('admin/service/edit') }}/" + serviceId;
             }
@@ -516,8 +520,5 @@
         $('.modal-title').text('Create Service');
     });
 </script>
-
-
-
 
 @endsection

@@ -193,11 +193,11 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                     data-bs-target="#activity" type="button" role="tab" aria-controls="activity"
                     aria-selected="false">Activity Log</button>
             </li>
-            <li class="nav-item" role="presentation">
+            {{-- <li class="nav-item" role="presentation">
                 <button class="nav-link fw-bold text-dark" id="serviceRequest-tab" data-bs-toggle="tab"
                     data-bs-target="#serviceRequest" type="button" role="tab" aria-controls="serviceRequest"
                     aria-selected="false">Service Request</button>
-            </li>
+            </li> --}}
         </ul>
         <!-- Tabs content -->
         <div class="tab-content border p-3" id="profileTabContent">
@@ -396,7 +396,6 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
         </div>
     </div>
 
-
     <!-- Edit Profile Button -->
     @if($role == 2)
     <div class="col-auto">
@@ -490,7 +489,12 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
             <li class="nav-item" role="presentation">
                 <button class="nav-link fw-bold text-dark" id="integration-tab" data-bs-toggle="tab"
                     data-bs-target="#integration" type="button" role="tab" aria-controls="integration"
-                    aria-selected="false">Key Intergration</button>
+                    aria-selected="false">Key Integration</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold text-dark" id="support-tab" data-bs-toggle="tab"
+                    data-bs-target="#support" type="button" role="tab" aria-controls="support"
+                    aria-selected="false">Support</button>
             </li>
         </ul>
 
@@ -676,6 +680,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                 </div>
             </div>
 
+            <!-- Banking Details  -->
             <div class="tab-pane fade" id="banking" role="tabpanel" aria-labelledby="banking-tab">
                 <div class="row mb-3 g-3">
 
@@ -740,8 +745,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                 </div>
             </div>
 
-
-
+            <!-- Key Details  -->
             <div class="tab-pane fade" id="integration" role="tabpanel" aria-labelledby="integration-tab">
 
                 <div class="text-end mb-3">
@@ -767,6 +771,38 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
             </div>
 
+            <!-- Support Representative -->
+            <div class="tab-pane fade" id="support" role="tabpanel" aria-labelledby="support-tab">
+                <div class="row mb-3 g-3">
+                    <div class="col-lg-6">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body">
+                                <h6 class="fw-bold mb-3">
+                                    <i class="fa fa-user-tie"></i>
+
+                                    Support Representative
+                                </h6>
+
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="fw-semibold">Name:</span>
+                                    <span class="text-muted">{{$supportRepresentative?->user?->name ?? '----'}}</span>
+                                </div>
+
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="fw-semibold">Email:</span>
+                                    <span class="text-muted">{{$supportRepresentative?->user?->email ?? '----' }}</span>
+                                </div>
+
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="fw-semibold">Mobile:</span>
+                                    <span class="text-muted">{{$supportRepresentative?->user?->mobile ?? '----' }}</span>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

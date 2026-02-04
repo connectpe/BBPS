@@ -1,18 +1,9 @@
 @extends('layouts.app')
 
-@section('title', 'Report')
-@section('page-title', 'Report')
+@section('title', 'API Dashboard')
+@section('page-title', 'API Dashboard')
 
 @section('content')
-
-<style>
-    .chart-canvas {
-        width: 100%;
-        max-width: 100%;
-        height: 30px;
-        cursor: pointer;
-    }
-</style>
 
 <div class="accordion mb-3" id="filterAccordion">
     <div class="accordion-item">
@@ -46,6 +37,7 @@
                     <div class="col-md-3">
                         <label for="reportType" class="form-label">Transaction Type</label>
                         <select id="reportType" class="form-select">
+                            <option value="">--Select Transaction Type--</option>
                             <option value="recharge">Recharge</option>
                             <option value="bill">Bill</option>
                             <option value="utility">Utility</option>
@@ -53,14 +45,15 @@
                         </select>
                     </div>
 
+
                     <div class="col-md-3">
                         <label for="fromDate" class="form-label">From</label>
-                        <input type="date" id="fromDate" class="form-control">
+                        <input type="date" id="fromDate" name="fromDate" class="form-control" value="{{ now()->toDateString() }}">
                     </div>
 
                     <div class="col-md-3">
-                        <label for="fromDate" class="form-label">To</label>
-                        <input type="date" id="toDate" class="form-control">
+                        <label for="toDate" class="form-label">To</label>
+                        <input type="date" id="toDate" name="toDate" class="form-control" value="{{ now()->toDateString() }}">
                     </div>
 
                     <div class="col-md-3 d-flex gap-2">
@@ -73,14 +66,103 @@
     </div>
 </div>
 
+<div class="row justify-content-center g-4">
+    <div class="col-md-12">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h6 class="fw-bold mb-3 text-center">Reports</h6>
 
-<div class="card">
-    <div class="card-body d-flex justify-content-center">
-        <div class="chart-wrapper" style="position: relative; width: 100%; max-width: 600px;">
-            <canvas id="reportChart" class="chart-canvas"></canvas>
-            <div id="customTooltip" style="position:absolute; background:#fff; border:1px solid #ccc; padding:10px; max-height:150px; overflow-y:auto; display:none;"></div>
+
+                <!-- Chart Wrapper -->
+                <div class="chart-wrapper mt-4" style="position: relative; width: 100%; max-width: 300px; margin: 0 auto;">
+                    <canvas id="reportChart" class="chart-canvas"></canvas>
+                    <div id="customTooltip" style="position:absolute; background:#fff; border:1px solid #ccc; padding:10px; max-height:150px; overflow-y:auto; display:none;"></div>
+                </div>
+            </div>
         </div>
     </div>
+</div>
+
+
+<!-- Row: Date & Text Inputs + Search Button -->
+<div class="row g-2 my-4 align-items-end">
+
+    <!-- From Date -->
+    <div class="col-md-2">
+        <label class="form-label small">From Date</label>
+        <input type="date" class="form-control"
+            value="{{ now()->format('Y-m-d') }}"
+            max="{{ now()->format('Y-m-d') }}">
+    </div>
+
+    <!-- To Date -->
+    <div class="col-md-2">
+        <label class="form-label small">To Date</label>
+        <input type="date" class="form-control"
+            value="{{ now()->format('Y-m-d') }}"
+            max="{{ now()->format('Y-m-d') }}">
+    </div>
+
+
+    <!-- Category Select -->
+    <div class="col-md-3">
+        <label class="form-label small">Category</label>
+        <select class="form-select">
+            <option selected disabled>--Select Category--</option>
+            <option value="billing">Billing</option>
+            <option value="recharge">Recharge</option>
+            <option value="wallet">Digital Wallet</option>
+            <option value="others">Others</option>
+        </select>
+    </div>
+
+    <!-- Service Select -->
+    <div class="col-md-3">
+        <label class="form-label small">Service</label>
+        <select class="form-select">
+            <option selected disabled>--Select Service--</option>
+            <option value="billpay">Bill Pay</option>
+            <option value="cashcollection">Cash Collection</option>
+            <option value="dth">DTH Recharge</option>
+            <option value="ott">OTT</option>
+            <option value="scanpay">Scan Pay</option>
+            <option value="uber">Uber</option>
+        </select>
+    </div>
+
+    <!-- Search Button -->
+    <div class="col-md-2">
+        <button type="button" class="btn font-semibold text-white rounded hover:opacity-90 transition">
+            Search
+        </button>
+    </div>
+</div>
+
+
+
+<!-- Row: Transaction Cards -->
+<div class="row g-3 mt-4">
+
+    <!-- Card 1: Success vs Failure Transaction -->
+    <div class="col-md-6">
+        <div class="card shadow-sm p-3" style="height:400px;">
+            <h5 class="card-title fw-bold">Success Vs Failure Transaction</h5>
+            <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
+                <p class="text-muted">No data found</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 2: Success Transaction By Service Wise -->
+    <div class="col-md-6">
+        <div class="card shadow-sm p-3" style="height:400px;">
+            <h5 class="card-title fw-bold">Success Transaction By Service Wise</h5>
+            <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
+                <p class="text-muted">No data found</p>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 
@@ -94,14 +176,16 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <table class="table table-striped" id="chartDetailTable">
-                    <thead>
+                <div class="table-responsive">
+                    <table class="table table-striped" id="chartDetailTable">
+                        <thead>
 
-                    </thead>
-                    <tbody>
+                        </thead>
+                        <tbody>
 
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -119,9 +203,11 @@
         });
 
         $('#resetFilter').on('click', function() {
-            $('#reportType').val('');
-            $('#fromDate').val('');
-            $('#toDate').val('');
+            $('#fromDate').val('{{now()->toDateString()}}');
+            $('#toDate').val('{{now()->toDateString()}}');
+            $('#filterreferenceId').val('');
+            $('#filterStatus').val('');
+            filterTransaction();
         });
 
     });
@@ -141,6 +227,9 @@
                 break;
             case 'banking':
                 chartInstance = bankingChart(data);
+                break;
+            default:
+                chartInstance = rechargeChart(data);
                 break;
         }
     }
@@ -191,24 +280,27 @@
                             const label = tooltipModel.dataPoints[0].label;
                             const items = mapData[label];
 
-                            const listHTML = items.map(i =>
-                                `<div>${i.reference} | ${i.date} | ${formatStatus(i.status)}</div>`
-                            ).join('');
+                            // const listHTML = items.map(i =>
+                            //     `<div>${i.reference} | ${i.date} | ${formatStatus(i.status)}</div>`
+                            // ).join('');
+                            // tooltipEl.innerHTML = listHTML;
 
-                            tooltipEl.innerHTML = listHTML;
+                            const count = items.length;
+                            tooltipEl.innerHTML = `<div>${label}: ${count} ${count > 1 ? 's' : ''}</div>`;
+
                             tooltipEl.style.display = 'block';
                             tooltipEl.style.left = tooltipModel.caretX + 'px';
                             tooltipEl.style.top = tooltipModel.caretY + 'px';
                         }
                     }
                 },
-                onClick: function(evt, elements) {
-                    if (!elements.length) return;
-                    const index = elements[0].index;
-                    const label = this.data.labels[index];
-                    const items = mapData[label];
-                    openModalWithItems(items, columnsForModal);
-                }
+                // onClick: function(evt, elements) {
+                //     if (!elements.length) return;
+                //     const index = elements[0].index;
+                //     const label = this.data.labels[index];
+                //     const items = mapData[label];
+                //     openModalWithItems(items, columnsForModal);
+                // }
             }
         });
     }
@@ -400,26 +492,16 @@
         const reportType = $('#reportType').val();
         const fromDate = $('#fromDate').val();
         const toDate = $('#toDate').val();
+        const referenceNumber = $('#filterreferenceId').val();
+        const status = $('#filterStatus').val();
 
         switch (reportType) {
             case 'recharge':
                 url = "{{url('fetch')}}/transactions/0";
-                payload = {
-                    type: reportType,
-                    from_date: fromDate,
-                    to_date: toDate
-                };
                 break;
-
             case 'banking':
                 url = "{{url('fetch')}}/banking/0";
-                payload = {
-                    type: reportType,
-                    from_date: fromDate,
-                    to_date: toDate
-                };
                 break;
-
             default:
                 console.warn('Unknown report type:', reportType);
                 break;
@@ -430,10 +512,11 @@
             dataType: "json",
             data: {
                 _token: $('meta[name="csrf-token"]').attr('content'),
-                payload
-                // type: reportType,
-                // from_date: fromDate,
-                // to_date: toDate
+                type: reportType,
+                date_from: fromDate,
+                date_to: toDate,
+                reference_number: referenceNumber,
+                status: status
             },
             success: function(response) {
                 console.log('Full response:', response);
@@ -443,5 +526,6 @@
         });
     }
 </script>
+
 
 @endsection
