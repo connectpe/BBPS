@@ -65,10 +65,12 @@ class AdminController extends Controller
     {
         $role = Auth::user()->role_id;
 
-        if (in_array($role, [1, 2, 4])) {
-            return view('dashboard');
+        if (in_array($role, [1, 2])) {
+            return view('Dashboard.dashboard');
         } elseif (in_array($role, [3])) {
-            return view('api-dashboard');
+            return view('Dashboard.api-dashboard');
+        } elseif ($role == 4) {
+            return view('Dashboard.support-dashboard');
         }
     }
 
