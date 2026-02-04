@@ -369,14 +369,20 @@ class MobikwikController extends Controller
     protected function isTokenPresent()
     {
         try {
-            $data =  MobikwikToken::whereDate('created_at', today())->select('token')->first();
-            $token = '';
-            if (!$data) {
+            $tokenData = MobikwikToken::where('expire_at', '>=', now()) 
+                        ->select('token', 'expire_at')
+                        ->first();
+                       
+            $token = null;
+            if (!$tokenData) {
                 $mobikwikHelper = new MobiKwikHelper();
-                $token = $mobikwikHelper->generateMobikwikToken();
-            } else {
+                $data = $mobikwikHelper->generateMobikwikToken();
                 $token = $data->token;
+                
+            } else {
+                $token = $tokenData->token;
             }
+            // dd($token);
             return $token;
         } catch (\Exception $e) {
             Log::error('Mobikwik Token Present Exception', [
@@ -485,14 +491,22 @@ class MobikwikController extends Controller
                     $mobikwikHelper = new MobiKwikHelper();
                     $token = $this->isTokenPresent();
                     $response = $mobikwikHelper->sendRequest(
-                        '/recharge/v3/retailerValidation',
+                        '/recharge/v3/retailerPayment',
                         $payload,
                         $token
                     );
-
+                    if (!isset($response['status']) || $response['status'] !== 'SUCCESS') {
+                        return response()->json([
+                            'status'  => false,
+                            'message' => "API Error occurred",
+                            'error_details' => $response 
+                        ]);
+                    }
+                    $connectPeId = "CPE".time().rand(1000000,9999999);
                     return response()->json([
                         'status'=> true,
-                        'data'=> $response
+                        'data'=> $response,
+                        'connectRefId'=>$connectPeId
                     ]);
                 } catch (\Exception $e) {
                     return response()->json([
@@ -536,6 +550,7 @@ class MobikwikController extends Controller
 
                 $mobikwikHelper = new MobiKwikHelper();
                 $token = $this->isTokenPresent();
+                // dd($token);
 
                 $response = $mobikwikHelper->sendRequest(
                     '/recharge/v3/retailerViewbill',
@@ -573,12 +588,15 @@ class MobikwikController extends Controller
                         "txId" => $request->txId,
                     ];
 
-                    $data = $this->encryptedPost(
+                    $mobikwikHelper = new MobiKwikHelper();
+                    $token = $this->isTokenPresent();
+                    // dd($token);
+
+                    $data = $mobikwikHelper->sendRequest(
                         "/recharge/v3/retailerStatus",
                         $payload,
-                        $request->bearerToken()
+                        $token
                     );
-
                     return response()->json([
                         "status" => false,
                         "response" => $data,
@@ -589,6 +607,8 @@ class MobikwikController extends Controller
                         "message" => $e->getMessage(),
                     ]);
                 }
+                
+            break;
 
             default:
                 return response()->json([
@@ -599,7 +619,5 @@ class MobikwikController extends Controller
         
     }
 
-    public function viewBill(Request $request)
-    {
-    }
+    
 }
