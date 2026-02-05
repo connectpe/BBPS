@@ -9,6 +9,7 @@ use App\Models\BusinessInfo;
 use App\Models\GlobalService;
 use App\Models\IpWhitelist;
 use App\Models\OauthUser;
+use Illuminate\Support\Facades\Hash;
 use App\Models\Provider;
 use App\Models\User;
 use App\Models\UserRooting;
@@ -636,19 +637,18 @@ class UserController extends Controller
                 ->where('is_deleted', '0')
                 ->count();
 
-            if ($ipCount >= 5) { 
+            if ($ipCount >= 5) {
                 return response()->json([
                     'status' => false,
                     'message' => 'You cannot add more than 5 IP addresses for this service.',
                 ]);
             }
 
-           
             $duplicateIp = IpWhitelist::where('user_id', $userId)
                 ->where('service_id', $request->service_id)
                 ->where('ip_address', $request->ip_address)
                 ->where('is_deleted', '0')
-                ->exists(); 
+                ->exists();
 
             if ($duplicateIp) {
                 return response()->json([
@@ -661,7 +661,7 @@ class UserController extends Controller
                 'ip_address' => $request->ip_address,
                 'service_id' => $request->service_id,
                 'updated_by' => $userId,
-                'is_active' => '1', 
+                'is_active' => '1',
             ]);
 
             DB::commit();
@@ -681,54 +681,56 @@ class UserController extends Controller
         }
     }
 
-   public function editIpWhiteList(Request $request, $Id)
-{
-    $validator = Validator::make($request->all(), [
-        'ip_address' => 'required|ip',
-        'service_id' => 'required|exists:global_services,id',
-    ]);
-
-    if ($validator->fails()) {
-        return response()->json(['status' => false, 'errors' => $validator->errors()], 422);
-    }
-
-    DB::beginTransaction();
-    try {
-        $userId = Auth::id();
-        
-        // Fix: Find record and verify ownership in one go
-        $ip = IpWhitelist::where('id', $Id)->where('user_id', $userId)->first();
-
-        if (!$ip) {
-            return response()->json(['status' => false, 'message' => 'Record not found or access denied']);
-        }
-
-        // Duplicate Check (Ignore current record ID)
-        $duplicate = IpWhitelist::where('user_id', $userId)
-            ->where('service_id', $request->service_id)
-            ->where('ip_address', $request->ip_address)
-            ->where('id', '!=', $Id)
-            ->where('is_deleted', '0')
-            ->exists();
-
-        if ($duplicate) {
-            return response()->json(['status' => false, 'message' => 'This IP is already added for this service']);
-        }
-
-        $ip->update([
-            'ip_address' => $request->ip_address,
-            'service_id' => $request->service_id,
-            'updated_by' => $userId,
+    public function editIpWhiteList(Request $request, $Id)
+    {
+        $validator = Validator::make($request->all(), [
+            'ip_address' => 'required|ip',
+            'service_id' => 'required|exists:global_services,id',
         ]);
 
-        DB::commit();
-        return response()->json(['status' => true, 'message' => 'IP address Updated Successfully']);
+        if ($validator->fails()) {
+            return response()->json(['status' => false, 'errors' => $validator->errors()], 422);
+        }
 
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return response()->json(['status' => false, 'message' => $e->getMessage()]);
+        DB::beginTransaction();
+        try {
+            $userId = Auth::id();
+
+            // Fix: Find record and verify ownership in one go
+            $ip = IpWhitelist::where('id', $Id)->where('user_id', $userId)->first();
+
+            if (! $ip) {
+                return response()->json(['status' => false, 'message' => 'Record not found or access denied']);
+            }
+
+            // Duplicate Check (Ignore current record ID)
+            $duplicate = IpWhitelist::where('user_id', $userId)
+                ->where('service_id', $request->service_id)
+                ->where('ip_address', $request->ip_address)
+                ->where('id', '!=', $Id)
+                ->where('is_deleted', '0')
+                ->exists();
+
+            if ($duplicate) {
+                return response()->json(['status' => false, 'message' => 'This IP is already added for this service']);
+            }
+
+            $ip->update([
+                'ip_address' => $request->ip_address,
+                'service_id' => $request->service_id,
+                'updated_by' => $userId,
+            ]);
+
+            DB::commit();
+
+            return response()->json(['status' => true, 'message' => 'IP address Updated Successfully']);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json(['status' => false, 'message' => $e->getMessage()]);
+        }
     }
-}
 
     public function statusIpWhiteList($Id)
     {
@@ -787,13 +789,12 @@ class UserController extends Controller
             $userId = Auth::user()->id;
             $ip = IpWhitelist::find($Id);
 
-             if (!$ip || $ip->user_id != $userId) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Unauthorized access or IP not found'
-            ]);
-        }
-
+            if (! $ip || $ip->user_id != $userId) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized access or IP not found',
+                ]);
+            }
 
             if (! $ip) {
                 return response()->json([
@@ -822,6 +823,49 @@ class UserController extends Controller
                 'status' => false,
                 'message' => 'Error: '.$e->getMessage(),
             ]);
+        }
+    }
+
+    public function generateMpin(Request $request)
+    {
+        try {
+
+            if (Auth::user()->role_id != '2') {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'You are unauthorized',
+                ], 403);
+            }
+
+            $request->validate([
+                'current_mpin' => 'required',
+                'new_mpin' => 'required|min:4|max:10',
+                'confirm_mpin' => 'required|same:new_mpin',
+            ]);
+
+            $user = Auth::user();
+
+            if (! Hash::check($request->current_mpin, $user->mpin)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Current MPIN is incorrect',
+                ]);
+            }
+
+            User::where('id', $user->id)->update([
+                'mpin' => Hash::make($request->new_mpin),
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'MPIN updated successfully',
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 }

@@ -86,10 +86,10 @@
 
         /* COMPLETED */
         /* .step-item.completed .step-circle {
-                                                                                                                        border-color: #198754;
-                                                                                                                        background: #198754;
-                                                                                                                        color: #fff;
-                                                                                                                    } */
+                                                                                                                            border-color: #198754;
+                                                                                                                            background: #198754;
+                                                                                                                            color: #fff;
+                                                                                                                        } */
     </style>
 
     @php
@@ -653,7 +653,7 @@
                                                     class="text-danger">*</span></label>
                                             <input type="password" class="form-control" name="current_mpin"
                                                 maxlength="6" pattern="\d*" inputmode="numeric"
-                                                placeholder="Enter 6-digit current MPIN">
+                                                placeholder="Enter 6-digit current MPIN" required>
                                             <small class="text-danger error-current_mpin"></small>
                                         </div>
 
@@ -661,15 +661,15 @@
                                             <label class="form-label fw-semibold">New MPIN <span
                                                     class="text-danger">*</span></label>
                                             <input type="password" class="form-control" name="new_mpin" maxlength="6"
-                                                pattern="\d*" inputmode="numeric" placeholder="Set 6-digit new MPIN">
+                                                pattern="\d*" inputmode="numeric" placeholder="Set 6-digit new MPIN" required>
                                             <small class="text-danger error-new_mpin"></small>
                                         </div>
 
                                         <div class="mb-3">
                                             <label class="form-label fw-semibold">Confirm New MPIN <span
                                                     class="text-danger">*</span></label>
-                                            <input type="password" class="form-control" name="new_mpin_confirmation"
-                                                maxlength="6" pattern="\d*" inputmode="numeric"
+                                            <input type="password" class="form-control" name="confirm_mpin"
+                                                maxlength="6" pattern="\d*" inputmode="numeric" required
                                                 placeholder="Confirm 6-digit new MPIN">
                                         </div>
 
@@ -2025,6 +2025,57 @@
                 });
             });
         });
+    </script>
+
+
+
+    <script>
+      $(document).ready(function() {
+    // Check if the form exists before binding
+    if ($('#changeMpinForm').length > 0) {
+        $('#changeMpinForm').on('submit', function(e) {
+            e.preventDefault(); // This STOPS the GET request
+            e.stopPropagation();
+
+            $('.text-danger').text('');
+            let submitBtn = $(this).find('button[type="submit"]');
+            submitBtn.prop('disabled', true).html('<i class="spinner-border spinner-border-sm"></i> Updating...');
+
+            $.ajax({
+                url: "{{ route('generate_mpin') }}",
+                type: "POST",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: $(this).serialize(),
+                success: function(response) {
+                    if (response.status) {
+                        Swal.fire('Success', response.message, 'success');
+                        $('#changeMpinForm')[0].reset();
+                    } else {
+                        Swal.fire('Error', response.message, 'error');
+                    }
+                },
+                error: function(xhr) {
+                    if (xhr.status === 422) {
+                        let errors = xhr.responseJSON.errors;
+                        $.each(errors, function(key, value) {
+                            // Target spans like .error-current_mpin
+                            $('.error-' + key).text(value[0]);
+                        });
+                    } else {
+                        // This will show you exactly what PHP is complaining about
+                        let errorMsg = xhr.responseJSON ? xhr.responseJSON.message : "Internal Server Error";
+                        Swal.fire('Error', errorMsg, 'error');
+                    }
+                },
+                complete: function() {
+                    submitBtn.prop('disabled', false).text('Update MPIN');
+                }
+            });
+        });
+    }
+});
     </script>
 
 
