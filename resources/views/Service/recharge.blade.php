@@ -484,7 +484,7 @@ $rechargePlanTypes = [
         return `
                 <div class="mb-3">
                     <label>Operator</label>
-                    <select class="form-select" id="operator">
+                    <select class="form-select" id="operator" name="operator">
                         ${options}
                     </select>
                 </div>
@@ -501,7 +501,7 @@ $rechargePlanTypes = [
         return `
                 <div class="mb-3">
                     <label>Circle</label>
-                    <select class="form-select" id="circle">
+                    <select class="form-select" id="circle" name="circle">
                         ${options}
                     </select>
                 </div>
@@ -518,7 +518,7 @@ $rechargePlanTypes = [
         return `
                 <div class="mb-3">
                     <label>Plan Type</label>
-                    <select class="form-select" id="planType">
+                    <select class="form-select" id="planType" name="planType">
                         ${options}
                     </select>
                 </div>
@@ -532,6 +532,18 @@ $rechargePlanTypes = [
                         ================================ */
     const serviceConfig = {
 
+        "Mobile Postpaid": {
+            steps: ["INPUT", "FETCH_BILL", "PAY"],
+            input: () => `
+                    <div class="mb-3">
+                        <label>Mobile Number</label>
+                        <input class="form-control" id="mobile" name="mobile" type="text">
+                    </div>
+                    ${buildOperatorDropdown()}
+                    ${buildCircleDropdown()}
+                `
+        },
+
         "Mobile Prepaid": {
             steps: ["INPUT", "FETCH_PLANS", "PAY"],
             input: () => `
@@ -542,18 +554,6 @@ $rechargePlanTypes = [
                     ${buildOperatorDropdown()}
                     ${buildCircleDropdown()}
                     ${buildPlanTypeDropdown()}
-                `
-        },
-
-        "Mobile Postpaid": {
-            steps: ["INPUT", "FETCH_BILL", "PAY"],
-            input: () => `
-                    <div class="mb-3">
-                        <label>Mobile Number</label>
-                        <input class="form-control" id="mobile" name="mobile" type="text">
-                    </div>
-                    ${buildOperatorDropdown()}
-                    ${buildCircleDropdown()}
                 `
         },
 
@@ -1178,60 +1178,59 @@ $rechargePlanTypes = [
 
 <!-- ----------------------------------------------------------------------------------------------------------->
 <!-------------------------------------Postpaid Recharge JS Starts Here------------------------------------------>
+
 <script>
-__fetchingPlans = false;
+    __fetchingPlans = false;
 
-document.getElementById('nextBtn').addEventListener('click', function (e) {
-    e.preventDefault(); 
+    document.getElementById('rechargeForm').addEventListener('submit', function(e) {
+        e.preventDefault();
 
-    if (currentService !== "Mobile Postpaid") return;
-    if (__fetchingPlans) return;
+        if (currentService !== "Mobile Postpaid") return;
+        if (__fetchingPlans) return;
 
-    const form = document.getElementById('rechargeForm');
-    if (!form) return;
+        const form = e.target;
 
-    const formData = new FormData(form);
-    const mobile   = formData.get('mobile');
-    const operator = formData.get('operator');
-    const circle   = formData.get('circle');
+        const formData = new FormData(form);
 
-    if (!mobile || !operator || !circle) {
-        alert('Please fill all fields');
-        return;
-    }
+        const mobile = formData.get('mobile');
+        const operator = formData.get('operator');
+        const circle = formData.get('circle');
 
-    __fetchingPlans = true;
-    stepIndex = 1;
-    loadStep();
+        console.log({
+            mobile,
+            operator,
+            circle
+        });
 
-    fetch("{{ route('bbps.postpaid_villBill') }}", {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': document
-                .querySelector('meta[name="csrf-token"]')
-                .getAttribute('content')
-        },
-        body: formData  
-    })
-    .then(res => res.json())
-    .then(data => {
-        __fetchingPlans = false;
-
-        if (!data.success) {
-            alert(data.message || 'Unable to fetch bill');
+        if (!mobile || !operator || !circle) {
+            alert('Please fill all fields');
             return;
         }
 
-        console.log('Bill Details:', data.data);
+        __fetchingPlans = true;
 
-    })
-    .catch(err => {
-        __fetchingPlans = false;
-        console.error(err);
-        alert('Something went wrong');
+        stepIndex = 1;
+        loadStep();
+
+        fetch("{{ route('bbps.postpaid_villBill') }}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document
+                        .querySelector('meta[name="csrf-token"]')
+                        .getAttribute('content')
+                },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                __fetchingPlans = false;
+                console.log(data);
+            })
+            .catch(() => __fetchingPlans = false);
     });
-});
 </script>
+
+
 
 
 
