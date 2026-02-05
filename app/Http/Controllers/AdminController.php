@@ -62,16 +62,18 @@ class AdminController extends Controller
         return view('Admin.profile')->with($data);
     }
 
-    public function dashboard()
+   public function dashboard()
     {
         $role = Auth::user()->role_id;
-        if (in_array($role, [1, 2])) {
+        if (in_array($role, [1])) {
             return view('Dashboard.dashboard');
         } elseif (in_array($role, [3])) {
 
             return view('Dashboard.api-dashboard');
         } elseif ($role == 4) {
             return view('Dashboard.support-dashboard');
+        }elseif ($role == 2){
+            return view('Dashboard.user-dashboard');
         }
     }
 
