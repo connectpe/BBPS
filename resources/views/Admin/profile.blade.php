@@ -86,10 +86,10 @@
 
         /* COMPLETED */
         /* .step-item.completed .step-circle {
-                                                                                                                            border-color: #198754;
-                                                                                                                            background: #198754;
-                                                                                                                            color: #fff;
-                                                                                                                        } */
+                                                                                                                                    border-color: #198754;
+                                                                                                                                    background: #198754;
+                                                                                                                                    color: #fff;
+                                                                                                                                } */
     </style>
 
     @php
@@ -661,7 +661,8 @@
                                             <label class="form-label fw-semibold">New MPIN <span
                                                     class="text-danger">*</span></label>
                                             <input type="password" class="form-control" name="new_mpin" maxlength="6"
-                                                pattern="\d*" inputmode="numeric" placeholder="Set 6-digit new MPIN" required>
+                                                pattern="\d*" inputmode="numeric" placeholder="Set 6-digit new MPIN"
+                                                required>
                                             <small class="text-danger error-new_mpin"></small>
                                         </div>
 
@@ -1814,7 +1815,6 @@
 
     <script>
         $(document).ready(function() {
-            // 1. DataTable Initialization
             var table = $('#ipWhitelistTable').DataTable({
                 processing: true,
                 serverSide: true,
@@ -1866,23 +1866,23 @@
                 ]
             });
 
-            // 2. Open Modal for ADD
+
             $('.btn[data-bs-target="#addIpModal"]').on('click', function() {
                 $('#ipForm')[0].reset();
-                $('#ip_id').val(''); // Clear ID
+                $('#ip_id').val('');
                 $('#modalTitle').text('Add IP to Whitelist');
                 $('#modalSubmitBtn').text('Save IP');
                 $('#modal_service_id').prop('disabled', false);
                 $('#ipModal').modal('show');
             });
 
-            // 3. Open Modal for EDIT
+
             $(document).on('click', '.edit-ip', function() {
                 const id = $(this).data('id');
                 const ip = $(this).data('ip');
                 const serviceId = $(this).data('service');
 
-                $('#ip_id').val(id); // Set ID
+                $('#ip_id').val(id);
                 $('#modal_ip_address').val(ip);
                 $('#modal_service_id').val(serviceId);
 
@@ -1891,7 +1891,7 @@
                 $('#ipModal').modal('show');
             });
 
-            // 4. Integrated Form Submission (Add/Update)
+
             $('#ipForm').on('submit', function(e) {
                 e.preventDefault();
                 const id = $('#ip_id').val();
@@ -1925,7 +1925,7 @@
                 });
             });
 
-            // 5. Status Change Toggle Logic
+
             $(document).on('change', '.status-toggle', function() {
                 let checkbox = $(this);
                 let id = checkbox.data('id');
@@ -2030,52 +2030,52 @@
 
 
     <script>
-      $(document).ready(function() {
-    // Check if the form exists before binding
-    if ($('#changeMpinForm').length > 0) {
-        $('#changeMpinForm').on('submit', function(e) {
-            e.preventDefault(); // This STOPS the GET request
-            e.stopPropagation();
+        $(document).ready(function() {
 
-            $('.text-danger').text('');
-            let submitBtn = $(this).find('button[type="submit"]');
-            submitBtn.prop('disabled', true).html('<i class="spinner-border spinner-border-sm"></i> Updating...');
+            if ($('#changeMpinForm').length > 0) {
+                $('#changeMpinForm').on('submit', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
 
-            $.ajax({
-                url: "{{ route('generate_mpin') }}",
-                type: "POST",
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                data: $(this).serialize(),
-                success: function(response) {
-                    if (response.status) {
-                        Swal.fire('Success', response.message, 'success');
-                        $('#changeMpinForm')[0].reset();
-                    } else {
-                        Swal.fire('Error', response.message, 'error');
-                    }
-                },
-                error: function(xhr) {
-                    if (xhr.status === 422) {
-                        let errors = xhr.responseJSON.errors;
-                        $.each(errors, function(key, value) {
-                            // Target spans like .error-current_mpin
-                            $('.error-' + key).text(value[0]);
-                        });
-                    } else {
-                        // This will show you exactly what PHP is complaining about
-                        let errorMsg = xhr.responseJSON ? xhr.responseJSON.message : "Internal Server Error";
-                        Swal.fire('Error', errorMsg, 'error');
-                    }
-                },
-                complete: function() {
-                    submitBtn.prop('disabled', false).text('Update MPIN');
-                }
-            });
+                    $('.text-danger').text('');
+                    let submitBtn = $(this).find('button[type="submit"]');
+                    submitBtn.prop('disabled', true).html(
+                        '<i class="spinner-border spinner-border-sm"></i> Updating...');
+
+                    $.ajax({
+                        url: "{{ route('generate_mpin') }}",
+                        type: "POST",
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        data: $(this).serialize(),
+                        success: function(response) {
+                            if (response.status) {
+                                Swal.fire('Success', response.message, 'success');
+                                $('#changeMpinForm')[0].reset();
+                            } else {
+                                Swal.fire('Error', response.message, 'error');
+                            }
+                        },
+                        error: function(xhr) {
+                            if (xhr.status === 422) {
+                                let errors = xhr.responseJSON.errors;
+                                $.each(errors, function(key, value) {
+                                    $('.error-' + key).text(value[0]);
+                                });
+                            } else {
+                                let errorMsg = xhr.responseJSON ? xhr.responseJSON.message :
+                                    "Internal Server Error";
+                                Swal.fire('Error', errorMsg, 'error');
+                            }
+                        },
+                        complete: function() {
+                            submitBtn.prop('disabled', false).text('Update MPIN');
+                        }
+                    });
+                });
+            }
         });
-    }
-});
     </script>
 
 
