@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Complaint Categories')
-@section('page-title', 'Management of Categories')
+@section('page-title', 'Categories')
 
 @section('content')
     <div class="card shadow-sm">
