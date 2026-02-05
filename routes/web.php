@@ -51,7 +51,6 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/add-s-member', [AdminController::class, 'addSupportMember'])->name('add.support.member');
         Route::get('/get-s-member/{id}', [AdminController::class, 'getSupportMember'])->name('get.support.member');
         Route::post('/edit-s-member/{user_id}', [AdminController::class, 'editSupportMember'])->name('edit.support.member');
-
     });
 
     // RECHARGE RELATED ROUTE 8010801087
