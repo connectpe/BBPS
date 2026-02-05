@@ -584,7 +584,7 @@ class UserController extends Controller
 
             return response()->json([
                 'status' => true,
-                'message' => 'IP address added Successfully'
+                'message' => 'IP address Added Successfully'
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -619,6 +619,7 @@ class UserController extends Controller
 
             $userId = Auth::user()->id;
             $ipCount = IpWhitelist::where('user_id', $userId)->where('is_deleted', '0')->count();
+            $ip = IpWhitelist::find($Id);
 
             if ($userId != $Id) {
                 return response()->json([
@@ -634,17 +635,120 @@ class UserController extends Controller
                 ]);
             }
 
-            IpWhitelist::create([
-                'user_id' => $userId,
+            if (!$ip) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Ip address not Found'
+                ]);
+            }
+
+            $data =  [
                 'ip_address' => $request->ip_address,
                 'updated_by' => $userId,
-            ]);
+            ];
+
+            $update = $ip->update($data);
 
             DB::commit();
 
             return response()->json([
                 'status' => true,
-                'message' => 'IP address added Successfully'
+                'message' => 'IP address Updated Successfully'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+
+    public function statusIpWhiteList($Id)
+    {
+
+        DB::beginTransaction();
+
+        try {
+
+            $userId = Auth::user()->id;
+            $ip = IpWhitelist::find($Id);
+
+            if ($userId != $Id) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Invalid User Id'
+                ]);
+            }
+
+            if (!$ip) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Ip address not Found'
+                ]);
+            }
+
+            $data =  [
+                'is_active' => $ip->is_active == '1' ? '0' : '1',
+                'updated_by' => $userId,
+            ];
+
+            $update = $ip->update($data);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Status Changed Successfully'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    public function deleteIpWhiteList($Id)
+    {
+
+        DB::beginTransaction();
+
+        try {
+
+            $userId = Auth::user()->id;
+            $ip = IpWhitelist::find($Id);
+
+            if ($userId != $Id) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Invalid User Id'
+                ]);
+            }
+
+            if (!$ip) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Ip address not Found'
+                ]);
+            }
+
+            $data =  [
+                'is_deleted' => '1',
+                'updated_by' => $userId,
+            ];
+
+            $update = $ip->update($data);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Ip Deleted Successfully'
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
