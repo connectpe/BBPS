@@ -198,7 +198,7 @@ class CommonController extends Controller
                     $request['whereIn'] = 'user_id';
                     $request['parentData'] = [Auth::user()->id];
                 }
-                break;
+            break;
 
             case 'providers':
                 $request['table'] = '\App\Models\Provider';
@@ -307,7 +307,7 @@ class CommonController extends Controller
                 $request['select'] = 'all';
                 $request['order'] = ['id', 'DESC'];
                 $request['parentData'] = 'all';
-                break;
+            break;
 
             case 'scheme-relations':
                 $request['table'] = '\App\Models\UserConfig';
@@ -376,7 +376,7 @@ class CommonController extends Controller
             // add more types and columns here
         ];
 
-        $filters = []; // separate variable to store dynamic filters
+        $filters = []; 
 
         if (isset($filterColumnsMap[$type])) {
             foreach ($filterColumnsMap[$type] as $column) {

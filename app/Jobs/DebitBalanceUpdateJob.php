@@ -41,7 +41,7 @@ class DebitBalanceUpdateJob implements ShouldQueue
      *
      * */
 
-    private $requestId, $paymentRefId, $call, $ServiceId, $errorDesc, $statusCode, $utr, $status;
+    private $requestId, $reference_number, $call, $mobile_number,$payment_ref_id,$payment_account_info,$connectpe_id,$recharge_type,$amount, $errorDesc, $statusCode, $utr, $status;
 
     public function __construct()
     {
@@ -65,7 +65,7 @@ class DebitBalanceUpdateJob implements ShouldQueue
         try {
 
             if ($this->call == 'balance_debit') {
-                $OrderData = Transaction::select('user_id', 'order_ref_id','contact_id')
+                $OrderData = Transaction::select('user_id', 'reference_number','contact_id')
                     ->where(['cron_status' => '0', 'status' => 'queued', 'user_id' => $this->userId, 'order_ref_id' => $this->orderRefId])
                     ->whereIn('area', ['11', '22'])
                     ->first();

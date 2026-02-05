@@ -33,6 +33,7 @@
         <ul class="nav nav-pills flex-column mb-auto">
 
             <!-- Dashboard -->
+            
             <li class="nav-item">
                 <a href="{{ route('dashboard') }}"
                     class="nav-link text-white {{ Route::is('dashboard') ? 'sidebar-active' : '' }}">
@@ -132,11 +133,7 @@
                 </ul>
             </li>
 
-                        </ul>
-                    </div>
-                </li>
-            </ul>
-        </li>
+                      
          <li class="nav-item">
                 <a href="{{ route('schemes.index') }}"
                     class="nav-link text-white {{ Route::currentRouteName() == 'schemes.index' ? 'sidebar-active' : '' }}">

@@ -43,6 +43,12 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('servicetoggle', [AdminController::class, 'disableUserService'])->name('admin.service_toggle');
 
         Route::post('logout', [AuthController::class, 'logout'])->name('admin.logout');
+
+        // Support member routes here 
+
+        Route::post('/add-s-member', [AdminController::class, 'addSupportMember'])->name('add.support.member');
+        Route::post('/edit-s-member/{user_id}', [AdminController::class, 'editSupportMember'])->name('edit.support.member');
+        
     });
 
     // RECHARGE RELATED ROUTE 8010801087
