@@ -396,6 +396,16 @@ class CommonController extends Controller
                     $request['parentData'] = [Auth::user()->id];
                 }
                 break;
+
+            case 'support-user-list-server':
+                $request['table'] = '\App\Models\User';
+                $request['searchData'] = ['id', 'name', 'email', 'mobile'];
+                $request['select'] = ['id', 'name', 'email', 'mobile', 'created_at'];
+                $request['whereIn'] = 'role_id';
+                $request['parentData'] = [4];
+                $request['order'] = ['id', 'DESC'];
+                break;
+
         }
 
         // For filter the Records
@@ -526,7 +536,7 @@ class CommonController extends Controller
                 if (is_numeric($value)) {
                     $query->where($column, $value);
                 } else {
-                    $query->where($column, 'LIKE', '%' . $value . '%');
+                    $query->where($column, 'LIKE', '%'.$value.'%');
                 }
             }
         }
@@ -534,7 +544,7 @@ class CommonController extends Controller
         if (isset($request['where']) && $request['where'] == 1 && isset($request->searchText) && ! empty($request->searchText)) {
             $query->where(function ($q) use ($request) {
                 foreach ($request['searchData'] as $column) {
-                    $q->orWhere($column, 'LIKE', '%' . $request->searchText . '%');
+                    $q->orWhere($column, 'LIKE', '%'.$request->searchText.'%');
                 }
             });
         }

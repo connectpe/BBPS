@@ -77,6 +77,13 @@
                                         Service Requests
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('support_details') }}"
+                                        class="nav-link text-white {{ Route::currentRouteName() == 'support_details' ? 'sidebar-active' : '' }}">
+                                        <i class="bi bi-person-plus-fill me-2"></i> Add New Support User
+                                    </a>
+                                </li>
+
 
                             </ul>
                         </div>
@@ -133,15 +140,6 @@
                     </li>
                 </ul>
             </li>
-
-                      
-         <li class="nav-item">
-                <a href="{{ route('schemes.index') }}"
-                    class="nav-link text-white {{ Route::currentRouteName() == 'schemes.index' ? 'sidebar-active' : '' }}">
-                    <i class="bi bi-diagram-3 me-2"></i> Schemes
-                </a>
-        </li>
-
 
         <!-- Reports -->
         <li class="nav-item mt-2">
@@ -560,6 +558,7 @@
             </a>
         </li>
 
+
         <li class="nav-item">
             <a href="{{ route('complain.report') }}"
                 class="nav-link text-white {{ Route::is('complain.report') ? 'sidebar-active' : '' }}">
@@ -568,7 +567,22 @@
             </a>
         </li>
 
-    </ul>
+
+
+            <li class="nav-item">
+                <form action="{{ route('admin.logout') }}" method="POST">
+                    @csrf
+                    <button type="submit"
+                        class="nav-link btn btn-link text-white w-100 text-start d-flex align-items-center gap-2 px-3"
+                        style="background-color: #e76666;">
+                        <i class="bi bi-box-arrow-right fs-5"></i>
+                        <span>Logout</span>
+                    </button>
+                </form>
+            </li>
+
+        </ul>
+
     @endif
 
 

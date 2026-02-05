@@ -371,7 +371,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
         img.replaceWith(div);
     }
 </script>
-@elseif($role == 2 || $role == 3)
+@elseif($role == 2 || $role == 3 || $role == 4)
 <div class="row align-items-center border rounded p-2 shadow-sm">
     <!-- User Image -->
     <div class="col">
@@ -411,7 +411,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 <div class="row mt-3 g-3">
 
     <!-- Card 1: Completed Transaction -->
-
+@if($role != 4)
     <div class="col-md-3">
         <div class="card shadow-lg text-center p-3 card-hover">
             <div class="card-body">
@@ -455,6 +455,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
         </div>
     </div>
 </div>
+@endif
 
 
 <div class="row mt-3">
@@ -471,6 +472,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                     data-bs-target="#security" type="button" role="tab" aria-controls="security"
                     aria-selected="false">Security Setting</button>
             </li>
+            @if($role != 4)
             <li class="nav-item" role="presentation">
                 <button class="nav-link fw-bold text-dark" id="kyc-tab" data-bs-toggle="tab"
                     data-bs-target="#kyc" type="button" role="tab" aria-controls="kyc"
@@ -496,6 +498,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                     data-bs-target="#support" type="button" role="tab" aria-controls="support"
                     aria-selected="false">Support</button>
             </li>
+            @endif
         </ul>
 
         <!-- Tabs content -->
@@ -785,17 +788,17 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
                                 <div class="d-flex justify-content-between mb-2">
                                     <span class="fw-semibold">Name:</span>
-                                    <span class="text-muted">{{$supportRepresentative?->user?->name ?? '----'}}</span>
+                                    <span class="text-muted">{{ $supportRepresentative?->assigned_support?->name ?? '----' }}</span>
                                 </div>
 
                                 <div class="d-flex justify-content-between mb-2">
                                     <span class="fw-semibold">Email:</span>
-                                    <span class="text-muted">{{$supportRepresentative?->user?->email ?? '----' }}</span>
+                                    <span class="text-muted">{{ $supportRepresentative?->assigned_support?->email ?? '----' }}</span>
                                 </div>
 
                                 <div class="d-flex justify-content-between mb-2">
                                     <span class="fw-semibold">Mobile:</span>
-                                    <span class="text-muted">{{$supportRepresentative?->user?->mobile ?? '----' }}</span>
+                                    <span class="text-muted">{{ $supportRepresentative?->assigned_support?->mobile ?? '----' }}</span>
                                 </div>
 
                             </div>
