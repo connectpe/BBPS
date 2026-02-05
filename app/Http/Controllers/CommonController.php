@@ -199,7 +199,7 @@ class CommonController extends Controller
                     $request['whereIn'] = 'user_id';
                     $request['parentData'] = [Auth::user()->id];
                 }
-            break;
+                break;
 
             case 'providers':
                 $request['table'] = '\App\Models\Provider';
@@ -334,7 +334,7 @@ class CommonController extends Controller
                     $request['whereIn'] = 'user_id';
                     $request['parentData'] = [Auth::user()->id];
                 } elseif (Auth::user()->role_id == 4) {
-                    $assignedUser =  UserAssignedToSupport::where('assined_to', Auth::user()->id)->pluck('user_id')->toArray();
+                    $assignedUser = UserAssignedToSupport::where('assined_to', Auth::user()->id)->pluck('user_id')->toArray();
                     $request['whereIn'] = 'user_id';
                     $request['parentData'] = $assignedUser;
                 }
@@ -345,7 +345,7 @@ class CommonController extends Controller
                 $request['select'] = 'all';
                 $request['order'] = ['id', 'DESC'];
                 $request['parentData'] = 'all';
-            break;
+                break;
 
             case 'scheme-relations':
                 $request['table'] = '\App\Models\UserConfig';
@@ -406,6 +406,34 @@ class CommonController extends Controller
                 $request['order'] = ['id', 'DESC'];
                 break;
 
+           case 'ip-whitelist':
+    $request['table'] = '\App\Models\IpWhitelist';
+    
+    // Zaroori: 'service' relationship ko load karein taaki naam display ho sake
+    $request['with'] = ['service']; 
+    
+    $request['searchData'] = ['ip_address'];
+    $request['select'] = 'all';
+
+    $orderIndex = $request->get('order');
+    if (isset($orderIndex) && count($orderIndex)) {
+        $columnsIndex = $request->get('columns');
+        $columnIndex = $orderIndex[0]['column'];
+        $columnName = $columnsIndex[$columnIndex]['data'] ?? 'id';
+        // Agar nested data (service.service_name) par sort kar rahe hain toh logic handle karein
+        $columnSortOrder = $orderIndex[0]['dir'];
+        $request['order'] = [$columnName, $columnSortOrder];
+    } else {
+        $request['order'] = ['id', 'DESC'];
+    }
+
+    $request['whereIn'] = 'user_id';
+    $request['parentData'] = [Auth::user()->id];
+
+    // Filters: Sirf wahi records jo delete nahi huye hain
+    $request->merge(['filters' => ['is_deleted' => '0']]);
+    break;
+
         }
 
         // For filter the Records
@@ -424,7 +452,7 @@ class CommonController extends Controller
             // add more types and columns here
         ];
 
-        $filters = []; 
+        $filters = [];
 
         if (isset($filterColumnsMap[$type])) {
             foreach ($filterColumnsMap[$type] as $column) {

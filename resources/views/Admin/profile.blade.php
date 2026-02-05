@@ -86,10 +86,10 @@
 
         /* COMPLETED */
         /* .step-item.completed .step-circle {
-                                                                        border-color: #198754;
-                                                                        background: #198754;
-                                                                        color: #fff;
-                                                                    } */
+                                                                                                                    border-color: #198754;
+                                                                                                                    background: #198754;
+                                                                                                                    color: #fff;
+                                                                                                                } */
     </style>
 
     @php
@@ -1229,60 +1229,57 @@
         </div>
 
         <div class="table-responsive">
-            <table id="ipWhitelistTable" class="table table-striped border shadow-sm" style="width:100%">
+            <table id="ipWhitelistTable" class="table table-striped border shadow-sm w-100">
                 <thead class="table-light">
                     <tr>
                         <th>#</th>
+                        <th>Service</th>
                         <th>IP Address</th>
                         <th>Status</th>
-                        <th>Added Date</th>
+                        <th>Created At</th>
                         <th class="text-center">Action</th>
                     </tr>
                 </thead>
-                <tbody id="ipTableBody">
-                    <tr>
-                        <td>1</td>
-                        <td>192.168.1.105</td>
-                        <td>
-                            <div class="form-check form-switch">
-                                <input class="form-check-input status-toggle" type="checkbox" data-id="1" checked
-                                    style="cursor: pointer;">
-                                {{-- <span class="status-label badge bg-success">Active</span> --}}
-                            </div>
-                        </td>
-                        <td>05-Feb-2026</td>
-                        <td class="text-center">
-                            <button class="btn btn-outline-danger btn-sm rounded-circle delete-ip" data-id="1">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
+                <tbody></tbody>
             </table>
         </div>
     </div>
 
-    <div class="modal fade" id="addIpModal" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="ipModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add IP to Whitelist</h5>
+                    <h5 class="modal-title" id="modalTitle">Add IP to Whitelist</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="addIpForm">
+                <form id="ipForm">
                     @csrf
+                    <input type="hidden" name="ip_id" id="ip_id">
+
                     <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label fw-semibold">IP Address <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="ip_address" id="ip_address"
-                                placeholder="e.g. 123.45.67.89" required pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$"
-                                title="Please enter a valid IP Address">
-                            <small class="text-muted">Enter the IP address you want to allow for this account.</small>
+                            <input type="text" class="form-control" name="ip_address" id="modal_ip_address"
+                                placeholder="e.g. 123.45.67.89" required pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Select Service <span
+                                    class="text-danger">*</span></label>
+                            <select class="form-select" name="service_id" id="modal_service_id" required>
+                                <option value="">-- Choose Service --</option>
+                                @foreach ($UserServices as $userService)
+                                    @if ($userService->service)
+                                        <option value="{{ $userService->service_id }}">
+                                            {{ $userService->service->service_name }}
+                                        </option>
+                                    @endif
+                                @endforeach
+                            </select>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn buttonColor">Save IP</button>
+                        <button type="submit" id="modalSubmitBtn" class="btn buttonColor">Save IP</button>
                     </div>
                 </form>
             </div>
@@ -1726,71 +1723,219 @@
 
 
     <script>
-
-
-
         $(document).ready(function() {
-            // Ajax Submission for Add IP Form
-            $('#addIpForm').on('submit', function(e) {
+            // 1. DataTable Initialization
+            var table = $('#ipWhitelistTable').DataTable({
+                processing: true,
+                serverSide: true,
+                pageLength: 5,
+                lengthMenu: [5, 10, 25, 50, 100],
+                ajax: {
+                    url: "{{ url('fetch/ip-whitelist/0/all') }}",
+                    type: 'POST',
+                    data: (d) => {
+                        d._token = "{{ csrf_token() }}";
+                    }
+                },
+                columns: [{
+                        data: 'id',
+                        render: (data, type, row, meta) => meta.row + meta.settings._iDisplayStart + 1
+                    },
+                    {
+                        data: 'service.service_name',
+                        defaultContent: '<span class="text-muted">N/A</span>'
+                    },
+                    {
+                        data: 'ip_address'
+                    },
+                    {
+                        data: 'is_active',
+                        render: (data, type, row) => `
+                    <div class="form-check form-switch">
+                        <input class="form-check-input status-toggle" type="checkbox" data-id="${row.id}" ${data == "1" ? 'checked' : ''}>
+                    </div>`
+                    },
+                    {
+                        data: 'created_at',
+                        render: (data) => typeof moment !== 'undefined' ? moment(data).format(
+                            'DD-MMM-YYYY hh:mm A') : data
+                    },
+                    {
+                        data: null,
+                        render: (data, type, row) => `
+                    <div class="btn-group">
+                        <button class="btn btn-outline-primary btn-sm edit-btn me-1 edit-ip" 
+                            data-id="${row.id}" data-ip="${row.ip_address}" data-service="${row.service_id}">
+                           <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-outline-danger btn-sm  delete-ip" data-id="${row.id}">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>`
+                    }
+                ]
+            });
+
+            // 2. Open Modal for ADD
+            $('.btn[data-bs-target="#addIpModal"]').on('click', function() {
+                $('#ipForm')[0].reset();
+                $('#ip_id').val(''); // Clear ID
+                $('#modalTitle').text('Add IP to Whitelist');
+                $('#modalSubmitBtn').text('Save IP');
+                $('#modal_service_id').prop('disabled', false);
+                $('#ipModal').modal('show');
+            });
+
+            // 3. Open Modal for EDIT
+            $(document).on('click', '.edit-ip', function() {
+                const id = $(this).data('id');
+                const ip = $(this).data('ip');
+                const serviceId = $(this).data('service');
+
+                $('#ip_id').val(id); // Set ID
+                $('#modal_ip_address').val(ip);
+                $('#modal_service_id').val(serviceId);
+
+                $('#modalTitle').text('Update IP Address');
+                $('#modalSubmitBtn').text('Update IP');
+                $('#ipModal').modal('show');
+            });
+
+            // 4. Integrated Form Submission (Add/Update)
+            $('#ipForm').on('submit', function(e) {
                 e.preventDefault();
+                const id = $('#ip_id').val();
+                const submitBtn = $('#modalSubmitBtn');
+                const targetUrl = id ? "{{ url('update-ip-address') }}/" + id :
+                    "{{ route('add_ip_address') }}";
 
-                let formData = $(this).serialize();
-                let submitBtn = $(this).find('button[type="submit"]');
-
-                // Button ko disable karein taaki multiple clicks na hon
                 submitBtn.prop('disabled', true).html(
                     '<span class="spinner-border spinner-border-sm"></span> Saving...');
 
                 $.ajax({
-                    url: "{{ route('add_ip_address') }}",
+                    url: targetUrl,
                     type: "POST",
-                    data: formData,
-                    success: function(response) {
-                        if (response.status) {
-                            // Success Message
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Success!',
-                                text: response.message,
-                                timer: 2000,
-                                showConfirmButton: false
-                            });
-
-                            $('#addIpModal').modal('hide'); // Modal close karein
-                            $('#addIpForm')[0].reset(); // Form clear karein
-
-                            // DataTable ko refresh karein bina page reload kiye
-                            // Agar aapne table ID 'ipWhitelistTable' rakhi hai:
-                            if ($.fn.DataTable.isDataTable('#ipWhitelistTable')) {
-                                location
-                            .reload(); // Best approach to fetch new data with correct IDs
-                            }
+                    data: $(this).serialize(),
+                    success: function(res) {
+                        if (res.status) {
+                            $('#ipModal').modal('hide');
+                            table.ajax.reload(null, false);
+                            Swal.fire('Success', res.message, 'success');
                         } else {
-                            Swal.fire('Warning', response.message, 'warning');
+                            Swal.fire('Warning', res.message, 'warning');
                         }
                     },
                     error: function(xhr) {
-                        if (xhr.status === 422) {
-                            let errors = xhr.responseJSON.errors;
-                            let errorMsg = '';
-                            $.each(errors, function(key, value) {
-                                errorMsg += value[0] + '<br>';
-                            });
-                            Swal.fire('Validation Error', errorMsg, 'error');
-                        } else {
-                            Swal.fire('Error', 'Something went wrong. Please try again.',
-                                'error');
-                        }
+                        let errorMsg = xhr.status === 422 ? Object.values(xhr.responseJSON
+                            .errors).flat().join('<br>') : 'Internal Server Error';
+                        Swal.fire('Error', errorMsg, 'error');
                     },
-                    complete: function() {
-                        // Button wapas enable karein
-                        submitBtn.prop('disabled', false).text('Save IP');
+                    complete: () => submitBtn.prop('disabled', false).text(id ? 'Update IP' :
+                        'Save IP')
+                });
+            });
+
+            // 5. Status Change Toggle Logic
+            $(document).on('change', '.status-toggle', function() {
+                let checkbox = $(this);
+                let id = checkbox.data('id');
+                let isChecked = checkbox.is(':checked') ? 1 : 0;
+                let statusText = isChecked ? "activate" : "deactivate";
+
+                Swal.fire({
+                    title: 'Change Status?',
+                    text: `Do you want to ${statusText} this IP address?`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, proceed!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+
+                        $.ajax({
+                            url: "{{ url('status-ip-address') }}/" + id,
+                            type: "GET",
+                            success: function(res) {
+                                if (res.status) {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Updated!',
+                                        text: res.message,
+                                        timer: 1500,
+                                        showConfirmButton: false
+                                    });
+                                    table.ajax.reload(null,
+                                        false);
+                                } else {
+                                    Swal.fire('Error', res.message, 'error');
+                                    checkbox.prop('checked', !checkbox.is(
+                                        ':checked'));
+                                }
+                            },
+                            error: function() {
+                                Swal.fire('Error', 'Server side error occurred',
+                                    'error');
+                                checkbox.prop('checked', !checkbox.is(
+                                    ':checked'));
+                            }
+                        });
+                    } else {
+
+                        checkbox.prop('checked', !checkbox.is(':checked'));
+                    }
+                });
+            });
+
+
+
+            $(document).on('click', '.delete-ip', function(e) {
+                e.preventDefault();
+                let id = $(this).data('id');
+                let deleteUrl = "{{ url('delete-ip-address') }}/" + id;
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This IP will be removed from your whitelist!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+
+
+                        $.ajax({
+                            url: deleteUrl,
+                            type: "GET",
+                            success: function(res) {
+                                if (res.status) {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Deleted!',
+                                        text: res.message,
+                                        timer: 1500,
+                                        showConfirmButton: false
+                                    });
+                                    table.ajax.reload(null, false);
+                                } else {
+                                    Swal.fire('Error', res.message, 'error');
+                                }
+                            },
+                            error: function(xhr) {
+                                console.error(xhr.responseText);
+                                Swal.fire('Error',
+                                    'Server error: Could not delete the IP.',
+                                    'error');
+                            }
+                        });
                     }
                 });
             });
         });
     </script>
-
 
 
 @endsection

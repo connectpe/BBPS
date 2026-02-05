@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Models\UserAssignedToSupport;
 use App\Models\UserConfig;
 use App\Models\UsersBank;
+use App\Models\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -46,7 +47,7 @@ class AdminController extends Controller
             $data['supportRepresentative'] = UserAssignedToSupport::where('user_id', $userId)->with('assigned_support')->first();
 
             $data['usersBank'] = UsersBank::where('user_id', $userId)->first();
-
+            $data['UserServices'] = UserService::where('user_id', $userId)->where('status', 'approved')->get();
             return view('Admin.profile')->with($data);
         } catch (\Exception $e) {
             return response()->json([
@@ -62,7 +63,7 @@ class AdminController extends Controller
         return view('Admin.profile')->with($data);
     }
 
-   public function dashboard()
+    public function dashboard()
     {
         $role = Auth::user()->role_id;
         if (in_array($role, [1])) {
@@ -72,7 +73,7 @@ class AdminController extends Controller
             return view('Dashboard.api-dashboard');
         } elseif ($role == 4) {
             return view('Dashboard.support-dashboard');
-        }elseif ($role == 2){
+        } elseif ($role == 2) {
             return view('Dashboard.user-dashboard');
         }
     }
@@ -193,7 +194,7 @@ class AdminController extends Controller
             }
 
             $request->validate([
-                'service_name' => 'required|string|max:50|unique:global_services,service_name,' . $serviceId,
+                'service_name' => 'required|string|max:50|unique:global_services,service_name,'.$serviceId,
             ]);
 
             $service = GlobalService::where('id', $serviceId)->first();
@@ -355,7 +356,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : ' . $e->getMessage(),
+                'message' => 'Error : '.$e->getMessage(),
             ], 500);
         }
     }
@@ -366,7 +367,7 @@ class AdminController extends Controller
         $request->validate(
             [
                 'serviceId' => 'required|exists:global_services,id',
-                'providerName' => 'required|string|max:100|unique:providers,provider_name,' . $Id,
+                'providerName' => 'required|string|max:100|unique:providers,provider_name,'.$Id,
             ],
             [
                 'serviceId.required' => 'Please select a service.',
@@ -403,7 +404,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : ' . $e->getMessage(),
+                'message' => 'Error : '.$e->getMessage(),
             ], 500);
         }
     }
@@ -537,13 +538,13 @@ class AdminController extends Controller
 
                 return response()->json([
                     'status' => false,
-                    'message' => 'Error : ' . $e->getMessage(),
+                    'message' => 'Error : '.$e->getMessage(),
                 ]);
             }
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error : ' . $e->getMessage(),
+                'message' => 'Error : '.$e->getMessage(),
             ]);
         }
     }
@@ -662,13 +663,13 @@ class AdminController extends Controller
 
                 return response()->json([
                     'status' => false,
-                    'message' => 'Error : ' . $e->getMessage(),
+                    'message' => 'Error : '.$e->getMessage(),
                 ]);
             }
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error : ' . $e->getMessage(),
+                'message' => 'Error : '.$e->getMessage(),
             ]);
         }
     }
@@ -719,7 +720,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : ' . $e->getMessage(),
+                'message' => 'Error : '.$e->getMessage(),
             ]);
         }
     }
@@ -737,7 +738,7 @@ class AdminController extends Controller
     public function updateAssignedSchemetoUser(Request $request, $configId)
     {
         $validator = Validator::make($request->all(), [
-            'user_id' => 'required|exists:users,id|unique:user_configs,user_id,' . $configId,
+            'user_id' => 'required|exists:users,id|unique:user_configs,user_id,'.$configId,
             'scheme_id' => 'required|exists:schemes,id',
         ], [
             'user_id.required' => 'User Id is required',
@@ -811,7 +812,7 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json(['status' => false, 'message' => 'Error: ' . $e->getMessage()], 500);
+            return response()->json(['status' => false, 'message' => 'Error: '.$e->getMessage()], 500);
         }
     }
 
@@ -880,7 +881,7 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json(['status' => false, 'message' => 'Error: ' . $e->getMessage()], 500);
+            return response()->json(['status' => false, 'message' => 'Error: '.$e->getMessage()], 500);
 
         }
     }
@@ -916,7 +917,7 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error: ' . $e->getMessage(),
+                'message' => 'Error: '.$e->getMessage(),
             ], 500);
         }
 
@@ -1017,5 +1018,4 @@ class AdminController extends Controller
             ]);
         }
     }
-
 }
