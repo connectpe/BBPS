@@ -43,11 +43,15 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('servicetoggle', [AdminController::class, 'disableUserService'])->name('admin.service_toggle');
         Route::post('logout', [AuthController::class, 'logout'])->name('admin.logout');
 
+
+
         // Support member routes here 
 
+        Route::get('/support-details', [AdminController::class, 'supportdetails'])->name('support_details');
         Route::post('/add-s-member', [AdminController::class, 'addSupportMember'])->name('add.support.member');
+        Route::get('/get-s-member/{id}', [AdminController::class, 'getSupportMember'])->name('get.support.member');
         Route::post('/edit-s-member/{user_id}', [AdminController::class, 'editSupportMember'])->name('edit.support.member');
-        
+
     });
 
     // RECHARGE RELATED ROUTE 8010801087
@@ -171,9 +175,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/assign-user-to-support', [AdminController::class, 'UserAssignedtoSupportuser'])->name('save_support_assignment');
     Route::get('/edit-support-assignment/{id}', [AdminController::class, 'editSupportAssignment']);
     Route::delete('delete-support-assignment/{id}', [AdminController::class, 'deleteSupportAssignment']);
-
-
-
 
     Route::prefix('support')->group(function () {
         Route::get('complaints-report', [SupportDashboardController::class, 'userComplaints'])->name('complaints_report');

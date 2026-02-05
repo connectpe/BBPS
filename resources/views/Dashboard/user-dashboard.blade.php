@@ -18,7 +18,7 @@
                 <h6 class="fw-bold mb-3">Our Services</h6>
 
                 <div class="row">
-                    <div class="row g-2 align-items-end">
+                    {{-- <div class="row g-2 align-items-end">
 
 
                         <div class="col-md-3">
@@ -37,6 +37,7 @@
                                 <option value="reversed">Reversed</option>
                             </select>
                         </div>
+
 
 
                         <div class="col-md-3">
@@ -64,12 +65,12 @@
                             <button class="btn buttonColor " id="applyFilter"> Filter</button>
                             <button class="btn btn-secondary" id="resetFilter">Reset</button>
                         </div>
-                    </div>
+                    </div> --}}
                 </div>
 
                 <div class="row g-3 text-center">
 
-                    {{-- <!-- @php
+                     @php
                     $services = [
                     ['name' => 'Bill Pay', 'icon' => 'bi-receipt'],
                     ['name' => 'Cash Collection', 'icon' => 'bi-cash-stack'],
@@ -96,7 +97,7 @@
                             </a>
                         </div>
                     </div>
-                    @endforeach --> --}}
+                    @endforeach
 
                     <div class="chart-wrapper mt-4" style="position: relative; width: 100%; max-width: 250px; margin: 0 auto;">
                         <canvas id="reportChart" class="chart-canvas"></canvas>
