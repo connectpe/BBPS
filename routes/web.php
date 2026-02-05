@@ -179,6 +179,9 @@ Route::group(['middleware' => ['auth']], function () {
 
 
     Route::post('add-ip-address', [UserController::class, 'addIpWhiteList'])->name('add_ip_address');
+    Route::post('update-ip-address/{id}', [UserController::class, 'editIpWhiteList'])->name('update_ip_address');
+    Route::get('status-ip-address/{id}', [UserController::class, 'statusIpWhiteList'])->name('status_ip_address');
+    Route::get('delete-ip-address/{id}', [UserController::class, 'deleteIpWhiteList'])->name('delete_ip_address');
 });
 
 Route::prefix('admin', function () {
