@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class IpWhitelist extends Model
 {
-    protected $fillable = ['user_id', 'ip_address','is_active','updated_by'];
+    protected $fillable = ['user_id', 'service_id', 'ip_address', 'is_active', 'updated_by'];
 }

@@ -535,17 +535,18 @@ class UserController extends Controller
 
     public function ApiLog()
     {
-        $users = User::where('role_id', '!=', '1')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
+        $users = User::whereIn('role_id', ['2', '3'])->where('status', '!=', '0')->orderBy('id', 'desc')->get();
         return view('Users.api-log', compact('users'));
     }
 
 
-    // Ip Whitelist 
+    // Ip Whitelist
     public function addIpWhiteList(Request $request)
     {
 
         $validator = Validator::make($request->all(), [
-            'ip_address' => ['required', 'ip'],
+            'ip_address' => 'required|ip',
+            'service_id' => 'required|exist:global_services,id'
         ], [
             'ip_address.required' => 'IP address is required.',
             'ip_address.ip' => 'Please enter a valid IP address.',
@@ -565,7 +566,8 @@ class UserController extends Controller
 
             $userId = Auth::user()->id;
 
-            $ipCount = IpWhitelist::where('user_id', $userId)->where('is_deleted', '0')->count();
+            $ipCount = IpWhitelist::where('user_id', $userId)->where('service_id', $request->service_id)->where('is_deleted', '0')->count();
+            $duplicateIp = IpWhitelist::where('user_id', $userId)->where('service_id', $request->service_id)->where('ip_address', $request->ip_address)->where('is_deleted', '0')->count();
 
             if ($ipCount > 4) {
                 return response()->json([
@@ -574,11 +576,21 @@ class UserController extends Controller
                 ]);
             }
 
-            IpWhitelist::create([
+            if ($duplicateIp > 0) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Duplicate Ip for selected Service'
+                ]);
+            }
+
+            $data = [
                 'user_id' => $userId,
                 'ip_address' => $request->ip_address,
+                'service_id' => $request->service_id,
                 'updated_by' => $userId,
-            ]);
+            ];
+
+            IpWhitelist::create($data);
 
             DB::commit();
 
@@ -600,7 +612,8 @@ class UserController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            'ip_address' => ['required', 'ip'],
+            'ip_address' => 'required|ip',
+            'service_id' => 'required|exist:global_services,id'
         ], [
             'ip_address.required' => 'IP address is required.',
             'ip_address.ip' => 'Please enter a valid IP address.',
@@ -618,7 +631,8 @@ class UserController extends Controller
         try {
 
             $userId = Auth::user()->id;
-            $ipCount = IpWhitelist::where('user_id', $userId)->where('is_deleted', '0')->count();
+            $ipCount = IpWhitelist::where('user_id', $userId)->where('service_id', $request->service_id)->where('is_deleted', '0')->count();
+            $duplicateIp = IpWhitelist::where('user_id', $userId)->where('service_id', $request->service_id)->where('ip_address', $request->ip_address)->where('is_deleted', '0')->count();
             $ip = IpWhitelist::find($Id);
 
             if ($userId != $Id) {
@@ -642,8 +656,16 @@ class UserController extends Controller
                 ]);
             }
 
+            if ($duplicateIp > 0) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Duplicate Ip for selected Service'
+                ]);
+            }
+
             $data =  [
                 'ip_address' => $request->ip_address,
+                'service_id' => $request->service_id,
                 'updated_by' => $userId,
             ];
 
@@ -657,7 +679,6 @@ class UserController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
-
             return response()->json([
                 'status' => false,
                 'message' => 'Error: ' . $e->getMessage()

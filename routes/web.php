@@ -50,6 +50,11 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/add-s-member', [AdminController::class, 'addSupportMember'])->name('add.support.member');
         Route::get('/get-s-member/{id}', [AdminController::class, 'getSupportMember'])->name('get.support.member');
         Route::post('/edit-s-member/{user_id}', [AdminController::class, 'editSupportMember'])->name('edit.support.member');
+
+
+        Route::post('add-complaint-category', [UserController::class, 'addComplaintCategory'])->name('add_complaint_category');
+        Route::post('update-complaint-category/{id}', [UserController::class, 'updateComplaintCategory'])->name('update_complaint_category');
+        Route::get('status-complaint-category/{id}', [UserController::class, 'statusComplaintCategory'])->name('status_complaint_category');
     });
 
     // RECHARGE RELATED ROUTE 8010801087

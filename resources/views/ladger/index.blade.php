@@ -5,200 +5,276 @@
 
 @section('content')
 
-    {{-- FILTER SECTION (Same as Transactions style) --}}
-    <div class="accordion mb-3" id="filterAccordion">
-        <div class="accordion-item">
-            <h2 class="accordion-header">
-                <button class="accordion-button collapsed fw-bold" type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#collapseFilter">
-                    Filter Ledger
-                </button>
-            </h2>
+@php
+$role = Auth::user()->role_id;
+@endphp
 
-            <div id="collapseFilter" class="accordion-collapse collapse">
-                <div class="accordion-body">
-                    <div class="row g-3 align-items-end">
+<div class="accordion mb-3" id="filterAccordion">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingFilter">
+            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
+                Filter Users
+            </button>
+        </h2>
+        <div id="collapseFilter" class="accordion-collapse collapse" aria-labelledby="headingFilter" data-bs-parent="#filterAccordion">
+            <div class="accordion-body">
+                <div class="row g-3 align-items-end">
+                    @if($role == 1)
+                    <div class="col-md-2">
+                        <label for="filterUser" class="form-label">User</label>
+                        <select name="filterUser" id="filterUser" class="form-control">
+                            <option value="">--Select User--</option>
+                            @foreach($users as $value)
+                            <option value="{{$value->id}}">{{$value->name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    @endif
 
-                        <div class="col-md-4">
-                            <label class="form-label">Order Reference ID</label>
-                            <input type="text" id="filterReference" class="form-control">
-                        </div>
+                    <div class="col-md-2">
+                        <label for="filterDateFrom" class="form-label">From Date</label>
+                        <input type="date" class="form-control" id="filterDateFrom">
+                    </div>
 
-                        <div class="col-md-4">
-                            <label class="form-label">User Name</label>
-                            <input type="text" id="filterUser" class="form-control">
-                        </div>
+                    <div class="col-md-2">
+                        <label for="filterDateTo" class="form-label">To Date</label>
+                        <input type="date" class="form-control" id="filterDateTo">
+                    </div>
+                    <div class="col-md-2 d-flex gap-2">
+                        <!-- Buttons aligned with input fields -->
+                        <button class="btn buttonColor " id="applyFilter"> Filter</button>
 
-                        <div class="col-md-4">
-                            <label class="form-label">Order ID</label>
-                            <input type="text" id="filterOrderId" class="form-control">
-                        </div>
-
-                        <div class="col-md-3">
-                            <label class="form-label">From Date</label>
-                            <input type="date" id="filterDateFrom" class="form-control">
-                        </div>
-
-                        <div class="col-md-3">
-                            <label class="form-label">To Date</label>
-                            <input type="date" id="filterDateTo" class="form-control">
-                        </div>
-
-                        <div class="col-md-3 d-flex gap-2">
-                            <button class="btn buttonColor" id="applyFilter">Filter</button>
-                            <button class="btn btn-secondary" id="resetFilter">Reset</button>
-                        </div>
-
+                        <button class="btn btn-secondary" id="resetFilter">Reset</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    {{-- TABLE --}}
-    <div class="col-12">
-        <div class="card shadow-sm">
-            <div class="card-body pt-4">
-                <div class="table-responsive">
-                    <table id="ladgerTable" class="table table-striped table-bordered table-hover w-100">
+<div class="col-12">
+    <div class="card shadow-sm">
+        <div class="card-body pt-4">
+            <div class="table-responsive">
+                <table id="usersTable" class="table table-striped table-bordered table-hover w-100">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            @if($role == 1)
+                            <th>Organization Name</th>
+                            @else
+                            <th> </th>
+                            @endif
+                            <th>Service</th>
+                            <th>Reference No.</th>
+                            <th>Request Id</th>
+                            <th>ConnectPe Id</th>
+                            <th>Txn Amt.</th>
+                            <th>Total Txn Amt.</th>
+                            <th>Txn Type</th>
+                            <th>Opening Balance</th>
+                            <th>Closing Balance</th>
+                            <th>Date</th>
+                            <th>Remark</th>
+                        </tr>
+                    </thead>
+                    <tbody>
 
-                        <thead class="table-light">
-                            <tr>
-                                <th>Id</th>
-                                <th>Order Reference ID</th>
-                                <th>User Name</th>
-                                <th>Order Id</th>
-                                <th>Amount</th>
-                                <th>Date</th>
-                                <th>Type</th>
-                                <th>Narration</th>
-                                <th>Opening</th>
-                                <th>Closing</th>
-                                <th>Remark</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>REF12345</td>
-                                <td>John Doe</td>
-                                <td>9876543210</td>
-                                <td>₹500</td>
-                                <td>22-01-2026</td>
-                                <td>
-                                    <span class="badge bg-success">Credit</span>
-                                </td>
-                                <td>Wallet Topup</td>
-                                <td>₹1,000</td>
-                                <td>₹1,500</td>
-                                <td>Success</td>
-                            </tr>
-                        </tbody>
-
-                    </table>
-                </div>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
+</div>
 
-    {{-- SCRIPT --}}
-    <script>
-        $(document).ready(function() {
-            function parseDMY(dateStr) {
-                if (!dateStr) return null;
-                const parts = dateStr.trim().split('-');
-                if (parts.length !== 3) return null;
+<script>
+    $(document).ready(function() {
+        let role = "{{$role}}";
+        var table = $('#usersTable').DataTable({
+            processing: true,
+            serverSide: true,
+            columnDefs: [{
+                targets: 1, // 👈 column index
+                visible: role == 1 // 👈 ONLY show for role 1
+            }],
+            ajax: {
+                url: "{{url('fetch')}}/ledger/0",
+                type: 'POST',
+                data: function(d) {
+                    d._token = $('meta[name="csrf-token"]').attr('content');
+                    d.user_id = $('#filterUser').val();
+                    d.date_from = $('#filterDateFrom').val();
+                    d.date_to = $('#filterDateTo').val();
+                }
+            },
+            pageLength: 10,
+            lengthMenu: [5, 10, 25, 50],
+            responsive: false,
+            dom: "<'row mb-2'<'col-sm-4'l><'col-sm-4'f><'col-sm-4 text-end'B>>" +
+                "<'row'<'col-12'tr>>" +
+                "<'row mt-2'<'col-sm-6'i><'col-sm-6'p>>",
+            buttons: [{
+                    extend: 'excelHtml5',
+                    text: 'Excel',
+                    className: 'btn buttonColor btn-sm'
 
-                const dd = parseInt(parts[0], 10);
-                const mm = parseInt(parts[1], 10) - 1;
-                const yyyy = parseInt(parts[2], 10);
+                },
+                {
+                    extend: 'pdfHtml5',
+                    text: 'PDF',
+                    className: 'btn buttonColor btn-sm'
+                }
+            ],
+            language: {
+                searchPlaceholder: "Search ledgers..."
+            },
 
-                const d = new Date(yyyy, mm, dd);
-                return isNaN(d.getTime()) ? null : d;
+            columns: [{
+                    data: 'id'
+                },
+                {
+                    data: null,
+                    render: function(data, type, row) {
+                        let url = "{{ route('view_user', ['id' => 'id']) }}".replace('id', row.user_id);
+                        const userName = row?.user?.name;
+                        const businessName = row?.user?.business?.business_name;
+
+                        return `
+                                <a href="${url}" class="text-primary fw-semibold text-decoration-none">
+                                    ${userName ?? '----'} <br/>
+                                    [${businessName ?? '----'}]
+                                </a>
+                            `;
+                    }
+                },
+
+                {
+                    data: 'service.service_name'
+                },
+                {
+                    data: 'reference_no'
+                },
+                {
+                    data: 'request_id'
+                },
+                {
+                    data: 'connectpe_id'
+                },
+                {
+                    data: 'txn_amount',
+                    render: data => `₹ ${data}`
+                },
+
+                {
+                    data: 'total_txn_amount',
+                    render: data => `₹ ${data}`
+                },
+                {
+                    data: 'txn_type'
+                },
+                {
+                    data: 'opening_balance',
+                    render: data => `₹ ${data}`
+                },
+                {
+                    data: 'closing_balanace',
+                    render: data => `₹ ${data}`
+                },
+                {
+                    data: 'txn_date',
+                    render: function(data) {
+                        return formatDateTime(data)
+                    }
+                },
+                {
+                    data: 'remarks',
+                    render: function(data) {
+                        return `<i class="fas fa-eye cursor-pointer viewModalBtn"  data-title="Remark" data-content='${JSON.stringify(data)}'></i>`;
+                    }
+                },
+            ]
+        });
+
+        // Apply filter
+        $('#applyFilter').on('click', function() {
+            table.ajax.reload();
+        });
+
+        // Reset filter
+        $('#resetFilter').on('click', function() {
+            $('#filterUser').val('');
+            $('#filterDateFrom').val('');
+            $('#filterDateTo').val('');
+            table.ajax.reload();
+        });
+    });
+
+
+    function changeStatusDropdown(selectElement, id) {
+        const newStatus = selectElement.value;
+        const prevStatus = selectElement.getAttribute('data-prev');
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'Do you want to change the status?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+
+            if (!result.isConfirmed) {
+                selectElement.value = prevStatus;
+                return;
             }
 
-            let ledgerDateFilterFn = null;
-
-            let table = $('#ladgerTable').DataTable({
-                pageLength: 10,
-                lengthMenu: [5, 10, 25, 50],
-                responsive: true,
-
-                dom: "<'row mb-2'<'col-sm-4'l><'col-sm-4'f><'col-sm-4 text-end'B>>" +
-                     "<'row'<'col-12'tr>>" +
-                     "<'row mt-2'<'col-sm-6'i><'col-sm-6'p>>",
-
-                buttons: [
-                    {
-                        extend: 'excelHtml5',
-                        text: 'Excel',
-                        className: 'btn buttonColor btn-sm'
-                    },
-                    {
-                        extend: 'pdfHtml5',
-                        text: 'PDF',
-                        className: 'btn buttonColor btn-sm'
+            $.ajax({
+                url: "{{ route('admin.user_status.change') }}",
+                type: 'POST',
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    status: newStatus,
+                    id: id
+                },
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Updated!',
+                            text: response.message ?? 'Status updated successfully',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
                     }
-                ],
+                    // update previous value after success
+                    selectElement.setAttribute('data-prev', newStatus);
+                },
+                error: function(xhr) {
+                    // rollback on error
+                    selectElement.value = prevStatus;
 
-                language: {
-                    searchPlaceholder: "Search ledger..."
+                    let message = 'Something went wrong!';
+
+                    if (xhr.status === 422 && xhr.responseJSON?.errors) {
+                        const firstKey = Object.keys(xhr.responseJSON.errors)[0];
+                        message = xhr.responseJSON.errors[firstKey][0];
+                    } else if (xhr.responseJSON?.message) {
+                        message = xhr.responseJSON.message;
+                    }
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
                 }
             });
-
-
-            $('#applyFilter').on('click', function () {
-                table.column(1).search($('#filterReference').val());
-                table.column(2).search($('#filterUser').val());
-                table.column(3).search($('#filterOrderId').val());
-
-                const dateFromVal = $('#filterDateFrom').val();
-                const dateToVal   = $('#filterDateTo').val(); 
-
-                const fromDate = dateFromVal ? new Date(dateFromVal) : null;
-                const toDate   = dateToVal ? new Date(dateToVal) : null;
-                if (toDate) toDate.setHours(23, 59, 59, 999);
-                if (ledgerDateFilterFn) {
-                    const idx = $.fn.dataTable.ext.search.indexOf(ledgerDateFilterFn);
-                    if (idx !== -1) $.fn.dataTable.ext.search.splice(idx, 1);
-                }
-
-                ledgerDateFilterFn = function(settings, data, dataIndex) {
-                    if (settings.nTable.id !== 'ladgerTable') return true;
-
-                    const dateCell = data[5];
-                    const cellDate = parseDMY(dateCell);
-
-                    if (!cellDate) return true;
-
-                    if (fromDate && cellDate < fromDate) return false;
-                    if (toDate && cellDate > toDate) return false;
-
-                    return true;
-                };
-
-                $.fn.dataTable.ext.search.push(ledgerDateFilterFn);
-
-                table.draw();
-            });
-            $('#resetFilter').on('click', function () {
-                $('#filterReference').val('');
-                $('#filterUser').val('');
-                $('#filterOrderId').val('');
-                $('#filterDateFrom').val('');
-                $('#filterDateTo').val('');
-                if (ledgerDateFilterFn) {
-                    const idx = $.fn.dataTable.ext.search.indexOf(ledgerDateFilterFn);
-                    if (idx !== -1) $.fn.dataTable.ext.search.splice(idx, 1);
-                    ledgerDateFilterFn = null;
-                }
-
-                table.search('').columns().search('').draw();
-            });
-
         });
-    </script>
+    }
+</script>
 
 @endsection
