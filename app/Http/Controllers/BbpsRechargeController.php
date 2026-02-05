@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Jobs\MobikwikPaymentApiCallJob;
 use App\Helpers\CommonHelper;
-
+use App\Jobs\DebitBalanceUpdateJob;
 
 class BbpsRechargeController extends Controller
 {
@@ -83,12 +83,13 @@ class BbpsRechargeController extends Controller
                 'paymentAccountInfo' => $user->mobile,
                 'reqid' => $commonHelper->generateTransactionId(),
                 'paymentRefID' => $commonHelper->generatePaymentRefId(),
-                'plan' => $request->plan_id,
+                'plan_id' => $request->plan_id,
                 'userid' => $userid,
+                'call'=>'balance_debit',
             ];
 
             // Dispatch the job to handle the API call
-            MobikwikPaymentApiCallJob::dispatch($payload);
+            DebitBalanceUpdateJob::dispatch($payload);
 
             return response()->json([
                 'status'  => 'Success',
@@ -320,7 +321,7 @@ class BbpsRechargeController extends Controller
                 'txId' => $request->txId
             ];
 
-            $data =  $this->encryptedPost(
+            $data =  $this->sendRequest(
                 '/recharge/v3/retailerStatus',
                 $payload,
                 $request->bearerToken()
@@ -339,5 +340,39 @@ class BbpsRechargeController extends Controller
         }
     }
 
-    // public function fetchBill
+
+    public function postpaidVillBill(Request $request)
+    {
+        try {
+            $request->validate([
+                'cn'       => 'required|string',
+                'op'       => 'required|string',
+                'cir'      => 'required|string',
+            ]);
+            $payload = [
+                'cn'       => $request->cn,
+                'op'       => $request->op,
+                'cir'      => $request->cir,
+            ];
+
+            $mobikwikHelper = new MobiKwikHelper();
+            $token = CommonHelper::isTokenPresent();
+            $response = $mobikwikHelper->sendRequest(
+                '/recharge/v3/retailerViewbill',
+                $payload,
+                $token
+            );
+
+            return response()->json([
+                'status' => true,
+                'response' => $response
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
 }

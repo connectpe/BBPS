@@ -66,6 +66,7 @@ class AdminController extends Controller
         $role = Auth::user()->role_id;
 
 
+
         if (in_array($role, [1, 2])) {
             return view('Dashboard.dashboard');
         } elseif (in_array($role, [3])) {

@@ -60,6 +60,7 @@ Route::group(['middleware' => ['auth']], function () {
         // Route::post('payment', [BbpsRechargeController::class, 'payment'])->name('bbps.payment');
         Route::post('status', [BbpsRechargeController::class, 'status'])->name('bbps.status');
         Route::post('mpin-auth', [BbpsRechargeController::class, 'mpinAuth'])->name('bbps.mpin_auth');
+        Route::post('postpaid-villbill', [BbpsRechargeController::class, 'postpaidVillBill'])->name('bbps.postpaid_villBill');
     });
 
     Route::post('change-password', [AuthController::class, 'passwordReset'])->name('admin.change_password');
