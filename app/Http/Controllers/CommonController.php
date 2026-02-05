@@ -425,6 +425,22 @@ class CommonController extends Controller
                 $request['parentData'] = [Auth::user()->id];
                 $request->merge(['filters' => ['is_deleted' => '0']]);
                 break;
+            case 'complaint-category':
+                $request['table'] = '\App\Models\ComplaintsCategory';
+                $request['searchData'] = ['id', 'category_name', 'created_at'];
+                $request['select'] = 'all';
+
+                $orderIndex = $request->get('order');
+                if (isset($orderIndex) && count($orderIndex)) {
+                    $columnIndex = $orderIndex[0]['column'];
+                    $columnsIndex = $request->get('columns');
+                    $columnName = $columnsIndex[$columnIndex]['data'] ?? 'id';
+                    $request['order'] = [$columnName, $orderIndex[0]['dir']];
+                } else {
+                    $request['order'] = ['id', 'DESC'];
+                }
+                $request['parentData'] = 'all';
+                break;
 
         }
 
