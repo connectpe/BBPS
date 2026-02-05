@@ -339,5 +339,5 @@ class BbpsRechargeController extends Controller
         }
     }
 
-    public function viewBill(Request $request) {}
+    // public function fetchBill
 }

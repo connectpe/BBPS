@@ -23,9 +23,9 @@ class UserAssignedToSupport extends Model
   
     protected $casts = [
         'created_at' => 'datetime:d-m-Y h:i A',
-    ];
 
-    
+    ];    
+
     public function assigned_support()
     {
         return $this->belongsTo(User::class, 'assined_to');

@@ -65,7 +65,8 @@ class AdminController extends Controller
     {
         $role = Auth::user()->role_id;
 
-        if (in_array($role, [1, 2, 4])) {
+
+        if (in_array($role, [1, 2])) {
             return view('Dashboard.dashboard');
         } elseif (in_array($role, [3])) {
             return view('Dashboard.api-dashboard');
@@ -912,5 +913,5 @@ class AdminController extends Controller
                 'message' => 'Error: ' . $e->getMessage(),
             ], 500);
         }
-    }
+    }   
 }
