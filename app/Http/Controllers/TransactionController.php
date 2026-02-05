@@ -81,7 +81,7 @@ class TransactionController extends Controller
             ->where('user_id', auth()->id()) // user sirf apni complaint check kare
             ->first();
 
-        if (! $complaint) {
+        if (!$complaint) {
             return response()->json([
                 'status' => false,
                 'message' => 'Complaint not found for given Ticket Number.',

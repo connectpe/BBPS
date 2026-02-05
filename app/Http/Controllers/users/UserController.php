@@ -7,6 +7,7 @@ use App\Helpers\CommonHelper;
 use App\Http\Controllers\Controller;
 use App\Models\BusinessInfo;
 use App\Models\GlobalService;
+use App\Models\IpWhitelist;
 use App\Models\OauthUser;
 use App\Models\Provider;
 use App\Models\User;
@@ -369,7 +370,7 @@ class UserController extends Controller
             $clientId = 'RAFI' . strtoupper($request->service) . '_' . Str::random(16);
             $plainSecret = Str::random(32);
             $encryptedSecret = encrypt($plainSecret);
-            
+
             $secretCount = OauthUser::where('user_id', $userId)
                 ->where('service_id', $service->id)
                 ->count();
@@ -539,5 +540,119 @@ class UserController extends Controller
     }
 
 
-    
+    // Ip Whitelist 
+    public function addIpWhiteList(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'ip_address' => ['required', 'ip'],
+        ], [
+            'ip_address.required' => 'IP address is required.',
+            'ip_address.ip' => 'Please enter a valid IP address.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+
+
+            $userId = Auth::user()->id;
+
+            $ipCount = IpWhitelist::where('user_id', $userId)->where('is_deleted', '0')->count();
+
+            if ($ipCount > 4) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Can\'t add more than 5 IP addresses'
+                ]);
+            }
+
+            IpWhitelist::create([
+                'user_id' => $userId,
+                'ip_address' => $request->ip_address,
+                'updated_by' => $userId,
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'IP address added Successfully'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    public function editIpWhiteList(Request $request, $Id)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'ip_address' => ['required', 'ip'],
+        ], [
+            'ip_address.required' => 'IP address is required.',
+            'ip_address.ip' => 'Please enter a valid IP address.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+
+            $userId = Auth::user()->id;
+            $ipCount = IpWhitelist::where('user_id', $userId)->where('is_deleted', '0')->count();
+
+            if ($userId != $Id) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Invalid User Id'
+                ]);
+            }
+
+            if ($ipCount > 4) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Can\'t add more than 5 IP addresses'
+                ]);
+            }
+
+            IpWhitelist::create([
+                'user_id' => $userId,
+                'ip_address' => $request->ip_address,
+                'updated_by' => $userId,
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'IP address added Successfully'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ]);
+        }
+    }
 }
