@@ -86,10 +86,10 @@
 
         /* COMPLETED */
         /* .step-item.completed .step-circle {
-                                                                    border-color: #198754;
-                                                                    background: #198754;
-                                                                    color: #fff;
-                                                                } */
+                                                                        border-color: #198754;
+                                                                        background: #198754;
+                                                                        color: #fff;
+                                                                    } */
     </style>
 
     @php
@@ -1221,46 +1221,46 @@
 
     {{-- IP Byte list table and add button --}}
     <div class="tab-pane fade" id="ipwhitelist" role="tabpanel" aria-labelledby="ipwhitelist-tab">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h6 class="fw-bold mb-0"><i class="bi bi-shield-check me-2"></i>IP Whitelist Management</h6>
-        <button class="btn btn-sm buttonColor shadow-sm" data-bs-toggle="modal" data-bs-target="#addIpModal">
-            <i class="bi bi-plus-circle me-1"></i> Add New IP
-        </button>
-    </div>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h6 class="fw-bold mb-0"><i class="bi bi-shield-check me-2"></i>IP Whitelist Management</h6>
+            <button class="btn btn-sm buttonColor shadow-sm" data-bs-toggle="modal" data-bs-target="#addIpModal">
+                <i class="bi bi-plus-circle me-1"></i> Add New IP
+            </button>
+        </div>
 
-    <div class="table-responsive">
-        <table id="ipWhitelistTable" class="table table-striped border shadow-sm" style="width:100%">
-            <thead class="table-light">
-                <tr>
-                    <th>#</th>
-                    <th>IP Address</th>
-                    <th>Status</th>
-                    <th>Added Date</th>
-                    <th class="text-center">Action</th>
-                </tr>
-            </thead>
-            <tbody id="ipTableBody">
-                <tr>
-                    <td>1</td>
-                    <td>192.168.1.105</td>
-                    <td>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input status-toggle" type="checkbox" 
-                                   data-id="1" checked style="cursor: pointer;">
-                            {{-- <span class="status-label badge bg-success">Active</span> --}}
-                        </div>
-                    </td>
-                    <td>05-Feb-2026</td>
-                    <td class="text-center">
-                        <button class="btn btn-outline-danger btn-sm rounded-circle delete-ip" data-id="1">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table id="ipWhitelistTable" class="table table-striped border shadow-sm" style="width:100%">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>IP Address</th>
+                        <th>Status</th>
+                        <th>Added Date</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="ipTableBody">
+                    <tr>
+                        <td>1</td>
+                        <td>192.168.1.105</td>
+                        <td>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input status-toggle" type="checkbox" data-id="1" checked
+                                    style="cursor: pointer;">
+                                {{-- <span class="status-label badge bg-success">Active</span> --}}
+                            </div>
+                        </td>
+                        <td>05-Feb-2026</td>
+                        <td class="text-center">
+                            <button class="btn btn-outline-danger btn-sm rounded-circle delete-ip" data-id="1">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
 
     <div class="modal fade" id="addIpModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -1726,22 +1726,67 @@
 
 
     <script>
-        $('#addIpForm').on('submit', function(e) {
-            e.preventDefault();
-            let ipValue = $('#ip_address').val();
-            Swal.fire({
-                title: 'Confirming...',
-                text: `Do you want to whitelist IP: ${ipValue}?`,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, Add it!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire('Success!', 'IP has been added to whitelist.', 'success');
-                    $('#addIpModal').modal('hide');
-                    $('#addIpForm')[0].reset();
-                }
+
+
+
+        $(document).ready(function() {
+            // Ajax Submission for Add IP Form
+            $('#addIpForm').on('submit', function(e) {
+                e.preventDefault();
+
+                let formData = $(this).serialize();
+                let submitBtn = $(this).find('button[type="submit"]');
+
+                // Button ko disable karein taaki multiple clicks na hon
+                submitBtn.prop('disabled', true).html(
+                    '<span class="spinner-border spinner-border-sm"></span> Saving...');
+
+                $.ajax({
+                    url: "{{ route('add_ip_address') }}",
+                    type: "POST",
+                    data: formData,
+                    success: function(response) {
+                        if (response.status) {
+                            // Success Message
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: response.message,
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+
+                            $('#addIpModal').modal('hide'); // Modal close karein
+                            $('#addIpForm')[0].reset(); // Form clear karein
+
+                            // DataTable ko refresh karein bina page reload kiye
+                            // Agar aapne table ID 'ipWhitelistTable' rakhi hai:
+                            if ($.fn.DataTable.isDataTable('#ipWhitelistTable')) {
+                                location
+                            .reload(); // Best approach to fetch new data with correct IDs
+                            }
+                        } else {
+                            Swal.fire('Warning', response.message, 'warning');
+                        }
+                    },
+                    error: function(xhr) {
+                        if (xhr.status === 422) {
+                            let errors = xhr.responseJSON.errors;
+                            let errorMsg = '';
+                            $.each(errors, function(key, value) {
+                                errorMsg += value[0] + '<br>';
+                            });
+                            Swal.fire('Validation Error', errorMsg, 'error');
+                        } else {
+                            Swal.fire('Error', 'Something went wrong. Please try again.',
+                                'error');
+                        }
+                    },
+                    complete: function() {
+                        // Button wapas enable karein
+                        submitBtn.prop('disabled', false).text('Save IP');
+                    }
+                });
             });
         });
     </script>
