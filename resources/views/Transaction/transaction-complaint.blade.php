@@ -8,46 +8,86 @@
 <div class="row align-items-center mb-2">
     <div class="col-auto ms-auto">
         <button type="button" class="btn buttonColor" data-bs-toggle="modal" data-bs-target="#serviceModal">
-            <i class="bi bi-plus fs-6 me-1"></i> Service
+            <i class="bi bi-plus fs-6 me-1"></i> Complaint
         </button>
     </div>
 </div>
 
-<div class="row g-4">
+<div class="accordion mb-3" id="filterAccordion">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="headingFilter">
+            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
+                Filter
+            </button>
+        </h2>
+        <div id="collapseFilter" class="accordion-collapse collapse" aria-labelledby="headingFilter" data-bs-parent="#filterAccordion">
+            <div class="accordion-body">
+                <div class="row g-3 align-items-end">
 
-    {{-- Complaints Table --}}
-    <div class="col-12">
-        <div class="card border shadow-sm">
-            <div class="card-header d-flex align-items-center justify-content-between">
-                <h5 class="mb-0">Registered Complaints</h5>
-            </div>
+                    <div class="col-md-3">
+                        <label for="ticketId" class="form-label">Ticket Number</label>
+                        <input type="text" class="form-control" id="ticketId" placeholder="Ex: #47618678714">
+                    </div>
 
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered align-middle" id="complaintsTable">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Reference No</th>
-                                <th>Service</th>
-                                <th>Status</th>
-                                <th>Resolved At</th>
-                                <th>Admin Notes</th>
-                                <th>Attachment</th>
-                                <th>Priority</th>
-                                <th>Created</th>
-                            </tr>
-                        </thead>
-                    </table>
+                    <div class="col-md-3">
+                        <label for="filterStatus" class="form-label">Status</label>
+                        <select class="form-select" id="filterStatus">
+                            <option value="">--Select Status--</option>
+                            <option value="Open">Open</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Resolved">Resolved</option>
+                            <option value="Closed">Closed</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="filterDateFrom" class="form-label">From Date</label>
+                        <input type="date" class="form-control" id="filterDateFrom">
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="filterDateTo" class="form-label">To Date</label>
+                        <input type="date" class="form-control" id="filterDateTo">
+                    </div>
+
+                    <div class="col-12 d-flex gap-2 justify-content-center">
+                        <button class="btn buttonColor " id="applyFilter"> Filter</button>
+                        <button class="btn btn-secondary" id="resetFilter">Reset</button>
+                    </div>
                 </div>
-
             </div>
         </div>
     </div>
 </div>
 
-<!-- Register Complaints Modal -->
+<div class="col-12">
+    <div class="card shadow-sm">
+        <div class="card-body pt-4">
+            <div class="table-responsive">
+                <table id="complaintTable" class="table table-striped table-bordered table-hover w-100">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Ticket Number</th>
+                            <th>Service</th>
+                            <th>Complaint Category</th>
+                            <th>Priority</th>
+                            <th>Remark</th>
+                            <th>Resolved At</th>
+                            <th>Attatched File</th>
+                            <th>Status</th>
+                            <th>Description</th>
+                            <th>Created At</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 
+
+<!-- Register Complaints Modal -->
 <div class="modal fade" id="serviceModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-md modal-dialog-centered">
         <div class="modal-content">
@@ -118,9 +158,10 @@
                             <button type="submit" class="btn buttonColor">
                                 Register
                             </button>
-                            <button type="button" class="btn btn-secondary">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                                 Cancel
                             </button>
+
                         </div>
 
                     </div>
@@ -133,52 +174,9 @@
 
 
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 <script>
     function resetErrors() {
         $('small[id^="err_"]').addClass('d-none').text('');
-    }
-
-    function escapeHtml(str) {
-        if (str === null || str === undefined) return '';
-        return String(str)
-            .replaceAll('&', '&amp;')
-            .replaceAll('<', '&lt;')
-            .replaceAll('>', '&gt;')
-            .replaceAll('"', '&quot;')
-            .replaceAll("'", '&#039;');
-    }
-
-    function renderRows(complaints) {
-        if (!complaints || complaints.length === 0) {
-            return `<tr><td colspan="9" class="text-center text-muted">No complaints found.</td></tr>`;
-        }
-
-        let rows = '';
-        complaints.forEach(c => {
-            const resolvedAt = c.resolved_at ? c.resolved_at : '-';
-            const adminNotes = c.admin_notes ? c.admin_notes : '-';
-            const attachment = c.attachment_path ?
-                `<a href="/storage/${escapeHtml(c.attachment_path)}" target="_blank">View</a>` :
-                '-';
-
-            rows += `
-                <tr>
-                    <td>${c.id}</td>
-                    <td>${escapeHtml(c.reference_number)}</td>
-                    <td>${escapeHtml(c.service_name)}</td>
-                    <td><span class="badge bg-secondary text-uppercase">${escapeHtml(c.status)}</span></td>
-                    <td>${escapeHtml(resolvedAt)}</td>
-                    <td style="min-width:200px;">${escapeHtml(adminNotes)}</td>
-                    <td>${attachment}</td>
-                    <td class="text-uppercase">${escapeHtml(c.priority)}</td>
-                    <td>${escapeHtml(c.created_at ?? '-')}</td>
-                </tr>
-            `;
-        });
-
-        return rows;
     }
 
     $('#complaintForm').on('submit', function(e) {
@@ -194,11 +192,8 @@
             data: formData,
             processData: false,
             contentType: false,
-
             success: function(res) {
                 form.reset();
-                $('#complaintsTbody').html(renderRows(res.complaints));
-
                 Swal.fire({
                     icon: 'success',
                     title: 'Success',
@@ -206,6 +201,10 @@
                     timer: 2000,
                     showConfirmButton: false
                 });
+
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
             },
 
             error: function(xhr) {
@@ -220,7 +219,6 @@
 
                 if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
                     const errors = xhr.responseJSON.errors;
-
                     if (errors.service_name) $('#err_service_name').removeClass('d-none').text(
                         errors.service_name[0]);
                     if (errors.description) $('#err_description').removeClass('d-none').text(errors
@@ -233,6 +231,165 @@
                         .attachment[0]);
                 }
             }
+        });
+    });
+</script>
+
+
+<!-- DataTable  -->
+
+<script>
+    $(document).ready(function() {
+
+        var table = $('#complaintTable').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+
+                url: "{{url('fetch')}}/transaction-complaint/0",
+                type: 'POST',
+
+                data: function(d) {
+                    d._token = $('meta[name="csrf-token"]').attr('content');
+                    d.ticket_number = $('#ticketId').val();
+                    d.status = $('#filterStatus').val();
+                    d.date_from = $('#filterDateFrom').val();
+                    d.date_to = $('#filterDateTo').val();
+                }
+            },
+            pageLength: 10,
+            lengthMenu: [5, 10, 25, 50],
+            responsive: false,
+            dom: "<'row mb-2'<'col-sm-4'l><'col-sm-4'f><'col-sm-4 text-end'B>>" +
+                "<'row'<'col-12'tr>>" +
+                "<'row mt-2'<'col-sm-6'i><'col-sm-6'p>>",
+            buttons: [{
+                    extend: 'excelHtml5',
+                    text: 'Excel',
+                    className: 'btn buttonColor btn-sm'
+                },
+                {
+                    extend: 'pdfHtml5',
+                    text: 'PDF',
+                    className: 'btn buttonColor btn-sm'
+                }
+            ],
+            language: {
+                searchPlaceholder: "Search Complaints..."
+            },
+            columns: [{
+                    data: 'id'
+                },
+                {
+                    data: 'ticket_number'
+                },
+                {
+                    data: null,
+                    render: function(data, type, row) {
+                        return row?.service?.service_name || '----';
+                    }
+                },
+                {
+                    data: null,
+                    render: function(data, type, row) {
+                        return row?.category?.category_name || '----';
+                    }
+                },
+                {
+                    data: 'priority',
+                    render: function(data, row, type) {
+                        const status = data == 'Low' ? 'success' : (data == 'High' ? 'danger' : 'warning');
+                        return `<span class="text-${status} fw-bold">${data}</span>`
+                    }
+                },
+                {
+                    data: 'remark',
+                    render: function(data) {
+                        return `<i class="fas fa-eye cursor-pointer viewModalBtn"  data-title="Remark" data-content='${JSON.stringify(data)}'></i>`;
+                    }
+                },
+                {
+                    data: 'resolved_at',
+                    render: function(data) {
+                        return formatDateTime(data)
+                    }
+                },
+                {
+                    data: 'attachment_file',
+                    render: function(data, type) {
+                        if (type !== 'display' || !data) {
+                            return '----';
+                        }
+                        const src = "{{ asset('storage/') }}/" + data;
+                        return `
+                            <i class="fas fa-eye cursor-pointer"
+                            onclick="showImage('${src}', 'Attachment File')">
+                            </i>
+                        `;
+                    }
+                },
+                {
+                    data: 'status',
+                    render: function(data, type) {
+                        if (type !== 'display') {
+                            return data;
+                        }
+
+                        let colorClass = 'secondary';
+
+                        switch (data) {
+                            case 'Open':
+                                colorClass = 'success';
+                                break;
+                            case 'Closed':
+                                colorClass = 'danger';
+                                break;
+                            case 'In Progress':
+                                colorClass = 'warning';
+                                break;
+                            case 'Resolved':
+                                colorClass = 'info';
+                                break;
+                        }
+
+                        return `<span class="badge bg-${colorClass}">${data}</span>`;
+                    }
+                },
+                {
+                    data: 'description',
+                    render: function(data) {
+                        return `<i class="fas fa-eye cursor-pointer viewModalBtn"  data-title="Description" data-content='${JSON.stringify(data)}'></i>`;
+                    }
+                },
+                {
+                    data: 'created_at',
+                    render: function(data) {
+                        return formatDateTime(data);
+                    }
+                }
+
+
+            ]
+        });
+
+        // Apply filter
+        $('#applyFilter').on('click', function() {
+            table.ajax.reload();
+        });
+
+        // Reset filter
+        $('#resetFilter').on('click', function() {
+            $('#ticketId').val('');
+            $('#filterStatus').val('');
+            $('#filterDateFrom').val('');
+            $('#filterDateTo').val('');
+            table.ajax.reload();
+        });
+
+        $(document).on('click', '.viewModalBtn', function() {
+            var title = $(this).data('title');
+            var content = $(this).data('content');
+            showModal(title, content);
         });
     });
 </script>

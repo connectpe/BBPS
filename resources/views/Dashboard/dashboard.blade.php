@@ -39,7 +39,6 @@
                         </div>
 
 
-
                         <div class="col-md-3">
                             <label for="reportType" class="form-label">Transaction Type</label>
                             <select id="reportType" class="form-select">

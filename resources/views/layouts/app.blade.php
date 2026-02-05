@@ -46,13 +46,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <!-- Sweetalert  -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-  <!-- Chart Cdn -->
+    <!-- Chart Cdn -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 
@@ -62,17 +62,16 @@
             overflow-x: hidden;
         }
 
+        .main-wrapper {
+            flex: 1;
+            transition: margin-left 0.3s ease;
+        }
+
         .sidebar {
             width: 260px;
             min-height: 100vh;
             transition: all 0.3s ease;
             background: linear-gradient(to top, #445db8, #667eea);
-        }
-
-
-        .main-wrapper {
-            flex: 1;
-            transition: margin-left 0.3s ease;
         }
 
         .sidebar-active {
@@ -81,13 +80,24 @@
 
 
         @media (max-width: 768px) {
-            .sidebar {
+            /* .sidebar {
                 position: fixed;
                 top: 0;
                 left: 0;
                 z-index: 1050;
                 background-color: #0e1e5a;
                 transform: translateX(0);
+            } */
+
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                z-index: 1050;
+                height: 100vh;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                /* smooth iOS scroll */
             }
 
             .sidebar.collapsed {
@@ -142,7 +152,7 @@
 
 <body class="d-flex">
 
-   
+
     {{-- Sidebar --}}
     @include('layouts.sidebar')
 

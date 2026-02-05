@@ -10,17 +10,17 @@ class Complaint extends Model
     use HasFactory;
 
     protected $fillable = [
-        'ticket_number ',
+        'ticket_number',
         'user_id',
         'service_id',
         'complaints_category',
         'priority',
         'remark',
         'resolved_at',
-        'attachment_path',
+        'attachment_file',
         'status',
         'description',
-        'updated_by ',
+        'updated_by',
     ];
 
     protected $casts = [

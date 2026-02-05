@@ -5,7 +5,9 @@ namespace App\Helpers;
 use App\Models\GlobalService;
 use App\Models\OauthUser;
 use App\Models\MobikwikToken;
+use App\Models\UserRooting;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 
 class CommonHelper
@@ -90,5 +92,21 @@ class CommonHelper
                 'line'  => $e->getLine(),
             ]);
         }
+    }
+
+
+    public static function getUserRouteUsingUserId($userId = '', $service_id, $area)
+    {
+        $data['slug'] = "no_route_found";
+        $data['status'] = false;
+
+        $userRooting = UserRooting::select('provider_slug')->where('user_id', $userId)
+            ->where('service_id ', $service_id)->first();
+
+        if (isset($userRooting)) {
+            $data['slug'] = $userRooting;
+            $data['status'] = true;
+        }
+        return $data;
     }
 }
