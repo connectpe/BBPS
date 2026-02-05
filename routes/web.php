@@ -41,7 +41,6 @@ Route::group(['middleware' => ['auth']], function () {
         Route::put('edit-service/{service_id}', [AdminController::class, 'editService'])->name('admin.edit_service');
 
         Route::post('servicetoggle', [AdminController::class, 'disableUserService'])->name('admin.service_toggle');
-
         Route::post('logout', [AuthController::class, 'logout'])->name('admin.logout');
 
         // Support member routes here 
@@ -111,9 +110,15 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/transaction-complaint', [TransactionController::class, 'transactionComplaint'])->name('transaction_complaint');
     Route::post('/complaints', [TransactionController::class, 'store'])->name('complaints.store');
     Route::get('/complaint-status', [TransactionController::class, 'complaintStatus'])->name('complaint_status');
-    Route::post('/complaint-status/check', [TransactionController::class, 'checkComplaintStatus'])
-        ->name('complaint.status.check');
+    Route::post('/complaint-status/check', [TransactionController::class, 'checkComplaintStatus'])->name('complaint.status.check');
     Route::get('/transaction-report', [TransactionController::class, 'transaction_Report'])->name('transaction.report');
+
+
+    // Complain Report Route
+    Route::get('/complain-report', [ComplainReportController::class, 'complainReport'])->name('complain.report');
+    Route::post('/update-complaint-report/{id}', [ComplainReportController::class, 'updateComplaint'])->name('update_complaint_report');
+
+
 
     Route::post('generate/client-credentials', [UserController::class, 'generateClientCredentials'])->name('generate_client_credentials');
 
@@ -125,13 +130,7 @@ Route::group(['middleware' => ['auth']], function () {
     // ladger  Route
     Route::get('/ledger', [LadgerController::class, 'index'])->name('ladger.index');
 
-    // Complain Report Route
-    Route::get('/complain-report', [ComplainReportController::class, 'complainReport'])->name('complain.report');
 
-    Route::post('/complain-report/fetch', [ComplainReportController::class, 'fetchComplaints'])->name('complain.report.fetch');
-    Route::post('/complain-report/{id}/update', [ComplainReportController::class, 'updateComplaint'])
-
-        ->name('complain.update');
     Route::get('/services/{serviceId}/providers', [UserController::class, 'getServiceProviders'])
         ->name('admin.services.providers');
 
@@ -171,8 +170,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/assign-user-to-support', [AdminController::class, 'UserAssignedtoSupportuser'])->name('save_support_assignment');
     Route::get('/edit-support-assignment/{id}', [AdminController::class, 'editSupportAssignment']);
     Route::delete('delete-support-assignment/{id}', [AdminController::class, 'deleteSupportAssignment']);
-   
-    
+
+
 
 
     Route::prefix('support')->group(function () {

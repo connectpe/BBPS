@@ -21,20 +21,20 @@
                         <div class="row g-3 align-items-end">
 
                             {{-- ONLY Reference No --}}
-                            <div class="col-12 col-md-8">
-                                <label class="form-label">Complaint Reference No</label>
+                            <div class="col-6 col-md-6">
+                                <label class="form-label">Complaint Ticket No</label>
                                 <input type="text"
-                                       id="reference_number"
-                                       name="reference_number"
-                                       class="form-control"
-                                       placeholder="Enter Complaint Reference No"
-                                       required>
-                                <small class="text-danger d-none" id="err_reference"></small>
+                                    id="ticket_number"
+                                    name="ticket_number"
+                                    class="form-control"
+                                    placeholder="Enter Complaint Ticket No"
+                                    required>
+                                <small class="text-danger d-none" id="err_ticket"></small>
                             </div>
 
                             <div class="col-12 col-md-4">
-                                <button type="submit" class="btn buttonColor w-100">
-                                    Check Status
+                                <button type="submit" class="btn buttonColor">
+                                    Check
                                 </button>
                             </div>
 
@@ -52,38 +52,45 @@
 </div>
 
 <script>
-function resetErrors() {
-    $('#err_reference').addClass('d-none').text('');
-}
+    function resetErrors() {
+        $('#err_ticket').addClass('d-none').text('');
+    }
 
-function badgeClassByStatus(st) {
-    st = (st || '').toLowerCase();
-    if (st === 'resolved') return 'bg-success';
-    if (st === 'in_progress') return 'bg-info';
-    if (st === 'closed') return 'bg-secondary';
-    return 'bg-warning'; // open
-}
+    function badgeClassByStatus(st) {
+        if (st === 'Resolved') {
+            return 'success';
+        } else if (st === 'Closed') {
+            return 'danger';
+        } else if (st === 'In Progress') {
+            return 'warning';
+        } else if (st === 'Open') {
+            return 'primary';
+        } else {
+            return 'secondary';
+        }
 
-$('#transactionForm').on('submit', function(e) {
-    e.preventDefault();
-    resetErrors();
-    $('#resultArea').html('');
+    }
 
-    const reference = $('#reference_number').val();
+    $('#transactionForm').on('submit', function(e) {
+        e.preventDefault();
+        resetErrors();
+        $('#resultArea').html('');
 
-    $.ajax({
-        url: "{{ route('complaint.status.check') }}",
-        type: "POST",
-        data: {
-            _token: "{{ csrf_token() }}",
-            reference_number: reference
-        },
-        success: function(res) {
+        const ticket = $('#ticket_number').val();
 
-            const d = res.data;
-            const bClass = badgeClassByStatus(d.complaint_status);
+        $.ajax({
+            url: "{{ route('complaint.status.check') }}",
+            type: "POST",
+            data: {
+                _token: "{{ csrf_token() }}",
+                ticket_number: ticket
+            },
+            success: function(res) {
 
-            let html = `
+                const d = res.data;
+                const bClass = badgeClassByStatus(d.complaint_status);
+
+                let html = `
             <div class="card border shadow-sm">
                 <div class="card-header">
                     <h5 class="mb-0">Complaint Status</h5>
@@ -93,7 +100,7 @@ $('#transactionForm').on('submit', function(e) {
                         <table class="table table-bordered mb-0">
                             <thead>
                                 <tr>
-                                    <th>Complaint Reference No</th>
+                                    <th>Ticket No</th>
                                     <th>Service</th>
                                     <th>Resolved At</th>
                                     <th>Status</th>
@@ -101,11 +108,11 @@ $('#transactionForm').on('submit', function(e) {
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>${d.reference_number}</td>
+                                    <td>${d.ticket_number}</td>
                                     <td>${d.service_name}</td>
                                     <td>${d.resolved_at}</td>
                                     <td>
-                                        <span class="badge ${bClass}">
+                                        <span class="badge bg-${bClass}">
                                             ${d.complaint_status}
                                         </span>
                                     </td>
@@ -116,26 +123,26 @@ $('#transactionForm').on('submit', function(e) {
                 </div>
             </div>`;
 
-            $('#resultArea').html(html);
-        },
-        error: function(xhr) {
+                $('#resultArea').html(html);
+            },
+            error: function(xhr) {
 
-            if (xhr.status === 422 && xhr.responseJSON?.errors?.reference_number) {
-                $('#err_reference')
-                    .removeClass('d-none')
-                    .text(xhr.responseJSON.errors.reference_number[0]);
-                return;
+                if (xhr.status === 422 && xhr.responseJSON?.errors?.reference_number) {
+                    $('#err_ticket')
+                        .removeClass('d-none')
+                        .text(xhr.responseJSON.errors.reference_number[0]);
+                    return;
+                }
+
+                let msg = 'Complaint not found.';
+                if (xhr.responseJSON?.message) msg = xhr.responseJSON.message;
+
+                $('#resultArea').html(
+                    `<div class="alert alert-danger">${msg}</div>`
+                );
             }
-
-            let msg = 'Complaint not found.';
-            if (xhr.responseJSON?.message) msg = xhr.responseJSON.message;
-
-            $('#resultArea').html(
-                `<div class="alert alert-danger">${msg}</div>`
-            );
-        }
+        });
     });
-});
 </script>
 
 @endsection
