@@ -44,8 +44,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('logout', [AuthController::class, 'logout'])->name('admin.logout');
 
 
-        // Support member routes here 
-
+        // Support member routes here
         Route::get('/support-details', [AdminController::class, 'supportdetails'])->name('support_details');
         Route::post('/add-s-member', [AdminController::class, 'addSupportMember'])->name('add.support.member');
         Route::get('/get-s-member/{id}', [AdminController::class, 'getSupportMember'])->name('get.support.member');
@@ -55,6 +54,9 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('add-complaint-category', [UserController::class, 'addComplaintCategory'])->name('add_complaint_category');
         Route::post('update-complaint-category/{id}', [UserController::class, 'updateComplaintCategory'])->name('update_complaint_category');
         Route::get('status-complaint-category/{id}', [UserController::class, 'statusComplaintCategory'])->name('status_complaint_category');
+
+
+        Route::get('change-ekyc-status', [AdminController::class, 'changeKycStatus']);
     });
 
     // RECHARGE RELATED ROUTE 8010801087

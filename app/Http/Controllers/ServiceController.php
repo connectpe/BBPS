@@ -32,7 +32,7 @@ class ServiceController extends Controller
     public function ourService()
     {
         $globalServices = GlobalService::where('is_active', '1')->orderBy('id', 'desc')->get();
-        $users = User::where('role_id', '!=', '1')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
+        $users = User::whereNotIN('role_id', ['1', '4'])->where('status', '!=', '0')->orderBy('id', 'desc')->get();
         return view('Service.our-service', compact('users', 'globalServices'));
     }
 

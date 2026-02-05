@@ -1160,4 +1160,9 @@ class AdminController extends Controller
             ]);
         }
     }
+
+    public function changeKycStatus(Request $request)
+    {
+        dd($request->all());
+    }
 }

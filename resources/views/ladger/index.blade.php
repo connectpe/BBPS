@@ -13,7 +13,7 @@ $role = Auth::user()->role_id;
     <div class="accordion-item">
         <h2 class="accordion-header" id="headingFilter">
             <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
-                Filter Users
+                Filter
             </button>
         </h2>
         <div id="collapseFilter" class="accordion-collapse collapse" aria-labelledby="headingFilter" data-bs-parent="#filterAccordion">
@@ -30,6 +30,20 @@ $role = Auth::user()->role_id;
                         </select>
                     </div>
                     @endif
+
+
+                    <div class="col-md-2">
+                        <label for="referenceNo" class="form-label">Reference No</label>
+                        <input type="text" class="form-control" id="referenceNo" placeholder="Reference No">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="requestId" class="form-label">Request Id</label>
+                        <input type="text" class="form-control" id="requestId" placeholder="Request Id">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="connectPeId" class="form-label">ConnectPe Id</label>
+                        <input type="text" class="form-control" id="connectPeId" placeholder="ConnectPe Id">
+                    </div>
 
                     <div class="col-md-2">
                         <label for="filterDateFrom" class="form-label">From Date</label>
@@ -103,10 +117,14 @@ $role = Auth::user()->role_id;
                 data: function(d) {
                     d._token = $('meta[name="csrf-token"]').attr('content');
                     d.user_id = $('#filterUser').val();
+                    d.reference_no = $('#referenceNo').val();
+                    d.request_id = $('#requestId').val();
+                    d.connectpe_id = $('#connectPeId').val();
                     d.date_from = $('#filterDateFrom').val();
                     d.date_to = $('#filterDateTo').val();
                 }
             },
+
             pageLength: 10,
             lengthMenu: [5, 10, 25, 50],
             responsive: false,
@@ -205,6 +223,9 @@ $role = Auth::user()->role_id;
             $('#filterUser').val('');
             $('#filterDateFrom').val('');
             $('#filterDateTo').val('');
+            $('#referenceNo').val('');
+            $('#requestId').val('');
+            $('#connectPeId').val('');
             table.ajax.reload();
         });
     });

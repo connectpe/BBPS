@@ -71,8 +71,7 @@
                 <thead class="bg-light">
                     <tr>
                         <th>S.N.</th>
-                        <th>USER NAME</th>
-                        <th>EMAIL</th>
+                        <th>ORGANIZATION NAME</th>
                         <th>SCHEME NAME</th>
                         <th class="text-center">ACTION</th>
                     </tr>
@@ -266,14 +265,20 @@
                     render: (data, type, row, meta) => meta.row + meta.settings._iDisplayStart + 1
                 },
                 {
-                    data: 'user.name',
-                    name: 'user.name',
-                    defaultContent: 'N/A'
-                },
-                {
-                    data: 'user.email',
-                    name: 'user.email',
-                    defaultContent: 'N/A'
+                    data: null,
+                    defaultContent: 'N/A',
+                    render: function(data, type, row) {
+                        let url = "{{ route('view_user', ['id' => 'id']) }}".replace('id', row.user_id);
+                        const userName = row?.user?.name;
+                        const businessName = row?.user?.business?.business_name;
+
+                        return `
+                                <a href="${url}" class="text-primary fw-semibold text-decoration-none">
+                                    ${userName ?? '----'} <br/>
+                                    [${businessName ?? '----'}]
+                                </a>
+                            `;
+                    }
                 },
                 {
                     data: 'scheme.scheme_name',
