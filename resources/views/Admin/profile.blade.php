@@ -86,10 +86,10 @@
 
         /* COMPLETED */
         /* .step-item.completed .step-circle {
-                                                                                                                    border-color: #198754;
-                                                                                                                    background: #198754;
-                                                                                                                    color: #fff;
-                                                                                                                } */
+                                                                                                                        border-color: #198754;
+                                                                                                                        background: #198754;
+                                                                                                                        color: #fff;
+                                                                                                                    } */
     </style>
 
     @php
@@ -542,7 +542,7 @@
                 </div>
 
                 <!-- Security Setting -->
-                <div class="tab-pane fade" id="security" role="tabpanel" aria-labelledby="security-tab">
+                {{-- <div class="tab-pane fade" id="security" role="tabpanel" aria-labelledby="security-tab">
                     <!-- Last Login Info -->
                     <div class="row mb-3">
                         <div class="col-md-4 fw-semibold">Last Login:</div>
@@ -593,6 +593,96 @@
                             </div>
                         </div>
                     </form>
+                </div> --}}
+
+
+                <div class="tab-pane fade" id="security" role="tabpanel" aria-labelledby="security-tab">
+
+                    <div class="row g-4">
+                        <div class="col-lg-6">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-header bg-transparent fw-bold">
+                                    <i class="bi bi-shield-lock me-2"></i> Change Password
+                                </div>
+                                <div class="card-body">
+                                    <form id="changePasswordForm">
+                                        @csrf
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Old Password <span
+                                                    class="text-danger">*</span></label>
+                                            <input type="password" class="form-control" name="current_password"
+                                                placeholder="Enter current password">
+                                            <small class="text-danger error-current_password"></small>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">New Password <span
+                                                    class="text-danger">*</span></label>
+                                            <input type="password" class="form-control" name="new_password"
+                                                placeholder="Enter new password">
+                                            <small class="text-danger error-new_password"></small>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Confirm Password <span
+                                                    class="text-danger">*</span></label>
+                                            <input type="password" class="form-control" name="new_password_confirmation"
+                                                placeholder="Confirm new password">
+                                        </div>
+
+                                        <div class="text-end">
+                                            <button type="submit" class="btn buttonColor w-100">
+                                                Update Password
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-header bg-transparent fw-bold text-dark">
+                                    <i class="bi bi-pci-card me-2"></i> Change MPIN
+                                </div>
+                                <div class="card-body">
+                                    <form id="changeMpinForm">
+                                        @csrf
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Current MPIN <span
+                                                    class="text-danger">*</span></label>
+                                            <input type="password" class="form-control" name="current_mpin"
+                                                maxlength="6" pattern="\d*" inputmode="numeric"
+                                                placeholder="Enter 6-digit current MPIN">
+                                            <small class="text-danger error-current_mpin"></small>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">New MPIN <span
+                                                    class="text-danger">*</span></label>
+                                            <input type="password" class="form-control" name="new_mpin" maxlength="6"
+                                                pattern="\d*" inputmode="numeric" placeholder="Set 6-digit new MPIN">
+                                            <small class="text-danger error-new_mpin"></small>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Confirm New MPIN <span
+                                                    class="text-danger">*</span></label>
+                                            <input type="password" class="form-control" name="new_mpin_confirmation"
+                                                maxlength="6" pattern="\d*" inputmode="numeric"
+                                                placeholder="Confirm 6-digit new MPIN">
+                                        </div>
+
+                                        <div class="text-end">
+                                            <button type="submit" class="btn buttonColor w-100">
+                                                Update MPIN
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- KYC Details -->
