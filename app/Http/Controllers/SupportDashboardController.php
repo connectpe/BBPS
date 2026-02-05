@@ -8,7 +8,7 @@ class SupportDashboardController extends Controller
 {
     public function supportUserList()
     {
-        return view('SupportDashboard.userlist');
+        return view('Supportdashboard.userlist');
     }
 
     public function userComplaints()
