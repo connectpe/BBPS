@@ -338,12 +338,12 @@ use App\Facades\FileUpload;
                     <h6 class="fw-bold mb-0">KYC Details</h6>
 
                     @php
-                    $kyc = $businessInfo->is_kyc == '1' ? true : false;
+                    $kyc = $businessInfo?->is_kyc == '1' ? true : false;
                     @endphp
 
                     <div class="ms-auto d-flex flex-column align-items-center">
                         <span class="fw-semibold mb-1 fs-6 fw-bold badge bg-{{$kyc ? 'success' : 'danger'}}"> {{$kyc ? 'Verified' : 'Not Verified'}} </span>
-                        <input class="form-check-input cursor-pointer fs-3" type="checkbox" {{$kyc ? 'checked' : ''}} onchange="changeKycStatus('{{$businessInfo->id}}','{{$businessInfo->user_id}}')">
+                        <input class="form-check-input cursor-pointer fs-3" type="checkbox" {{$kyc ? 'checked' : ''}} onchange="changeKycStatus('{{$businessInfo?->id}}','{{$businessInfo?->user_id}}')">
                     </div>
                 </div>
 
@@ -674,9 +674,9 @@ use App\Facades\FileUpload;
                             showConfirmButton: true
                         });
 
-                        setTimeout(() => {
-                            location.reload();
-                        }, 3000);
+                        // setTimeout(() => {
+                        //     location.reload();
+                        // }, 3000);
                     }
 
                 });

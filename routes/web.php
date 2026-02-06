@@ -23,7 +23,9 @@ Route::get('/', function () {
 Route::post('admin/login', [AuthController::class, 'login'])->name('admin.login');
 Route::post('verify-otp', [AuthController::class, 'verifyOtp'])->name('verify_otp');
 Route::post('signup', [AuthController::class, 'signup'])->name('admin.signup');
-
+Route::get('kyc', function () {
+    return view('Users.kyc-page');
+});
 
 // 'logs' : Middleware for the logs.
 

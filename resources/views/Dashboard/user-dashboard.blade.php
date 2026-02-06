@@ -99,10 +99,10 @@
                     </div>
                     @endforeach
 
-                    <div class="chart-wrapper mt-4" style="position: relative; width: 100%; max-width: 250px; margin: 0 auto;">
+                    <!-- <div class="chart-wrapper mt-4" style="position: relative; width: 100%; max-width: 250px; margin: 0 auto;">
                         <canvas id="reportChart" class="chart-canvas"></canvas>
                         <div id="customTooltip" style="position:absolute; background:#fff; border:1px solid #ccc; padding:10px; max-height:100px; overflow-y:auto; display:none;"></div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>
