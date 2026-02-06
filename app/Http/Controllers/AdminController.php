@@ -197,7 +197,7 @@ class AdminController extends Controller
             }
 
             $request->validate([
-                'service_name' => 'required|string|max:50|unique:global_services,service_name,'.$serviceId,
+                'service_name' => 'required|string|max:50|unique:global_services,service_name,' . $serviceId,
             ]);
 
             $service = GlobalService::where('id', $serviceId)->first();
@@ -359,7 +359,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -370,7 +370,7 @@ class AdminController extends Controller
         $request->validate(
             [
                 'serviceId' => 'required|exists:global_services,id',
-                'providerName' => 'required|string|max:100|unique:providers,provider_name,'.$Id,
+                'providerName' => 'required|string|max:100|unique:providers,provider_name,' . $Id,
             ],
             [
                 'serviceId.required' => 'Please select a service.',
@@ -407,7 +407,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -541,13 +541,13 @@ class AdminController extends Controller
 
                 return response()->json([
                     'status' => false,
-                    'message' => 'Error : '.$e->getMessage(),
+                    'message' => 'Error : ' . $e->getMessage(),
                 ]);
             }
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
@@ -666,13 +666,13 @@ class AdminController extends Controller
 
                 return response()->json([
                     'status' => false,
-                    'message' => 'Error : '.$e->getMessage(),
+                    'message' => 'Error : ' . $e->getMessage(),
                 ]);
             }
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
@@ -723,7 +723,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
@@ -741,7 +741,7 @@ class AdminController extends Controller
     public function updateAssignedSchemetoUser(Request $request, $configId)
     {
         $validator = Validator::make($request->all(), [
-            'user_id' => 'required|exists:users,id|unique:user_configs,user_id,'.$configId,
+            'user_id' => 'required|exists:users,id|unique:user_configs,user_id,' . $configId,
             'scheme_id' => 'required|exists:schemes,id',
         ], [
             'user_id.required' => 'User Id is required',
@@ -815,7 +815,7 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json(['status' => false, 'message' => 'Error: '.$e->getMessage()], 500);
+            return response()->json(['status' => false, 'message' => 'Error: ' . $e->getMessage()], 500);
         }
     }
 
@@ -919,7 +919,7 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error: '.$e->getMessage(),
+                'message' => 'Error: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -1120,11 +1120,10 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error: '.$e->getMessage(),
+                'message' => 'Error: ' . $e->getMessage(),
             ]);
         }
     }
-
     public function statusComplaintCategory(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
@@ -1155,6 +1154,56 @@ class AdminController extends Controller
                 'data' => $category,
             ]);
 
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function changeKycStatus(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|exists:business_infos,id',
+            'userId' => 'required|exists:users,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first(),
+            ], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+
+            $business = BusinessInfo::where('id', $request->id)->where('user_id', $request->userId)->first();
+
+            if (!$business) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Business Not Found',
+                ], 404);
+            }
+
+            $data = [
+                'is_kyc' => $business->is_kyc == '0' ? '1' : '0'
+            ];
+
+           $business->update($data);
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Kyc Updated Successfully',
+            ]);
+
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -1165,8 +1214,7 @@ class AdminController extends Controller
         }
     }
 
-    public function changeKycStatus(Request $request)
-    {
-        dd($request->all());
-    }
+  
+        
+
 }

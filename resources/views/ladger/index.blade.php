@@ -207,7 +207,7 @@ $role = Auth::user()->role_id;
                 {
                     data: 'remarks',
                     render: function(data) {
-                        return `<i class="fas fa-eye cursor-pointer viewModalBtn"  data-title="Remark" data-content='${JSON.stringify(data)}'></i>`;
+                        return `<i class="fas fa-eye cursor-pointer viewModalBtn"  data-title="Remark" data-content='${data}'></i>`;
                     }
                 },
             ]

@@ -305,7 +305,11 @@
                 {
                     data: 'remark',
                     render: function(data) {
-                        return `<i class="fas fa-eye cursor-pointer viewModalBtn"  data-title="Remark" data-content='${JSON.stringify(data)}'></i>`;
+                        const safeText = data || '';
+                        return `<i class="fas fa-eye cursor-pointer viewModalBtn"
+                                    data-title="Remark"
+                                    data-content="${safeText.replace(/"/g, '&quot;')}">
+                                </i>`;
                     }
                 },
                 {
@@ -347,9 +351,6 @@
                             case 'In Progress':
                                 colorClass = 'warning';
                                 break;
-                            case 'Resolved':
-                                colorClass = 'info';
-                                break;
                         }
 
                         return `<span class="badge bg-${colorClass}">${data}</span>`;
@@ -358,7 +359,11 @@
                 {
                     data: 'description',
                     render: function(data) {
-                        return `<i class="fas fa-eye cursor-pointer viewModalBtn"  data-title="Description" data-content='${JSON.stringify(data)}'></i>`;
+                        const safeText = data || '';
+                        return `<i class="fas fa-eye cursor-pointer viewModalBtn"
+                                    data-title="Description"
+                                    data-content="${safeText.replace(/"/g, '&quot;')}">
+                                </i>`;
                     }
                 },
                 {
@@ -386,11 +391,7 @@
             table.ajax.reload();
         });
 
-        $(document).on('click', '.viewModalBtn', function() {
-            var title = $(this).data('title');
-            var content = $(this).data('content');
-            showModal(title, content);
-        });
+
     });
 </script>
 
