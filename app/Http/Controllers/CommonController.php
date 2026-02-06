@@ -334,7 +334,7 @@ class CommonController extends Controller
                     $request['whereIn'] = 'user_id';
                     $request['parentData'] = [Auth::user()->id];
                 } elseif (Auth::user()->role_id == 4) {
-                    $assignedUser =  UserAssignedToSupport::where('assined_to', Auth::user()->id)->pluck('user_id')->toArray();
+                    $assignedUser = UserAssignedToSupport::where('assined_to', Auth::user()->id)->pluck('user_id')->toArray();
                     $request['whereIn'] = 'user_id';
                     $request['parentData'] = $assignedUser;
                 }
@@ -437,6 +437,42 @@ class CommonController extends Controller
                 $request['parentData'] = [4];
                 $request['order'] = ['id', 'DESC'];
                 break;
+            case 'ip-whitelist':
+                $request['table'] = '\App\Models\IpWhitelist';
+                $request['with'] = ['service'];
+                $request['searchData'] = ['ip_address'];
+                $request['select'] = 'all';
+                $orderIndex = $request->get('order');
+                if (isset($orderIndex) && count($orderIndex)) {
+                    $columnsIndex = $request->get('columns');
+                    $columnIndex = $orderIndex[0]['column'];
+                    $columnName = $columnsIndex[$columnIndex]['data'] ?? 'id';
+                    $columnSortOrder = $orderIndex[0]['dir'];
+                    $request['order'] = [$columnName, $columnSortOrder];
+                } else {
+                    $request['order'] = ['id', 'DESC'];
+                }
+                $request['whereIn'] = 'user_id';
+                $request['parentData'] = [Auth::user()->id];
+                $request->merge(['filters' => ['is_deleted' => '0']]);
+                break;
+            case 'complaint-category':
+                $request['table'] = '\App\Models\ComplaintsCategory';
+                $request['searchData'] = ['id', 'category_name', 'created_at'];
+                $request['select'] = 'all';
+
+                $orderIndex = $request->get('order');
+                if (isset($orderIndex) && count($orderIndex)) {
+                    $columnIndex = $orderIndex[0]['column'];
+                    $columnsIndex = $request->get('columns');
+                    $columnName = $columnsIndex[$columnIndex]['data'] ?? 'id';
+                    $request['order'] = [$columnName, $orderIndex[0]['dir']];
+                } else {
+                    $request['order'] = ['id', 'DESC'];
+                }
+                $request['parentData'] = 'all';
+                break;
+
         }
 
         // For filter the Records

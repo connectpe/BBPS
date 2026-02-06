@@ -51,11 +51,11 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/edit-s-member/{user_id}', [AdminController::class, 'editSupportMember'])->name('edit.support.member');
 
 
-        Route::post('add-complaint-category', [UserController::class, 'addComplaintCategory'])->name('add_complaint_category');
-        Route::post('update-complaint-category/{id}', [UserController::class, 'updateComplaintCategory'])->name('update_complaint_category');
-        Route::get('status-complaint-category/{id}', [UserController::class, 'statusComplaintCategory'])->name('status_complaint_category');
-
-
+        // category routes
+        Route::get('/categories', [AdminController::class, 'category'])->name('categories.index');
+        Route::post('add-complaint-category', [AdminController::class, 'addComplaintCategory'])->name('add_complaint_category');
+        Route::post('update-complaint-category/{id}', [AdminController::class, 'updateComplaintCategory'])->name('update_complaint_category');
+        Route::post('status-complaint-category/{id}', [AdminController::class, 'statusComplaintCategory'])->name('status_complaint_category');
         Route::get('change-ekyc-status', [AdminController::class, 'changeKycStatus']);
     });
 
@@ -189,6 +189,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('update-ip-address/{id}', [UserController::class, 'editIpWhiteList'])->name('update_ip_address');
     Route::get('status-ip-address/{id}', [UserController::class, 'statusIpWhiteList'])->name('status_ip_address');
     Route::get('delete-ip-address/{id}', [UserController::class, 'deleteIpWhiteList'])->name('delete_ip_address');
+
+    Route::post('generate-mpin', [UserController::class, 'generateMpin'])->name('generate_mpin');
 });
 
 Route::prefix('admin', function () {
