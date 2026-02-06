@@ -154,7 +154,7 @@
                                         </form>
                                     @endif
                                 @else
-                                    <a href="{{ url('profile/' . auth()->id()) }}" class="text-danger small text-decoration-none">Complete Profile</a>
+                                    <a href="{{route('admin_profile',['user_id' => Auth::user()->id,'is_kyc' => 'Yes'])}}" class="text-danger small text-decoration-none">Complete Profile</a>
                                 @endif
                             </td>
 

@@ -86,10 +86,10 @@
 
         /* COMPLETED */
         /* .step-item.completed .step-circle {
-                                                                                                                                                                    border-color: #198754;
-                                                                                                                                                                    background: #198754;
-                                                                                                                                                                    color: #fff;
-                                                                                                                                                                } */
+                                                                                                                                                                        border-color: #198754;
+                                                                                                                                                                        background: #198754;
+                                                                                                                                                                        color: #fff;
+                                                                                                                                                                    } */
     </style>
 
     @php
@@ -1860,6 +1860,9 @@
                         title: 'Profile Updated',
                         text: response.message,
                     });
+                    const url = new URL(window.location);
+                    url.searchParams.delete('is_kyc');
+                    history.replaceState(null, '', url);
 
                     setTimeout(() => {
                         location.reload();
@@ -2238,8 +2241,13 @@
 
         });
     </script>
+    <script>
+        $(function() {
+            const kyc = @json(request('is_kyc') === 'Yes');
 
-
-
-
+            if (kyc == true || kyc == 1) {
+                $("#completeProfileModal").modal('show');
+            }
+        });
+    </script>
 @endsection
