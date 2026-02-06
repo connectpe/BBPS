@@ -929,7 +929,7 @@ class UserController extends Controller
         }
     }
 
-    public function saveWebHookUrl(Request $request)
+    public function WebHookUrl(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'url' => 'required|url',

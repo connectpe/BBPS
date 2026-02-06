@@ -2197,7 +2197,7 @@
                 $('#err_url').addClass('d-none').text('');
 
                 $.ajax({
-                    url: "{{ route('web_hook_url.save') }}",
+                    url: "{{ route('web_hook_url') }}",
                     type: "POST",
                     data: $(this).serialize(),
                     success: function(res) {

@@ -191,11 +191,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('status-ip-address/{id}', [UserController::class, 'statusIpWhiteList'])->name('status_ip_address');
     Route::get('delete-ip-address/{id}', [UserController::class, 'deleteIpWhiteList'])->name('delete_ip_address');
 
-
-    // Web Hook URL
-    // Route::post('add-web-hook-url', [UserController::class, 'addWebHookUrl'])->name('add_web_hook_url');
-    // Route::post('edit-web-hook-url/{id}', [UserController::class, 'editWebHookUrl'])->name('edit_web_hook_url');
-    Route::post('webhook-url/save', [UserController::class, 'saveWebHookUrl'])->name('web_hook_url.save');
+    Route::post('webhook-url/save', [UserController::class, 'WebHookUrl'])->name('web_hook_url');
 
 
 
