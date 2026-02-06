@@ -15,7 +15,7 @@
 
 
 <!-- Show the Content -->
-<div class="modal fade" id="showContentModal" tabindex="-1" aria-labelledby="showContentModalLabel" aria-hidden="true">
+<div class="modal fade" id="showContentModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">

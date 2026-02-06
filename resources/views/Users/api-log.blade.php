@@ -57,7 +57,6 @@
                         <tr>
                             <th>ID</th>
                             <th>Organization Name</th>
-                            <th>User Name</th>
                             <th>Method</th>
                             <th>EndPoint</th>
                             <th>Request Body</th>
@@ -120,24 +119,15 @@
                 },
                 {
                     data: function(row) {
+                         const userName = row.user?.name || '----';
                         const businessName = row.user?.business?.business_name || '----';
                         const url = "{{ route('view_user', ['id' => 'id']) }}".replace('id', row.user_id);
                         return `
-                        <a href="${url}" class="text-primary fw-semibold text-decoration-none">
-                            ${businessName}
-                        </a>
-                    `;
-                    }
-                },
-                {
-                    data: function(row) {
-                        const userName = row.user?.name || '----';
-                        const url = "{{ route('view_user', ['id' => 'id']) }}".replace('id', row.user_id);
-                        return `
-                        <a href="${url}" class="text-primary fw-semibold text-decoration-none">
-                            ${userName}
-                        </a>
-                    `;
+                                <a href="${url}" class="text-primary fw-semibold text-decoration-none">
+                                    ${userName ?? '----'} <br/>
+                                    [${businessName ?? '----'}]
+                                </a>
+                            `;
                     }
                 },
                 {

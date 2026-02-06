@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\CommonHelper;
 use App\Models\BusinessCategory;
 use App\Models\BusinessInfo;
+use App\Models\ComplaintsCategory;
 use App\Models\GlobalService;
 use App\Models\OauthUser;
 use App\Models\Provider;
@@ -881,7 +882,6 @@ class AdminController extends Controller
             DB::rollBack();
 
             return response()->json(['status' => false, 'message' => 'Error: ' . $e->getMessage()], 500);
-
         }
     }
 
@@ -919,7 +919,6 @@ class AdminController extends Controller
                 'message' => 'Error: ' . $e->getMessage(),
             ], 500);
         }
-
     }
 
     public function supportdetails()
@@ -935,7 +934,6 @@ class AdminController extends Controller
                     'status' => false,
                     'message' => 'unauthorized access',
                 ]);
-
             }
             $request->validate([
                 'name' => 'required|string|min:3',
@@ -961,7 +959,6 @@ class AdminController extends Controller
                 'status' => true,
                 'message' => 'Member created Successfully',
             ]);
-
         } catch (Exception $e) {
             return response()->json([
                 'status' => false,
@@ -991,8 +988,8 @@ class AdminController extends Controller
 
             $request->validate([
                 'name' => 'required|string|min:3',
-                'email' => 'required|email|unique:users,email,'.$user_id,
-                'mobile' => 'required|digits:10|unique:users,mobile,'.$user_id,
+                'email' => 'required|email|unique:users,email,' . $user_id,
+                'mobile' => 'required|digits:10|unique:users,mobile,' . $user_id,
             ]);
 
             $member->name = $request->name;
@@ -1004,7 +1001,6 @@ class AdminController extends Controller
                 'status' => true,
                 'message' => 'Member updated Successfully',
             ]);
-
         } catch (ValidationException $e) {
             return response()->json([
                 'status' => false,
@@ -1018,4 +1014,157 @@ class AdminController extends Controller
         }
     }
 
+
+    // Complaints Category
+    public function addComplaintCategory(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'category_name' => 'required|string|max:50|unique:complaints_categories,id|regex:/^[A-Za-z0-9 _-]+$/',
+        ], [
+            'category_name.required' => 'Category name is required.',
+            'category_name.string' => 'Category name must be a valid string.',
+            'category_name.max' => 'Category name cannot exceed 50 characters.',
+            'category_name.regex' => 'Category name can only contain letters, numbers, spaces, hyphens, and underscores.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+
+
+            $updatedBy = Auth::user()->id;
+
+            $data = [
+                'category_name' => $request->category_name,
+                'updated_by' => $updatedBy,
+            ];
+
+            ComplaintsCategory::create($data);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Category Added Successfully'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    public function updateComplaintCategory(Request $request, $Id)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'category_name' => 'required|string|max:50|regex:/^[A-Za-z0-9 _-]+$/|unique:complaints_categories,id,' . $Id,
+        ], [
+            'category_name.required' => 'Category name is required.',
+            'category_name.string' => 'Category name must be a valid string.',
+            'category_name.max' => 'Category name cannot exceed 50 characters.',
+            'category_name.regex' => 'Category name can only contain letters, numbers, spaces, hyphens, and underscores.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+
+            $updatedBy = Auth::user()->id;
+            $category = ComplaintsCategory::find($Id);
+
+
+            if (!$category) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Ip address not Found'
+                ]);
+            }
+
+            $data = [
+                'category_name' => $request->category_name,
+                'updated_by' => $updatedBy,
+            ];
+
+            $update = $category->update($data);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Category Updated Successfully'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+
+    public function statusComplaintCategory($Id)
+    {
+
+        DB::beginTransaction();
+
+        try {
+
+            $updatedBy = Auth::user()->id;
+            $category = ComplaintsCategory::find($Id);
+
+
+            if (!$category) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Ip address not Found'
+                ]);
+            }
+
+            $data =  [
+                'is_active' => $category->is_active == '1' ? '0' : '1',
+                'updated_by' => $updatedBy,
+            ];
+
+            $update = $category->update($data);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Status Changed Successfully'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    public function changeKycStatus(Request $request)
+    {
+        dd($request->all());
+    }
 }
