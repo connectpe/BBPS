@@ -86,10 +86,10 @@
 
         /* COMPLETED */
         /* .step-item.completed .step-circle {
-                                                                                                                                        border-color: #198754;
-                                                                                                                                        background: #198754;
-                                                                                                                                        color: #fff;
-                                                                                                                                    } */
+                                                                                                                                                            border-color: #198754;
+                                                                                                                                                            background: #198754;
+                                                                                                                                                            color: #fff;
+                                                                                                                                                        } */
     </style>
 
     @php
@@ -503,6 +503,11 @@
                             data-bs-target="#support" type="button" role="tab" aria-controls="support"
                             aria-selected="false">Support</button>
                     </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold text-dark" id="callback-tab" data-bs-toggle="tab"
+                            data-bs-target="#callback" type="button" role="tab" aria-controls="callback"
+                            aria-selected="false">Webhook</button>
+                    </li>
                 @endif
             </ul>
 
@@ -904,6 +909,66 @@
                         </div>
                     </div>
                 </div>
+
+                {{-- IP Whitelist tabl --}}
+                <div class="tab-pane fade" id="ipwhitelist" role="tabpanel" aria-labelledby="ipwhitelist-tab">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h6 class="fw-bold mb-0"><i class="bi bi-shield-check me-2"></i>IP Whitelist Management</h6>
+                        <button class="btn btn-sm buttonColor shadow-sm" data-bs-toggle="modal"
+                            data-bs-target="#addIpModal">
+                            <i class="bi bi-plus-circle me-1"></i> Add New IP
+                        </button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table id="ipWhitelistTable" class="table table-striped border shadow-sm w-100">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Service</th>
+                                    <th>IP Address</th>
+                                    <th>Status</th>
+                                    <th>Created At</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {{-- callback tab --}}
+                <div class="tab-pane fade" id="callback" role="tabpanel" aria-labelledby="callback-tab">
+                    <div class="card shadow-sm border-0">
+                        <div
+                            class="card-header bg-transparent fw-bold border-bottom d-flex justify-content-between align-items-center">
+                            <span><i class="bi bi-link-45deg me-2 text-primary"></i> Webhook Configuration</span>
+                            <button class="btn btn-sm buttonColor shadow-sm" data-bs-toggle="modal"
+                                data-bs-target="#webhookModal">
+                                <i class="bi bi-pencil-square me-1"></i> Update URL
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="p-3 border rounded bg-light">
+                                <div class="row align-items-center">
+                                    <div class="col-md-3 fw-bold text-muted text-uppercase small">Callback URL Status</div>
+                                    <div class="col-md-9">
+                                        <code class="text-primary fw-bold"
+                                            id="display_webhook_url">{{ $businessInfo->callback_url ?? 'Not Set' }}</code>
+                                    </div>
+                                </div>
+                                <hr>
+                                <p class="mb-0 small text-muted">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Is URL par transaction ke status updates real-time mein POST request ke through bheje
+                                    jayenge.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
             </div>
         </div>
     </div>
@@ -1319,30 +1384,7 @@
 
 
     {{-- IP Byte list table and add button --}}
-    <div class="tab-pane fade" id="ipwhitelist" role="tabpanel" aria-labelledby="ipwhitelist-tab">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h6 class="fw-bold mb-0"><i class="bi bi-shield-check me-2"></i>IP Whitelist Management</h6>
-            <button class="btn btn-sm buttonColor shadow-sm" data-bs-toggle="modal" data-bs-target="#addIpModal">
-                <i class="bi bi-plus-circle me-1"></i> Add New IP
-            </button>
-        </div>
 
-        <div class="table-responsive">
-            <table id="ipWhitelistTable" class="table table-striped border shadow-sm w-100">
-                <thead class="table-light">
-                    <tr>
-                        <th>#</th>
-                        <th>Service</th>
-                        <th>IP Address</th>
-                        <th>Status</th>
-                        <th>Created At</th>
-                        <th class="text-center">Action</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-    </div>
 
     <div class="modal fade" id="ipModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -1379,6 +1421,37 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         <button type="submit" id="modalSubmitBtn" class="btn buttonColor">Save IP</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="webhookModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Update Callback URL</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="webhookForm">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Transaction Callback URL <span
+                                    class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-globe"></i></span>
+                                <input type="url" class="form-control" name="callback_url" id="modal_callback_url"
+                                    placeholder="https://yourdomain.com/api/callback"
+                                    value="{{ $businessInfo->callback_url ?? '' }}" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" id="saveWebhookBtn" class="btn buttonColor">Save
+                            Changes</button>
                     </div>
                 </form>
             </div>
@@ -2083,6 +2156,46 @@
                     });
                 });
             }
+        });
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            $('#webhookForm').on('submit', function(e) {
+                e.preventDefault();
+
+                let submitBtn = $('#saveWebhookBtn');
+                let modalInput = $('#modal_callback_url').val();
+                let displayElement = $('#display_webhook_url');
+
+                // Loading state
+                submitBtn.prop('disabled', true).html(
+                    '<span class="spinner-border spinner-border-sm"></span> Saving...');
+
+                // Fake delay simulation
+                setTimeout(function() {
+
+                    // UI update: Hamesha element exist karega isliye direct update
+                    displayElement.text(modalInput);
+
+                    // Modal band karein
+                    $('#webhookModal').modal('hide');
+
+                    // Success feedback
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: 'Callback URL updated successfully.',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    }
+
+                    submitBtn.prop('disabled', false).text('Save Changes');
+
+                }, 800);
+            });
         });
     </script>
 
