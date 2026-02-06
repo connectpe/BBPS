@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Hash;
+
 
 class UserController extends Controller
 {
@@ -543,51 +543,7 @@ class UserController extends Controller
         return view('Users.api-log', compact('users'));
     }
 
-    public function generateMpin(Request $request) {
-    try {
-      
-        if (Auth::user()->role_id != '2') {
-            return response()->json([
-                'status' => false,
-                'message' => 'You are unauthorized'
-            ], 403);
-        }
-
-       
-        $request->validate([
-            'current_mpin' => 'required',
-            'new_mpin'     => 'required|min:4|max:10',
-            'confirm_mpin' => 'required|same:new_mpin'
-        ]);
-
-        $user = Auth::user();
-
-        
-        if (!Hash::check($request->current_mpin, $user->mpin)) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Current MPIN is incorrect'
-            ]);
-        }
-
-       
-        User::where('id', $user->id)->update([
-            'mpin' => Hash::make($request->new_mpin)
-        ]);
-
-        return response()->json([
-            'status' => true,
-            'message' => 'MPIN updated successfully'
-        ]);
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'status' => false,
-            'message' => $e->getMessage(),
-        ], 500);
-    }
-}
-
+    
     // Ip Whitelist
 
     public function addIpWhiteList(Request $request)
@@ -713,7 +669,7 @@ class UserController extends Controller
                 'ip_address' => $request->ip_address,
                 'service_id' => $request->service_id,
                 'updated_by' => $userId,
-            ]);
+            ];
               
              $ip->update($data);
 

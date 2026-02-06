@@ -1142,9 +1142,9 @@ class AdminController extends Controller
             $category->update([
                 'status' => $request->status,
                 'updated_by' => Auth::id(),
-            ]);
                 'message' => 'Category Updated Successfully'
             ]);
+            
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
@@ -1153,59 +1153,6 @@ class AdminController extends Controller
             ]);
         }
     }
-
-
-    public function statusComplaintCategory($Id)
-    {
-
-        DB::beginTransaction();
-
-        try {
-
-            $updatedBy = Auth::user()->id;
-            $category = ComplaintsCategory::find($Id);
-
-
-            if (!$category) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Ip address not Found'
-                ]);
-            }
-
-            $data =  [
-                'is_active' => $category->is_active == '1' ? '0' : '1',
-                'updated_by' => $updatedBy,
-            ];
-
-            $update = $category->update($data);
-
-
-            DB::commit();
-
-            return response()->json([
-                'status' => true,
-
-                'message' => $request->status == 1
-                    ? 'Category Activated Successfully'
-                    : 'Category Deactivated Successfully',
-                'data' => [
-                    'status' => (int) $category->status,
-                ],
-
-                'message' => 'Status Changed Successfully'
-            ]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-
-            return response()->json([
-                'status' => false,
-
-                'message' => 'Error: '.$e->getMessage(),
-            ], 500);
-        }
-    }
-
 
     public function changeKycStatus(Request $request)
     {
