@@ -29,7 +29,8 @@ class BusinessInfo extends Model
         'aadhar_front_image',
         'aadhar_back_image',
         'business_type',
-        'cin_no'
+        'cin_no',
+        'is_kyc'
     ];
 
     public function user()

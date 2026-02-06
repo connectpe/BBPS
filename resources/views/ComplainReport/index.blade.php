@@ -108,7 +108,6 @@
                         <option value="">--Select Status--</option>
                         <option value="Open">Open</option>
                         <option value="In Progress">In Progress</option>
-                        <option value="Resolved">Resolved</option>
                         <option value="Closed">Closed</option>
                     </select>
                 </div>
@@ -286,7 +285,11 @@
                 {
                     data: 'remark',
                     render: function(data) {
-                        return `<i class="fas fa-eye cursor-pointer viewModalBtn"  data-title="Remark" data-content='${JSON.stringify(data)}'></i>`;
+                        const safeText = data || '';
+                        return `<i class="fas fa-eye cursor-pointer viewModalBtn"
+                                    data-title="Remark"
+                                    data-content="${safeText.replace(/"/g, '&quot;')}">
+                                </i>`;
                     }
                 },
                 {
@@ -333,18 +336,22 @@
                             'Closed',
                             'Resolved'
                         ];
-                        const remark = row.remark ? row.remark : '';
-                        let dropdown = `
-                            <select class="form-select form-select-sm"
-                                onchange="updateComplaint(${row.id}, '${row.status}', '${row.ticket_number}', '${remark}')"
-                                >
-                            `;
+
+                        const remarkEscaped = escapeHtml(row.remark || '');
+
+                        let dropdown = `<select class="form-select form-select-sm"
+                            data-id="${row.id}"
+                            data-status="${escapeHtml(row.status)}"
+                            data-ticket="${escapeHtml(row.ticket_number)}"
+                            data-remark="${remarkEscaped}">`;
+
                         statusOptions.forEach(status => {
                             let selected = data === status ? 'selected' : '';
-                            dropdown += `<option value="${status}" ${selected}>${status}</option>`;
+                            dropdown += `<option value="${escapeHtml(status)}" ${selected}>${escapeHtml(status)}</option>`;
                         });
 
                         dropdown += `</select>`;
+
 
                         return dropdown;
                     },
@@ -354,7 +361,11 @@
                 {
                     data: 'description',
                     render: function(data) {
-                        return `<i class="fas fa-eye cursor-pointer viewModalBtn"  data-title="Description" data-content='${JSON.stringify(data)}'></i>`;
+                        const safeText = data || '';
+                        return `<i class="fas fa-eye cursor-pointer viewModalBtn"
+                                    data-title="Description"
+                                    data-content="${safeText.replace(/"/g, '&quot;')}">
+                                </i>`;
                     }
                 },
                 {
@@ -381,12 +392,29 @@
             table.ajax.reload();
         });
 
-        $(document).on('click', '.viewModalBtn', function() {
-            var title = $(this).data('title');
-            var content = $(this).data('content');
-            showModal(title, content);
-        });
     });
+
+
+    $('#complaintTable').on('change', 'select.form-select-sm', function() {
+        const id = $(this).data('id');
+        const status = $(this).val(); // get the selected status
+        const ticket = $(this).data('ticket');
+        const remark = $(this).data('remark');
+
+        updateComplaint(id, status, ticket, remark);
+    });
+
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\n/g, '&#10;'); // replace newlines
+    }
 </script>
 
 @endsection

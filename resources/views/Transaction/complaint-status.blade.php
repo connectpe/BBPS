@@ -57,9 +57,7 @@
     }
 
     function badgeClassByStatus(st) {
-        if (st === 'Resolved') {
-            return 'success';
-        } else if (st === 'Closed') {
+        if (st === 'Closed') {
             return 'danger';
         } else if (st === 'In Progress') {
             return 'warning';
