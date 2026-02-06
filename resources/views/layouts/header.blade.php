@@ -131,38 +131,50 @@
                         <tr>
                             <td>{{ $service->service_name }}</td>
 
-                            <td>
-                                {{-- IF REQUEST EXISTS --}}
-                                @if ($request)
 
-                                {{-- APPROVED --}}
+                            @php
+                                $userKycStatus = false;
+                                if (auth()->check()) {
+                                    $business = \App\Models\BusinessInfo::where('user_id', auth()->id())->first();
+                                    $userKycStatus = $business && $business->is_kyc == 1;
+                                }
+                                $isAdmin = auth()->check() && auth()->user()->role_id == 1;
+                            @endphp
+                            <td>
+                                @if ( $userKycStatus || $isAdmin)
+                                    @if ($request && $request->status === 'approved')
+                                        <button class="btn btn-success btn-sm w-100">Activated</button>  
+                                    @elseif ($request && $request->status === 'pending')
+                                        <button class="btn btn-secondary btn-sm w-100">Requested</button>
+                                    @else
+                                        <form action="{{ route('service.request') }}" method="POST">
+                                            @csrf
+                                            <input type="hidden" name="service_id" value="{{ $service->id }}">
+                                            <button class="btn btn-primary btn-sm w-100">Raise Request</button>
+                                        </form>
+                                    @endif
+                                @else
+                                    <a href="{{ url('profile/' . auth()->id()) }}" class="text-danger small text-decoration-none">KYC Pending</a>
+                                @endif
+                            </td>
+
+                            {{-- <td>
+                                @if ($request)
                                 @if ($request->status === 'approved')
                                 <button class="btn btn-success btn-sm w-100">
                                     Activated
                                 </button>
-
-                                {{-- PENDING --}}
                                 @elseif ($request->status === 'pending')
-
-                                {{-- ADMIN CAN APPROVE --}}
                                 @if ($isAdmin)
-
-                                {{-- USER VIEW --}}
                                 @else
                                 <button class="btn btn-secondary btn-sm w-100">
                                     Requested
                                 </button>
                                 @endif
                                 @endif
-
-                                {{-- NO REQUEST --}}
                                 @else
-
-                                {{-- ADMIN --}}
                                 @if ($isAdmin)
                                 <span class="text-muted">Not Requested</span>
-
-                                {{-- USER --}}
                                 @else
                                 <form action="{{ route('service.request') }}"
                                     method="POST"
@@ -177,7 +189,7 @@
                                 @endif
 
                                 @endif
-                            </td>
+                            </td> --}}
                         </tr>
                         @endforeach
                     </tbody>
