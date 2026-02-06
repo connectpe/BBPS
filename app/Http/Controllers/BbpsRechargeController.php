@@ -83,13 +83,13 @@ class BbpsRechargeController extends Controller
                 'paymentAccountInfo' => $user->mobile,
                 'reqid' => $commonHelper->generateTransactionId(),
                 'paymentRefID' => $commonHelper->generatePaymentRefId(),
-                'plan_id' => $request->plan_id,
+                 'plan_id' => $request->plan_id,
                 'userid' => $userid,
                 'call'=>'balance_debit',
             ];
 
             // Dispatch the job to handle the API call
-            DebitBalanceUpdateJob::dispatch($payload);
+           DebitBalanceUpdateJob::dispatch($payload);
 
             return response()->json([
                 'status'  => 'Success',
@@ -339,8 +339,6 @@ class BbpsRechargeController extends Controller
             ]);
         }
     }
-
-
     public function postpaidVillBill(Request $request)
     {
         try {

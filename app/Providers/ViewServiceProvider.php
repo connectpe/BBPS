@@ -18,6 +18,7 @@ class ViewServiceProvider extends ServiceProvider
 
             if (Auth::check() && Auth::user()->status == '1') {
                 $requestedServices = UserService::latest()
+                    ->where('user_id',Auth::id())
                     ->get()
                     ->unique('service_id')
                     ->keyBy('service_id');
