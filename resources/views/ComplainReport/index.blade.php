@@ -72,7 +72,6 @@
                         <tr>
                             <th>ID</th>
                             <th>Organization Name</th>
-                            <th>User Name</th>
                             <th>Ticket Number</th>
                             <th>Service</th>
                             <th>Complaint Category</th>
@@ -253,23 +252,13 @@
                     render: function(row, type) {
                         let url = "{{ route('view_user', ['id' => ':id']) }}".replace(':id', row.user_id);
                         const businessName = row?.user?.business?.business_name || '----';
-                        return `
-                            <a href="${url}" class="text-primary fw-semibold text-decoration-none">
-                                ${businessName}
-                            </a>
-                        `;
-                    }
-                },
-                {
-                    data: null,
-                    render: function(row, type) {
-                        let url = "{{ route('view_user', ['id' => ':id']) }}".replace(':id', row.user_id);
                         const userName = row?.user?.name || '----';
                         return `
-                            <a href="${url}" class="text-primary fw-semibold text-decoration-none">
-                                ${userName}
-                            </a>
-                        `;
+                                <a href="${url}" class="text-primary fw-semibold text-decoration-none">
+                                    ${userName ?? '----'} <br/>
+                                    [${businessName ?? '----'}]
+                                </a>
+                            `;
                     }
                 },
                 {

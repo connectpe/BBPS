@@ -69,7 +69,6 @@
                         <tr>
                             <th>ID</th>
                             <th>Organization Name</th>
-                            <th>Name</th>
                             <th>Email</th>
                             <th>PanNO.</th>
                             <th>Aadhar NO.</th>
@@ -133,25 +132,18 @@
                     data: 'id'
                 },
                 {
-                    data: 'business.business_name',
+                    data: null,
                     render: function(data, type, row) {
-                        let url = "{{route('view_user',['id' => 'id'])}}".replace('id', row.id);
+                        let url = "{{ route('view_user', ['id' => 'id']) }}".replace('id', row.id);
+                        const userName = row?.name;
+                        const businessName = row?.business?.business_name;
+
                         return `
-                        <a href="${url}" class="text-primary fw-semibold text-decoration-none">
-                            ${data ?? '----'}
-                        </a>
-                    `;
-                    }
-                },
-                {
-                    data: 'name',
-                    render: function(data, type, row) {
-                        let url = "{{route('view_user',['id' => 'id'])}}".replace('id', row.id);
-                        return `
-                        <a href="${url}" class="text-primary fw-semibold text-decoration-none">
-                            ${data}
-                        </a>
-                    `;
+                                <a href="${url}" class="text-primary fw-semibold text-decoration-none">
+                                    ${userName ?? '----'} <br/>
+                                    [${businessName ?? '----'}]
+                                </a>
+                            `;
                     }
                 },
                 {

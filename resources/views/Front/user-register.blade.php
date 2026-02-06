@@ -216,6 +216,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            
 
             const loginForm = document.getElementById('loginForm');
             const signupForm = document.getElementById('signupForm');
@@ -230,6 +231,7 @@
             let userEmail = ''; 
             let pendingLoginEmail = ''; 
             let pendingLoginPassword = ''; 
+            let isverfiy = false;
 
             function showLogin() {
                 loginForm.classList.remove('d-none');
@@ -340,6 +342,8 @@
                 });
             });
 
+            
+
             loginForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
 
@@ -367,6 +371,7 @@
 
                         Swal.fire('OTP Sent', data.message || 'OTP sent to your email', 'success');
                         showOTP();
+                        isverfiy = true;
 
                         loginButton.disabled = false;
                         loginButton.textContent = 'Login';
@@ -428,12 +433,16 @@
 
                     const data = await res.json();
 
-                    if (!(res.ok && data.status)) {
+                   
+
+                    if (!(data.status)) {
                         Swal.fire('Error', data.message || 'OTP verification failed', 'error');
                         otpBtn.disabled = false;
                         otpBtn.textContent = 'Verify OTP';
                         return;
                     }
+                    // console.log('is verify value is = ',isverfiy)
+                    if(isverfiy){
 
                     const fd = new FormData();
                     fd.append('email', pendingLoginEmail || userEmail);
@@ -458,7 +467,7 @@
                     }
 
                     Swal.fire('Error', loginData.message || 'Login failed after verification', 'error');
-
+                    }
                 } catch (err) {
                     Swal.fire('Error', 'Server error. Try again later.', 'error');
                     console.error(err);
