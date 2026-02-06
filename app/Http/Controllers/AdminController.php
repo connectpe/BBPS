@@ -38,9 +38,10 @@ class AdminController extends Controller
                     ->get();
             }
 
-            $data['activeService'] = GlobalService::where(['is_active' => '1'])
-                ->select('id', 'slug', 'service_name')
-                ->get();
+            // $data['activeService'] = GlobalService::where(['is_active' => '1'])
+                
+            //     ->select('id', 'slug', 'service_name')
+            //     ->get();
 
             $data['userdata'] = User::where('id', $userId)->select('name', 'email', 'mobile', 'status', 'role_id', 'profile_image')->first();
             $data['businessInfo'] = BusinessInfo::where('user_id', $userId)->first();

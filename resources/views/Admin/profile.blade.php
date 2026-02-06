@@ -86,10 +86,10 @@
 
         /* COMPLETED */
         /* .step-item.completed .step-circle {
-                                                                                                                                    border-color: #198754;
-                                                                                                                                    background: #198754;
-                                                                                                                                    color: #fff;
-                                                                                                                                } */
+                                                                                                                                        border-color: #198754;
+                                                                                                                                        background: #198754;
+                                                                                                                                        color: #fff;
+                                                                                                                                    } */
     </style>
 
     @php
@@ -1291,10 +1291,18 @@
                     </div>
 
                     <div class="modal-body">
+                        {{-- <select class="form-select" name="service" id="service" required>
+                            <option value="">-- Select Service --</option>
+                            @foreach ($UserServices as $userService)
+                                <option value="{{ $userService->slug }}">{{ $userService->service_name }}</option>
+                            @endforeach
+                        </select> --}}
                         <select class="form-select" name="service" id="service" required>
                             <option value="">-- Select Service --</option>
-                            @foreach ($activeService as $service)
-                                <option value="{{ $service->slug }}">{{ $service->service_name }}</option>
+                            @foreach ($UserServices as $userService)
+                                <option value="{{ $userService->service->slug }}">
+                                    {{ $userService->service->service_name }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
