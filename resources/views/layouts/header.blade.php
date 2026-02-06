@@ -154,7 +154,7 @@
                                         </form>
                                     @endif
                                 @else
-                                    <a href="{{ url('profile/' . auth()->id()) }}" class="text-danger small text-decoration-none">KYC Pending</a>
+                                    <a href="{{ url('profile/' . auth()->id()) }}" class="text-danger small text-decoration-none">Complete Profile</a>
                                 @endif
                             </td>
 
