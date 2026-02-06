@@ -75,7 +75,7 @@ class AdminController extends Controller
             return view('Dashboard.api-dashboard');
         } elseif ($role == 4) {
             return view('Dashboard.support-dashboard');
-        } elseif ($role == 2) {
+        }elseif ($role == 2){
             return view('Dashboard.user-dashboard');
         }
     }
@@ -882,9 +882,7 @@ class AdminController extends Controller
             return response()->json(['status' => true, 'message' => $msg]);
         } catch (\Exception $e) {
             DB::rollBack();
-
             return response()->json(['status' => false, 'message' => 'Error: '.$e->getMessage()], 500);
-
         }
     }
 
@@ -922,7 +920,6 @@ class AdminController extends Controller
                 'message' => 'Error: '.$e->getMessage(),
             ], 500);
         }
-
     }
 
     public function supportdetails()
@@ -938,7 +935,6 @@ class AdminController extends Controller
                     'status' => false,
                     'message' => 'unauthorized access',
                 ]);
-
             }
             $request->validate([
                 'name' => 'required|string|min:3',
@@ -964,7 +960,6 @@ class AdminController extends Controller
                 'status' => true,
                 'message' => 'Member created Successfully',
             ]);
-
         } catch (Exception $e) {
             return response()->json([
                 'status' => false,
@@ -994,8 +989,8 @@ class AdminController extends Controller
 
             $request->validate([
                 'name' => 'required|string|min:3',
-                'email' => 'required|email|unique:users,email,'.$user_id,
-                'mobile' => 'required|digits:10|unique:users,mobile,'.$user_id,
+                'email' => 'required|email|unique:users,email,' . $user_id,
+                'mobile' => 'required|digits:10|unique:users,mobile,' . $user_id,
             ]);
 
             $member->name = $request->name;
@@ -1007,7 +1002,6 @@ class AdminController extends Controller
                 'status' => true,
                 'message' => 'Member updated Successfully',
             ]);
-
         } catch (ValidationException $e) {
             return response()->json([
                 'status' => false,
@@ -1048,7 +1042,6 @@ class AdminController extends Controller
         DB::beginTransaction();
 
         try {
-
             $updatedBy = Auth::user()->id;
 
             $data = [
@@ -1062,14 +1055,14 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => true,
-                'message' => 'Category Added Successfully',
+                'message' => 'Category Added Successfully'
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error: '.$e->getMessage(),
+                'message' => 'Error: ' . $e->getMessage()
             ]);
         }
     }
@@ -1078,7 +1071,7 @@ class AdminController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            'category_name' => 'required|string|max:50|regex:/^[A-Za-z0-9 _-]+$/|unique:complaints_categories,id,'.$Id,
+            'category_name' => 'required|string|max:50|regex:/^[A-Za-z0-9 _-]+$/|unique:complaints_categories,id,' . $Id,
         ], [
             'category_name.required' => 'Category name is required.',
             'category_name.string' => 'Category name must be a valid string.',
@@ -1099,11 +1092,10 @@ class AdminController extends Controller
 
             $updatedBy = Auth::user()->id;
             $category = ComplaintsCategory::find($Id);
-
-            if (! $category) {
+            if (!$category) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Ip address not Found',
+                    'message' => 'Ip address not Found'
                 ]);
             }
 
@@ -1118,6 +1110,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => true,
+
                 'message' => 'Category Updated Successfully',
             ]);
         } catch (\Exception $e) {
@@ -1150,25 +1143,73 @@ class AdminController extends Controller
                 'status' => $request->status,
                 'updated_by' => Auth::id(),
             ]);
+                'message' => 'Category Updated Successfully'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+
+    public function statusComplaintCategory($Id)
+    {
+
+        DB::beginTransaction();
+
+        try {
+
+            $updatedBy = Auth::user()->id;
+            $category = ComplaintsCategory::find($Id);
+
+
+            if (!$category) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Ip address not Found'
+                ]);
+            }
+
+            $data =  [
+                'is_active' => $category->is_active == '1' ? '0' : '1',
+                'updated_by' => $updatedBy,
+            ];
+
+            $update = $category->update($data);
+
 
             DB::commit();
 
             return response()->json([
                 'status' => true,
+
                 'message' => $request->status == 1
                     ? 'Category Activated Successfully'
                     : 'Category Deactivated Successfully',
                 'data' => [
                     'status' => (int) $category->status,
                 ],
+
+                'message' => 'Status Changed Successfully'
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json([
                 'status' => false,
+
                 'message' => 'Error: '.$e->getMessage(),
             ], 500);
         }
     }
+
+
+    public function changeKycStatus(Request $request)
+    {
+        dd($request->all());
+    }
+
 }

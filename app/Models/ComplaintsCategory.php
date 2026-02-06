@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ComplaintsCategory extends Model
 {
+
     protected $table = 'complaints_categories';
 
     protected $fillable = [
@@ -17,4 +18,5 @@ class ComplaintsCategory extends Model
     protected $casts = [
         'created_at' => 'datetime:Y-m-d H:i:s',
     ];
+
 }

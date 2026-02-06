@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -536,83 +537,64 @@ class UserController extends Controller
 
     public function ApiLog()
     {
+
         $users = User::where('role_id', '!=', '1')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
 
         return view('Users.api-log', compact('users'));
     }
 
+    public function generateMpin(Request $request) {
+    try {
+      
+        if (Auth::user()->role_id != '2') {
+            return response()->json([
+                'status' => false,
+                'message' => 'You are unauthorized'
+            ], 403);
+        }
+
+       
+        $request->validate([
+            'current_mpin' => 'required',
+            'new_mpin'     => 'required|min:4|max:10',
+            'confirm_mpin' => 'required|same:new_mpin'
+        ]);
+
+        $user = Auth::user();
+
+        
+        if (!Hash::check($request->current_mpin, $user->mpin)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Current MPIN is incorrect'
+            ]);
+        }
+
+       
+        User::where('id', $user->id)->update([
+            'mpin' => Hash::make($request->new_mpin)
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'MPIN updated successfully'
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => false,
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+}
+
     // Ip Whitelist
-    // public function addIpWhiteList(Request $request)
-    // {
-
-    //     $validator = Validator::make($request->all(), [
-    //         'ip_address' => 'required|ip',
-    //         'service_id' => 'required|exist:global_services,id'
-    //     ], [
-    //         'ip_address.required' => 'IP address is required.',
-    //         'ip_address.ip' => 'Please enter a valid IP address.',
-    //     ]);
-
-    //     if ($validator->fails()) {
-    //         return response()->json([
-    //             'status' => false,
-    //             'errors' => $validator->errors(),
-    //         ], 422);
-    //     }
-
-    //     DB::beginTransaction();
-
-    //     try {
-
-    //         $userId = Auth::user()->id;
-
-    //         $ipCount = IpWhitelist::where('user_id', $userId)->where('service_id', $request->service_id)->where('is_deleted', '0')->count();
-    //         $duplicateIp = IpWhitelist::where('user_id', $userId)->where('service_id', $request->service_id)->where('ip_address', $request->ip_address)->where('is_deleted', '0')->count();
-
-    //         if ($ipCount > 4) {
-    //             return response()->json([
-    //                 'status' => false,
-    //                 'message' => 'Can\'t add more than 5 IP addresses'
-    //             ]);
-    //         }
-
-    //         if ($duplicateIp > 0) {
-    //             return response()->json([
-    //                 'status' => false,
-    //                 'message' => 'Duplicate Ip for selected Service'
-    //             ]);
-    //         }
-
-    //         $data = [
-    //             'user_id' => $userId,
-    //             'ip_address' => $request->ip_address,
-    //             'service_id' => $request->service_id,
-    //             'updated_by' => $userId,
-    //         ];
-
-    //         IpWhitelist::create($data);
-
-    //         DB::commit();
-
-    //         return response()->json([
-    //             'status' => true,
-    //             'message' => 'IP address Added Successfully'
-    //         ]);
-    //     } catch (\Exception $e) {
-    //         DB::rollBack();
-
-    //         return response()->json([
-    //             'status' => false,
-    //             'message' => 'Error: ' . $e->getMessage()
-    //         ]);
-    //     }
-    // }
 
     public function addIpWhiteList(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'ip_address' => 'required|ip',
-            'service_id' => 'required|exists:global_services,id',
+            'service_id' => 'required|exist:global_services,id'
         ], [
             'ip_address.required' => 'IP address is required.',
             'ip_address.ip' => 'Please enter a valid IP address.',
@@ -644,11 +626,8 @@ class UserController extends Controller
                 ]);
             }
 
-            $duplicateIp = IpWhitelist::where('user_id', $userId)
-                ->where('service_id', $request->service_id)
-                ->where('ip_address', $request->ip_address)
-                ->where('is_deleted', '0')
-                ->exists();
+
+            $duplicateIp = IpWhitelist::where('user_id', $userId)->where('service_id', $request->service_id)->where('ip_address', $request->ip_address)->where('is_deleted', '0')->count();
 
             if ($duplicateIp) {
                 return response()->json([
@@ -656,13 +635,17 @@ class UserController extends Controller
                     'message' => 'This IP is already whitelisted for the selected service.',
                 ]);
             }
-            IpWhitelist::create([
+           
+            $data = [
                 'user_id' => $userId,
                 'ip_address' => $request->ip_address,
                 'service_id' => $request->service_id,
                 'updated_by' => $userId,
                 'is_active' => '1',
-            ]);
+            ];
+
+            IpWhitelist::create($data);
+
 
             DB::commit();
 
@@ -685,7 +668,10 @@ class UserController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'ip_address' => 'required|ip',
-            'service_id' => 'required|exists:global_services,id',
+            'service_id' => 'required|exist:global_services,id'
+        ], [
+            'ip_address.required' => 'IP address is required.',
+            'ip_address.ip' => 'Please enter a valid IP address.',
         ]);
 
         if ($validator->fails()) {
@@ -694,10 +680,11 @@ class UserController extends Controller
 
         DB::beginTransaction();
         try {
-            $userId = Auth::id();
+            $userId = Auth::user()->id;
+            $ipCount = IpWhitelist::where('user_id', $userId)->where('service_id', $request->service_id)->where('is_deleted', '0')->count();
+            $duplicateIp = IpWhitelist::where('user_id', $userId)->where('service_id', $request->service_id)->where('ip_address', $request->ip_address)->where('is_deleted', '0')->count();
+            $ip = IpWhitelist::find($Id);
 
-            // Fix: Find record and verify ownership in one go
-            $ip = IpWhitelist::where('id', $Id)->where('user_id', $userId)->first();
 
             if (! $ip) {
                 return response()->json(['status' => false, 'message' => 'Record not found or access denied']);
@@ -711,15 +698,24 @@ class UserController extends Controller
                 ->where('is_deleted', '0')
                 ->exists();
 
-            if ($duplicate) {
-                return response()->json(['status' => false, 'message' => 'This IP is already added for this service']);
-            }
+            
 
-            $ip->update([
+           
+              if ($duplicateIp > 0) {
+                  return response()->json([
+                      'status' => false,
+                      'message' => 'Duplicate Ip for selected Service'
+                  ]);
+              }
+
+            $data =  [
+
                 'ip_address' => $request->ip_address,
                 'service_id' => $request->service_id,
                 'updated_by' => $userId,
             ]);
+              
+             $ip->update($data);
 
             DB::commit();
 
@@ -727,8 +723,7 @@ class UserController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-
-            return response()->json(['status' => false, 'message' => $e->getMessage()]);
+            return response()->json(['status' => false, 'message' => $e->getMessage()]); 
         }
     }
 
