@@ -14,6 +14,7 @@ use App\Models\SchemeRule;
 use App\Models\User;
 use App\Models\UserAssignedToSupport;
 use App\Models\UserConfig;
+use App\Models\WebHookUrl;
 use App\Models\UsersBank;
 use App\Models\UserService;
 use Illuminate\Http\Request;
@@ -50,6 +51,7 @@ class AdminController extends Controller
 
             $data['usersBank'] = UsersBank::where('user_id', $userId)->first();
             $data['UserServices'] = UserService::where('user_id', $userId)->where('status', 'approved')->get();
+             $data['webhookUrl'] = WebHookUrl::where('user_id', $userId)->first();
 
             return view('Admin.profile')->with($data);
         } catch (\Exception $e) {

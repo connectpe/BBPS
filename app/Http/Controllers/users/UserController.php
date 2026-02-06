@@ -9,7 +9,6 @@ use App\Models\BusinessInfo;
 use App\Models\GlobalService;
 use App\Models\IpWhitelist;
 use App\Models\OauthUser;
-use Illuminate\Support\Facades\Hash;
 use App\Models\Provider;
 use App\Models\User;
 use App\Models\UserRooting;
@@ -19,9 +18,9 @@ use App\Models\WebHookUrl;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-
 
 class UserController extends Controller
 {
@@ -55,13 +54,13 @@ class UserController extends Controller
         }
 
         if (! empty($request->name)) {
-            $users = array_filter($users, fn($u) => str_contains(strtolower($u['name']), strtolower($request->name)));
+            $users = array_filter($users, fn ($u) => str_contains(strtolower($u['name']), strtolower($request->name)));
         }
         if (! empty($request->email)) {
-            $users = array_filter($users, fn($u) => str_contains(strtolower($u['email']), strtolower($request->email)));
+            $users = array_filter($users, fn ($u) => str_contains(strtolower($u['email']), strtolower($request->email)));
         }
         if (! empty($request->status)) {
-            $users = array_filter($users, fn($u) => $u['status'] == $request->status);
+            $users = array_filter($users, fn ($u) => $u['status'] == $request->status);
         }
 
         $filteredCount = count($users);
@@ -100,11 +99,11 @@ class UserController extends Controller
                     // 'business_email'     => 'nullable|email|max:255|unique:business_infos,business_email ',
                     // 'business_phone'     => 'nullable|string|max:20|unique:business_infos,business_phone ',
 
-                    'cin_number' => 'nullable|string|max:50|unique:business_infos,cin_no,' . ($businessData->id ?? 'NULL') . ',id|regex:/^[A-Z]{1}[0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$/i',
-                    'gst_number' => 'required|string|max:50|unique:business_infos,gst_number,' . ($businessData->id ?? 'NULL') . ',id|regex:/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/i',
-                    'business_pan' => 'required|string|max:50|unique:business_infos,business_pan_number,' . ($businessData->id ?? 'NULL') . ',id|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i',
-                    'business_email' => 'nullable|email|max:255|unique:business_infos,business_email,' . ($businessData->id ?? 'NULL') . ',id',
-                    'business_phone' => 'nullable|string|max:20|unique:business_infos,business_phone,' . ($businessData->id ?? 'NULL') . ',id|regex:/^[6-9]\d{9}$/',
+                    'cin_number' => 'nullable|string|max:50|unique:business_infos,cin_no,'.($businessData->id ?? 'NULL').',id|regex:/^[A-Z]{1}[0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$/i',
+                    'gst_number' => 'required|string|max:50|unique:business_infos,gst_number,'.($businessData->id ?? 'NULL').',id|regex:/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/i',
+                    'business_pan' => 'required|string|max:50|unique:business_infos,business_pan_number,'.($businessData->id ?? 'NULL').',id|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i',
+                    'business_email' => 'nullable|email|max:255|unique:business_infos,business_email,'.($businessData->id ?? 'NULL').',id',
+                    'business_phone' => 'nullable|string|max:20|unique:business_infos,business_phone,'.($businessData->id ?? 'NULL').',id|regex:/^[6-9]\d{9}$/',
 
                     'business_docs.*' => 'nullable|file|mimes:pdf,jpg,png|max:5120',
 
@@ -113,14 +112,14 @@ class UserController extends Controller
                     'pincode' => 'required|string|max:10',
                     'business_address' => 'required|string|max:500',
 
-                    'adhar_number' => 'required|string|max:20|regex:/^\d{12}$/|unique:business_infos,aadhar_number,' . ($businessData->id ?? 'NULL') . ',id',
-                    'pan_number' => 'required|string|max:20|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i|unique:business_infos,pan_number,' . ($businessData->id ?? 'NULL') . ',id',
+                    'adhar_number' => 'required|string|max:20|regex:/^\d{12}$/|unique:business_infos,aadhar_number,'.($businessData->id ?? 'NULL').',id',
+                    'pan_number' => 'required|string|max:20|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i|unique:business_infos,pan_number,'.($businessData->id ?? 'NULL').',id',
                     'adhar_front_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
                     'adhar_back_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
                     'pan_card_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
 
                     'account_holder_name' => 'required|string|max:255',
-                    'account_number' => 'required|string|max:30|unique:users_banks,account_number,' . ($bankDetail->id ?? 'NULL') . ',id',
+                    'account_number' => 'required|string|max:30|unique:users_banks,account_number,'.($bankDetail->id ?? 'NULL').',id',
                     'ifsc_code' => 'required|string|max:20',
                     'branch_name' => 'required|string|max:255',
                     'bank_docs' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
@@ -335,7 +334,7 @@ class UserController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error: ' . $e->getMessage(),
+                'message' => 'Error: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -371,7 +370,7 @@ class UserController extends Controller
 
             $userId = auth()->id();
 
-            $clientId = 'RAFI' . strtoupper($request->service) . '_' . Str::random(16);
+            $clientId = 'RAFI'.strtoupper($request->service).'_'.Str::random(16);
             $plainSecret = Str::random(32);
             $encryptedSecret = encrypt($plainSecret);
 
@@ -507,7 +506,7 @@ class UserController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error: ' . $e->getMessage(),
+                'message' => 'Error: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -531,7 +530,7 @@ class UserController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error fetching providers: ' . $e->getMessage(),
+                'message' => 'Error fetching providers: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -544,14 +543,13 @@ class UserController extends Controller
         return view('Users.api-log', compact('users'));
     }
 
-
     // Ip Whitelist
 
     public function addIpWhiteList(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'ip_address' => 'required|ip',
-            'service_id' => 'required|exists:global_services,id'
+            'service_id' => 'required|exists:global_services,id',
         ], [
             'ip_address.required' => 'IP address is required.',
             'ip_address.ip' => 'Please enter a valid IP address.',
@@ -583,7 +581,6 @@ class UserController extends Controller
                 ]);
             }
 
-
             $duplicateIp = IpWhitelist::where('user_id', $userId)->where('service_id', $request->service_id)->where('ip_address', $request->ip_address)->where('is_deleted', '0')->count();
 
             if ($duplicateIp) {
@@ -603,7 +600,6 @@ class UserController extends Controller
 
             IpWhitelist::create($data);
 
-
             DB::commit();
 
             return response()->json([
@@ -615,7 +611,7 @@ class UserController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'System Error: ' . $e->getMessage(),
+                'message' => 'System Error: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -624,7 +620,7 @@ class UserController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'ip_address' => 'required|ip',
-            'service_id' => 'required|exists:global_services,id'
+            'service_id' => 'required|exists:global_services,id',
         ], [
             'ip_address.required' => 'IP address is required.',
             'ip_address.ip' => 'Please enter a valid IP address.',
@@ -654,11 +650,11 @@ class UserController extends Controller
             if ($duplicate) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Duplicate Ip for selected Service'
+                    'message' => 'Duplicate Ip for selected Service',
                 ]);
             }
 
-            $data =  [
+            $data = [
                 'ip_address' => $request->ip_address,
                 'service_id' => $request->service_id,
                 'updated_by' => $userId,
@@ -671,6 +667,7 @@ class UserController extends Controller
             return response()->json(['status' => true, 'message' => 'IP address Updated Successfully']);
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json(['status' => false, 'message' => $e->getMessage()]);
         }
     }
@@ -717,7 +714,7 @@ class UserController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error: ' . $e->getMessage(),
+                'message' => 'Error: '.$e->getMessage(),
             ]);
         }
     }
@@ -764,7 +761,7 @@ class UserController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error: ' . $e->getMessage(),
+                'message' => 'Error: '.$e->getMessage(),
             ]);
         }
     }
@@ -810,7 +807,6 @@ class UserController extends Controller
             ], 500);
         }
     }
-
 
     public function addWebHookUrl(Request $request)
     {
@@ -865,8 +861,6 @@ class UserController extends Controller
             ], 500);
         }
     }
-
-
 
     public function editWebHookUrl(Request $request, $Id)
     {
@@ -931,6 +925,54 @@ class UserController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Error: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function saveWebHookUrl(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'url' => 'required|url',
+        ], [
+            'url.required' => 'Url is required.',
+            'url.url' => 'Please enter a valid url.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $userId = Auth::id();
+
+            $webhook = WebHookUrl::updateOrCreate(
+                ['user_id' => $userId],
+                ['url' => $request->url, 'updated_by' => $userId]
+            );
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => $webhook->wasRecentlyCreated
+                    ? 'Url Added Successfully.'
+                    : 'Url Updated Successfully.',
+                'data' => [
+                    'url' => $webhook->url,
+                ],
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Error: '.$e->getMessage(),
             ], 500);
         }
     }

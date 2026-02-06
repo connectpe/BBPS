@@ -86,10 +86,10 @@
 
         /* COMPLETED */
         /* .step-item.completed .step-circle {
-                                                                                                                                                            border-color: #198754;
-                                                                                                                                                            background: #198754;
-                                                                                                                                                            color: #fff;
-                                                                                                                                                        } */
+                                                                                                                                                                    border-color: #198754;
+                                                                                                                                                                    background: #198754;
+                                                                                                                                                                    color: #fff;
+                                                                                                                                                                } */
     </style>
 
     @php
@@ -937,33 +937,90 @@
                     </div>
                 </div>
 
-                {{-- callback tab --}}
+                {{-- Webhook / Callback Tab --}}
                 <div class="tab-pane fade" id="callback" role="tabpanel" aria-labelledby="callback-tab">
                     <div class="card shadow-sm border-0">
                         <div
                             class="card-header bg-transparent fw-bold border-bottom d-flex justify-content-between align-items-center">
-                            <span><i class="bi bi-link-45deg me-2 text-primary"></i> Webhook Configuration</span>
+                            <span>
+                                <i class="bi bi-link-45deg me-2 text-primary"></i>
+                                Webhook Configuration
+                            </span>
+
                             <button class="btn btn-sm buttonColor shadow-sm" data-bs-toggle="modal"
                                 data-bs-target="#webhookModal">
-                                <i class="bi bi-pencil-square me-1"></i> Update URL
+                                <i class="bi bi-pencil-square me-1"></i>
+                                <span id="webhookBtnText">
+                                    {{ !empty($webhookUrl?->url) ? 'Update URL' : 'Set URL' }}
+                                </span>
                             </button>
                         </div>
+
                         <div class="card-body">
                             <div class="p-3 border rounded bg-light">
                                 <div class="row align-items-center">
-                                    <div class="col-md-3 fw-bold text-muted text-uppercase small">Callback URL Status</div>
+                                    <div class="col-md-3 fw-bold text-muted text-uppercase small">
+                                        Callback URL
+                                    </div>
                                     <div class="col-md-9">
-                                        <code class="text-primary fw-bold"
-                                            id="display_webhook_url">{{ $businessInfo->callback_url ?? 'Not Set' }}</code>
+                                        <code class="text-primary fw-bold" id="display_webhook_url">
+                                            {{ !empty($webhookUrl?->url) ? $webhookUrl->url : 'Not Set' }}
+                                        </code>
                                     </div>
                                 </div>
-                                <hr>
+
+                                <hr class="my-2">
+
                                 <p class="mb-0 small text-muted">
                                     <i class="bi bi-info-circle me-1"></i>
-                                    Is URL par transaction ke status updates real-time mein POST request ke through bheje
-                                    jayenge.
+                                    Real-time transaction status updates will be sent to this URL via POST requests.
                                 </p>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Webhook Modal --}}
+                <div class="modal fade" id="webhookModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="webhookModalTitle">
+                                    {{ !empty($webhookUrl?->url) ? 'Update Callback URL' : 'Set Callback URL' }}
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+
+                            <form id="webhookForm">
+                                @csrf
+                                <div class="modal-body">
+                                    <div class="mb-2">
+                                        <label class="form-label fw-semibold">
+                                            Transaction Callback URL <span class="text-danger">*</span>
+                                        </label>
+
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light"><i class="bi bi-globe"></i></span>
+
+                                            <input type="url" class="form-control" name="url"
+                                                id="modal_webhook_url" placeholder="https://yourdomain.com/api/callback"
+                                                value="{{ $webhookUrl?->url ?? '' }}" required>
+                                        </div>
+
+                                        <small class="text-danger d-none" id="err_url"></small>
+                                    </div>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" id="saveWebhookBtn" class="btn buttonColor">Save
+                                        Changes</button>
+                                </div>
+                            </form>
+
                         </div>
                     </div>
                 </div>
@@ -1421,37 +1478,6 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         <button type="submit" id="modalSubmitBtn" class="btn buttonColor">Save IP</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="webhookModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Update Callback URL</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form id="webhookForm">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Transaction Callback URL <span
-                                    class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light"><i class="bi bi-globe"></i></span>
-                                <input type="url" class="form-control" name="callback_url" id="modal_callback_url"
-                                    placeholder="https://yourdomain.com/api/callback"
-                                    value="{{ $businessInfo->callback_url ?? '' }}" required>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" id="saveWebhookBtn" class="btn buttonColor">Save
-                            Changes</button>
                     </div>
                 </form>
             </div>
@@ -2161,43 +2187,59 @@
 
     <script>
         $(document).ready(function() {
+
             $('#webhookForm').on('submit', function(e) {
                 e.preventDefault();
 
-                let submitBtn = $('#saveWebhookBtn');
-                let modalInput = $('#modal_callback_url').val();
-                let displayElement = $('#display_webhook_url');
+                let btn = $('#saveWebhookBtn');
+                btn.prop('disabled', true).html(
+                    '<span class="spinner-border spinner-border-sm me-1"></span> Saving...');
+                $('#err_url').addClass('d-none').text('');
 
-                // Loading state
-                submitBtn.prop('disabled', true).html(
-                    '<span class="spinner-border spinner-border-sm"></span> Saving...');
+                $.ajax({
+                    url: "{{ route('web_hook_url.save') }}",
+                    type: "POST",
+                    data: $(this).serialize(),
+                    success: function(res) {
+                        if (res.status) {
+                            $('#display_webhook_url').text(res.data.url);
+                            $('#webhookBtnText').text('Update URL');
+                            $('#webhookModalTitle').text('Update Callback URL');
 
-                // Fake delay simulation
-                setTimeout(function() {
+                            $('#webhookModal').modal('hide');
 
-                    // UI update: Hamesha element exist karega isliye direct update
-                    displayElement.text(modalInput);
-
-                    // Modal band karein
-                    $('#webhookModal').modal('hide');
-
-                    // Success feedback
-                    if (typeof Swal !== 'undefined') {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: 'Callback URL updated successfully.',
-                            timer: 1500,
-                            showConfirmButton: false
-                        });
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: res.message,
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                        } else {
+                            Swal.fire('Error', res.message || 'Something went wrong', 'error');
+                        }
+                    },
+                    error: function(xhr) {
+                        if (xhr.status === 422) {
+                            let errors = xhr.responseJSON.errors;
+                            if (errors && errors.url) {
+                                $('#err_url').removeClass('d-none').text(errors.url[0]);
+                            }
+                        } else {
+                            Swal.fire('Error', xhr.responseJSON?.message || 'Server error',
+                                'error');
+                        }
+                    },
+                    complete: function() {
+                        btn.prop('disabled', false).text('Save Changes');
                     }
-
-                    submitBtn.prop('disabled', false).text('Save Changes');
-
-                }, 800);
+                });
             });
+
         });
     </script>
+
+
 
 
 @endsection

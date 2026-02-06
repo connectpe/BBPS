@@ -193,8 +193,10 @@ Route::group(['middleware' => ['auth']], function () {
 
 
     // Web Hook URL
-    Route::post('add-web-hook-url', [UserController::class, 'addWebHookUrl'])->name('add_web_hook_url');
-    Route::post('edit-web-hook-url/{id}', [UserController::class, 'editWebHookUrl'])->name('add_web_hook_url');
+    // Route::post('add-web-hook-url', [UserController::class, 'addWebHookUrl'])->name('add_web_hook_url');
+    // Route::post('edit-web-hook-url/{id}', [UserController::class, 'editWebHookUrl'])->name('edit_web_hook_url');
+    Route::post('webhook-url/save', [UserController::class, 'saveWebHookUrl'])->name('web_hook_url.save');
+
 
 
     Route::post('generate-mpin', [UserController::class, 'generateMpin'])->name('generate_mpin');
