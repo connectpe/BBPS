@@ -75,7 +75,7 @@ class AdminController extends Controller
             return view('Dashboard.api-dashboard');
         } elseif ($role == 4) {
             return view('Dashboard.support-dashboard');
-        }elseif ($role == 2){
+        } elseif ($role == 2) {
             return view('Dashboard.user-dashboard');
         }
     }
@@ -882,6 +882,7 @@ class AdminController extends Controller
             return response()->json(['status' => true, 'message' => $msg]);
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json(['status' => false, 'message' => 'Error: '.$e->getMessage()], 500);
         }
     }
@@ -989,8 +990,8 @@ class AdminController extends Controller
 
             $request->validate([
                 'name' => 'required|string|min:3',
-                'email' => 'required|email|unique:users,email,' . $user_id,
-                'mobile' => 'required|digits:10|unique:users,mobile,' . $user_id,
+                'email' => 'required|email|unique:users,email,'.$user_id,
+                'mobile' => 'required|digits:10|unique:users,mobile,'.$user_id,
             ]);
 
             $member->name = $request->name;
@@ -1055,14 +1056,14 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => true,
-                'message' => 'Category Added Successfully'
+                'message' => 'Category Added Successfully',
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error: ' . $e->getMessage()
+                'message' => 'Error: '.$e->getMessage(),
             ]);
         }
     }
@@ -1071,7 +1072,7 @@ class AdminController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            'category_name' => 'required|string|max:50|regex:/^[A-Za-z0-9 _-]+$/|unique:complaints_categories,id,' . $Id,
+            'category_name' => 'required|string|max:50|regex:/^[A-Za-z0-9 _-]+$/|unique:complaints_categories,id,'.$Id,
         ], [
             'category_name.required' => 'Category name is required.',
             'category_name.string' => 'Category name must be a valid string.',
@@ -1092,10 +1093,10 @@ class AdminController extends Controller
 
             $updatedBy = Auth::user()->id;
             $category = ComplaintsCategory::find($Id);
-            if (!$category) {
+            if (! $category) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Ip address not Found'
+                    'message' => 'Ip address not Found',
                 ]);
             }
 
@@ -1123,34 +1124,43 @@ class AdminController extends Controller
         }
     }
 
-
-
-     public function statusComplaintCategory(Request $request, $id)
+    public function statusComplaintCategory(Request $request, $id)
     {
+        $validator = Validator::make($request->all(), [
+            'status' => 'required|in:0,1',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first(),
+            ], 422);
+        }
+
         DB::beginTransaction();
-
         try {
-            $category = ComplaintsCategory::find($id);
-
-            if (! $category) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Category not found',
-                ], 404);
-            }
+            $category = ComplaintsCategory::findOrFail($id); 
 
             $category->update([
                 'status' => $request->status,
                 'updated_by' => Auth::id(),
-                'message' => 'Category Updated Successfully'
             ]);
-            
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Category Status Updated Successfully',
+                'data' => $category,
+            ]);
+
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'status' => false,
-                'message' => 'Error: ' . $e->getMessage()
-            ]);
+                'message' => 'Something went wrong: '.$e->getMessage(),
+            ], 500);
         }
     }
 
@@ -1158,5 +1168,4 @@ class AdminController extends Controller
     {
         dd($request->all());
     }
-
 }

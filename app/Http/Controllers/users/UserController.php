@@ -550,7 +550,7 @@ class UserController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'ip_address' => 'required|ip',
-            'service_id' => 'required|exist:global_services,id'
+            'service_id' => 'required|exists:global_services,id'
         ], [
             'ip_address.required' => 'IP address is required.',
             'ip_address.ip' => 'Please enter a valid IP address.',
@@ -624,7 +624,7 @@ class UserController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'ip_address' => 'required|ip',
-            'service_id' => 'required|exist:global_services,id'
+            'service_id' => 'required|exists:global_services,id'
         ], [
             'ip_address.required' => 'IP address is required.',
             'ip_address.ip' => 'Please enter a valid IP address.',
