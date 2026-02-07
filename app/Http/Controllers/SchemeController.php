@@ -13,7 +13,7 @@ class SchemeController extends Controller
     {
         $globalServices = GlobalService::where('is_active', '1')->orderBy('id', 'desc')->get();
         $schemes = Scheme::orderBy('id', 'desc')->get();
-        $users = User::all();
+        $users = User::with('business')->get();
         $relations = UserConfig::with(['user', 'scheme'])->orderBy('id', 'desc')->get();
         $assignedUsers = $relations->pluck('user')->unique('id')->filter();
         $assignedSchemes = $relations->pluck('scheme')->unique('id')->filter();

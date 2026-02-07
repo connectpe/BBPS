@@ -152,9 +152,13 @@
                                 <select name="user_id" id="user_search" class="form-control" required>
                                     <option value="">-- Select User --</option>
                                     @foreach ($users as $user)
-                                        <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})
+                                        <option value="{{ $user->id }}">
+                                            {{ $user->name }}
+                                            ({{ $user->business->business_name ?? 'Business Not Added' }})
                                         </option>
                                     @endforeach
+
+
                                 </select>
                             </div>
                             <div class="col-md-12 mb-3">
@@ -406,7 +410,7 @@
                     },
                     error: function(xhr) {
                         $('#submitBtn').prop('disabled', false).text('Save Changes');
-                        if (xhr.status === 422) { 
+                        if (xhr.status === 422) {
                             let errors = xhr.responseJSON.errors;
                             let errorList = '';
                             $.each(errors, function(key, value) {
@@ -417,7 +421,7 @@
                                 icon: 'error',
                                 title: 'Validation Error',
                                 html: '<ul style="text-align: left;">' + errorList +
-                                    '</ul>', 
+                                    '</ul>',
                             });
                         } else {
                             Swal.fire('Error', 'Something went wrong on the server.', 'error');
