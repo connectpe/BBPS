@@ -306,6 +306,8 @@
                     if (res.ok && data.status) {
                         userEmail = payload.email;
                         document.getElementById('otpEmail').value = userEmail;
+                        isverfiy = true;
+                        pendingLoginPassword = payload.password;
 
                         Swal.fire('Success', 'OTP sent to your email. Please verify.', 'success');
                         showOTP();

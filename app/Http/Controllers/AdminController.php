@@ -14,6 +14,7 @@ use App\Models\SchemeRule;
 use App\Models\User;
 use App\Models\UserAssignedToSupport;
 use App\Models\UserConfig;
+use App\Models\WebHookUrl;
 use App\Models\UsersBank;
 use App\Models\UserService;
 use Illuminate\Http\Request;
@@ -38,9 +39,10 @@ class AdminController extends Controller
                     ->get();
             }
 
-            $data['activeService'] = GlobalService::where(['is_active' => '1'])
-                ->select('id', 'slug', 'service_name')
-                ->get();
+            // $data['activeService'] = GlobalService::where(['is_active' => '1'])
+                
+            //     ->select('id', 'slug', 'service_name')
+            //     ->get();
 
             $data['userdata'] = User::where('id', $userId)->select('name', 'email', 'mobile', 'status', 'role_id', 'profile_image')->first();
             $data['businessInfo'] = BusinessInfo::where('user_id', $userId)->first();
@@ -49,6 +51,7 @@ class AdminController extends Controller
 
             $data['usersBank'] = UsersBank::where('user_id', $userId)->first();
             $data['UserServices'] = UserService::where('user_id', $userId)->where('status', 'approved')->get();
+             $data['webhookUrl'] = WebHookUrl::where('user_id', $userId)->first();
 
             return view('Admin.profile')->with($data);
         } catch (\Exception $e) {
@@ -884,6 +887,7 @@ class AdminController extends Controller
             return response()->json(['status' => true, 'message' => $msg]);
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json(['status' => false, 'message' => 'Error: ' . $e->getMessage()], 500);
 
         }
@@ -1063,14 +1067,14 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => true,
-                'message' => 'Category Added Successfully'
+                'message' => 'Category Added Successfully',
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error: ' . $e->getMessage()
+                'message' => 'Error: '.$e->getMessage(),
             ]);
         }
     }
@@ -1079,7 +1083,7 @@ class AdminController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            'category_name' => 'required|string|max:50|regex:/^[A-Za-z0-9 _-]+$/|unique:complaints_categories,id,' . $Id,
+            'category_name' => 'required|string|max:50|regex:/^[A-Za-z0-9 _-]+$/|unique:complaints_categories,id,'.$Id,
         ], [
             'category_name.required' => 'Category name is required.',
             'category_name.string' => 'Category name must be a valid string.',
@@ -1100,10 +1104,10 @@ class AdminController extends Controller
 
             $updatedBy = Auth::user()->id;
             $category = ComplaintsCategory::find($Id);
-            if (!$category) {
+            if (! $category) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Ip address not Found'
+                    'message' => 'Ip address not Found',
                 ]);
             }
 
@@ -1130,9 +1134,6 @@ class AdminController extends Controller
             ]);
         }
     }
-
-
-
     public function statusComplaintCategory(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
@@ -1148,7 +1149,7 @@ class AdminController extends Controller
 
         DB::beginTransaction();
         try {
-            $category = ComplaintsCategory::findOrFail($id);
+            $category = ComplaintsCategory::findOrFail($id); 
 
             $category->update([
                 'status' => $request->status,
@@ -1162,6 +1163,8 @@ class AdminController extends Controller
                 'message' => 'Category Status Updated Successfully',
                 'data' => $category,
             ]);
+
+
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -1171,7 +1174,6 @@ class AdminController extends Controller
             ], 500);
         }
     }
-
 
     public function changeKycStatus(Request $request)
     {
@@ -1212,12 +1214,14 @@ class AdminController extends Controller
                 'status' => true,
                 'message' => 'Kyc Updated Successfully',
             ]);
+
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'status' => false,
-                'message' => 'Error : ' . $e->getMessage(),
-            ]);
+                'message' => 'Something went wrong: '.$e->getMessage(),
+            ], 500);
         }
     }
 
