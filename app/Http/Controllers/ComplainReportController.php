@@ -15,7 +15,6 @@ class ComplainReportController extends Controller
     {
         $users = [];
         $role = Auth::user()->role_id;
-        $statuses = ['open', 'in_progress', 'resolved', 'closed'];
         $priorities = ['low', 'normal', 'high', 'urgent'];
 
         if ($role == 1) {
@@ -25,7 +24,7 @@ class ComplainReportController extends Controller
             $users = User::whereNotIn('role_id',  [1, 3, 4])->whereIn('id', $assignedUser)->where('status', '!=', '0')->orderBy('id', 'desc')->get();
         }
 
-        return view('ComplainReport.index', compact('statuses', 'priorities', 'users'));
+        return view('ComplainReport.index', compact('priorities', 'users'));
     }
 
 

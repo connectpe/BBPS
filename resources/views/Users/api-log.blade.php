@@ -66,6 +66,7 @@
                             <th>User Agent</th>
                             <th>Execution time</th>
                             <th>Date Time</th>
+                            <th>Location Details</th>
                         </tr>
                     </thead>
                 </table>
@@ -194,7 +195,16 @@
                     data: function(row) {
                         return formatDateTime(row.created_at)
                     }
-                }
+                },
+                 {
+                    data: function(row) {
+                        const content = typeof row.location_details === 'object' ? JSON.stringify(row.location_details, null, 4) : row.location_details;
+                        return `<i class="fas fa-eye cursor-pointer viewContent"
+                                    data-title="API Response Body"
+                                    data-content='${content.replace(/'/g, "&#39;")}'>
+                                </i>`;
+                    }
+                },
             ]
         });
 

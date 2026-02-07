@@ -38,7 +38,6 @@
                             <option value="">--Select Status--</option>
                             <option value="Open">Open</option>
                             <option value="In Progress">In Progress</option>
-                            <option value="Resolved">Resolved</option>
                             <option value="Closed">Closed</option>
                         </select>
                     </div>
@@ -334,7 +333,6 @@
                             'Open',
                             'In Progress',
                             'Closed',
-                            'Resolved'
                         ];
 
                         const remarkEscaped = escapeHtml(row.remark || '');

@@ -70,18 +70,19 @@
                             </li>
 
                             <li class="nav-item">
+                                <a href="{{ route('support_details') }}"
+                                    class="nav-link text-white {{ Route::currentRouteName() == 'support_details' ? 'sidebar-active' : '' }}">
+                                    <i class="bi bi-person-plus-fill me-2"></i>Support User
+                                </a>
+                            </li>
+                            <li class="nav-item">
                                 <a href="{{ route('request_services') }}"
                                     class="nav-link text-white {{ Route::currentRouteName() == 'request_services' ? 'sidebar-active' : '' }}">
                                     <i class="bi bi-clipboard-check me-2"></i>
                                     Service Requests
                                 </a>
                             </li>
-                            <li class="nav-item">
-                                <a href="{{ route('support_details') }}"
-                                    class="nav-link text-white {{ Route::currentRouteName() == 'support_details' ? 'sidebar-active' : '' }}">
-                                    <i class="bi bi-person-plus-fill me-2"></i> Add New Support User
-                                </a>
-                            </li>
+
 
 
                         </ul>

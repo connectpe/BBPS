@@ -15,7 +15,8 @@ class ApiLog extends Model
         'status_code',
         'ip_address',
         'user_agent',
-        'execution_time'
+        'execution_time',
+        'location_details'
     ];
 
     public function user()

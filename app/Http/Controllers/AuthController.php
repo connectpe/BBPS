@@ -59,7 +59,7 @@ class AuthController extends Controller
             $otp = rand(1000, 9999);
             $first_four = substr($request->mobile, 0, 4);
             $mpin = Hash::make($first_four);
-         
+
             if ($user) {
                 $user = User::updateOrCreate(
                     ['email' => $request->email],
@@ -68,7 +68,7 @@ class AuthController extends Controller
                         'mobile' => $request->mobile,
                         'password' => bcrypt($request->password),
                         'role_id' => $role->id ?? 2,
-                        'mpin' =>$mpin,
+                        'mpin' => $mpin,
                         'email_verified_at' => null,
                         'status' => '0',
                     ]
@@ -80,26 +80,24 @@ class AuthController extends Controller
                     'mobile' => $request->mobile,
                     'role_id' => $role->id ?? 2,
                     'password' => bcrypt($request->password),
-                    'mpin' =>$mpin,
+                    'mpin' => $mpin,
                     'email_verified_at' => null,
                     'status' => '0',
                 ]);
             }
 
-            try{
+            try {
                 $isSend = SendingMail::sendMail([
                     'name' => $request->name,
                     'email' => $request->email,
                     'otp' => $otp,
                     'subject' => 'Email Verification'
                 ]);
-
-            }catch(Exception $e){
+            } catch (Exception $e) {
                 return response()->json([
-                    'status'=> false,
-                    'message'=> $e->getMessage(),
+                    'status' => false,
+                    'message' => $e->getMessage(),
                 ]);
-
             }
 
             // if (!$isSend) {
@@ -122,7 +120,6 @@ class AuthController extends Controller
                 'message' => 'User signup successfully, OTP sent to email',
                 'user' => $user
             ], 201);
-
         } catch (\Exception $e) {
 
             DB::rollBack();
@@ -209,22 +206,19 @@ class AuthController extends Controller
 
             $otp = rand(1000, 9999);
 
-           try{
-             $isSend = SendingMail::sendMail([
-                'name' => $user->name,
-                'email' => $user->email,
-                'otp' => $otp,
-                'subject' => 'Email Verification'
-            ]);
-
-            
-
-           }catch(Exception $e){
-                return response()->json([
-                    'status'=>false,
-                    'message'=> $e->getMessage()
+            try {
+                $isSend = SendingMail::sendMail([
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'otp' => $otp,
+                    'subject' => 'Email Verification'
                 ]);
-           }
+            } catch (Exception $e) {
+                return response()->json([
+                    'status' => false,
+                    'message' => $e->getMessage()
+                ]);
+            }
 
             EmailVerification::updateOrCreate(
                 ['user_id' => $user->id],
@@ -269,29 +263,26 @@ class AuthController extends Controller
         return response()->json($request->user());
     }
 
-    public function isInitiatedOrSuspendedOrTerminate(){
-        try{
-            if(Auth::user()->status == 0){
+    public function isInitiatedOrSuspendedOrTerminate()
+    {
+        try {
+            if (Auth::user()->status == 0) {
                 return response()->json([
-                'status' => false,
-                'message' => 'you are not a active person'
+                    'status' => false,
+                    'message' => 'you are not a active person'
                 ]);
-
-            }else if(Auth::user()->status == 2){
+            } else if (Auth::user()->status == 2) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Your Account is suspended by the administrator'
                 ]);
-
-            }else if(Auth::user()->status == 3){
+            } else if (Auth::user()->status == 3) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Your Account is temporary Terminated by the admin'
                 ]);
-                
             }
-
-        }catch(Exception $e){
+        } catch (Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => 'some error occur',
@@ -300,7 +291,7 @@ class AuthController extends Controller
         }
     }
 
-    
+
 
     public function logout(Request $request)
     {
@@ -313,10 +304,11 @@ class AuthController extends Controller
 
     public function passwordReset(Request $request)
     {
+      
         try {
             $request->validate([
-                'current_password' => 'required|string',
-                'new_password' => 'required|string|min:8',
+                'current_password' => ['required'],
+                'new_password' => ['required', 'string', 'min:8', 'confirmed', 'different:current_password'],
             ]);
 
             $user = auth()->user();
@@ -336,7 +328,6 @@ class AuthController extends Controller
                 'status' => true,
                 'message' => 'Password updated successfully'
             ]);
-
         } catch (ValidationException $e) {
             return response()->json([
                 'status' => false,
