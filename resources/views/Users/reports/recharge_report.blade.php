@@ -23,7 +23,7 @@
                                         <input type="text" class="form-control" id="filterOrderId" placeholder="Enter OrderId">
                                     </div> -->
 
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="filterUser" class="form-label">User</label>
                         <select id="filterUser" class="form-control">
                             <option value="">--Select User--</option>
@@ -33,13 +33,13 @@
                         </select>
                     </div>
 
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="filterreferenceId" class="form-label">ReferenceId</label>
                         <input type="text" class="form-control" id="filterreferenceId"
                             placeholder="Enter ReferenceId">
                     </div>
 
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="filterStatus" class="form-label">Status</label>
                         <select class="form-select" id="filterStatus">
                             <option value="">--select--</option>
