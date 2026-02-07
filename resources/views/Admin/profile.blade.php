@@ -365,15 +365,15 @@
                 div.style.fontWeight = 'bold';
                 div.style.border = '2px solid #6b83ec';
 
-                // Replace image with div
-                img.replaceWith(div);
-            }
-        </script>
-    @elseif($role == 2 || $role == 3 || $role == 4)
-        <div class="row align-items-center border rounded p-2 shadow-sm">
-            <!-- User Image -->
-            <div class="col">
-                <!-- Profile Image -->
+        // Replace image with div
+        img.replaceWith(div);
+    }
+</script>
+@elseif($role == 2 || $role == 3)
+<div class="row align-items-center border rounded p-2 shadow-sm">
+    <!-- User Image -->
+    <div class="col">
+        <!-- Profile Image -->
 
                 <img id="userImage" src="{{ FileUpload::getFilePath($user?->profile_image) }}" alt="User Image"
                     class="rounded-circle border border-1 border-primary cursor-pointer"
@@ -408,17 +408,17 @@
 
         <div class="row mt-3 g-3">
 
-            <!-- Card 1: Completed Transaction -->
-            @if ($role != 4)
-                <div class="col-md-3">
-                    <div class="card shadow-lg text-center p-3 card-hover">
-                        <div class="card-body">
-                            <i class="bi bi-check-circle-fill fs-4 text-success mb-2"></i>
-                            <h6 class="card-title mb-1">Completed Transaction</h6>
-                            <p class="card-text fs-6 fw-bold">{{ number_format(2345) }}</p>
-                        </div>
-                    </div>
-                </div>
+    <!-- Card 1: Completed Transaction -->
+
+    <div class="col-md-3">
+        <div class="card shadow-lg text-center p-3 card-hover">
+            <div class="card-body">
+                <i class="bi bi-check-circle-fill fs-4 text-success mb-2"></i>
+                <h6 class="card-title mb-1">Completed Transaction</h6>
+                <p class="card-text fs-6 fw-bold">{{ number_format(2345) }}</p>
+            </div>
+        </div>
+    </div>
 
                 <!-- Card 2: Total Spent -->
                 <div class="col-md-3">
@@ -442,69 +442,59 @@
                     </div>
                 </div>
 
-                <!-- Card 4: Member Since -->
-                <div class="col-md-3">
-                    <div class="card shadow-lg text-center p-3 card-hover">
-                        <div class="card-body">
-                            <i class="bi bi-calendar-check fs-4 text-info mb-2"></i>
-                            <h6 class="card-title mb-1">Member Since</h6>
-                            <p class="card-text fs-6 fw-bold">{{ number_format(2012) }}</p>
-                        </div>
-                    </div>
-                </div>
+    <!-- Card 4: Member Since -->
+    <div class="col-md-3">
+        <div class="card shadow-lg text-center p-3 card-hover">
+            <div class="card-body">
+                <i class="bi bi-calendar-check fs-4 text-info mb-2"></i>
+                <h6 class="card-title mb-1">Member Since</h6>
+                <p class="card-text fs-6 fw-bold">{{ number_format(2012) }}</p>
+            </div>
         </div>
-    @endif
+    </div>
+</div>
 
 
-    <div class="row mt-3">
-        <div class="col-12">
-            <!-- Tabs nav -->
-            <ul class="nav nav-tabs" id="profileTab" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link fw-bold text-dark active" id="personal-tab" data-bs-toggle="tab"
-                        data-bs-target="#personal" type="button" role="tab" aria-controls="personal"
-                        aria-selected="true">Personal Information</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link fw-bold text-dark" id="security-tab" data-bs-toggle="tab"
-                        data-bs-target="#security" type="button" role="tab" aria-controls="security"
-                        aria-selected="false">Security Setting</button>
-                </li>
-                @if ($role != 4)
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link fw-bold text-dark" id="kyc-tab" data-bs-toggle="tab"
-                            data-bs-target="#kyc" type="button" role="tab" aria-controls="kyc"
-                            aria-selected="false">KYC Details</button>
-                    </li>
-                    {{-- <li class="nav-item" role="presentation">
-                        <button class="nav-link fw-bold text-dark" id="activity-tab" data-bs-toggle="tab"
-                            data-bs-target="#activity" type="button" role="tab" aria-controls="activity"
-                            aria-selected="false">Activity Log</button>
-                    </li> --}}
-
-
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link fw-bold text-dark" id="ipwhitelist-tab" data-bs-toggle="tab"
-                            data-bs-target="#ipwhitelist" type="button" role="tab" aria-controls="ipwhitelist"
-                            aria-selected="false">IP Whitelist</button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link fw-bold text-dark" id="banking-tab" data-bs-toggle="tab"
-                            data-bs-target="#banking" type="button" role="tab" aria-controls="banking"
-                            aria-selected="false">Banking</button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link fw-bold text-dark" id="integration-tab" data-bs-toggle="tab"
-                            data-bs-target="#integration" type="button" role="tab" aria-controls="integration"
-                            aria-selected="false">Key Integration</button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link fw-bold text-dark" id="support-tab" data-bs-toggle="tab"
-                            data-bs-target="#support" type="button" role="tab" aria-controls="support"
-                            aria-selected="false">Support</button>
-                    </li>
-                @endif
-            </ul>
+<div class="row mt-3">
+    <div class="col-12">
+        <!-- Tabs nav -->
+        <ul class="nav nav-tabs" id="profileTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold text-dark active" id="personal-tab" data-bs-toggle="tab"
+                    data-bs-target="#personal" type="button" role="tab" aria-controls="personal"
+                    aria-selected="true">Personal Information</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold text-dark" id="security-tab" data-bs-toggle="tab"
+                    data-bs-target="#security" type="button" role="tab" aria-controls="security"
+                    aria-selected="false">Security Setting</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold text-dark" id="kyc-tab" data-bs-toggle="tab"
+                    data-bs-target="#kyc" type="button" role="tab" aria-controls="kyc"
+                    aria-selected="false">KYC Details</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold text-dark" id="activity-tab" data-bs-toggle="tab"
+                    data-bs-target="#activity" type="button" role="tab" aria-controls="activity"
+                    aria-selected="false">Activity Log</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold text-dark" id="banking-tab" data-bs-toggle="tab"
+                    data-bs-target="#banking" type="button" role="tab" aria-controls="banking"
+                    aria-selected="false">Banking</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold text-dark" id="integration-tab" data-bs-toggle="tab"
+                    data-bs-target="#integration" type="button" role="tab" aria-controls="integration"
+                    aria-selected="false">Key Integration</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold text-dark" id="support-tab" data-bs-toggle="tab"
+                    data-bs-target="#support" type="button" role="tab" aria-controls="support"
+                    aria-selected="false">Support</button>
+            </li>
+        </ul>
 
             <!-- Tabs content -->
             <div class="tab-content p-3" id="profileTabContent">
@@ -881,23 +871,20 @@
                                         Support Representative
                                     </h6>
 
-                                    <div class="d-flex justify-content-between mb-2">
-                                        <span class="fw-semibold">Name:</span>
-                                        <span
-                                            class="text-muted">{{ $supportRepresentative?->assigned_support?->name ?? '----' }}</span>
-                                    </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="fw-semibold">Name:</span>
+                                    <span class="text-muted">{{$supportRepresentative?->user?->name ?? '----'}}</span>
+                                </div>
 
-                                    <div class="d-flex justify-content-between mb-2">
-                                        <span class="fw-semibold">Email:</span>
-                                        <span
-                                            class="text-muted">{{ $supportRepresentative?->assigned_support?->email ?? '----' }}</span>
-                                    </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="fw-semibold">Email:</span>
+                                    <span class="text-muted">{{$supportRepresentative?->user?->email ?? '----' }}</span>
+                                </div>
 
-                                    <div class="d-flex justify-content-between mb-2">
-                                        <span class="fw-semibold">Mobile:</span>
-                                        <span
-                                            class="text-muted">{{ $supportRepresentative?->assigned_support?->mobile ?? '----' }}</span>
-                                    </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="fw-semibold">Mobile:</span>
+                                    <span class="text-muted">{{$supportRepresentative?->user?->mobile ?? '----' }}</span>
+                                </div>
 
                                 </div>
                             </div>

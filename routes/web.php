@@ -43,7 +43,6 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('servicetoggle', [AdminController::class, 'disableUserService'])->name('admin.service_toggle');
         Route::post('logout', [AuthController::class, 'logout'])->name('admin.logout');
 
-
         // Support member routes here
         Route::get('/support-details', [AdminController::class, 'supportdetails'])->name('support_details');
         Route::post('/add-s-member', [AdminController::class, 'addSupportMember'])->name('add.support.member');
