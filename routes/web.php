@@ -80,9 +80,12 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('profile/{user_id}', [AdminController::class, 'adminProfile'])->name('admin_profile');
 
     // Service Related Route
-    Route::get('/utility-service', [ServiceController::class, 'utilityService'])->name('utility_service');
-    Route::get('/recharge-service', [ServiceController::class, 'rechargeService'])->name('recharge_service');
-    Route::get('/banking-service', [ServiceController::class, 'bankingService'])->name('banking_service');
+    Route::group(['middleware'=> ['isUserAccessPage']],function(){
+        Route::get('/utility-service', [ServiceController::class, 'utilityService'])->name('utility_service');
+        Route::get('/recharge-service', [ServiceController::class, 'rechargeService'])->name('recharge_service');
+        Route::get('/banking-service', [ServiceController::class, 'bankingService'])->name('banking_service');
+    });
+    
     Route::get('our-services', [ServiceController::class, 'ourService'])->name('our_servicess');
     Route::post('/admin/service/add', [AdminController::class, 'AddService'])
         ->name('admin.service.add');
@@ -105,7 +108,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     // Users Related Route
     Route::get('/users', [UserController::class, 'bbpsUsers'])->name('users');
-
+    Route::get('/complete-kyc',[UserController::class, 'redirectToKycPage'])->name('open.kyc.page');
     Route::get('reports/{type}', [ReportController::class, 'index'])->name('reports');
     Route::get('reports', [LadgerController::class, 'reports'])->name('reseller_reports');
 
