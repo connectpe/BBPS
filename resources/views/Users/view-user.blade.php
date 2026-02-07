@@ -338,16 +338,14 @@ use App\Facades\FileUpload;
                     <h6 class="fw-bold mb-0">KYC Details</h6>
 
                     @php
-                    $kyc = $businessInfo->is_kyc == '1' ? true : false;
+                    $kyc = $businessInfo?->is_kyc == '1' ? true : false;
                     @endphp
 
                     <div class="ms-auto d-flex flex-column align-items-center">
                         <span class="fw-semibold mb-1 fs-6 fw-bold badge bg-{{$kyc ? 'success' : 'danger'}}"> {{$kyc ? 'Verified' : 'Not Verified'}} </span>
-                        <input class="form-check-input cursor-pointer fs-3" type="checkbox" {{$kyc ? 'checked' : ''}} onchange="changeServiceStatus('3', 'is_active','Service')">
+                        <input class="form-check-input cursor-pointer fs-3" type="checkbox" {{$kyc ? 'checked' : ''}} onchange="changeKycStatus('{{$businessInfo?->id}}','{{$businessInfo?->user_id}}')">
                     </div>
                 </div>
-
-
 
                 <div class="info-row">
                     <span class="label">PAN Number</span>
@@ -621,7 +619,7 @@ use App\Facades\FileUpload;
     });
 
 
-    function changeKycStatus(id, ) {
+    function changeKycStatus(id, userId) {
         Swal.fire({
             title: 'Are you sure to change status of',
             icon: 'warning',
@@ -633,12 +631,12 @@ use App\Facades\FileUpload;
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: "{{ route('active_user_service_status') }}",
+                    url: "{{ route('change_ekyc_status') }}",
                     type: 'POST',
                     data: {
+                        id: id,
+                        userId: userId,
                         _token: $('meta[name="csrf-token"]').attr('content'),
-                        service_id: id,
-                        type: type
                     },
                     success: function(response) {
                         Swal.fire({
@@ -676,9 +674,9 @@ use App\Facades\FileUpload;
                             showConfirmButton: true
                         });
 
-                        setTimeout(() => {
-                            location.reload();
-                        }, 3000);
+                        // setTimeout(() => {
+                        //     location.reload();
+                        // }, 3000);
                     }
 
                 });

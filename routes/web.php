@@ -23,7 +23,9 @@ Route::get('/', function () {
 Route::post('admin/login', [AuthController::class, 'login'])->name('admin.login');
 Route::post('verify-otp', [AuthController::class, 'verifyOtp'])->name('verify_otp');
 Route::post('signup', [AuthController::class, 'signup'])->name('admin.signup');
-
+Route::get('kyc', function () {
+    return view('Users.kyc-page');
+});
 
 // 'logs' : Middleware for the logs.
 
@@ -55,7 +57,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('add-complaint-category', [AdminController::class, 'addComplaintCategory'])->name('add_complaint_category');
         Route::post('update-complaint-category/{id}', [AdminController::class, 'updateComplaintCategory'])->name('update_complaint_category');
         Route::post('status-complaint-category/{id}', [AdminController::class, 'statusComplaintCategory'])->name('status_complaint_category');
-        Route::get('change-ekyc-status', [AdminController::class, 'changeKycStatus']);
+        Route::post('change-ekyc-status', [AdminController::class, 'changeKycStatus'])->name('change_ekyc_status');
     });
 
     // RECHARGE RELATED ROUTE 8010801087
@@ -187,10 +189,17 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
 
+    // Ip Address 
     Route::post('add-ip-address', [UserController::class, 'addIpWhiteList'])->name('add_ip_address');
     Route::post('update-ip-address/{id}', [UserController::class, 'editIpWhiteList'])->name('update_ip_address');
     Route::get('status-ip-address/{id}', [UserController::class, 'statusIpWhiteList'])->name('status_ip_address');
     Route::get('delete-ip-address/{id}', [UserController::class, 'deleteIpWhiteList'])->name('delete_ip_address');
+
+
+    // Web Hook URL
+    Route::post('add-web-hook-url', [UserController::class, 'addWebHookUrl'])->name('add_web_hook_url');
+    Route::post('edit-web-hook-url/{id}', [UserController::class, 'editWebHookUrl'])->name('add_web_hook_url');
+
 
     Route::post('generate-mpin', [UserController::class, 'generateMpin'])->name('generate_mpin');
 });

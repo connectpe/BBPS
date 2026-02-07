@@ -74,6 +74,24 @@
     </div>
 </div>
 
+
+<!-- Api response Modal -->
+<!-- API Response Modal -->
+<div class="modal fade" id="apiResponseModal" tabindex="-1" aria-labelledby="apiResponseModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="apiResponseModalLabel">Content</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="white-space: pre-wrap; font-family: monospace; max-height: 70vh; overflow-y: auto;">
+                <!-- API response will appear here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <script>
     $(document).ready(function() {
 
@@ -119,7 +137,7 @@
                 },
                 {
                     data: function(row) {
-                         const userName = row.user?.name || '----';
+                        const userName = row.user?.name || '----';
                         const businessName = row.user?.business?.business_name || '----';
                         const url = "{{ route('view_user', ['id' => 'id']) }}".replace('id', row.user_id);
                         return `
@@ -138,16 +156,20 @@
                 },
                 {
                     data: function(row) {
-                        return `<i class="fas fa-eye cursor-pointer viewModalBtn"
-                        data-title="API Request Body"
-                        data-content='${JSON.stringify(row.request_body)}'></i>`;
+                        const content = typeof row.request_body === 'object' ? JSON.stringify(row.request_body, null, 4) : row.request_body;
+                        return `<i class="fas fa-eye cursor-pointer viewContent"
+                                    data-title="API Response Body"
+                                    data-content='${content.replace(/'/g, "&#39;")}'>
+                                </i>`;
                     }
                 },
                 {
                     data: function(row) {
-                        return `<i class="fas fa-eye cursor-pointer viewModalBtn"
-                        data-title="API Response Body"
-                        data-content='${JSON.stringify(row.response_body)}'></i>`;
+                        const content = typeof row.response_body === 'object' ? JSON.stringify(row.response_body, null, 4) : row.response_body;
+                        return `<i class="fas fa-eye cursor-pointer viewContent"
+                                    data-title="API Response Body"
+                                    data-content='${content.replace(/'/g, "&#39;")}'>
+                                </i>`;
                     }
                 },
                 {
@@ -158,9 +180,11 @@
                 },
                 {
                     data: function(row) {
-                        return `<i class="fas fa-eye cursor-pointer viewModalBtn"
-                        data-title="User Agent"
-                        data-content='${JSON.stringify(row.user_agent)}'></i>`;
+                        const content = typeof row.user_agent === 'object' ? JSON.stringify(row.user_agent, null, 4) : row.user_agent;
+                        return `<i class="fas fa-eye cursor-pointer viewContent"
+                                    data-title=""
+                                    data-content='${content.replace(/'/g, "&#39;")}'>
+                                </i>`;
                     }
                 },
                 {
@@ -254,6 +278,26 @@
             });
         });
     }
+
+    function showApiResponse(response) {
+        const $modal = $('#apiResponseModal');
+
+        if (!$modal.length) return;
+
+        // If response is an object/array, pretty-print JSON
+        let text = response;
+        if (typeof response === 'object') {
+            text = JSON.stringify(response, null, 4);
+        }
+
+        $modal.find('.modal-body').text(text); // use .text() to render safely
+        $modal.modal('show');
+    }
+
+    $(document).on('click', '.viewContent', function() {
+        const content = $(this).data('content');
+        showApiResponse(content);
+    });
 </script>
 
 @endsection

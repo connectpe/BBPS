@@ -86,10 +86,10 @@
 
         /* COMPLETED */
         /* .step-item.completed .step-circle {
-                                                                                                                                    border-color: #198754;
-                                                                                                                                    background: #198754;
-                                                                                                                                    color: #fff;
-                                                                                                                                } */
+                                                                                                                                                                        border-color: #198754;
+                                                                                                                                                                        background: #198754;
+                                                                                                                                                                        color: #fff;
+                                                                                                                                                                    } */
     </style>
 
     @php
@@ -365,15 +365,15 @@
                 div.style.fontWeight = 'bold';
                 div.style.border = '2px solid #6b83ec';
 
-        // Replace image with div
-        img.replaceWith(div);
-    }
-</script>
-@elseif($role == 2 || $role == 3)
-<div class="row align-items-center border rounded p-2 shadow-sm">
-    <!-- User Image -->
-    <div class="col">
-        <!-- Profile Image -->
+                // Replace image with div
+                img.replaceWith(div);
+            }
+        </script>
+    @elseif($role == 2 || $role == 3 || $role == 4)
+        <div class="row align-items-center border rounded p-2 shadow-sm">
+            <!-- User Image -->
+            <div class="col">
+                <!-- Profile Image -->
 
                 <img id="userImage" src="{{ FileUpload::getFilePath($user?->profile_image) }}" alt="User Image"
                     class="rounded-circle border border-1 border-primary cursor-pointer"
@@ -408,17 +408,17 @@
 
         <div class="row mt-3 g-3">
 
-    <!-- Card 1: Completed Transaction -->
-
-    <div class="col-md-3">
-        <div class="card shadow-lg text-center p-3 card-hover">
-            <div class="card-body">
-                <i class="bi bi-check-circle-fill fs-4 text-success mb-2"></i>
-                <h6 class="card-title mb-1">Completed Transaction</h6>
-                <p class="card-text fs-6 fw-bold">{{ number_format(2345) }}</p>
-            </div>
-        </div>
-    </div>
+            <!-- Card 1: Completed Transaction -->
+            @if ($role != 4)
+                <div class="col-md-3">
+                    <div class="card shadow-lg text-center p-3 card-hover">
+                        <div class="card-body">
+                            <i class="bi bi-check-circle-fill fs-4 text-success mb-2"></i>
+                            <h6 class="card-title mb-1">Completed Transaction</h6>
+                            <p class="card-text fs-6 fw-bold">{{ number_format(2345) }}</p>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Card 2: Total Spent -->
                 <div class="col-md-3">
@@ -442,59 +442,74 @@
                     </div>
                 </div>
 
-    <!-- Card 4: Member Since -->
-    <div class="col-md-3">
-        <div class="card shadow-lg text-center p-3 card-hover">
-            <div class="card-body">
-                <i class="bi bi-calendar-check fs-4 text-info mb-2"></i>
-                <h6 class="card-title mb-1">Member Since</h6>
-                <p class="card-text fs-6 fw-bold">{{ number_format(2012) }}</p>
-            </div>
+                <!-- Card 4: Member Since -->
+                <div class="col-md-3">
+                    <div class="card shadow-lg text-center p-3 card-hover">
+                        <div class="card-body">
+                            <i class="bi bi-calendar-check fs-4 text-info mb-2"></i>
+                            <h6 class="card-title mb-1">Member Since</h6>
+                            <p class="card-text fs-6 fw-bold">{{ number_format(2012) }}</p>
+                        </div>
+                    </div>
+                </div>
         </div>
-    </div>
-</div>
+    @endif
 
 
-<div class="row mt-3">
-    <div class="col-12">
-        <!-- Tabs nav -->
-        <ul class="nav nav-tabs" id="profileTab" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link fw-bold text-dark active" id="personal-tab" data-bs-toggle="tab"
-                    data-bs-target="#personal" type="button" role="tab" aria-controls="personal"
-                    aria-selected="true">Personal Information</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link fw-bold text-dark" id="security-tab" data-bs-toggle="tab"
-                    data-bs-target="#security" type="button" role="tab" aria-controls="security"
-                    aria-selected="false">Security Setting</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link fw-bold text-dark" id="kyc-tab" data-bs-toggle="tab"
-                    data-bs-target="#kyc" type="button" role="tab" aria-controls="kyc"
-                    aria-selected="false">KYC Details</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link fw-bold text-dark" id="activity-tab" data-bs-toggle="tab"
-                    data-bs-target="#activity" type="button" role="tab" aria-controls="activity"
-                    aria-selected="false">Activity Log</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link fw-bold text-dark" id="banking-tab" data-bs-toggle="tab"
-                    data-bs-target="#banking" type="button" role="tab" aria-controls="banking"
-                    aria-selected="false">Banking</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link fw-bold text-dark" id="integration-tab" data-bs-toggle="tab"
-                    data-bs-target="#integration" type="button" role="tab" aria-controls="integration"
-                    aria-selected="false">Key Integration</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link fw-bold text-dark" id="support-tab" data-bs-toggle="tab"
-                    data-bs-target="#support" type="button" role="tab" aria-controls="support"
-                    aria-selected="false">Support</button>
-            </li>
-        </ul>
+    <div class="row mt-3">
+        <div class="col-12">
+            <!-- Tabs nav -->
+            <ul class="nav nav-tabs" id="profileTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold text-dark active" id="personal-tab" data-bs-toggle="tab"
+                        data-bs-target="#personal" type="button" role="tab" aria-controls="personal"
+                        aria-selected="true">Personal Information</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold text-dark" id="security-tab" data-bs-toggle="tab"
+                        data-bs-target="#security" type="button" role="tab" aria-controls="security"
+                        aria-selected="false">Security Setting</button>
+                </li>
+                @if ($role != 4)
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold text-dark" id="kyc-tab" data-bs-toggle="tab"
+                            data-bs-target="#kyc" type="button" role="tab" aria-controls="kyc"
+                            aria-selected="false">KYC Details</button>
+                    </li>
+                    {{-- <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold text-dark" id="activity-tab" data-bs-toggle="tab"
+                            data-bs-target="#activity" type="button" role="tab" aria-controls="activity"
+                            aria-selected="false">Activity Log</button>
+                    </li> --}}
+
+
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold text-dark" id="ipwhitelist-tab" data-bs-toggle="tab"
+                            data-bs-target="#ipwhitelist" type="button" role="tab" aria-controls="ipwhitelist"
+                            aria-selected="false">IP Whitelist</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold text-dark" id="banking-tab" data-bs-toggle="tab"
+                            data-bs-target="#banking" type="button" role="tab" aria-controls="banking"
+                            aria-selected="false">Banking</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold text-dark" id="integration-tab" data-bs-toggle="tab"
+                            data-bs-target="#integration" type="button" role="tab" aria-controls="integration"
+                            aria-selected="false">Key Integration</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold text-dark" id="support-tab" data-bs-toggle="tab"
+                            data-bs-target="#support" type="button" role="tab" aria-controls="support"
+                            aria-selected="false">Support</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold text-dark" id="callback-tab" data-bs-toggle="tab"
+                            data-bs-target="#callback" type="button" role="tab" aria-controls="callback"
+                            aria-selected="false">Webhook</button>
+                    </li>
+                @endif
+            </ul>
 
             <!-- Tabs content -->
             <div class="tab-content p-3" id="profileTabContent">
@@ -871,26 +886,146 @@
                                         Support Representative
                                     </h6>
 
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span class="fw-semibold">Name:</span>
-                                    <span class="text-muted">{{$supportRepresentative?->user?->name ?? '----'}}</span>
-                                </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="fw-semibold">Name:</span>
+                                        <span
+                                            class="text-muted">{{ $supportRepresentative?->assigned_support?->name ?? '----' }}</span>
+                                    </div>
 
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span class="fw-semibold">Email:</span>
-                                    <span class="text-muted">{{$supportRepresentative?->user?->email ?? '----' }}</span>
-                                </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="fw-semibold">Email:</span>
+                                        <span
+                                            class="text-muted">{{ $supportRepresentative?->assigned_support?->email ?? '----' }}</span>
+                                    </div>
 
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span class="fw-semibold">Mobile:</span>
-                                    <span class="text-muted">{{$supportRepresentative?->user?->mobile ?? '----' }}</span>
-                                </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="fw-semibold">Mobile:</span>
+                                        <span
+                                            class="text-muted">{{ $supportRepresentative?->assigned_support?->mobile ?? '----' }}</span>
+                                    </div>
 
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                {{-- IP Whitelist tabl --}}
+                <div class="tab-pane fade" id="ipwhitelist" role="tabpanel" aria-labelledby="ipwhitelist-tab">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h6 class="fw-bold mb-0"><i class="bi bi-shield-check me-2"></i>IP Whitelist Management</h6>
+                        <button class="btn btn-sm buttonColor shadow-sm" data-bs-toggle="modal"
+                            data-bs-target="#addIpModal">
+                            <i class="bi bi-plus-circle me-1"></i> Add New IP
+                        </button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table id="ipWhitelistTable" class="table table-striped border shadow-sm w-100">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Service</th>
+                                    <th>IP Address</th>
+                                    <th>Status</th>
+                                    <th>Created At</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {{-- Webhook / Callback Tab --}}
+                <div class="tab-pane fade" id="callback" role="tabpanel" aria-labelledby="callback-tab">
+                    <div class="card shadow-sm border-0">
+                        <div
+                            class="card-header bg-transparent fw-bold border-bottom d-flex justify-content-between align-items-center">
+                            <span>
+                                <i class="bi bi-link-45deg me-2 text-primary"></i>
+                                Webhook Configuration
+                            </span>
+
+                            <button class="btn btn-sm buttonColor shadow-sm" data-bs-toggle="modal"
+                                data-bs-target="#webhookModal">
+                                <i class="bi bi-pencil-square me-1"></i>
+                                <span id="webhookBtnText">
+                                    {{ !empty($webhookUrl?->url) ? 'Update URL' : 'Set URL' }}
+                                </span>
+                            </button>
+                        </div>
+
+                        <div class="card-body">
+                            <div class="p-3 border rounded bg-light">
+                                <div class="row align-items-center">
+                                    <div class="col-md-3 fw-bold text-muted text-uppercase small">
+                                        Callback URL
+                                    </div>
+                                    <div class="col-md-9">
+                                        <code class="text-primary fw-bold" id="display_webhook_url">
+                                            {{ !empty($webhookUrl?->url) ? $webhookUrl->url : 'Not Set' }}
+                                        </code>
+                                    </div>
+                                </div>
+
+                                <hr class="my-2">
+
+                                <p class="mb-0 small text-muted">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Real-time transaction status updates will be sent to this URL via POST requests.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Webhook Modal --}}
+                <div class="modal fade" id="webhookModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="webhookModalTitle">
+                                    {{ !empty($webhookUrl?->url) ? 'Update Callback URL' : 'Set Callback URL' }}
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+
+                            <form id="webhookForm">
+                                @csrf
+                                <div class="modal-body">
+                                    <div class="mb-2">
+                                        <label class="form-label fw-semibold">
+                                            Transaction Callback URL <span class="text-danger">*</span>
+                                        </label>
+
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light"><i class="bi bi-globe"></i></span>
+
+                                            <input type="url" class="form-control" name="url"
+                                                id="modal_webhook_url" placeholder="https://yourdomain.com/api/callback"
+                                                value="{{ $webhookUrl?->url ?? '' }}" required>
+                                        </div>
+
+                                        <small class="text-danger d-none" id="err_url"></small>
+                                    </div>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" id="saveWebhookBtn" class="btn buttonColor">Save
+                                        Changes</button>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+
+
             </div>
         </div>
     </div>
@@ -1278,10 +1413,18 @@
                     </div>
 
                     <div class="modal-body">
+                        {{-- <select class="form-select" name="service" id="service" required>
+                            <option value="">-- Select Service --</option>
+                            @foreach ($UserServices as $userService)
+                                <option value="{{ $userService->slug }}">{{ $userService->service_name }}</option>
+                            @endforeach
+                        </select> --}}
                         <select class="form-select" name="service" id="service" required>
                             <option value="">-- Select Service --</option>
-                            @foreach ($activeService as $service)
-                                <option value="{{ $service->slug }}">{{ $service->service_name }}</option>
+                            @foreach ($UserServices as $userService)
+                                <option value="{{ $userService->service->slug }}">
+                                    {{ $userService->service->service_name }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
@@ -1298,30 +1441,7 @@
 
 
     {{-- IP Byte list table and add button --}}
-    <div class="tab-pane fade" id="ipwhitelist" role="tabpanel" aria-labelledby="ipwhitelist-tab">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h6 class="fw-bold mb-0"><i class="bi bi-shield-check me-2"></i>IP Whitelist Management</h6>
-            <button class="btn btn-sm buttonColor shadow-sm" data-bs-toggle="modal" data-bs-target="#addIpModal">
-                <i class="bi bi-plus-circle me-1"></i> Add New IP
-            </button>
-        </div>
 
-        <div class="table-responsive">
-            <table id="ipWhitelistTable" class="table table-striped border shadow-sm w-100">
-                <thead class="table-light">
-                    <tr>
-                        <th>#</th>
-                        <th>Service</th>
-                        <th>IP Address</th>
-                        <th>Status</th>
-                        <th>Created At</th>
-                        <th class="text-center">Action</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-    </div>
 
     <div class="modal fade" id="ipModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -1740,6 +1860,9 @@
                         title: 'Profile Updated',
                         text: response.message,
                     });
+                    const url = new URL(window.location);
+                    url.searchParams.delete('is_kyc');
+                    history.replaceState(null, '', url);
 
                     setTimeout(() => {
                         location.reload();
@@ -2065,5 +2188,66 @@
         });
     </script>
 
+    <script>
+        $(document).ready(function() {
 
+            $('#webhookForm').on('submit', function(e) {
+                e.preventDefault();
+
+                let btn = $('#saveWebhookBtn');
+                btn.prop('disabled', true).html(
+                    '<span class="spinner-border spinner-border-sm me-1"></span> Saving...');
+                $('#err_url').addClass('d-none').text('');
+
+                $.ajax({
+                    url: "{{ route('web_hook_url') }}",
+                    type: "POST",
+                    data: $(this).serialize(),
+                    success: function(res) {
+                        if (res.status) {
+                            $('#display_webhook_url').text(res.data.url);
+                            $('#webhookBtnText').text('Update URL');
+                            $('#webhookModalTitle').text('Update Callback URL');
+
+                            $('#webhookModal').modal('hide');
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: res.message,
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                        } else {
+                            Swal.fire('Error', res.message || 'Something went wrong', 'error');
+                        }
+                    },
+                    error: function(xhr) {
+                        if (xhr.status === 422) {
+                            let errors = xhr.responseJSON.errors;
+                            if (errors && errors.url) {
+                                $('#err_url').removeClass('d-none').text(errors.url[0]);
+                            }
+                        } else {
+                            Swal.fire('Error', xhr.responseJSON?.message || 'Server error',
+                                'error');
+                        }
+                    },
+                    complete: function() {
+                        btn.prop('disabled', false).text('Save Changes');
+                    }
+                });
+            });
+
+        });
+    </script>
+    <script>
+        $(function() {
+            const kyc = @json(request('is_kyc') === 'Yes');
+
+            if (kyc == true || kyc == 1) {
+                $("#completeProfileModal").modal('show');
+            }
+        });
+    </script>
 @endsection

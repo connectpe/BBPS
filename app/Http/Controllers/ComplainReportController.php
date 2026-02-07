@@ -34,8 +34,8 @@ class ComplainReportController extends Controller
     {
 
         $request->validate([
-            'status' => 'required|in:Open,In Progress,Resolved,Closed',
-            'remark' => 'required_if:status,Closed,Resolved|string',
+            'status' => 'required|in:Open,In Progress,Closed',
+            'remark' => 'required_if:status,Closed|string',
         ]);
 
         DB::beginTransaction();
@@ -55,7 +55,7 @@ class ComplainReportController extends Controller
             $complaint->updated_by = Auth::user()->id;
 
 
-            if ($request->status === 'Resolved') {
+            if ($request->status === 'Closed') {
                 $complaint->resolved_at = now();
             }
 
