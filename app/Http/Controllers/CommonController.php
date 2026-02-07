@@ -396,6 +396,7 @@ class CommonController extends Controller
                     $request['parentData'] = [Auth::user()->id];
                 }
                 break;
+
             case 'ledger':
                 $request['table'] = '\App\Models\Ladger';
                 $request['searchData'] = ['user_id'];
@@ -437,6 +438,7 @@ class CommonController extends Controller
                 $request['parentData'] = [4];
                 $request['order'] = ['id', 'DESC'];
                 break;
+
             case 'ip-whitelist':
                 $request['table'] = '\App\Models\IpWhitelist';
                 $request['with'] = ['service'];
@@ -604,7 +606,7 @@ class CommonController extends Controller
                 if (is_numeric($value)) {
                     $query->where($column, $value);
                 } else {
-                    $query->where($column, 'LIKE', '%' . $value . '%');
+                    $query->where($column, 'LIKE', '%'.$value.'%');
                 }
             }
         }
@@ -612,7 +614,7 @@ class CommonController extends Controller
         if (isset($request['where']) && $request['where'] == 1 && isset($request->searchText) && ! empty($request->searchText)) {
             $query->where(function ($q) use ($request) {
                 foreach ($request['searchData'] as $column) {
-                    $q->orWhere($column, 'LIKE', '%' . $request->searchText . '%');
+                    $q->orWhere($column, 'LIKE', '%'.$request->searchText.'%');
                 }
             });
         }

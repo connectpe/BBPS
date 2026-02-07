@@ -161,7 +161,7 @@ class AuthController extends Controller
             ->where('otp', $request->otp)
             ->where('expire_at', '>', Carbon::now())
             ->first();
-
+        // dd($otpData);
         if (!$otpData) {
             return response()->json([
                 'status' => false,

@@ -68,7 +68,9 @@ class AdminController extends Controller
     public function dashboard()
     {
         $role = Auth::user()->role_id;
-        if (in_array($role, [1])) {
+
+        if (in_array($role, [1, 2])) {
+
             return view('Dashboard.dashboard');
         } elseif (in_array($role, [3])) {
 
@@ -883,6 +885,7 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['status' => false, 'message' => 'Error: ' . $e->getMessage()], 500);
+
         }
     }
 
@@ -920,6 +923,10 @@ class AdminController extends Controller
                 'message' => 'Error: ' . $e->getMessage(),
             ], 500);
         }
+
+
+
+
     }
 
     public function supportdetails()
@@ -989,8 +996,9 @@ class AdminController extends Controller
 
             $request->validate([
                 'name' => 'required|string|min:3',
-                'email' => 'required|email|unique:users,email,' . $user_id,
-                'mobile' => 'required|digits:10|unique:users,mobile,' . $user_id,
+                'email' => 'required|email|unique:users,email,'.$user_id,
+                'mobile' => 'required|digits:10|unique:users,mobile,'.$user_id,
+
             ]);
 
             $member->name = $request->name;
@@ -1172,6 +1180,7 @@ class AdminController extends Controller
             'userId' => 'required|exists:users,id',
         ]);
 
+
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
@@ -1211,4 +1220,5 @@ class AdminController extends Controller
             ]);
         }
     }
+
 }
