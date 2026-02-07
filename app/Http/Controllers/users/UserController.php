@@ -26,7 +26,7 @@ class UserController extends Controller
 {
     public function bbpsUsers()
     {
-        $users = User::where('role_id', '!=', '1')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
+        $users = User::where('role_id', '!=', '1')->where('role_id', '!=', '4')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
 
         return view('Users.users', compact('users'));
     }

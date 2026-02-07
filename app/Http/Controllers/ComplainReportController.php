@@ -19,11 +19,12 @@ class ComplainReportController extends Controller
         $priorities = ['low', 'normal', 'high', 'urgent'];
 
         if ($role == 1) {
-            $users = User::where('role_id', '!=', '1')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
+            $users = User::where('role_id', '!=', '1')->whereHas('complaints')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
         } elseif ($role == 4) {
             $assignedUser =  UserAssignedToSupport::where('assined_to', Auth::user()->id)->pluck('user_id')->toArray();
-            $users = User::whereNotIn('role_id',  [1, 3, 4])->whereIn('id', $assignedUser)->where('status', '!=', '0')->orderBy('id', 'desc')->get();
+            $users = User::whereNotIn('role_id',  [1, 3, 4])->whereHas('complaints')->whereIn('id', $assignedUser)->where('status', '!=', '0')->orderBy('id', 'desc')->get();
         }
+       
 
         return view('ComplainReport.index', compact('statuses', 'priorities', 'users'));
     }

@@ -30,6 +30,7 @@ class CommonController extends Controller
                 $request['searchData'] = ['id', 'name', 'email', 'mobile', 'created_at'];   // it is for the Datatable search box
                 $request['select'] = 'all';
                 $request['with'] = ['business'];
+                $request['filters'] = array_merge($request->get('filters', []), ['role_id' => [4, '!=']]);
 
                 $orderIndex = $request->get('order');
 
