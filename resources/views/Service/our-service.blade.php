@@ -109,8 +109,7 @@
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>Business Name</th>
-                                <th>User Name</th>
+                                <th>Organization Name</th>
                                 <th>Service</th>
                                 <th>Amount</th>
                                 <th>API Enable</th>
@@ -291,24 +290,15 @@
                 },
                 {
                     data: function(row) {
-                        const businessName = row.user?.business?.business_name || '----';
                         const url = "{{ route('view_user', ['id' => 'id']) }}".replace('id', row.user_id);
-                        return `
-                        <a href="${url}" class="text-primary fw-semibold text-decoration-none">
-                            ${businessName}
-                        </a>
-                    `;
-                    }
-                },
-                {
-                    data: function(row) {
                         const userName = row.user?.name || '----';
-                        const url = "{{ route('view_user', ['id' => 'id']) }}".replace('id', row.user_id);
+                        const businessName = row.user?.business?.business_name || '----';
                         return `
-                        <a href="${url}" class="text-primary fw-semibold text-decoration-none">
-                            ${userName}
-                        </a>
-                    `;
+                                <a href="${url}" class="text-primary fw-semibold text-decoration-none">
+                                    ${userName ?? '----'} <br/>
+                                    [${businessName ?? '----'}]
+                                </a>
+                            `;
                     }
                 },
                 {
@@ -436,6 +426,65 @@
                         setTimeout(() => {
                             location.reload();
                         }, 3000);
+                    }
+
+                });
+            }
+        });
+    }
+
+
+    function changeService(id, type, text = 'This Record') {
+        Swal.fire({
+            title: 'Are you sure to change status of ' + text + '?',
+            // text: "You will be logged out from your account!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: "{{route('admin.service_toggle')}}",
+                    type: 'POST',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        service_id: id,
+                        type: type
+                    },
+                    success: function(response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: response.message ?? 'Status updated successfully',
+                            timer: 2000,
+                            showConfirmButton: true
+                        });
+                    },
+                    error: function(xhr) {
+                        let title = 'Error';
+                        let message = 'Something went wrong!';
+
+                        if (xhr.status === 422) {
+                            title = 'Validation Error';
+
+                            if (xhr.responseJSON && xhr.responseJSON.errors) {
+                                let firstKey = Object.keys(xhr.responseJSON.errors)[0];
+                                message = xhr.responseJSON.errors[firstKey][0];
+                            }
+                        } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                            message = xhr.responseJSON.message;
+                        }
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: title,
+                            html: message,
+                            timer: 2000,
+                            showConfirmButton: true
+                        });
                     }
 
                 });

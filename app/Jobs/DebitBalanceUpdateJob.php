@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Helpers\CommonHelper;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -10,6 +11,8 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Transaction;
+use App\Models\UserService;
 
 class DebitBalanceUpdateJob implements ShouldQueue
 {
@@ -41,49 +44,45 @@ class DebitBalanceUpdateJob implements ShouldQueue
      *
      * */
 
-    private $requestId, $paymentRefId, $call, $ServiceId, $errorDesc, $statusCode, $utr, $status;
 
-    public function __construct()
+    private $endpoint, $payload, $token;
+
+
+    public function __construct($endpoint, $payload, $token)
     {
-        $this->orderRefId = $orderRefId;
-        $this->userId = $userId;
-        $this->call = $call;
-        $this->getServicePkId = $getServicePkId;
-        $this->errorDesc = $errorDesc;
-        $this->statusCode = $statusCode;
-        $this->utr = $utr;
-        $this->status = $status;
+        $this->endpoint = $endpoint;
+        $this->payload = $payload;
+        $this->token = $token;
     }
 
     /**
      * Execute the job.
      */
-    
+
     public function handle(): void
     {
-         //Scheduled S0036 //Queued E0520
+        //Scheduled S0036 //Queued E0520
         try {
 
-            if ($this->call == 'balance_debit') {
-                $OrderData = Transaction::select('user_id', 'order_ref_id','contact_id')
-                    ->where(['cron_status' => '0', 'status' => 'queued', 'user_id' => $this->userId, 'order_ref_id' => $this->orderRefId])
-                    ->whereIn('area', ['11', '22'])
+            if ($this->payload['call'] == 'balance_debit') {
+                $OrderData = Transaction::select('user_id', 'request_id')
+                    ->where(['cron_status' => '0', 'status' => 'processing', 'user_id' => $this->payload['userid'], 'request_id' => $this->payload['reqid']])
                     ->first();
-               
+
                 if (isset($OrderData) && !empty($OrderData)) {
-                    $userConfigGetRoute = CommonHelper::getPayoutRouteUsingUserId($OrderData->user_id, 'api');
-                    if ($userConfigGetRoute['status']) {
-                        $types = $userConfigGetRoute['slug'];
-                        $integrationId = $userConfigGetRoute['integration_id'];
+                    $userServiceId = UserService::select('service_id ')->where('user_id ', $this->payload['userid'])->first();
+                    $userRoot = CommonHelper::getUserRouteUsingUserId($OrderData->user_id, $userServiceId, 'api');
+                    if ($userRoot['status']) {
+                        $types = $userRoot['slug'];
                     } else {
-                        $route = CommonHelper::defaultPayoutRoute('api_payout_route');
-                        $types = $route['slug'];
-                        $integrationId = $route['integration_id'];
+                        $defaultRoot = UserService::select('default_slug')->where('user_id ', $this->payload['userid'])->where('service_id', $userServiceId)->first();
+                        $types = $defaultRoot;
                     }
 
-                    $lockeOrder = TransactionHelper::moveOrderToProcessingByOrderId($OrderData->user_id, $OrderData->order_ref_id, $integrationId);
+                    // $lockeOrder = TransactionHelper::moveOrderToProcessingByOrderId($OrderData->user_id, $OrderData->order_ref_id, $integrationId);
+
                     if ($lockeOrder['status'] && isset($OrderData)) {
-                        dispatch(new \App\Jobs\OrderProcessApiCallJob($OrderData->order_ref_id, $OrderData->user_id, $types, $integrationId))->delay(rand(2, 7))->onQueue('payout_process_queue');
+                        dispatch(new \App\Jobs\MobikwikPaymentApiCallJob($OrderData->request_id, $OrderData->user_id, $types))->delay(rand(2, 7))->onQueue('payout_process_queue');
                     } else {
                         $errorDesc = $lockeOrder['message'];
                         $statusCode = '';
@@ -103,22 +102,32 @@ class DebitBalanceUpdateJob implements ShouldQueue
                             TransactionHelper::sendCallback($OrderData->user_id, $OrderData->order_ref_id, 'failed');
                         }
                     }
+
+                    $ApiCallresponse =  dispatch(new \App\Jobs\MobikwikPaymentApiCallJob($this->endpoint, $this->payload, $this->token, $types));
+
+                    if (isset($ApiCallresponse) && !empty($ApiCallresponse)) {
+                        if ($ApiCallresponse['success'] == true) {
+                            $data = $ApiCallresponse['data'];
+                        } else {
+                            $errorDesc = $ApiCallresponse['message'];
+                        }
+                    }
                 }
             } else if ($this->call == 'failed_order') {
-                \Log::info('failed_order',['user_id' => $this->userId, 'order_ref_id' => $this->orderRefId]);
+                \Log::info('failed_order', ['user_id' => $this->userId, 'order_ref_id' => $this->orderRefId]);
                 $OrderData = Order::select('order_ref_id', 'user_id', 'batch_id', 'area')
                     ->where(['status' => 'processing', 'user_id' => $this->userId, 'order_ref_id' => $this->orderRefId])
                     ->whereIn('orders.area', ['00', '11', '22'])
                     ->first();
-                    \Log::info('failed_order:OrderData',['data' => json_encode($OrderData), 'order_ref_id' => $this->orderRefId]);
+                \Log::info('failed_order:OrderData', ['data' => json_encode($OrderData), 'order_ref_id' => $this->orderRefId]);
                 if (isset($OrderData) && !empty($OrderData)) {
                     $txn = CommonHelper::getRandomString('txn', false);
-                    \Log::info('OrderStatusUpdate:',[$OrderData->order_ref_id,$this->status,$this->utr,$this->getServicePkId,$txn,$this->errorDesc,$this->statusCode]);
+                    \Log::info('OrderStatusUpdate:', [$OrderData->order_ref_id, $this->status, $this->utr, $this->getServicePkId, $txn, $this->errorDesc, $this->statusCode]);
                     DB::select("CALL OrderStatusUpdate('" . $OrderData->order_ref_id . "', $OrderData->user_id, $this->getServicePkId, '" . $this->status . "', '" . $txn . "', '" . $this->errorDesc . "', '" . $this->statusCode . "','" . $this->utr . "', @json)");
                     $results = DB::select('select @json as json');
                     $response = json_decode($results[0]->json, true);
-                    \Log::info('After OrderStatusUpdate:',[$results[0]->json]);
-                    \Log::info('Response payoutBalanceAndStatusUpdate:',$response);
+                    \Log::info('After OrderStatusUpdate:', [$results[0]->json]);
+                    \Log::info('Response payoutBalanceAndStatusUpdate:', $response);
                     if ($response['status'] == '1') {
                         if ($OrderData->area == '00') {
                             BulkPayoutDetail::payStatusUpdate($OrderData->batch_id, 'failed', $OrderData->order_ref_id, $this->errorDesc, $this->utr);
@@ -129,7 +138,7 @@ class DebitBalanceUpdateJob implements ShouldQueue
                 }
             }
         } catch (\Exception  $e) {
-            $fileName = 'public/orderDeadlock'. $this->orderRefId . '.txt';
+            $fileName = 'public/orderDeadlock' . $this->orderRefId . '.txt';
             Storage::disk('local')->append($fileName, $e . date('H:i:s'));
         }
     }

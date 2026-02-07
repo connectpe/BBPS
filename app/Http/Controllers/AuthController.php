@@ -57,7 +57,9 @@ class AuthController extends Controller
             $role = Role::where('slug', $roleSlug)->firstOrFail();
 
             $otp = rand(1000, 9999);
-
+            $first_four = substr($request->mobile, 0, 4);
+            $mpin = Hash::make($first_four);
+         
             if ($user) {
                 $user = User::updateOrCreate(
                     ['email' => $request->email],
@@ -66,7 +68,7 @@ class AuthController extends Controller
                         'mobile' => $request->mobile,
                         'password' => bcrypt($request->password),
                         'role_id' => $role->id ?? 2,
-                        // keep email_verified_at null until OTP verified
+                        'mpin' =>$mpin,
                         'email_verified_at' => null,
                         'status' => '0',
                     ]
@@ -78,21 +80,31 @@ class AuthController extends Controller
                     'mobile' => $request->mobile,
                     'role_id' => $role->id ?? 2,
                     'password' => bcrypt($request->password),
+                    'mpin' =>$mpin,
                     'email_verified_at' => null,
                     'status' => '0',
                 ]);
             }
 
-            $isSend = SendingMail::sendMail([
-                'name' => $request->name,
-                'email' => $request->email,
-                'otp' => $otp,
-                'subject' => 'Email Verification'
-            ]);
+            try{
+                $isSend = SendingMail::sendMail([
+                    'name' => $request->name,
+                    'email' => $request->email,
+                    'otp' => $otp,
+                    'subject' => 'Email Verification'
+                ]);
 
-            if (!$isSend) {
-                throw new \Exception('Mail not sent');
+            }catch(Exception $e){
+                return response()->json([
+                    'status'=> false,
+                    'message'=> $e->getMessage(),
+                ]);
+
             }
+
+            // if (!$isSend) {
+            //     throw new \Exception('Mail not sent');
+            // }
 
             EmailVerification::updateOrCreate(
                 ['user_id' => $user->id],
@@ -136,6 +148,8 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
+        // dd($user);
+
         if (!$user) {
             return response()->json([
                 'status' => false,
@@ -147,7 +161,7 @@ class AuthController extends Controller
             ->where('otp', $request->otp)
             ->where('expire_at', '>', Carbon::now())
             ->first();
-
+        // dd($otpData);
         if (!$otpData) {
             return response()->json([
                 'status' => false,
@@ -195,19 +209,22 @@ class AuthController extends Controller
 
             $otp = rand(1000, 9999);
 
-            $isSend = SendingMail::sendMail([
+           try{
+             $isSend = SendingMail::sendMail([
                 'name' => $user->name,
                 'email' => $user->email,
                 'otp' => $otp,
                 'subject' => 'Email Verification'
             ]);
 
-            if (!$isSend) {
+            
+
+           }catch(Exception $e){
                 return response()->json([
-                    'status' => false,
-                    'message' => 'OTP could not be sent. Please try again.',
-                ], 500);
-            }
+                    'status'=>false,
+                    'message'=> $e->getMessage()
+                ]);
+           }
 
             EmailVerification::updateOrCreate(
                 ['user_id' => $user->id],

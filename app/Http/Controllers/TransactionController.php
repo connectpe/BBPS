@@ -32,7 +32,7 @@ class TransactionController extends Controller
             'description' => 'required|string|min:20|max:500',
             'priority' => 'required|in:Low,High,Medium',
             'category' => 'required|exists:complaints_categories,id',
-            'attachment' => 'nullable|file|max:2048',
+            'attachment' => 'nullable|file|max:2048|mimes:jpg,png,jpeg',
         ]);
 
         $attachmentPath = null;
@@ -40,29 +40,28 @@ class TransactionController extends Controller
             $attachmentPath = $request->file('attachment')->store('complaints', 'public');
         }
 
-        // do {
-        //     $ref = 'CMP-' . strtoupper(Str::random(10));
-        // } while (Complaint::where('reference_number', $ref)->exists());
+        do {
+            $ticketId = '#' . strtoupper(rand(000000000000, 111111111111));
+        } while (Complaint::where('ticket_number', $ticketId)->exists());
 
-        // dd($request->all());
+        $userId = Auth::user()->id;
 
-        $complaint = Complaint::create([
-            'reference_number' => $ref,
-            'user_id' => Auth::id(),
+        $data =  [
+            'ticket_number' => $ticketId,
+            'user_id' => $userId,
             'service_id' => $request->service_id,
-            'description' => $request->description,
-            'status' => 'open',
+            'complaints_category' => $request->category,
             'priority' => $request->priority,
-            'category' => $request->category,
-            'attachment_path' => $attachmentPath,
-        ]);
+            'attachment_file' => $attachmentPath,
+            'description' => $request->description,
+            'updated_by' => $userId,
+        ];
 
-        $complaints = Complaint::where('user_id', Auth::id())->latest()->get();
+        $complaint = Complaint::create($data);
 
         return response()->json([
-            'message' => 'Complaint registered successfully!',
-            'complaint' => $complaint,
-            'complaints' => $complaints,
+            'status' => true,
+            'message' => 'Complaint Registered Successfully',
         ]);
     }
 
@@ -75,29 +74,27 @@ class TransactionController extends Controller
     public function checkComplaintStatus(Request $request)
     {
         $request->validate([
-            'reference_number' => 'required|string',
+            'ticket_number' => 'required|string',
         ]);
 
-        $complaint = Complaint::where('reference_number', $request->reference_number)
+        $complaint = Complaint::where('ticket_number', $request->ticket_number)
             ->where('user_id', auth()->id()) // user sirf apni complaint check kare
             ->first();
 
-        if (! $complaint) {
+        if (!$complaint) {
             return response()->json([
                 'status' => false,
-                'message' => 'Complaint not found for given Reference Number.',
+                'message' => 'Complaint not found for given Ticket Number.',
             ], 404);
         }
 
         return response()->json([
             'status' => true,
             'data' => [
-                'reference_number' => $complaint->reference_number,
-                'service_name' => $complaint->service_name,
-                'resolved_at' => $complaint->resolved_at
-                    ? $complaint->resolved_at->format('d-m-Y H:i')
-                    : '-',
-                'complaint_status' => strtoupper($complaint->status),
+                'ticket_number' => $complaint->ticket_number,
+                'service_name' => $complaint->service?->service_name,
+                'resolved_at' => $complaint->resolved_at ? $complaint->resolved_at->format('M-d-Y h:i:s a')   : '-',
+                'complaint_status' => $complaint->status,
             ],
         ]);
     }

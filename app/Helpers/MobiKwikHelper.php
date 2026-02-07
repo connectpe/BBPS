@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use App\Models\MobikwikToken;
+use App\Models\Transaction;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -23,10 +24,10 @@ class MobiKwikHelper
         $this->clientId     = config('mobikwik.client_id');
     }
 
-    function generateMobikwikToken()
+    public static function generateMobikwikToken()
     {
         try {
-            
+
             $response = Http::timeout(15)
                 ->withHeaders([
                     'Content-Type' => 'application/json',
@@ -53,12 +54,12 @@ class MobiKwikHelper
 
             $data = $response->json();
 
-            
+
 
             MobikwikToken::create([
                 'token' => $data['data']['token'],
                 'creation_time' => now()->toDateTimeString(),
-                'expire_at'=> $data['data']['expiryTime'],
+                'expire_at' => $data['data']['expiryTime'],
                 'response' => json_encode($data),
             ]);
 
@@ -101,6 +102,7 @@ class MobiKwikHelper
             'keyVersion'          => $this->keyVersion,
             'iv'                  => base64_encode($iv),
         ];
+        // dd($requestData);
 
         $response = Http::withHeaders([
             'Authorization' => $bearerToken,
@@ -110,7 +112,7 @@ class MobiKwikHelper
         return $response->json();
     }
 
-    protected function aesEncrypt(array $payload, string $key, string $iv): string
+    public static function aesEncrypt(array $payload, string $key, string $iv): string
     {
         $plaintext = json_encode($payload);
         $tag = '';
@@ -131,7 +133,7 @@ class MobiKwikHelper
         return $ciphertext . $tag;
     }
 
-    protected function rsaEncrypt(string $aesKey, string $publicKeyPem): string
+    public static function rsaEncrypt(string $aesKey, string $publicKeyPem): string
     {
         $publicKey = openssl_pkey_get_public($publicKeyPem);
 
@@ -152,5 +154,37 @@ class MobiKwikHelper
         }
 
         return $encrypted;
+    }
+
+    public function Payment(string $endpoint, array $payload)
+    {
+        try {
+          
+
+            Transaction::create([
+                'user_id'               => $payload['user_id'],
+                'operator_id'           => $payload['op'],
+                'circle_id'             => $payload['cir'],
+                'amount'                => $payload['amt'],
+                'transaction_type'      => $payload['paymentMode'],
+                'request_id'            => $payload['reqid'],
+                'mobile_number'         => $payload['customerMobile'],
+                'payment_ref_id'        => $payload['paymentRefID'],
+                'payment_account_info'  => $payload['paymentAccountInfo'],
+                'recharge_type'         => $payload['prepaid'],
+                'connectpe_id'          => $connectPeId,
+            ]);
+
+
+            $token = CommonHelper::isTokenPresent();
+
+            $response = $this->sendRequest($endpoint, $payload, $token);
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
     }
 }

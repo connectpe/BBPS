@@ -71,8 +71,7 @@
                     <thead class="bg-light">
                         <tr>
                             <th>S.N.</th>
-                            <th>USER NAME</th>
-                            <th>EMAIL</th>
+                            <th>ORGANIZATION NAME</th>
                             <th>SCHEME NAME</th>
                             <th class="text-center">ACTION</th>
                         </tr>
@@ -137,7 +136,7 @@
     </div>
 
     <div class="modal fade" id="assignUserModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-md">
             <div class="modal-content">
                 <div class="modal-header border-bottom-0">
                     <h5 class="modal-title" id="assignModalTitle">Assign Scheme to User</h5>
@@ -148,17 +147,21 @@
                     <input type="hidden" name="config_id" id="config_id">
                     <div class="modal-body">
                         <div class="row">
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-12 mb-3">
                                 <label class="fw-bold small">Select User *</label>
                                 <select name="user_id" id="user_search" class="form-control" required>
                                     <option value="">-- Select User --</option>
                                     @foreach ($users as $user)
-                                        <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})
+                                        <option value="{{ $user->id }}">
+                                            {{ $user->name }}
+                                            ({{ $user->business->business_name ?? 'Business Not Added' }})
                                         </option>
                                     @endforeach
+
+
                                 </select>
                             </div>
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-12 mb-3">
                                 <label class="fw-bold small">Select Scheme *</label>
                                 <select name="scheme_id" id="scheme_search" class="form-control" required>
                                     <option value="">-- Select Scheme --</option>
@@ -243,7 +246,7 @@
             let relationTable = $('#relationTable').DataTable({
                 processing: true,
                 serverSide: true,
-                 dom: "<'row mb-2'<'col-sm-4'l><'col-sm-4'f><'col-sm-4 text-end'B>>" +
+                dom: "<'row mb-2'<'col-sm-4'l><'col-sm-4'f><'col-sm-4 text-end'B>>" +
                     "<'row'<'col-12'tr>>" + "<'row mt-2'<'col-sm-6'i><'col-sm-6'p>>",
                 buttons: [{
                     extend: 'excelHtml5',
@@ -267,14 +270,21 @@
                         render: (data, type, row, meta) => meta.row + meta.settings._iDisplayStart + 1
                     },
                     {
-                        data: 'user.name',
-                        name: 'user.name',
-                        defaultContent: 'N/A'
-                    },
-                    {
-                        data: 'user.email',
-                        name: 'user.email',
-                        defaultContent: 'N/A'
+                        data: null,
+                        defaultContent: 'N/A',
+                        render: function(data, type, row) {
+                            let url = "{{ route('view_user', ['id' => 'id']) }}".replace('id', row
+                                .user_id);
+                            const userName = row?.user?.name;
+                            const businessName = row?.user?.business?.business_name;
+
+                            return `
+                                <a href="${url}" class="text-primary fw-semibold text-decoration-none">
+                                    ${userName ?? '----'} <br/>
+                                    [${businessName ?? '----'}]
+                                </a>
+                            `;
+                        }
                     },
                     {
                         data: 'scheme.scheme_name',
@@ -398,8 +408,24 @@
                             $('#submitBtn').prop('disabled', false).text('Save Changes');
                         }
                     },
-                    error: function() {
+                    error: function(xhr) {
                         $('#submitBtn').prop('disabled', false).text('Save Changes');
+                        if (xhr.status === 422) {
+                            let errors = xhr.responseJSON.errors;
+                            let errorList = '';
+                            $.each(errors, function(key, value) {
+                                errorList += '<li>' + value[0] + '</li>';
+                            });
+
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Validation Error',
+                                html: '<ul style="text-align: left;">' + errorList +
+                                    '</ul>',
+                            });
+                        } else {
+                            Swal.fire('Error', 'Something went wrong on the server.', 'error');
+                        }
                     }
                 });
             });

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\CommonHelper;
 use App\Models\BusinessCategory;
 use App\Models\BusinessInfo;
+use App\Models\ComplaintsCategory;
 use App\Models\GlobalService;
 use App\Models\OauthUser;
 use App\Models\Provider;
@@ -13,7 +14,9 @@ use App\Models\SchemeRule;
 use App\Models\User;
 use App\Models\UserAssignedToSupport;
 use App\Models\UserConfig;
+use App\Models\WebHookUrl;
 use App\Models\UsersBank;
+use App\Models\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -29,22 +32,26 @@ class AdminController extends Controller
             $userId = auth()->id();
             $role = Auth::user()->role_id;
 
-            if (in_array($role, [2, 3])) {
+            if (in_array($role, [2, 3, 4])) {
                 $data['saltKeys'] = OauthUser::where('user_id', auth()->id())
                     ->where('is_active', '1')
                     ->select('client_id', 'client_secret', 'created_at')
                     ->get();
             }
 
-            $data['activeService'] = GlobalService::where(['is_active' => '1'])
-                ->select('id', 'slug', 'service_name')
-                ->get();
+            // $data['activeService'] = GlobalService::where(['is_active' => '1'])
+                
+            //     ->select('id', 'slug', 'service_name')
+            //     ->get();
 
             $data['userdata'] = User::where('id', $userId)->select('name', 'email', 'mobile', 'status', 'role_id', 'profile_image')->first();
             $data['businessInfo'] = BusinessInfo::where('user_id', $userId)->first();
             $data['businessCategory'] = BusinessCategory::where('status', 1)->orderBy('id', 'desc')->get();
+            $data['supportRepresentative'] = UserAssignedToSupport::where('user_id', $userId)->with('assigned_support')->first();
 
             $data['usersBank'] = UsersBank::where('user_id', $userId)->first();
+            $data['UserServices'] = UserService::where('user_id', $userId)->where('status', 'approved')->get();
+             $data['webhookUrl'] = WebHookUrl::where('user_id', $userId)->first();
 
             return view('Admin.profile')->with($data);
         } catch (\Exception $e) {
@@ -65,10 +72,16 @@ class AdminController extends Controller
     {
         $role = Auth::user()->role_id;
 
-        if (in_array($role, [1, 2, 4])) {
-            return view('dashboard');
+        if (in_array($role, [1, 2])) {
+
+            return view('Dashboard.dashboard');
         } elseif (in_array($role, [3])) {
-            return view('api-dashboard');
+
+            return view('Dashboard.api-dashboard');
+        } elseif ($role == 4) {
+            return view('Dashboard.support-dashboard');
+        } elseif ($role == 2) {
+            return view('Dashboard.user-dashboard');
         }
     }
 
@@ -188,7 +201,7 @@ class AdminController extends Controller
             }
 
             $request->validate([
-                'service_name' => 'required|string|max:50|unique:global_services,service_name,'.$serviceId,
+                'service_name' => 'required|string|max:50|unique:global_services,service_name,' . $serviceId,
             ]);
 
             $service = GlobalService::where('id', $serviceId)->first();
@@ -350,7 +363,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -361,7 +374,7 @@ class AdminController extends Controller
         $request->validate(
             [
                 'serviceId' => 'required|exists:global_services,id',
-                'providerName' => 'required|string|max:100|unique:providers,provider_name,'.$Id,
+                'providerName' => 'required|string|max:100|unique:providers,provider_name,' . $Id,
             ],
             [
                 'serviceId.required' => 'Please select a service.',
@@ -398,7 +411,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -532,13 +545,13 @@ class AdminController extends Controller
 
                 return response()->json([
                     'status' => false,
-                    'message' => 'Error : '.$e->getMessage(),
+                    'message' => 'Error : ' . $e->getMessage(),
                 ]);
             }
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
@@ -657,13 +670,13 @@ class AdminController extends Controller
 
                 return response()->json([
                     'status' => false,
-                    'message' => 'Error : '.$e->getMessage(),
+                    'message' => 'Error : ' . $e->getMessage(),
                 ]);
             }
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
@@ -714,7 +727,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
@@ -732,7 +745,7 @@ class AdminController extends Controller
     public function updateAssignedSchemetoUser(Request $request, $configId)
     {
         $validator = Validator::make($request->all(), [
-            'user_id' => 'required|exists:users,id|unique:user_configs,user_id,'.$configId,
+            'user_id' => 'required|exists:users,id|unique:user_configs,user_id,' . $configId,
             'scheme_id' => 'required|exists:schemes,id',
         ], [
             'user_id.required' => 'User Id is required',
@@ -803,11 +816,10 @@ class AdminController extends Controller
             DB::commit();
 
             return response()->json(['status' => true, 'message' => 'User Scheme Relation Updated Successfully'], 200);
-
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json(['status' => false, 'message' => 'Error: '.$e->getMessage()], 500);
+            return response()->json(['status' => false, 'message' => 'Error: ' . $e->getMessage()], 500);
         }
     }
 
@@ -837,6 +849,7 @@ class AdminController extends Controller
         $data['alreadyAssignedIds'] = UserAssignedToSupport::pluck('user_id')->toArray();
         $data['assignedUsers'] = User::whereIn('id', UserAssignedToSupport::query()->distinct()->pluck('user_id'))->orderBy('name')->get();
         $data['assignedSupports'] = User::whereIn('id', UserAssignedToSupport::query()->distinct()->pluck('assined_to'))->orderBy('name')->get();
+
         return view('AssignuserSupport.index', $data);
     }
 
@@ -870,10 +883,13 @@ class AdminController extends Controller
                 ]);
             }
             DB::commit();
+
             return response()->json(['status' => true, 'message' => $msg]);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['status' => false, 'message' => 'Error: '.$e->getMessage()], 500);
+
+            return response()->json(['status' => false, 'message' => 'Error: ' . $e->getMessage()], 500);
+
         }
     }
 
@@ -905,12 +921,308 @@ class AdminController extends Controller
                 'status' => true,
                 'message' => 'Assignment removed successfully!',
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
+                'message' => 'Error: ' . $e->getMessage(),
+            ], 500);
+        }
+
+
+
+
+    }
+
+    public function supportdetails()
+    {
+        return view('AssignuserSupport.support-user-details');
+    }
+
+    public function addSupportMember(Request $request)
+    {
+        try {
+            if (! Auth::user()->role_id == 1) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'unauthorized access',
+                ]);
+            }
+            $request->validate([
+                'name' => 'required|string|min:3',
+                'email' => 'required|email|unique:users',
+                'mobile' => 'required|max:10',
+                'password' => 'required|min:6',
+                'password' => 'required|min:6|confirmed',
+            ]);
+
+            $payload = [
+                'name' => $request->name,
+                'email' => $request->email,
+                'mobile' => $request->mobile,
+                'password' => bcrypt($request->password),
+                'email_verfied_at' => now(),
+                'role_id' => '4',
+                'status' => '1',
+            ];
+
+            $member = User::create($payload);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Member created Successfully',
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function getSupportMember($id)
+    {
+        $user = User::find($id);
+
+        return $user ? response()->json(['status' => true, 'data' => $user]) : response()->json(['status' => false]);
+    }
+
+    public function editSupportMember(Request $request, $user_id)
+    {
+        try {
+            if (Auth::user()->role_id != 1) {
+                return response()->json(['status' => false, 'message' => 'unauthorized access']);
+            }
+
+            $member = User::find($user_id);
+            if (! $member) {
+                return response()->json(['status' => false, 'message' => 'User not found']);
+            }
+
+            $request->validate([
+                'name' => 'required|string|min:3',
+                'email' => 'required|email|unique:users,email,'.$user_id,
+                'mobile' => 'required|digits:10|unique:users,mobile,'.$user_id,
+
+            ]);
+
+            $member->name = $request->name;
+            $member->email = $request->email;
+            $member->mobile = $request->mobile;
+            $member->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Member updated Successfully',
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function category()
+    {
+        return view('Categories.index');
+    }
+
+    public function addComplaintCategory(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'category_name' => 'required|string|max:50|unique:complaints_categories,id|regex:/^[A-Za-z0-9 _-]+$/',
+        ], [
+            'category_name.required' => 'Category name is required.',
+            'category_name.string' => 'Category name must be a valid string.',
+            'category_name.max' => 'Category name cannot exceed 50 characters.',
+            'category_name.regex' => 'Category name can only contain letters, numbers, spaces, hyphens, and underscores.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $updatedBy = Auth::user()->id;
+
+            $data = [
+                'category_name' => $request->category_name,
+                'updated_by' => $updatedBy,
+            ];
+
+            ComplaintsCategory::create($data);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Category Added Successfully',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => false,
                 'message' => 'Error: '.$e->getMessage(),
+            ]);
+        }
+    }
+
+    public function updateComplaintCategory(Request $request, $Id)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'category_name' => 'required|string|max:50|regex:/^[A-Za-z0-9 _-]+$/|unique:complaints_categories,id,'.$Id,
+        ], [
+            'category_name.required' => 'Category name is required.',
+            'category_name.string' => 'Category name must be a valid string.',
+            'category_name.max' => 'Category name cannot exceed 50 characters.',
+            'category_name.regex' => 'Category name can only contain letters, numbers, spaces, hyphens, and underscores.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+
+            $updatedBy = Auth::user()->id;
+            $category = ComplaintsCategory::find($Id);
+            if (! $category) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Ip address not Found',
+                ]);
+            }
+
+            $data = [
+                'category_name' => $request->category_name,
+                'updated_by' => $updatedBy,
+            ];
+
+            $update = $category->update($data);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+
+                'message' => 'Category Updated Successfully',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Error: ' . $e->getMessage(),
+            ]);
+        }
+    }
+    public function statusComplaintCategory(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'status' => 'required|in:0,1',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first(),
+            ], 422);
+        }
+
+        DB::beginTransaction();
+        try {
+            $category = ComplaintsCategory::findOrFail($id); 
+
+            $category->update([
+                'status' => $request->status,
+                'updated_by' => Auth::id(),
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Category Status Updated Successfully',
+                'data' => $category,
+            ]);
+
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong: ' . $e->getMessage(),
             ], 500);
         }
     }
+
+    public function changeKycStatus(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|exists:business_infos,id',
+            'userId' => 'required|exists:users,id',
+        ]);
+
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+
+            $business = BusinessInfo::where('id', $request->id)->where('user_id', $request->userId)->first();
+
+            if (!$business) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Business Not Found',
+                ], 404);
+            }
+
+            $data = [
+                'is_kyc' => $business->is_kyc == '0' ? '1' : '0'
+            ];
+
+           $business->update($data);
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Kyc Updated Successfully',
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong: '.$e->getMessage(),
+            ], 500);
+        }
+    }
+
 }

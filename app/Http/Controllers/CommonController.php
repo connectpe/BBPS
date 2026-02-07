@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\UserAssignedToSupport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -172,7 +173,7 @@ class CommonController extends Controller
                 $request['table'] = '\App\Models\UserService';
                 $request['searchData'] = ['user_id', 'status', 'service_id', 'transaction_amount', 'created_at'];
                 $request['select'] = 'all';
-                $request['with'] = ['service'];
+                $request['with'] = ['service', 'user', 'user.business'];
                 $orderIndex = $request->get('order');
                 if (isset($orderIndex) && count($orderIndex)) {
                     $columnsIndex = $request->get('columns');
@@ -301,8 +302,45 @@ class CommonController extends Controller
                     $request['parentData'] = [Auth::user()->id];
                 }
                 break;
+            case 'transaction-complaint':
+                $request['table'] = '\App\Models\Complaint';
+                $request['searchData'] = ['id', 'ticket_number', 'priority', 'status'];
+                $request['select'] = 'all';
+                $request['with'] = ['user', 'user.business', 'service', 'category'];
+
+                $orderIndex = $request->get('order');
+                if (isset($orderIndex) && count($orderIndex)) {
+                    $columnsIndex = $request->get('columns');
+                    $columnIndex = $orderIndex[0]['column'];
+                    $columnName = $columnsIndex[$columnIndex]['data'];
+                    $columnSortOrder = $orderIndex[0]['dir'];
+                    if ($columnName == 'new_created_at') {
+                        $columnName = 'created_at';
+                    }
+                    if ($columnName == '0') {
+                        $columnName = 'created_at';
+                        $columnSortOrder = 'DESC';
+                    }
+                    $request['order'] = [$columnName, $columnSortOrder];
+                } else {
+                    $request['order'] = ['id', 'DESC'];
+                }
+                $request['whereIn'] = 'id';
+                $request['parentData'] = [$request->id];
+
+                if (Auth::user()->role_id == '1') {
+                    $request['parentData'] = 'all';
+                } elseif (Auth::user()->role_id == 2) {
+                    $request['whereIn'] = 'user_id';
+                    $request['parentData'] = [Auth::user()->id];
+                } elseif (Auth::user()->role_id == 4) {
+                    $assignedUser = UserAssignedToSupport::where('assined_to', Auth::user()->id)->pluck('user_id')->toArray();
+                    $request['whereIn'] = 'user_id';
+                    $request['parentData'] = $assignedUser;
+                }
+                break;
             case 'schemes':
-                $request['table'] = '\App\Models\Scheme'; 
+                $request['table'] = '\App\Models\Scheme';
                 $request['searchData'] = ['id', 'scheme_name', 'created_at'];
                 $request['select'] = 'all';
                 $request['order'] = ['id', 'DESC'];
@@ -313,7 +351,7 @@ class CommonController extends Controller
                 $request['table'] = '\App\Models\UserConfig';
                 $request['searchData'] = ['id'];
                 $request['select'] = 'all';
-                $request['with'] = ['user', 'scheme'];
+                $request['with'] = ['user', 'user.business', 'scheme'];
                 $request['order'] = ['id', 'DESC'];
                 $filterColumnsMap['scheme-relations'] = ['user_id', 'scheme_id'];
                 break;
@@ -359,6 +397,84 @@ class CommonController extends Controller
                 }
                 break;
 
+            case 'ledger':
+                $request['table'] = '\App\Models\Ladger';
+                $request['searchData'] = ['user_id'];
+                $request['select'] = 'all';
+                $request['with'] = ['user', 'user.business', 'service'];
+
+                $orderIndex = $request->get('order');
+                if (isset($orderIndex) && count($orderIndex)) {
+                    $columnsIndex = $request->get('columns');
+                    $columnIndex = $orderIndex[0]['column'];
+                    $columnName = $columnsIndex[$columnIndex]['data'];
+                    $columnSortOrder = $orderIndex[0]['dir'];
+                    if ($columnName == 'new_created_at') {
+                        $columnName = 'created_at';
+                    }
+                    if ($columnName == '0') {
+                        $columnName = 'created_at';
+                        $columnSortOrder = 'DESC';
+                    }
+                    $request['order'] = [$columnName, $columnSortOrder];
+                } else {
+                    $request['order'] = ['id', 'DESC'];
+                }
+                $request['whereIn'] = 'id';
+                $request['parentData'] = [$request->id];
+                if (Auth::user()->role_id == '1') {
+                    $request['parentData'] = 'all';
+                } else {
+                    $request['whereIn'] = 'user_id';
+                    $request['parentData'] = [Auth::user()->id];
+                }
+                break;
+
+            case 'support-user-list-server':
+                $request['table'] = '\App\Models\User';
+                $request['searchData'] = ['id', 'name', 'email', 'mobile'];
+                $request['select'] = ['id', 'name', 'email', 'mobile', 'created_at'];
+                $request['whereIn'] = 'role_id';
+                $request['parentData'] = [4];
+                $request['order'] = ['id', 'DESC'];
+                break;
+
+            case 'ip-whitelist':
+                $request['table'] = '\App\Models\IpWhitelist';
+                $request['with'] = ['service'];
+                $request['searchData'] = ['ip_address'];
+                $request['select'] = 'all';
+                $orderIndex = $request->get('order');
+                if (isset($orderIndex) && count($orderIndex)) {
+                    $columnsIndex = $request->get('columns');
+                    $columnIndex = $orderIndex[0]['column'];
+                    $columnName = $columnsIndex[$columnIndex]['data'] ?? 'id';
+                    $columnSortOrder = $orderIndex[0]['dir'];
+                    $request['order'] = [$columnName, $columnSortOrder];
+                } else {
+                    $request['order'] = ['id', 'DESC'];
+                }
+                $request['whereIn'] = 'user_id';
+                $request['parentData'] = [Auth::user()->id];
+                $request->merge(['filters' => ['is_deleted' => '0']]);
+                break;
+            case 'complaint-category':
+                $request['table'] = '\App\Models\ComplaintsCategory';
+                $request['searchData'] = ['id', 'category_name', 'created_at'];
+                $request['select'] = 'all';
+
+                $orderIndex = $request->get('order');
+                if (isset($orderIndex) && count($orderIndex)) {
+                    $columnIndex = $orderIndex[0]['column'];
+                    $columnsIndex = $request->get('columns');
+                    $columnName = $columnsIndex[$columnIndex]['data'] ?? 'id';
+                    $request['order'] = [$columnName, $orderIndex[0]['dir']];
+                } else {
+                    $request['order'] = ['id', 'DESC'];
+                }
+                $request['parentData'] = 'all';
+                break;
+
         }
 
         // For filter the Records
@@ -373,10 +489,12 @@ class CommonController extends Controller
             'enabled-services' => ['service_id', 'user_id'],
             'scheme-relations' => ['user_id', 'scheme_id'],
             'support-assignments' => ['user_id', 'assined_to'],
+            'transaction-complaint' => ['ticket_number', 'status', 'user_id'],
+            'ledger' => ['user_id', 'reference_no', 'request_id', 'connectpe_id'],
             // add more types and columns here
         ];
 
-        $filters = []; // separate variable to store dynamic filters
+        $filters = [];
 
         if (isset($filterColumnsMap[$type])) {
             foreach ($filterColumnsMap[$type] as $column) {
@@ -488,7 +606,7 @@ class CommonController extends Controller
                 if (is_numeric($value)) {
                     $query->where($column, $value);
                 } else {
-                    $query->where($column, 'LIKE', '%' . $value . '%');
+                    $query->where($column, 'LIKE', '%'.$value.'%');
                 }
             }
         }
@@ -496,7 +614,7 @@ class CommonController extends Controller
         if (isset($request['where']) && $request['where'] == 1 && isset($request->searchText) && ! empty($request->searchText)) {
             $query->where(function ($q) use ($request) {
                 foreach ($request['searchData'] as $column) {
-                    $q->orWhere($column, 'LIKE', '%' . $request->searchText . '%');
+                    $q->orWhere($column, 'LIKE', '%'.$request->searchText.'%');
                 }
             });
         }

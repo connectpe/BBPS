@@ -4,7 +4,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="image-title"></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center">
                 <img id="previewImage" src="" class="img-fluid rounded" alt="Preview">
@@ -16,14 +16,14 @@
 
 <!-- Show the Content -->
 <div class="modal fade" id="showContentModal" tabindex="-1" aria-labelledby="showContentModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="showContentModalLabel">Title</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" style="white-space: pre-wrap; word-wrap: break-word; max-height: 70vh; overflow-y: auto;">
-                Content goes here...
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                <!-- content will appear here -->
             </div>
         </div>
     </div>
@@ -31,33 +31,31 @@
 
 
 <script>
+    // Click handler for any element with class 'viewModalBtn'
     $(document).on('click', '.viewModalBtn', function() {
-        var title = $(this).data('title');
-        var content = $(this).data('content');
-        showModal(title, content);
+        const title = $(this).data('title'); // e.g., "Remark" or "Description"
+        const content = $(this).data('content'); // raw text
+
+        showPlainTextModal(title, content);
     });
 
-
-    function showModal(title, text) {
-        var $modal = $('#showContentModal');
+    function showPlainTextModal(title, text) {
+        const $modal = $('#showContentModal');
         if (!$modal.length) return;
 
-        $('#showContentModalLabel').text(title);
 
-        // Render text safely
-        if (typeof text === 'string') {
-            var isHTML = /<\/?[a-z][\s\S]*>/i.test(text);
-            if (isHTML) {
-                $modal.find('.modal-body').html(text);
-            } else {
-                $modal.find('.modal-body').text(text);
-            }
-        } else {
-            $modal.find('.modal-body').text(JSON.stringify(text, null, 2));
-        }
+        $('#showContentModalLabel').text(title || '');
 
-        var bsModal = new bootstrap.Modal($modal[0]);
-        bsModal.show();
+        $modal.find('.modal-body')
+            .text(text || '')
+            .css({
+                'white-space': 'pre-wrap', // preserves newlines
+                'word-wrap': 'break-word', // wrap long words
+                'font-family': 'inherit' // optional: inherit font
+            });
+
+        // Show the modal
+        $modal.modal('show');
     }
 </script>
 

@@ -9,7 +9,7 @@
     <div class="accordion-item">
         <h2 class="accordion-header" id="headingFilter">
             <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
-                Filter Users
+                Filter 
             </button>
         </h2>
         <div id="collapseFilter" class="accordion-collapse collapse" aria-labelledby="headingFilter" data-bs-parent="#filterAccordion">

@@ -39,7 +39,6 @@
                         </div>
 
 
-
                         <div class="col-md-3">
                             <label for="reportType" class="form-label">Transaction Type</label>
                             <select id="reportType" class="form-select">
@@ -70,7 +69,7 @@
 
                 <div class="row g-3 text-center">
 
-                    <!-- @php
+                    {{-- <!-- @php
                     $services = [
                     ['name' => 'Bill Pay', 'icon' => 'bi-receipt'],
                     ['name' => 'Cash Collection', 'icon' => 'bi-cash-stack'],
@@ -97,7 +96,7 @@
                             </a>
                         </div>
                     </div>
-                    @endforeach -->
+                    @endforeach --> --}}
 
                     <div class="chart-wrapper mt-4" style="position: relative; width: 100%; max-width: 250px; margin: 0 auto;">
                         <canvas id="reportChart" class="chart-canvas"></canvas>
