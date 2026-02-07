@@ -10,6 +10,7 @@ use Illuminate\Http\Client\ConnectionException;
 use App\Models\MobikwikToken;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Models\Transaction;
 use App\Jobs\MobikwikPaymentApiCallJob;
 use App\Helpers\CommonHelper;
 use App\Jobs\DebitBalanceUpdateJob;
@@ -70,8 +71,6 @@ class BbpsRechargeController extends Controller
                 ]);
             }
 
-            $commonHelper = new CommonHelper();
-
             $payload = [
                 'cn' => $request->mobile,
                 'op' => $request->operator_id,
@@ -80,16 +79,33 @@ class BbpsRechargeController extends Controller
                 'customerMobile' => $request->mobile,
                 'remitterName' => $user->name,
                 'paymentMode' => 'Wallet',
-                'paymentAccountInfo' => $user->mobile,
-                'reqid' => $commonHelper->generateTransactionId(),
-                'paymentRefID' => $commonHelper->generatePaymentRefId(),
-                 'plan_id' => $request->plan_id,
+                'paymentAccountInfo' => '9519041116',
+                'reqid' => commonHelper::generateTransactionId(),
+                'paymentRefID' => commonHelper::generatePaymentRefId(),
+                'plan_id' => $request->plan_id,
                 'userid' => $userid,
-                'call'=>'balance_debit',
+                'call' => 'balance_debit',
             ];
 
-            // Dispatch the job to handle the API call
-           DebitBalanceUpdateJob::dispatch($payload);
+            $endpoint = '/recharge/v3/retailerPayment';
+            $token = CommonHelper::isTokenPresent();
+            $connectPeId = CommonHelper::generateConnectPeTransactionId();
+
+            Transaction::create([
+                'user_id'               => $userid,
+                'operator_id'           => $payload['op'],
+                'circle_id'             => $payload['cir'],
+                'amount'                => $payload['amt'],
+                'transaction_type'      => $payload['paymentMode'],
+                'request_id'            => $payload['reqid'],
+                'mobile_number'         => $payload['customerMobile'],
+                'payment_ref_id'        => $payload['paymentRefID'],
+                'payment_account_info'  => $payload['paymentAccountInfo'],
+                'recharge_type'         => 'prepaid',
+                'connectpe_id'          => $connectPeId,
+            ]);
+
+            dispatch(new DebitBalanceUpdateJob($endpoint, $payload,$token));
 
             return response()->json([
                 'status'  => 'Success',
@@ -271,48 +287,45 @@ class BbpsRechargeController extends Controller
         }
     }
 
-    public function payment(Request $request)
-    {
-        try {
-            $request->validate([
-                'cn'                  => 'required|string',
-                'op'                  => 'required|string',
-                'cir'                 => 'required|string',
-                'amt'                 => 'required|string',
-                'reqid'               => 'required|string',
-                'remitterName'        => 'required|string',
-                'paymentRefID'        => 'required|string',
-                'paymentMode'         => 'required|string',
-                'paymentAccountInfo'  => 'required|string',
-            ]);
+    // public function payment(Request $request)
+    // {
+    //     try {
+    //         $request->validate([
+    //             'mobile'                  => 'required|string',
+    //             'operator_id'                  => 'required|string',
+    //             'circle_id'                 => 'required|string',
+    //             'amt'                 => 'required|string',
+    //             'reqid'               => 'required|string',
+    //             'remitterName'        => 'required|string',
+    //             'paymentRefID'        => 'required|string',
+    //             'paymentMode'         => 'required|string',
+    //             'paymentAccountInfo'  => 'required|string',
+    //         ]);
 
-            $payload = [
-                'cn'                  => $request->cn,
-                'op'                  => $request->op,
-                'cir'                 => $request->cir,
-                'amt'                 => $request->amt,
-                'reqid'               => $request->reqid,
-                'remitterName'        => $request->remitterName,
-                'paymentRefID'        => $request->paymentRefID,
-                'paymentMode'         => $request->paymentMode,
-                'paymentAccountInfo'  => $request->paymentAccountInfo,
-            ];
+    //         $payload = [
+    //             'cn'                  => $request->cn,
+    //             'op'                  => $request->op,
+    //             'cir'                 => $request->cir,
+    //             'amt'                 => $request->amt,
+    //             'reqid'               => $request->reqid,
+    //             'customerMobile'      => $request->mobile,
+    //             'remitterName'        => $request->remitterName,
+    //             'paymentRefID'        => $request->paymentRefID,
+    //             'paymentMode'         => $request->paymentMode,
+    //             'paymentAccountInfo'  => $request->paymentAccountInfo,
+    //         ];
 
-            $mobikwikHelper = new MobiKwikHelper();
-            $token = CommonHelper::isTokenPresent();
+    //         $endpoint = '/recharge/v3/retailerPayment';
 
-            return $mobikwikHelper->sendRequest(
-                '/recharge/v3/retailerPayment',
-                $payload,
-                $token
-            );
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => false,
-                'message' => $e->getMessage(),
-            ]);
-        }
-    }
+    //         $mobikwikHelper = new MobiKwikHelper();
+    //         MobiKwikHelper::retailerPayment($endpoint, $payload);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'status' => false,
+    //             'message' => $e->getMessage(),
+    //         ]);
+    //     }
+    // }
 
     public function status(Request $request)
     {
@@ -372,5 +385,4 @@ class BbpsRechargeController extends Controller
             ]);
         }
     }
-
 }

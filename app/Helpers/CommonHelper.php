@@ -63,14 +63,19 @@ class CommonHelper
         }
     }
 
-    public function generateTransactionId()
+    public static function generateTransactionId()
     {
         return 'TXN' . time() . rand(1000, 9999);
     }
 
-    public function generatePaymentRefId()
+    public static function generatePaymentRefId()
     {
         return 'PAY' . time() . rand(1000, 9999);
+    }
+
+    public static function generateConnectPeTransactionId()
+    {
+        return 'CON' . time() . rand(10000, 99999);
     }
 
     public static function isTokenPresent()

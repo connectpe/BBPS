@@ -14,7 +14,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'auth' => App\Http\Middleware\Authenticate::class,
-            'logs' => App\Http\Middleware\ApiActivityLog::class
+            'logs' => App\Http\Middleware\ApiActivityLog::class,
+            'isUserAccessPage'=>App\Http\Middleware\IsAccessPage::class
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

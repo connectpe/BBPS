@@ -30,6 +30,12 @@ class UserController extends Controller
 
         return view('Users.users', compact('users'));
     }
+    public function redirectToKycPage(){
+        return view('Users.kyc-page');
+    }
+    public function redirectTounauthrized(){
+        return view('errors.unauthrized');
+    }
 
     public function ajaxBbpsUsers(Request $request)
     {
@@ -251,11 +257,11 @@ class UserController extends Controller
 
             $businessDocsPath = null;
             if ($request->hasFile('business_docs')) {
-                $oldDoc = $businessData->business_document ? json_decode($businessData->business_document, true) : null;
+                $oldDoc = $businessData?->business_document ? json_decode($businessData?->business_document, true) : null;
                 $businessDocs = FileUpload::uploadFile($request->business_docs, "business_documents/$userId", $oldDoc);
                 $businessDocsPath = json_encode($businessDocs);
             }
-
+            // dd($businessDocsPath);
             $adharFrontPath = $businessData->aadhar_front_image ?? null;
             if ($request->hasFile('adhar_front_image')) {
                 $adharFrontPath = FileUpload::uploadFile($request->adhar_front_image, "kyc_documents/$userId", $businessData->aadhar_front_image ?? null);
@@ -364,13 +370,21 @@ class UserController extends Controller
                 'message' => 'Service not found',
             ], 404);
         }
+        $userId = auth()->id();
+        $isEnableService = UserService::where('user_id',$userId)->where('service_id',$service->id)->where('status','approved')->where('is_active','1')->first();
+        if(!$isEnableService){
+            return response()->json([
+                'status' => false,
+                'message' => $request->service. 'is not enable or approved by the admin',
+            ], 401);
+        }
         // dd($service);
 
         try {
 
-            $userId = auth()->id();
 
-            $clientId = 'RAFI'.strtoupper($request->service).'_'.Str::random(16);
+            $userId = auth()->id();
+            $clientId = 'RAFI' . strtoupper($request->service) . '_' . Str::random(16);
             $plainSecret = Str::random(32);
             $encryptedSecret = encrypt($plainSecret);
 
@@ -574,7 +588,7 @@ class UserController extends Controller
                 ->where('is_deleted', '0')
                 ->count();
 
-            if ($ipCount >= 5) {
+            if($ipCount >= 5) {
                 return response()->json([
                     'status' => false,
                     'message' => 'You cannot add more than 5 IP addresses for this service.',
@@ -597,11 +611,9 @@ class UserController extends Controller
                 'updated_by' => $userId,
                 'is_active' => '1',
             ];
-
             IpWhitelist::create($data);
 
             DB::commit();
-
             return response()->json([
                 'status' => true,
                 'message' => 'IP address whitelisted successfully.',
@@ -646,13 +658,14 @@ class UserController extends Controller
                 ->where('id', '!=', $Id)
                 ->where('is_deleted', '0')
                 ->exists();
+              if ($duplicateIp > 0) {
+                  return response()->json([
+                      'status' => false,
+                      'message' => 'Duplicate Ip for selected Service'
+                  ]);
+              }
 
-            if ($duplicate) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Duplicate Ip for selected Service',
-                ]);
-            }
+
 
             $data = [
                 'ip_address' => $request->ip_address,
@@ -929,6 +942,7 @@ class UserController extends Controller
         }
     }
 
+
     public function WebHookUrl(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -976,4 +990,5 @@ class UserController extends Controller
             ], 500);
         }
     }
+
 }
