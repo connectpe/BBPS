@@ -434,7 +434,7 @@ class CommonController extends Controller
             case 'support-user-list-server':
                 $request['table'] = '\App\Models\User';
                 $request['searchData'] = ['id', 'name', 'email', 'mobile'];
-                $request['select'] = ['id', 'name', 'email', 'mobile', 'created_at'];
+                $request['select'] = ['id', 'name', 'email', 'mobile', 'role_id', 'created_at']; 
                 $request['whereIn'] = 'role_id';
                 $request['parentData'] = [4];
                 $request['order'] = ['id', 'DESC'];
