@@ -474,6 +474,14 @@ class CommonController extends Controller
                 }
                 $request['parentData'] = 'all';
                 break;
+            case 'default-slug':
+                $request['table'] = '\App\Models\DefaultProvider';
+                $request['searchData'] = ['id', 'created_at'];
+                $request['select'] = 'all';
+                $request['with'] = ['service', 'provider'];
+                $request['order'] = ['id', 'DESC'];
+                $request['parentData'] = 'all';
+                break;
 
         }
 

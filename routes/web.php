@@ -58,6 +58,12 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('update-complaint-category/{id}', [AdminController::class, 'updateComplaintCategory'])->name('update_complaint_category');
         Route::post('status-complaint-category/{id}', [AdminController::class, 'statusComplaintCategory'])->name('status_complaint_category');
         Route::post('change-ekyc-status', [AdminController::class, 'changeKycStatus'])->name('change_ekyc_status');
+
+        Route::get('/default-slug', [AdminController::class, 'defalutSlug'])->name('defaultslug');
+        Route::get('/fetch/providers-by-service/{serviceId}', [AdminController::class, 'getProvidersByService'])->name('providers.by.service');
+        Route::post('add-default-provider', [AdminController::class, 'addDefaultProvider'])->name('add-default-provider');
+        Route::post('edit-default-provider/{id}', [AdminController::class, 'editDefaultProvider'])->name('edit-default-provider');
+        
     });
 
     // RECHARGE RELATED ROUTE 8010801087
