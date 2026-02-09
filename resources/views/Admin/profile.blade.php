@@ -86,10 +86,10 @@
 
         /* COMPLETED */
         /* .step-item.completed .step-circle {
-                                                                                                                                                                                    border-color: #198754;
-                                                                                                                                                                                    background: #198754;
-                                                                                                                                                                                    color: #fff;
-                                                                                                                                                                                } */
+                                                                                                                                                                                        border-color: #198754;
+                                                                                                                                                                                        background: #198754;
+                                                                                                                                                                                        color: #fff;
+                                                                                                                                                                                    } */
     </style>
 
     @php
@@ -1365,33 +1365,43 @@
                         </div>
                     </div>
 
-                   
+
                     <div class="step step-5 d-none">
                         <h6 class="mb-3">Transaction Details</h6>
 
-                        <div class="row g-2">
-                            <div class="col-md-6">
-                                <label class="form-label">Name</label>
-                                <input type="text" class="form-control" placeholder="Enter full name"
-                                    value="{{ $user->name }}">
+                        <form id="nsdlPayForm">
+                            @csrf
+
+                            <div class="row g-2 align-items-end">
+                                <div class="col-md-8">
+                                    <label class="form-label">Amount</label>
+                                    <input type="number" class="form-control" name="amount" placeholder="Enter amount"
+                                        min="1" required>
+                                </div>
+
+                                <div class="col-md-4 d-grid">
+                                    <button type="submit" class="btn buttonColor" id="payNowBtn">
+                                        Pay Now
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <div class="mt-3 d-none" id="qrBox">
+                            <div class="alert alert-info mb-2">
+                                <div><b>Txn ID:</b> <span id="txnIdText">-</span></div>
+                                <div><b>Order ID:</b> <span id="orderIdText">-</span></div>
                             </div>
 
-                            <div class="col-md-6">
-                                <label class="form-label">Mobile No</label>
-                                <input type="text" class="form-control" name="mobile"
-                                    placeholder="Enter mobile number" value="{{ $user->mobile ?? '' }}">
-                                <span class="error-text">Invalid mobile number</span>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label">Amount</label>
-                                <input type="text" class="form-control validate" name="txn_amount"
-                                    placeholder="Enter amount" pattern="^[0-9]+(\.[0-9]{1,2})?$"
-                                    oninput="this.value=this.value.replace(/[^0-9.]/g,'')">
-                                <span class="error-text">Invalid amount</span>
+                            <div class="text-center border rounded p-3">
+                                <img id="qrImg" src="" alt="QR Code"
+                                    style="max-width:220px; display:none;">
+                                <div id="qrCanvasWrap"></div>
+                                <div class="small text-muted mt-2">Scan this QR to pay</div>
                             </div>
                         </div>
                     </div>
+
 
 
                 </div>
@@ -1490,6 +1500,10 @@
     </div>
 
 
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
     <script>
         function showInitials(img) {
             const name = "{{ $user->name }}"; // Replace dynamically from backend
@@ -1557,7 +1571,9 @@
 
                 // progress bar
                 const stepNo = next.classList.contains('step-2') ? 2 :
-                    next.classList.contains('step-3') ? 3 : 4;
+                    next.classList.contains('step-3') ? 3 :
+                    next.classList.contains('step-4') ? 4 : 5;
+
 
                 document.querySelectorAll('.step-item').forEach(item => {
                     item.classList.toggle('active', item.dataset.step == stepNo);
@@ -1581,11 +1597,11 @@
         }
 
         function showStep(step) {
-            // Show form step
+
             $('.step').addClass('d-none');
             $('.step-' + step).removeClass('d-none');
 
-            // Update progress bar
+
             $('.step-item').removeClass('active completed');
 
             $('.step-item').each(function() {
@@ -1597,7 +1613,7 @@
                 }
             });
 
-            // Buttons
+
             $('#prevStep').toggle(step !== 1);
             $('#nextStep').text(step === totalSteps ? 'Submit' : 'Next');
             updateNextButton(step, 5);
@@ -1627,6 +1643,61 @@
             $('#nextStep').removeClass('submitProfileButton')
         });
     </script>
+
+    <script>
+        $(document).on('submit', '#nsdlPayForm', function(e) {
+            e.preventDefault();
+
+            let btn = $('#payNowBtn');
+            btn.prop('disabled', true).html(
+                '<span class="spinner-border spinner-border-sm me-1"></span>Generating...');
+
+            $('#qrBox').addClass('d-none');
+            $('#qrCanvasWrap').html('');
+            $('#qrImg').hide().attr('src', '');
+
+            $.ajax({
+                url: "{{ route('nsdl-initiatePayment') }}",
+                type: "POST",
+                data: $(this).serialize(),
+                success: function(res) {
+                    if (!res.status) {
+                        Swal.fire('Error', res.message || 'Failed', 'error');
+                        return;
+                    }
+
+                    $('#txnIdText').text(res.data.transaction_id || '-');
+                    $('#orderIdText').text(res.data.order_id || '-');
+                    $('#qrBox').removeClass('d-none');
+
+
+                    if (res.data.qr_url) {
+                        $('#qrImg').attr('src', res.data.qr_url).show();
+                        return;
+                    }
+
+
+                    if (res.data.qr_string) {
+                        new QRCode(document.getElementById("qrCanvasWrap"), {
+                            text: res.data.qr_string,
+                            width: 220,
+                            height: 220
+                        });
+                        return;
+                    }
+
+                    Swal.fire('Warning', 'QR data not found in API response', 'warning');
+                },
+                error: function(xhr) {
+                    Swal.fire('Error', xhr.responseJSON?.message || 'Server Error', 'error');
+                },
+                complete: function() {
+                    btn.prop('disabled', false).text('Pay Now');
+                }
+            });
+        });
+    </script>
+
 
 
     <script>

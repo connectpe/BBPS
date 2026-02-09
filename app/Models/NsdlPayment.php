@@ -31,7 +31,10 @@ class NsdlPayment extends Model
    
     protected $casts = [
         'amount' => 'decimal:2',
+        'created_at' => 'datetime:Y-m-d H:i:s',
     ];
+
+   
 
    
     public function user()

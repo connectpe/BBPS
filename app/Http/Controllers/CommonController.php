@@ -486,6 +486,7 @@ class CommonController extends Controller
             case 'nsdl-payment':
                 $request['table'] = '\App\Models\NsdlPayment';
                 $request['searchData'] = ['id', 'user_id', 'mobile_no', 'amount', 'transaction_id', 'utr', 'order_id', 'status', 'created_at'];
+                 $request['with'] = ['user:id,name'];
                 $request['select'] = ['id','user_id','mobile_no','amount','transaction_id','utr','order_id','status','created_at'];
                 $request['with'] = ['user', 'service', 'updatedBy'];
                 $orderIndex = $request->get('order');

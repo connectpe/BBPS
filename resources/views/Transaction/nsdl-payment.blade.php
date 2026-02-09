@@ -57,7 +57,7 @@
                         }
                     },
                     {
-                        data: "user_id",
+                        data: "user.name",
                         defaultContent: "-"
                     },
                     {
@@ -102,9 +102,7 @@
                     },
                     {
                         data: "created_at",
-                        render: function(data) {
-                            return data ? moment(data).format('DD-MMM-YYYY hh:mm A') : '-';
-                        }
+                        name: 'created_at'
                     }
                 ],
                 order: [
