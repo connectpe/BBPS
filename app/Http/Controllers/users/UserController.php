@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Models\UserRooting;
 use App\Models\UsersBank;
 use App\Models\UserService;
+use App\Models\NSDLPayment;
 use App\Models\WebHookUrl;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -998,6 +999,53 @@ class UserController extends Controller
                 'status' => false,
                 'message' => 'Error: '.$e->getMessage(),
             ], 500);
+        }
+    }
+
+
+
+
+    public function initiateNsdlPayment(Request $request){
+        try{
+            $request->validate([
+                'name'=> 'required|string',
+                'amount'=> 'required',
+                'mobile'=> 'required|max:10'
+            ]);
+
+            $txnId = 'PAY'.time().rand(10000000,99999999);
+
+            $payload = [
+                'name' => $request->name,
+                'amount' => $request->amount,
+                'mobile' => $request->mobile,
+                'transaction_id' => $txnId,
+
+            ];
+
+            $data = NSDLPayment::processOrderCreation($payload);
+
+            NSDLPayment::create([
+                'name' => $request->name,
+                'amount' => $request->amount,
+                'mobile' => $request->mobile,
+                'transaction_id' => $txnId,
+                'status' =>'initiated',
+
+            ]);
+
+            return response()->json([
+                'status'=> true,
+                'messagse'=> 'Payment Initiated Successfully'
+            ]);
+
+
+
+        }catch(Exception $e){
+            return response()->json([
+                'status'=> false,
+                'messgae'=> $e->getMessage(),
+            ]);
         }
     }
 }

@@ -797,7 +797,7 @@
 
         /* ===============================
            BUTTON HANDLERS
-           ✅ FIXED: prevents multiple Pay Now hits
+            FIXED: prevents multiple Pay Now hits
         ================================ */
         $('#nextBtn').off('click').on('click', function(e) {
             e.preventDefault();

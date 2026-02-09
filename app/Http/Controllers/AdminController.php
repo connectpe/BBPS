@@ -1498,4 +1498,12 @@ class AdminController extends Controller
     //     }
     // }
 
+
+
+
+
+    public function nsdlPayment(){
+        return view('Transaction.nsdl-payment');
+    }
+
 }

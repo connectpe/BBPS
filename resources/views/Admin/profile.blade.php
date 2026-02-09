@@ -86,10 +86,10 @@
 
         /* COMPLETED */
         /* .step-item.completed .step-circle {
-                                                                                                                                                                        border-color: #198754;
-                                                                                                                                                                        background: #198754;
-                                                                                                                                                                        color: #fff;
-                                                                                                                                                                    } */
+                                                                                                                                                                                    border-color: #198754;
+                                                                                                                                                                                    background: #198754;
+                                                                                                                                                                                    color: #fff;
+                                                                                                                                                                                } */
     </style>
 
     @php
@@ -274,7 +274,7 @@
                                 <div class="col-md-8">
                                     <input type="password" class="form-control" name="new_password_confirmation"
                                         placeholder="Confirm Password">
-                                     <small class="text-danger error-new_password"></small>
+                                    <small class="text-danger error-new_password"></small>
                                 </div>
                             </div>
 
@@ -1039,6 +1039,14 @@
                             <div class="step-label">Banking</div>
                         </div>
 
+                        <div class="step-line"></div>
+
+                        <div class="step-item" data-step="5">
+                            <span class="step-circle">5</span>
+                            <div class="step-label">Transaction</div>
+                        </div>
+
+
                     </div>
                 </div>
 
@@ -1357,6 +1365,35 @@
                         </div>
                     </div>
 
+                   
+                    <div class="step step-5 d-none">
+                        <h6 class="mb-3">Transaction Details</h6>
+
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <label class="form-label">Name</label>
+                                <input type="text" class="form-control" placeholder="Enter full name"
+                                    value="{{ $user->name }}">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Mobile No</label>
+                                <input type="text" class="form-control" name="mobile"
+                                    placeholder="Enter mobile number" value="{{ $user->mobile ?? '' }}">
+                                <span class="error-text">Invalid mobile number</span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Amount</label>
+                                <input type="text" class="form-control validate" name="txn_amount"
+                                    placeholder="Enter amount" pattern="^[0-9]+(\.[0-9]{1,2})?$"
+                                    oninput="this.value=this.value.replace(/[^0-9.]/g,'')">
+                                <span class="error-text">Invalid amount</span>
+                            </div>
+                        </div>
+                    </div>
+
+
                 </div>
 
                 <!-- FOOTER BUTTONS -->
@@ -1532,7 +1569,8 @@
 
     <script>
         let currentStep = 1;
-        const totalSteps = 4;
+        const totalSteps = 5;
+
 
         function updateNextButton(step, totalSteps) {
             if (step === totalSteps) {
@@ -1562,7 +1600,7 @@
             // Buttons
             $('#prevStep').toggle(step !== 1);
             $('#nextStep').text(step === totalSteps ? 'Submit' : 'Next');
-            updateNextButton(step, 4);
+            updateNextButton(step, 5);
         }
 
         $('#nextStep').click(function() {
