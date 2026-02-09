@@ -9,5 +9,15 @@ class TransactionHelper{
         $resp['message'] = 'Initiate';
     }
 
-    
+    public static function sendCallback($userId,$reqId,$status){
+        $getWebhooks = WebHookUrl::where('user_id', $userId)->first();
+         if ($getWebhooks) {
+             $orderData = Transaction::where('request_id', $reqId)->first();
+             $url = $getWebhooks['url'];
+             
+            
+            WebhookHelper::RechargeTransaction($orderData,$url,'','');
+             
+        }
+    }
 }
