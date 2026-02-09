@@ -179,9 +179,6 @@
             });
             $('#slugForm').on('submit', function(e) {
                 e.preventDefault();
-                // let id = $('#default_id').val();
-                // let postUrl = id ? "{{ url('admin/edit-default-provider') }}/" + id :
-                //     "{{ route('add-default-provider') }}";
                 let id = $('#default_id').val();
                 let editUrl = "{{ route('edit-default-provider', ':id') }}".replace(':id', id);
                 let postUrl = id ? editUrl : "{{ route('add-default-provider') }}";
