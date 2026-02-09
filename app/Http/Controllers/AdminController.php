@@ -17,7 +17,6 @@ use App\Models\UserAssignedToSupport;
 use App\Models\UserConfig;
 use App\Models\UsersBank;
 use App\Models\UserService;
-use App\Models\DefaultProvider;
 use App\Models\WebHookUrl;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -1423,80 +1422,80 @@ class AdminController extends Controller
 
 
 
-    public function editDefaultProvider(Request $request, $Id)
-    {
-        $validator = Validator::make($request->all(), [
-            'service_id' => 'required|exists:global_services,id',
-            'provider_id' => 'required|exists:providers,id',
-        ]);
+    // public function editDefaultProvider(Request $request, $Id)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'service_id' => 'required|exists:global_services,id',
+    //         'provider_id' => 'required|exists:providers,id',
+    //     ]);
 
 
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'errors' => $validator->errors(),
-            ], 422);
-        }
+    //     if ($validator->fails()) {
+    //         return response()->json([
+    //             'status' => false,
+    //             'errors' => $validator->errors(),
+    //         ], 422);
+    //     }
 
 
-        DB::beginTransaction();
+    //     DB::beginTransaction();
 
-        try {
+    //     try {
 
-            $updatedBy = Auth::user()->id;
-            $provider = Provider::find($request->provider_id);
-            $defaultProvider = DefaultProvider::find($Id);
-            $duplicateProvider = DefaultProvider::where('service_id', $request->service_id)
-                ->where('provider_id', $request->provider_id)
-                ->where('id', '!=', $Id)
-                ->first();
+    //         $updatedBy = Auth::user()->id;
+    //         $provider = Provider::find($request->provider_id);
+    //         $defaultProvider = DefaultProvider::find($Id);
+    //         $duplicateProvider = DefaultProvider::where('service_id', $request->service_id)
+    //             ->where('provider_id', $request->provider_id)
+    //             ->where('id', '!=', $Id)
+    //             ->first();
 
-            if (!$provider) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Provider not found',
-                ]);
-            }
+    //         if (!$provider) {
+    //             return response()->json([
+    //                 'status' => false,
+    //                 'message' => 'Provider not found',
+    //             ]);
+    //         }
 
-            if (!$defaultProvider) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Default Provider not found',
-                ]);
-            }
+    //         if (!$defaultProvider) {
+    //             return response()->json([
+    //                 'status' => false,
+    //                 'message' => 'Default Provider not found',
+    //             ]);
+    //         }
 
-            if ($duplicateProvider) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Default Provider already exist for selected Service',
-                ]);
-            }
+    //         if ($duplicateProvider) {
+    //             return response()->json([
+    //                 'status' => false,
+    //                 'message' => 'Default Provider already exist for selected Service',
+    //             ]);
+    //         }
 
-            $data = [
-                'service_id' => $request->service_id,
-                'provider_id' => $request->provider_id,
-                'provider_slug' => 'default_' . $provider->provider_slug,
-                'updated_by' => $updatedBy,
-            ];
+    //         $data = [
+    //             'service_id' => $request->service_id,
+    //             'provider_id' => $request->provider_id,
+    //             'provider_slug' => 'default_' . $provider->provider_slug,
+    //             'updated_by' => $updatedBy,
+    //         ];
 
 
-            $defaultProvider->update($data);
+    //         $defaultProvider->update($data);
 
-            DB::commit();
+    //         DB::commit();
 
-            return response()->json([
-                'status' => true,
-                'message' => 'Default Provider Updated Successfully',
-                'data' => $provider,
-            ], 200);
-        } catch (\Exception $e) {
-            DB::rollBack();
+    //         return response()->json([
+    //             'status' => true,
+    //             'message' => 'Default Provider Updated Successfully',
+    //             'data' => $provider,
+    //         ], 200);
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
 
-            return response()->json([
-                'status' => false,
-                'message' => 'Error : ' . $e->getMessage(),
-            ], 500);
-        }
-    }
+    //         return response()->json([
+    //             'status' => false,
+    //             'message' => 'Error : ' . $e->getMessage(),
+    //         ], 500);
+    //     }
+    // }
 
 }
