@@ -80,4 +80,9 @@ class User extends Authenticatable
     {
         return $this->role && $this->role->name === 'Admin';
     }
+
+    public function complaints()
+    {
+        return $this->hasMany(Complaint::class, 'user_id');
+    }
 }

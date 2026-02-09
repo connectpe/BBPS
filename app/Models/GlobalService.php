@@ -22,5 +22,10 @@ class GlobalService extends Model
     {
         return $this->hasMany(UserRooting::class, 'service_id');
     }
+
+    public function providers()
+    {
+        return $this->hasMany(Provider::class, 'service_id');
+    }
 }
 

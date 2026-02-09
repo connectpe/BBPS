@@ -26,14 +26,18 @@ class UserController extends Controller
 {
     public function bbpsUsers()
     {
-        $users = User::where('role_id', '!=', '1')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
+        $users = User::where('role_id', '!=', '1')->where('role_id', '!=', '4')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
 
         return view('Users.users', compact('users'));
     }
+
+
     public function redirectToKycPage()
     {
         return view('Users.kyc-page');
     }
+
+
     public function redirectTounauthrized()
     {
         return view('errors.unauthrized');
@@ -374,7 +378,8 @@ class UserController extends Controller
         }
         $userId = auth()->id();
         $isEnableService = UserService::where('user_id', $userId)->where('service_id', $service->id)->where('status', 'approved')->where('is_active', '1')->first();
-        if (!$isEnableService) {
+
+        if (! $isEnableService) {
             return response()->json([
                 'status' => false,
                 'message' => $request->service . 'is not enable or approved by the admin',
@@ -383,7 +388,6 @@ class UserController extends Controller
         // dd($service);
 
         try {
-
 
             $userId = auth()->id();
             $clientId = 'RAFI' . strtoupper($request->service) . '_' . Str::random(16);
@@ -448,13 +452,20 @@ class UserController extends Controller
             $data['businessInfo'] = BusinessInfo::where('user_id', $userId)->first();
             $data['usersBank'] = UsersBank::where('user_id', $userId)->first();
 
-            $data['serviceEnabled'] = UserService::where('user_id', $userId)->where('status', 'approved')->get();
-            $data['serviceRequest'] = UserService::where('user_id', $userId)->where('status', 'pending')->get();
+            $data['serviceEnabled'] = UserService::where('user_id', $userId)->where('status', 'approved')->where('is_active', '1')->get();
+            $data['serviceRequest'] = UserService::where('user_id', $userId)->where('status', 'pending')->where('is_active', '1')->get();
+
+            $enabledServiceIds = UserService::where('user_id', $userId)
+                ->where('status', 'approved')
+                ->where('is_active', '1')
+                ->pluck('service_id');
 
             $data['globalServices'] = GlobalService::where('is_active', '1')
+                ->whereIn('id', $enabledServiceIds)
                 ->select('id', 'service_name', 'slug')
                 ->orderBy('service_name')
                 ->get();
+                
             $data['userRootings'] = UserRooting::where('user_id', $userId)->get()->keyBy('service_id');
 
             return view('Users.view-user')->with($data);
@@ -531,7 +542,9 @@ class UserController extends Controller
     {
         try {
             $providers = Provider::where('service_id', $serviceId)
+                ->where('is_active', '1')
                 ->select('id', 'provider_name as name', 'provider_slug as slug')
+                ->orderBy('provider_name')
                 ->get();
 
             return response()->json([
@@ -616,6 +629,7 @@ class UserController extends Controller
             IpWhitelist::create($data);
 
             DB::commit();
+
             return response()->json([
                 'status' => true,
                 'message' => 'IP address whitelisted successfully.',
@@ -654,7 +668,7 @@ class UserController extends Controller
             }
 
             // Duplicate Check (Ignore current record ID)
-            $duplicate = IpWhitelist::where('user_id', $userId)
+            $duplicateIp = IpWhitelist::where('user_id', $userId)
                 ->where('service_id', $request->service_id)
                 ->where('ip_address', $request->ip_address)
                 ->where('id', '!=', $Id)
@@ -666,8 +680,6 @@ class UserController extends Controller
                     'message' => 'Duplicate Ip for selected Service'
                 ]);
             }
-
-
 
             $data = [
                 'ip_address' => $request->ip_address,
@@ -910,7 +922,7 @@ class UserController extends Controller
                 ]);
             }
 
-            if (!$url) {
+            if (! $url) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Url not Found.',
@@ -945,7 +957,6 @@ class UserController extends Controller
             ], 500);
         }
     }
-
 
     public function WebHookUrl(Request $request)
     {

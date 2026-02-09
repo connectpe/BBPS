@@ -31,7 +31,7 @@
 
                     <div class="col-md-3">
                         <label for="filterStatus" class="form-label">Status</label>
-                        <select class="form-select" id="filterStatus">
+                        <select class="form-select form-select2" id="filterStatus">
                             <option value="">--Select Status--</option>
                             <option value="Open">Open</option>
                             <option value="In Progress">In Progress</option>
@@ -105,11 +105,11 @@
 
                         <div class="col-12">
                             <label class="form-label">Service Name<span class="text-danger">*</span></label>
-                            <select name="service_id" class="form-select" required>
+                            <select name="service_id" class="form-select form-select2" required>
                                 <option value="">-- Select Service --</option>
                                 @foreach ($services as $service)
-                                <option value="{{ $service->id }}">
-                                    {{ $service->service_name }}
+                                <option value="{{ $service?->service?->id }}">
+                                    {{ $service->service?->service_name }}
                                 </option>
                                 @endforeach
                             </select>
@@ -118,7 +118,7 @@
 
                         <div class="col-12">
                             <label class="form-label">Priority</label>
-                            <select name="priority" class="form-select" required>
+                            <select name="priority" class="form-select form-select2" required>
                                 @foreach ($priorities as $p)
                                 <option value="{{ $p }}" {{ $p == 'normal' ? 'selected' : '' }}>
                                     {{ ucfirst($p) }}
@@ -130,7 +130,7 @@
 
                         <div class="col-12">
                             <label class="form-label">Category<span class="text-danger">*</span></label>
-                            <select name="category" class="form-select">
+                            <select name="category" class="form-select form-select2">
                                 <option value="">-- Select Category --</option>
                                 @foreach ($categories as $value)
                                 <option value="{{ $value->id }}">{{ $value->category_name }}</option>

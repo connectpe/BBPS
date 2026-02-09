@@ -147,6 +147,50 @@
         .cursor-pointer {
             cursor: pointer !important;
         }
+
+
+        /* Allow the main wrapper to handle flex-overflow properly */
+        .main-wrapper {
+            min-width: 0;
+            overflow-x: hidden;
+        }
+
+        /* Make every responsive wrapper actually scrollable */
+        .table-responsive {
+            width: 100% !important;
+            overflow-x: auto !important;
+            display: block !important;
+        }
+
+        /* Target ANY DataTables table globally */
+        table.dataTable {
+            width: 100% !important;
+            min-width: 900px !important;
+            /* Forces scrollbar on all tables */
+            border-collapse: collapse !important;
+        }
+
+        /* Prevent text wrapping for all tables to keep them clean */
+        table.dataTable th,
+        table.dataTable td {
+            white-space: nowrap !important;
+            padding: 10px !important;
+        }
+
+
+      
+        .table-responsive::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+            /* Color when you hover over it */
+        }
+
+        /* Styling for Firefox */
+        .table-responsive {
+            scrollbar-width: thin !important;
+            /* Options: auto, thin, none */
+            scrollbar-color: #c1c1c1 #f1f1f1;
+            /* handle color, track color */
+        }
     </style>
 </head>
 

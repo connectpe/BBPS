@@ -17,17 +17,17 @@
                 data-bs-parent="#filterAccordion">
                 <div class="accordion-body">
                     <div class="row g-3 align-items-end">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label for="filterName" class="form-label">Name</label>
                             <input type="text" class="form-control" id="filterName" placeholder="Enter name">
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label for="filterEmail" class="form-label">Email</label>
                             <input type="text" class="form-control" id="filterEmail" placeholder="Enter email">
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label for="filterStatus" class="form-label">Status</label>
-                            <select class="form-select" id="filterStatus">
+                            <select class="form-select form-select2" id="filterStatus">
                                 <option value="">All</option>
                                 <option value="Active">Active</option>
                                 <option value="Inactive">Inactive</option>

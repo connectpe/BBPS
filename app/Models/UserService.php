@@ -27,6 +27,6 @@ class UserService extends Model
 
     public function service()
     {
-        return $this->belongsTo(GlobalService::class, 'service_id');
+        return $this->belongsTo(GlobalService::class, 'service_id')->where('is_active', '1');
     }
 }

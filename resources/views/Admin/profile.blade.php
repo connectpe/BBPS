@@ -1104,8 +1104,8 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label">Business Category</label>
-                                <select class="form-select" name="business_category" id="business_category">
+                                <label for="business_category" class="form-label">Business Category</label>
+                                <select class="form-select form-select2 w-100" name="business_category" id="business_category">
                                     <option value="">--Select Business Category--</option>
                                     @foreach ($businessCategory as $category)
                                         <option value="{{ $category->id }}"
@@ -1179,7 +1179,7 @@
 
                             <div class="col-md-6">
                                 <label class="form-label">State</label>
-                                <select class="form-select" name="state">
+                                <select class="form-select form-select2" name="state">
                                     <option value="">--Select State--</option>
                                     <option value="Uttar Pradesh" value="{{ $businessInfo->state ?? '' }}"
                                         {{ $businessInfo?->state == 'Uttar Pradesh' ? 'selected' : '' }}>Uttar Pradesh
@@ -1190,7 +1190,7 @@
 
                             <div class="col-md-6">
                                 <label class="form-label">City</label>
-                                <select class="form-select" name="city">
+                                <select class="form-select form-select2" name="city">
                                     <option value="">--Select City--</option>
                                     <option value="Lucknow" value="{{ $businessInfo->city ?? '' }}"
                                         {{ $businessInfo?->city == 'Lucknow' ? 'selected' : '' }}>Lucknow</option>
@@ -1389,11 +1389,11 @@
                                 <option value="{{ $userService->slug }}">{{ $userService->service_name }}</option>
                             @endforeach
                         </select> --}}
-                        <select class="form-select" name="service" id="service" required>
+                        <select class="form-select form-select2" name="service" id="service" required>
                             <option value="">-- Select Service --</option>
                             @foreach ($UserServices as $userService)
-                                <option value="{{ $userService->service->slug }}">
-                                    {{ $userService->service->service_name }}
+                                <option value="{{ $userService?->service?->slug }}">
+                                    {{ $userService?->service?->service_name }}
                                 </option>
                             @endforeach
                         </select>
@@ -1433,12 +1433,12 @@
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Select Service <span
                                     class="text-danger">*</span></label>
-                            <select class="form-select" name="service_id" id="modal_service_id" required>
+                            <select class="form-select form-select2" name="service_id" id="modal_service_id" required>
                                 <option value="">-- Choose Service --</option>
                                 @foreach ($UserServices as $userService)
-                                    @if ($userService->service)
+                                    @if ($userService?->service)
                                         <option value="{{ $userService->service_id }}">
-                                            {{ $userService->service->service_name }}
+                                            {{ $userService?->service?->service_name }}
                                         </option>
                                     @endif
                                 @endforeach
