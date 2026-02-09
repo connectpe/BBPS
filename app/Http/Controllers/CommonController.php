@@ -456,7 +456,8 @@ class CommonController extends Controller
                 }
                 $request['whereIn'] = 'user_id';
                 $request['parentData'] = [Auth::user()->id];
-                $request->merge(['filters' => ['is_deleted' => '0']]);
+                $request['whereIn'] = 'is_deleted';
+                $request['parentData'] = '0';
                 break;
             case 'complaint-category':
                 $request['table'] = '\App\Models\ComplaintsCategory';
@@ -474,7 +475,6 @@ class CommonController extends Controller
                 }
                 $request['parentData'] = 'all';
                 break;
-
         }
 
         // For filter the Records
@@ -483,7 +483,7 @@ class CommonController extends Controller
             'global-service' => ['service_name', 'status'],
             'insurance' => ['name', 'email', 'mobile', 'pan', 'agentId', 'status'],
             'transactions' => ['reference_number', 'user_id', 'operator_id', 'circle_id', 'status', 'amount', 'transaction_type'],
-            'serviceRequest' => ['status', 'service_id','user_id'],
+            'serviceRequest' => ['status', 'service_id', 'user_id'],
             'providers' => ['status', 'service_id'],
             'api-logs' => ['status', 'user_id'],
             'enabled-services' => ['service_id', 'user_id'],
@@ -606,7 +606,7 @@ class CommonController extends Controller
                 if (is_numeric($value)) {
                     $query->where($column, $value);
                 } else {
-                    $query->where($column, 'LIKE', '%'.$value.'%');
+                    $query->where($column, 'LIKE', '%' . $value . '%');
                 }
             }
         }
@@ -614,7 +614,7 @@ class CommonController extends Controller
         if (isset($request['where']) && $request['where'] == 1 && isset($request->searchText) && ! empty($request->searchText)) {
             $query->where(function ($q) use ($request) {
                 foreach ($request['searchData'] as $column) {
-                    $q->orWhere($column, 'LIKE', '%'.$request->searchText.'%');
+                    $q->orWhere($column, 'LIKE', '%' . $request->searchText . '%');
                 }
             });
         }

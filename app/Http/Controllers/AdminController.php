@@ -51,7 +51,7 @@ class AdminController extends Controller
             $data['supportRepresentative'] = UserAssignedToSupport::where('user_id', $userId)->with('assigned_support')->first();
 
             $data['usersBank'] = UsersBank::where('user_id', $userId)->first();
-            $data['UserServices'] = UserService::where('user_id', $userId)->where('status', 'approved')->get();
+            $data['UserServices'] = UserService::where('user_id', $userId)->where('status', 'approved')->where('is_active', '1')->get();
             $data['webhookUrl'] = WebHookUrl::where('user_id', $userId)->first();
 
             return view('Admin.profile')->with($data);
