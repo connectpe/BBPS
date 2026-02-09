@@ -334,10 +334,13 @@ class BbpsRechargeController extends Controller
                 'txId' => $request->txId
             ];
 
-            $data =  $this->sendRequest(
+            $mobikwikHelper = new MobiKwikHelper;
+            $token = CommonHelper::isTokenPresent();
+
+            $data =  $mobikwikHelper->sendRequest(
                 '/recharge/v3/retailerStatus',
                 $payload,
-                $request->bearerToken()
+                $token,
             );
 
             return response()->json([
