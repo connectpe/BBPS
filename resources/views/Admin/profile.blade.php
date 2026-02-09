@@ -274,6 +274,7 @@
                                 <div class="col-md-8">
                                     <input type="password" class="form-control" name="new_password_confirmation"
                                         placeholder="Confirm Password">
+                                     <small class="text-danger error-new_password"></small>
                                 </div>
                             </div>
 
@@ -305,40 +306,6 @@
                         </div>
                     </div>
 
-                    <div class="tab-pane fade" id="serviceRequest" role="tabpanel" aria-labelledby="serviceRequest-tab">
-
-                        @php
-                            $serviceRequests = [
-                                [
-                                    'serviceName' => 'Payin',
-                                    'businessName' => 'Business Name 1',
-                                ],
-                                [
-                                    'serviceName' => 'Payout',
-                                    'businessName' => 'Business Name 2',
-                                ],
-                            ];
-
-                            $faker = Faker\Factory::create();
-                            $randomName = $faker->name;
-                        @endphp
-                        <div class="row mb-2">
-                            @foreach ($serviceRequests as $request)
-                                <div class="col-md-12 mb-2">
-                                    <div class="border rounded p-3">
-                                        <div class="row">
-                                            <div class="col-12">
-                                                <strong>Service Name:</strong> {{ $request['serviceName'] }} <br />
-                                                <strong>Business Name:</strong> {{ $request['businessName'] }}
-                                                [{{ $randomName }}] <br />
-                                                <strong>Date:</strong> Jan-17-2025 05:45 pm <br />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
 
                 </div>
             </div>
@@ -587,6 +554,7 @@
                             <div class="col-md-8">
                                 <input type="password" class="form-control" name="new_password_confirmation"
                                     placeholder="Confirm Password">
+                                <small class="text-danger error-new_password_confirmation"></small>
                             </div>
                         </div>
 
