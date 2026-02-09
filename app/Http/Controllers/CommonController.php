@@ -30,6 +30,7 @@ class CommonController extends Controller
                 $request['searchData'] = ['id', 'name', 'email', 'mobile', 'created_at'];   // it is for the Datatable search box
                 $request['select'] = 'all';
                 $request['with'] = ['business'];
+                $request['filters'] = array_merge($request->get('filters', []), ['role_id' => [4, '!=']]);
 
                 $orderIndex = $request->get('order');
 
@@ -433,7 +434,7 @@ class CommonController extends Controller
             case 'support-user-list-server':
                 $request['table'] = '\App\Models\User';
                 $request['searchData'] = ['id', 'name', 'email', 'mobile'];
-                $request['select'] = ['id', 'name', 'email', 'mobile', 'created_at'];
+                $request['select'] = ['id', 'name', 'email', 'mobile', 'role_id', 'created_at']; 
                 $request['whereIn'] = 'role_id';
                 $request['parentData'] = [4];
                 $request['order'] = ['id', 'DESC'];
@@ -472,6 +473,14 @@ class CommonController extends Controller
                 } else {
                     $request['order'] = ['id', 'DESC'];
                 }
+                $request['parentData'] = 'all';
+                break;
+            case 'default-slug':
+                $request['table'] = '\App\Models\DefaultProvider';
+                $request['searchData'] = ['id', 'created_at'];
+                $request['select'] = 'all';
+                $request['with'] = ['service', 'provider'];
+                $request['order'] = ['id', 'DESC'];
                 $request['parentData'] = 'all';
                 break;
 

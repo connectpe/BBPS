@@ -26,14 +26,18 @@ class UserController extends Controller
 {
     public function bbpsUsers()
     {
-        $users = User::where('role_id', '!=', '1')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
+        $users = User::where('role_id', '!=', '1')->where('role_id', '!=', '4')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
 
         return view('Users.users', compact('users'));
     }
-    public function redirectToKycPage(){
+
+    public function redirectToKycPage()
+    {
         return view('Users.kyc-page');
     }
-    public function redirectTounauthrized(){
+
+    public function redirectTounauthrized()
+    {
         return view('errors.unauthrized');
     }
 
@@ -371,20 +375,19 @@ class UserController extends Controller
             ], 404);
         }
         $userId = auth()->id();
-        $isEnableService = UserService::where('user_id',$userId)->where('service_id',$service->id)->where('status','approved')->where('is_active','1')->first();
-        if(!$isEnableService){
+        $isEnableService = UserService::where('user_id', $userId)->where('service_id', $service->id)->where('status', 'approved')->where('is_active', '1')->first();
+        if (! $isEnableService) {
             return response()->json([
                 'status' => false,
-                'message' => $request->service. 'is not enable or approved by the admin',
+                'message' => $request->service.'is not enable or approved by the admin',
             ], 401);
         }
         // dd($service);
 
         try {
 
-
             $userId = auth()->id();
-            $clientId = 'RAFI' . strtoupper($request->service) . '_' . Str::random(16);
+            $clientId = 'RAFI'.strtoupper($request->service).'_'.Str::random(16);
             $plainSecret = Str::random(32);
             $encryptedSecret = encrypt($plainSecret);
 
@@ -449,7 +452,13 @@ class UserController extends Controller
             $data['serviceEnabled'] = UserService::where('user_id', $userId)->where('status', 'approved')->get();
             $data['serviceRequest'] = UserService::where('user_id', $userId)->where('status', 'pending')->get();
 
+            $enabledServiceIds = UserService::where('user_id', $userId)
+                ->where('status', 'approved')
+                ->where('is_active', '1')
+                ->pluck('service_id');
+
             $data['globalServices'] = GlobalService::where('is_active', '1')
+                ->whereIn('id', $enabledServiceIds)
                 ->select('id', 'service_name', 'slug')
                 ->orderBy('service_name')
                 ->get();
@@ -529,13 +538,16 @@ class UserController extends Controller
     {
         try {
             $providers = Provider::where('service_id', $serviceId)
+                ->where('is_active', '1') 
                 ->select('id', 'provider_name as name', 'provider_slug as slug')
+                ->orderBy('provider_name')
                 ->get();
 
             return response()->json([
                 'status' => true,
                 'data' => $providers,
             ], 200);
+
         } catch (\Exception $e) {
             \Log::error('Error fetching providers', [
                 'error' => $e->getMessage(),
@@ -588,7 +600,7 @@ class UserController extends Controller
                 ->where('is_deleted', '0')
                 ->count();
 
-            if($ipCount >= 5) {
+            if ($ipCount >= 5) {
                 return response()->json([
                     'status' => false,
                     'message' => 'You cannot add more than 5 IP addresses for this service.',
@@ -614,6 +626,7 @@ class UserController extends Controller
             IpWhitelist::create($data);
 
             DB::commit();
+
             return response()->json([
                 'status' => true,
                 'message' => 'IP address whitelisted successfully.',
@@ -658,14 +671,12 @@ class UserController extends Controller
                 ->where('id', '!=', $Id)
                 ->where('is_deleted', '0')
                 ->exists();
-              if ($duplicateIp > 0) {
-                  return response()->json([
-                      'status' => false,
-                      'message' => 'Duplicate Ip for selected Service'
-                  ]);
-              }
-
-
+            if ($duplicateIp > 0) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Duplicate Ip for selected Service',
+                ]);
+            }
 
             $data = [
                 'ip_address' => $request->ip_address,
@@ -870,7 +881,7 @@ class UserController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error: ' . $e->getMessage(),
+                'message' => 'Error: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -906,7 +917,7 @@ class UserController extends Controller
                 ]);
             }
 
-            if (!$url) {
+            if (! $url) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Url not Found.',
@@ -937,11 +948,10 @@ class UserController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error: ' . $e->getMessage(),
+                'message' => 'Error: '.$e->getMessage(),
             ], 500);
         }
     }
-
 
     public function WebHookUrl(Request $request)
     {
@@ -990,5 +1000,4 @@ class UserController extends Controller
             ], 500);
         }
     }
-
 }
