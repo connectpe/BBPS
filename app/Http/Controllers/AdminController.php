@@ -1257,7 +1257,7 @@ class AdminController extends Controller
     public function addDefaultProvider(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'service_id' => 'required|exists:global_services,id',
+            'service_id' => 'required|exists:global_services,id|unique:default_providers,service_id',
             'provider_id' => 'required|exists:providers,id',
         ]);
 
@@ -1325,7 +1325,7 @@ class AdminController extends Controller
     public function editDefaultProvider(Request $request, $Id)
     {
         $validator = Validator::make($request->all(), [
-            'service_id' => 'required|exists:global_services,id',
+            'service_id' => 'required|exists:global_services,id|unique:default_providers,service_id,' . $Id,
             'provider_id' => 'required|exists:providers,id',
         ]);
 
