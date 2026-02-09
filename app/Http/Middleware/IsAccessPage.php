@@ -24,8 +24,12 @@ class IsAccessPage
             $roleId = $user->role_id;
 
             $data = BusinessInfo::where('user_id', $userId)->first();
+            // dd($data);
+            if(!$data){
+                return redirect()->route('open.kyc.page');
+            }
 
-            if ($data?->is_kyc == '0' && (in_array($roleId, [2, 3]))) {
+            if ($data->is_kyc == '0' && (in_array($roleId, [2, 3]))) {
 
                 return redirect()->route('open.kyc.page');
             }

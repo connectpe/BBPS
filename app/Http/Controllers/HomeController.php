@@ -9,11 +9,11 @@ use Illuminate\Http\Request;
 class HomeController extends Controller
 {
     public function index()
-    {   
+    {
         $services = GlobalService::where('is_active', '1')->get();
         $requestedServices = ServiceRequest::where('user_id', auth()->id())
             ->get()
-            ->keyBy('service_id'); 
+            ->keyBy('service_id');
 
         return view('Dashboard.dashboard', compact('services', 'requestedServices'));
     }
