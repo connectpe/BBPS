@@ -533,11 +533,11 @@ $rechargePlanTypes = [
     const serviceConfig = {
 
         "Mobile Postpaid": {
-            steps: ["INPUT", "FETCH_BILL", "PAY"],
+            steps: ["INPUT"],
             input: () => `
                     <div class="mb-3">
                         <label>Mobile Number</label>
-                        <input class="form-control" id="mobile" name="mobile" type="text">
+                        <input class="form-control" id="postmobile" name="postmobile" type="text">
                     </div>
                     ${buildOperatorDropdown()}
                     ${buildCircleDropdown()}
@@ -558,7 +558,7 @@ $rechargePlanTypes = [
         },
 
         "Landline Postpaid": {
-            steps: ["INPUT", "FETCH_BILL", "PAY"],
+            steps: ["INPUT", "FETCH_BILL"],
             input: () => `
                     <div class="mb-3">
                         <label>Landline Number</label>
@@ -1175,60 +1175,45 @@ $rechargePlanTypes = [
             });
     }
 </script>
-
-<!-- ----------------------------------------------------------------------------------------------------------->
-<!-------------------------------------Postpaid Recharge JS Starts Here------------------------------------------>
-
 <script>
-    __fetchingPlans = false;
-
     document.getElementById('rechargeForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
-        if (currentService !== "Mobile Postpaid") return;
-        if (__fetchingPlans) return;
+        if (currentService !== 'Mobile Postpaid') return;
 
-        const form = e.target;
+        const modal = document.getElementById('rechargeModal');
 
-        const formData = new FormData(form);
+        const data = {
+            cn: modal.querySelector('#postmobile')?.value,
+            op: modal.querySelector('#operator')?.value,
+            cir: modal.querySelector('#circle')?.value
+        };
 
-        const mobile = formData.get('mobile');
-        const operator = formData.get('operator');
-        const circle = formData.get('circle');
-
-        console.log({
-            mobile,
-            operator,
-            circle
-        });
-
-        if (!mobile || !operator || !circle) {
-            alert('Please fill all fields');
-            return;
-        }
-
-        __fetchingPlans = true;
-
-        stepIndex = 1;
-        loadStep();
+        console.log('Postpaid Data:', data);
 
         fetch("{{ route('bbps.postpaid_villBill') }}", {
-                method: 'POST',
+                method: "POST",
                 headers: {
-                    'X-CSRF-TOKEN': document
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document
                         .querySelector('meta[name="csrf-token"]')
                         .getAttribute('content')
                 },
-                body: formData
+                body: JSON.stringify(data)
             })
             .then(res => res.json())
-            .then(data => {
-                __fetchingPlans = false;
-                console.log(data);
+            .then(res => {
+                console.log('Server Response:', res);
             })
-            .catch(() => __fetchingPlans = false);
+            .catch(err => {
+                console.error('Error:', err);
+            });
     });
 </script>
+
+
+
+
 
 
 
