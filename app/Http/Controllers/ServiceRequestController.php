@@ -124,7 +124,6 @@ class ServiceRequestController extends Controller
 
         $request->validate([
             'serviceId' => 'required|exists:user_services,id',
-            'status' => 'required|in:approved,rejected',
         ]);
 
 
@@ -139,15 +138,13 @@ class ServiceRequestController extends Controller
                 ]);
             }
 
-            $service->status = $request->status;
+            $service->status = 'approved';
             $service->save();
-
-            $message =  $request->status == 'approved'  ? 'Approved'  : 'Rejected';
 
             DB::commit();
             return response()->json([
                 'status' => true,
-                'message' => "Service Request $message Successfully"
+                'message' => "Service Request Approved Successfully"
             ]);
         } catch (\Exception $e) {
 

@@ -17,22 +17,21 @@ class IsAccessPage
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if(Auth::check()){
-            $userId = Auth::id();
+        if (Auth::check()) {
 
-            $data = BusinessInfo::where('user_id',$userId)->first();
-            
-            if($data->is_kyc == '0'){
-                
+            $user = Auth::user();
+            $userId = $user->id;
+            $roleId = $user->role_id;
+
+            $data = BusinessInfo::where('user_id', $userId)->first();
+
+            if ($data?->is_kyc == '0' && (in_array($roleId, [2, 3]))) {
+
                 return redirect()->route('open.kyc.page');
-
             }
             return $next($request);
-        }else{
+        } else {
             return redirect()->route('open.unauthrized.page');
-
-            
         }
-        
     }
 }

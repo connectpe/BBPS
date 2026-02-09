@@ -32,92 +32,96 @@ class BbpsRechargeController extends Controller
         // $this->publicKey     = file_get_contents(config('mobikwik.public_key'));
     }
 
-    public function mpinAuth(Request $request)
-    {
-        try {
-            // dd($request->all());
-            $request->validate([
-                'mpin' => 'required|numeric',
-                'mobile' => 'required|string',
-                'operator_id' => 'required|string',
-                'circle_id' => 'required|string',
-                'amount' => 'required|string',
-                'plan_id' => 'required|string',
-            ]);
-            // dd($request->mpin);
+public function mpinAuth(Request $request)
+{
+    try {
+        $request->validate([
+            'mpin'        => 'required|numeric',
+            'mobile'      => 'required|string',
+            'operator_id' => 'required|string',
+            'circle_id'   => 'required|string',
+            'amount'      => 'required|numeric|min:1',
+            'plan_id'     => 'required|string',
+        ]);
 
-            $userid = Auth::id();
-
-            if (!$userid) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'User not authenticated',
-                ]);
-            }
-
-            $user = User::where('id', $userid)->first();
-
-            if (!$user) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'User not found',
-                ]);
-            }
-
-            if ($request->mpin != 1122) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Invalid MPIN',
-                ]);
-            }
-
-            $payload = [
-                'cn' => $request->mobile,
-                'op' => $request->operator_id,
-                'cir' => $request->circle_id,
-                'amt' => $request->amount,
-                'customerMobile' => $request->mobile,
-                'remitterName' => $user->name,
-                'paymentMode' => 'Wallet',
-                'paymentAccountInfo' => '9519041116',
-                'reqid' => commonHelper::generateTransactionId(),
-                'paymentRefID' => commonHelper::generatePaymentRefId(),
-                'plan_id' => $request->plan_id,
-                'userid' => $userid,
-                'call' => 'balance_debit',
-            ];
-
-            $endpoint = '/recharge/v3/retailerPayment';
-            $token = CommonHelper::isTokenPresent();
-            $connectPeId = CommonHelper::generateConnectPeTransactionId();
-
-            Transaction::create([
-                'user_id'               => $userid,
-                'operator_id'           => $payload['op'],
-                'circle_id'             => $payload['cir'],
-                'amount'                => $payload['amt'],
-                'transaction_type'      => $payload['paymentMode'],
-                'request_id'            => $payload['reqid'],
-                'mobile_number'         => $payload['customerMobile'],
-                'payment_ref_id'        => $payload['paymentRefID'],
-                'payment_account_info'  => $payload['paymentAccountInfo'],
-                'recharge_type'         => 'prepaid',
-                'connectpe_id'          => $connectPeId,
-            ]);
-
-            dispatch(new DebitBalanceUpdateJob($endpoint, $payload,$token));
-
-            return response()->json([
-                'status'  => 'Success',
-                'message' => 'MPIN verified. Recharge processing started.',
-            ]);
-        } catch (\Exception $e) {
+        $user = Auth::user();
+        if (!$user) {
             return response()->json([
                 'status' => false,
-                'message' => $e->getMessage(),
-            ]);
+                'message' => 'User not authenticated',
+            ], 401);
         }
+
+        if (!Hash::check($request->mpin, $user->mpin)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid MPIN',
+            ], 401);
+        }
+
+        if ($user->wallet_balance < $request->amount) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Insufficient balance',
+            ], 400);
+        }
+
+        $connectPeId = CommonHelper::generateConnectPeTransactionId();
+
+        $payload = [
+            'cn'                  => $request->mobile,
+            'op'                  => $request->operator_id,
+            'cir'                 => $request->circle_id,
+            'amt'                 => $request->amount,
+            'customerMobile'      => $request->mobile,
+            'remitterName'        => $user->name,
+            'paymentMode'         => 'Wallet',
+            'paymentAccountInfo'  => config('mobikwik.payment_account'),
+            'reqid'               => CommonHelper::generateTransactionId(),
+            'paymentRefID'        => CommonHelper::generatePaymentRefId(),
+            'plan_id'             => $request->plan_id,
+            'userid'              => $user->id,
+            'connectpeId'         => $connectPeId,
+            'call'                => 'balance_debit',
+        ];
+
+        Transaction::create([
+            'user_id'       => $user->id,
+            'operator_id'   => $payload['op'],
+            'circle_id'     => $payload['cir'],
+            'amount'        => $payload['amt'],
+            'transaction_type' => 'Wallet',
+            'request_id'    => $payload['reqid'],
+            'mobile_number' => $payload['customerMobile'],
+            'payment_ref_id'=> $payload['paymentRefID'],
+            'recharge_type' => 'prepaid',
+            'connectpe_id'  => $connectPeId,
+            'status'        => 'PENDING',
+        ]);
+
+        $token = CommonHelper::isTokenPresent();
+
+        dispatch(
+            new DebitBalanceUpdateJob('/recharge/v3/retailerPayment', $payload, $token)
+        )->onQueue('recharge_process_queue');
+
+        return response()->json([
+            'status'  => true,
+            'message' => 'Recharge initiated successfully',
+        ]);
+
+    } catch (\Throwable $e) {
+        Log::error('MPIN Recharge Error', [
+            'error' => $e->getMessage(),
+        ]);
+
+        return response()->json([
+            'status' => false,
+            'message' => 'Something went wrong',
+        ], 500);
     }
+}
+
 
     public function getPlans($operator_id, $circle_id, $plan_type = null)
     {

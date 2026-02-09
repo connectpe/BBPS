@@ -315,9 +315,6 @@ use App\Facades\FileUpload;
                 <div class="info-row">
                     <span class="label">{{ $service->service?->service_name ?? '----' }}</span>
                     <span class="value">
-                        <!-- Reject Icon -->
-                        <i class="bi bi-x-circle text-danger cursor-pointer"
-                            onclick="handleServiceAction('{{ $service->id }}', 'reject')"></i>
 
                         <!-- Approve Icon -->
                         <i class="bi bi-check-circle text-success cursor-pointer ms-2"
@@ -454,9 +451,9 @@ use App\Facades\FileUpload;
 
 
 <script>
-    function handleServiceAction(serviceId, userId, action) {
+    function handleServiceAction(serviceId) {
         Swal.fire({
-            title: `Are you sure you want to ${action}?`,
+            title: `Are you sure you want to approve?`,
             icon: 'question',
             showCancelButton: true,
             confirmButtonText: 'Yes',
@@ -465,13 +462,11 @@ use App\Facades\FileUpload;
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: '/service/action',
+                    url: "{{route('service_request_approve_reject')}}",
                     type: 'POST',
                     data: {
                         _token: $('meta[name="csrf-token"]').attr('content'),
-                        service_id: serviceId,
-                        user_id: userId,
-                        action: action
+                        serviceId: serviceId,
                     },
                     success: function(response) {
                         Swal.fire({

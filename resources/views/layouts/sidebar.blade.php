@@ -273,6 +273,7 @@
                 </form>
             </li>
         </ul>
+
     @elseif($role == 2)
         <ul class="nav nav-pills flex-column mb-auto">
 

@@ -20,7 +20,7 @@
 
                     <div class="col-md-2">
                         <label for="filterUser" class="form-label">User</label>
-                        <select name="filterUser" id="userId" class="form-control">
+                        <select name="filterUser" id="filterUser" class="form-control">
                             <option value="">--Select User--</option>
                             @foreach($users as $value)
                             <option value="{{$value->id}}">{{$value->name}}</option>
@@ -38,13 +38,13 @@
                         </select>
                     </div>
 
+
                     <div class="col-md-2">
                         <label class="form-label">Status</label>
                         <select id="filterStatus" class="form-select">
                             <option value="">All</option>
                             <option value="pending">Pending</option>
                             <option value="approved">Approved</option>
-                            <option value="rejected">Rejected</option>
                         </select>
                     </div>
                     <div class="col-md-2">
@@ -100,7 +100,8 @@
                 type: 'POST',
                 data: function(d) {
                     d._token = $('meta[name="csrf-token"]').attr('content');
-                    d.id = $('#filterName').val();
+                    d.user_id = $('#filterUser').val();
+                    d.service_id = $('#filterService').val();
                     d.email = $('#filterEmail').val();
                     d.status = $('#filterStatus').val();
                     d.date_from = $('#filterDateFrom').val();
@@ -156,15 +157,13 @@
 
                         const colors = {
                             'approved': 'success',
-                            'rejected': 'danger',
                         }
 
                         if (data === 'pending') {
                             return `
-                                <select class="status-dropdown form-control" onchange="approveRejectService(${row.id}, this.value)">
+                                <select class="status-dropdown form-control" onchange="approveRejectService(${row.id})">
                                     <option value="pending" selected>Pending</option>
                                     <option value="approved">Approved</option>
-                                    <option value="rejected">Rejected</option>
                                 </select>
                             `;
                         }
@@ -194,6 +193,8 @@
             $('#filterDateFrom').val('');
             $('#filterDateTo').val('');
             table.ajax.reload();
+
+
         });
 
 
@@ -207,15 +208,12 @@
     });
 
 
-    function approveRejectService(serviceId, status) {
+    function approveRejectService(serviceId) {
 
         const url = "{{route('service_request_approve_reject')}}";
-        let title = status === 'approved' ? 'Approve Request?' : 'Reject Request?';
-        let text = status === 'rejected' ? 'Are you sure to Reject request' : 'Are you sure to Approve request';
 
         Swal.fire({
-            title: title,
-            text: text,
+            title: 'Approve Request',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Yes',
@@ -229,7 +227,6 @@
                     data: {
                         _token: $('meta[name="csrf-token"]').attr('content'),
                         serviceId: serviceId,
-                        status: status,
                     },
                     success: function(response) {
                         if (response.status) {

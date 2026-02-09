@@ -15,7 +15,6 @@ class ComplainReportController extends Controller
     {
         $users = [];
         $role = Auth::user()->role_id;
-        $statuses = ['open', 'in_progress', 'resolved', 'closed'];
         $priorities = ['low', 'normal', 'high', 'urgent'];
 
         if ($role == 1) {
@@ -26,7 +25,7 @@ class ComplainReportController extends Controller
         }
        
 
-        return view('ComplainReport.index', compact('statuses', 'priorities', 'users'));
+        return view('ComplainReport.index', compact('priorities', 'users'));
     }
 
 

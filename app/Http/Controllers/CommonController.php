@@ -492,7 +492,7 @@ class CommonController extends Controller
             'global-service' => ['service_name', 'status'],
             'insurance' => ['name', 'email', 'mobile', 'pan', 'agentId', 'status'],
             'transactions' => ['reference_number', 'user_id', 'operator_id', 'circle_id', 'status', 'amount', 'transaction_type'],
-            'serviceRequest' => ['status', 'service_id'],
+            'serviceRequest' => ['status', 'service_id','user_id'],
             'providers' => ['status', 'service_id'],
             'api-logs' => ['status', 'user_id'],
             'enabled-services' => ['service_id', 'user_id'],
