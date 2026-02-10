@@ -4,6 +4,8 @@ use App\Http\Controllers\BbpsRechargeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\MobikwikController;
+use App\Http\Controllers\Api\CallbackController;
+
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -31,6 +33,8 @@ Route::group(['middleware' => ['logs']], function () {
         Route::post('recharge-validation/{type}', [MobikwikController::class, 'validateRecharge'])->name('Mobikwik.recharge.validation');
         Route::post('fetch-bill/{type}', [MobikwikController::class, 'fetchPostpaidBill'])->name('fetch.postpaid.bill');
     });
+
+    Route::post('callback/{type}', [CallbackController::class, 'handle'])->name('api.callback');
 });
 
 

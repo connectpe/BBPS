@@ -8,7 +8,7 @@ class Transaction extends Model
 {
     protected $fillable = [
         'user_id', 'operator_id', 'circle_id',
-        'amount', 'txn_type', 'reference_no', 'status'
+        'amount', 'transaction_type','request_id' ,'mobile_number', 'payment_ref_id','recharge_type','connectpe_id','status'
     ];
 
     public function user()
