@@ -9,7 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Models\BusinessInfo;
 use App\Models\GlobalService;
 use App\Models\IpWhitelist;
-use App\Models\NSDLPayment;
+use App\Models\NsdlPayment;
 use App\Models\OauthUser;
 use App\Models\Provider;
 use App\Models\User;
