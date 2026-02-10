@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Complaint;
 use App\Models\ComplaintsCategory;
 use App\Models\GlobalService;
+use App\Models\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -19,7 +20,10 @@ class TransactionController extends Controller
     public function transactionComplaint()
     {
         $priorities = ['Low', 'Medium', 'High'];
-        $services = GlobalService::where('is_active', '1')->orderBy('id', 'desc')->get();
+        // $services = GlobalService::where('is_active', '1')->orderBy('id', 'desc')->get();
+
+
+        $services = UserService::with('service')->where('user_id', Auth::user()->id)->where('status','approved')->where('is_active','1')->orderBy('id', 'desc')->get();
         $categories = ComplaintsCategory::where('status', '1')->orderBy('id', 'desc')->get();
         return view('Transaction.transaction-complaint', compact('services',  'priorities', 'categories'));
     }

@@ -25,7 +25,7 @@
 
                     <div class="col-md-3">
                         <label for="filterUser" class="form-label">User</label>
-                        <select id="filterUser" class="form-control">
+                        <select id="filterUser" class="form-control form-select2">
                             <option value="">--Select User--</option>
                             @foreach ($users as $value)
                             <option value="{{ $value->id }}">{{ $value->name }}</option>
@@ -41,7 +41,7 @@
 
                     <div class="col-md-3">
                         <label for="filterStatus" class="form-label">Status</label>
-                        <select class="form-select" id="filterStatus">
+                        <select class="form-select form-select2" id="filterStatus">
                             <option value="">--select--</option>
                             <option value="pending">Pending</option>
                             <option value="processing">Processing</option>

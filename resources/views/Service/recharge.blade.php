@@ -874,29 +874,39 @@ $rechargePlanTypes = [
         }
 
 
-        if (currentService === "Mobile Postpaid" && stepIndex === 0) {
-            document.getElementById('rechargeForm')
-                .dispatchEvent(new Event('submit', {
-                    cancelable: true
-                }));
-            return;
-        }
+        /* ===============================
+           BUTTON HANDLERS
+
+            FIXED: prevents multiple Pay Now hits
+
+        ================================ */
+        $('#nextBtn').off('click').on('click', function(e) {
+            e.preventDefault();
+
+            if (currentService === "Mobile Postpaid" && stepIndex === 0) {
+                document.getElementById('rechargeForm')
+                    .dispatchEvent(new Event('submit', {
+                        cancelable: true
+                    }));
+                return;
+            }
 
 
-        if (step === "PAY") {
-            if (__payLock) return;
-            __payLock = true;
-            $('#nextBtn').prop('disabled', true);
-            rechargeValidation();
-            return;
-        }
+            if (step === "PAY") {
+                if (__payLock) return;
+                __payLock = true;
+                $('#nextBtn').prop('disabled', true);
+                rechargeValidation();
+                return;
+            }
 
-        if (stepIndex < config.steps.length - 1) {
-            stepIndex++;
-            loadStep();
-        } else {
-            rechargeValidation();
-        }
+            if (stepIndex < config.steps.length - 1) {
+                stepIndex++;
+                loadStep();
+            } else {
+                rechargeValidation();
+            }
+        });
     });
 
     $('#backBtn').on('click', function() {

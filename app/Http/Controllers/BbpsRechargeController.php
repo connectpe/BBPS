@@ -24,7 +24,6 @@ class BbpsRechargeController extends Controller
     private  $keyVersion;
     private  $clientId;
     private  $clientSecret;
-    private  $paymentAccountInfo;
 
     public function __construct()
     {
@@ -32,7 +31,6 @@ class BbpsRechargeController extends Controller
         $this->keyVersion   = config('mobikwik.key_version');
         $this->clientSecret = config('mobikwik.client_secret');
         $this->clientId     = config('mobikwik.client_id');
-        $this->paymentAccountInfo = config('mobikwik.payment_account_info');
         $this->publicKey     = file_get_contents(config('mobikwik.public_key'));
     }
 
@@ -63,60 +61,23 @@ class BbpsRechargeController extends Controller
                 ], 401);
             }
 
-            $walletBalance = UserService::where('user_id', $user->id)->first();
+            $endpoint = '/recharge/v3/retailerPayment';
 
-            if ($walletBalance && $walletBalance->transaction_amount < $request->amount) {
+            $mobikwikHelper = new MobiKwikHelper();
+            $paymentResponse = $mobikwikHelper->Payment($endpoint, $request->mobile, $request->operator_id, $request->circle_id, $request->plan_id, $request->amount);
+            dd($paymentResponse);
+
+            if (!empty($paymentResponse)) {
                 return response()->json([
-                    'status' => false,
-                    'message' => 'Insufficient balance',
-                ], 400);
+                    'status' => true,
+                    'message' => 'Payment request sent successfully',
+                    'data' => $paymentResponse,
+                ]);
             }
 
-            $connectPeId = CommonHelper::generateConnectPeTransactionId();
-            $reqId = CommonHelper::generateTransactionId();
-            $paymentRefId = CommonHelper::generatePaymentRefId();
-
-
-            $payload = [
-                'cn'                  => $request->mobile,
-                'op'                  => $request->operator_id,
-                'cir'                 => $request->circle_id,
-                'amt'                 => $request->amount,
-                'customerMobile'      => $request->mobile,
-                'remitterName'        => $user->name,
-                'paymentMode'         => 'Wallet',
-                'paymentAccountInfo'  => $this->paymentAccountInfo,
-                'reqid'               => $reqId,
-                'paymentRefID'        => $paymentRefId,
-                'plan_id'             => $request->plan_id,
-                'userid'              => $user->id,
-                'connectpeId'         => $connectPeId,
-                'call'                => 'balance_debit',
-            ];
-
-            Transaction::create([
-                'user_id'       => $user->id,
-                'operator_id'   => $payload['op'],
-                'circle_id'     => $payload['cir'],
-                'amount'        => $payload['amt'],
-                'transaction_type' => 'Wallet',
-                'request_id'    => $payload['reqid'],
-                'mobile_number' => $payload['customerMobile'],
-                'payment_ref_id' => $payload['paymentRefID'],
-                'recharge_type' => 'prepaid',
-                'connectpe_id'  => $connectPeId,
-                'status'        => 'PENDING',
-            ]);
-
-            $token = CommonHelper::isTokenPresent();
-
-            dispatch(
-                new DebitBalanceUpdateJob('/recharge/v3/retailerPayment', $payload, $token)
-            )->onQueue('recharge_process_queue');
-
             return response()->json([
-                'status'  => true,
-                'message' => 'Recharge initiated successfully',
+                'status'  => false,
+                'message' => 'Payment response is empty or invalid',
             ]);
         } catch (\Throwable $e) {
             Log::error('MPIN Recharge Error', [

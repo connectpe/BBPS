@@ -123,6 +123,7 @@
                         $isAdmin = auth()->check() && auth()->user()->role_id == 1;
                         @endphp
 
+
                         @foreach ($services as $service)
                         @php
                         $request = $requestedServices->get($service->id);
@@ -133,28 +134,28 @@
 
 
                             @php
-                                $userKycStatus = false;
-                                if (auth()->check()) {
-                                    $business = \App\Models\BusinessInfo::where('user_id', auth()->id())->first();
-                                    $userKycStatus = $business && $business->is_kyc == 1;
-                                }
-                                $isAdmin = auth()->check() && auth()->user()->role_id == 1;
+                            $userKycStatus = false;
+                            if (auth()->check()) {
+                            $business = \App\Models\BusinessInfo::where('user_id', auth()->id())->first();
+                            $userKycStatus = $business && $business->is_kyc == 1;
+                            }
+                            $isAdmin = auth()->check() && auth()->user()->role_id == 1;
                             @endphp
                             <td>
                                 @if ( $userKycStatus || $isAdmin)
-                                    @if ($request && $request->status === 'approved')
-                                        <button class="btn btn-success btn-sm w-100">Activated</button>  
-                                    @elseif ($request && $request->status === 'pending')
-                                        <button class="btn btn-secondary btn-sm w-100">Requested</button>
-                                    @else
-                                        <form action="{{ route('service.request') }}" method="POST">
-                                            @csrf
-                                            <input type="hidden" name="service_id" value="{{ $service->id }}">
-                                            <button class="btn btn-primary btn-sm w-100">Raise Request</button>
-                                        </form>
-                                    @endif
+                                @if ($request && $request->status === 'approved')
+                                <button class="btn btn-success btn-sm w-100">Activated</button>
+                                @elseif ($request && $request->status === 'pending')
+                                <button class="btn btn-secondary btn-sm w-100">Requested</button>
                                 @else
-                                    <a href="{{route('admin_profile',['user_id' => Auth::user()->id,'is_kyc' => 'Yes'])}}" class="text-danger small text-decoration-none">Complete Profile</a>
+                                <form action="{{ route('service.request') }}" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="service_id" value="{{ $service->id }}">
+                                    <button class="btn btn-primary btn-sm w-100">Raise Request</button>
+                                </form>
+                                @endif
+                                @else
+                                <a href="{{route('admin_profile',['user_id' => Auth::user()->id,'is_kyc' => 'Yes'])}}" class="text-danger small text-decoration-none">Complete Profile</a>
                                 @endif
                             </td>
 
@@ -177,18 +178,18 @@
                                 <span class="text-muted">Not Requested</span>
                                 @else
                                 <form action="{{ route('service.request') }}"
-                                    method="POST"
-                                    class="raise-request-form">
-                                    @csrf
-                                    <input type="hidden" name="service_id"
-                                        value="{{ $service->id }}">
-                                    <button class="btn btn-primary btn-sm w-100">
-                                        Raise Request
-                                    </button>
-                                </form>
-                                @endif
+                            method="POST"
+                            class="raise-request-form">
+                            @csrf
+                            <input type="hidden" name="service_id"
+                                value="{{ $service->id }}">
+                            <button class="btn btn-primary btn-sm w-100">
+                                Raise Request
+                            </button>
+                            </form>
+                            @endif
 
-                                @endif
+                            @endif
                             </td> --}}
                         </tr>
                         @endforeach

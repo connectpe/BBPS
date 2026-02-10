@@ -42,19 +42,19 @@
                     <div class="modal-body">
                         <div id="errorBox" class="alert alert-danger" style="display:none;"></div>
                         <div class="form-group mb-2"><label>Full Name</label><input type="text" name="name"
-                                class="form-control" required></div>
+                                class="form-control" required placeholder="Full Name"></div>
                         <div class="form-group mb-2"><label>Email Address</label><input type="email" name="email"
-                                class="form-control" required></div>
+                                class="form-control" required placeholder="Email Address"></div>
                         <div class="form-group mb-2"><label>Mobile Number</label><input type="text" name="mobile"
-                                class="form-control" maxlength="10" required></div>
+                                class="form-control" maxlength="10" required placeholder="Mobile Number"></div>
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group mb-2"><label>Password</label><input type="password" name="password"
-                                        class="form-control" required></div>
+                                        class="form-control" required placeholder="Password"></div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group mb-2"><label>Confirm Password</label><input type="password"
-                                        name="password_confirmation" class="form-control" required></div>
+                                        name="password_confirmation" class="form-control" required placeholder="Confirm Password"></div>
                             </div>
                         </div>
                     </div>
@@ -82,11 +82,11 @@
                     <div class="modal-body">
                         <div id="editErrorBox" class="alert alert-danger" style="display:none;"></div>
                         <div class="form-group mb-2"><label>Full Name</label><input type="text" name="name"
-                                id="edit_name" class="form-control" required></div>
+                                id="edit_name" class="form-control" required placeholder="Full Name"></div>
                         <div class="form-group mb-2"><label>Email Address</label><input type="email" name="email"
-                                id="edit_email" class="form-control" required></div>
+                                id="edit_email" class="form-control" required placeholder="Email Address"></div>
                         <div class="form-group mb-2"><label>Mobile Number</label><input type="text" name="mobile"
-                                id="edit_mobile" class="form-control" required></div>
+                                id="edit_mobile" class="form-control" required placeholder="Mobile Number"></div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal"

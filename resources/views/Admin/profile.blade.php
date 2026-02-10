@@ -86,10 +86,10 @@
 
         /* COMPLETED */
         /* .step-item.completed .step-circle {
-                                                                                                                                                                        border-color: #198754;
-                                                                                                                                                                        background: #198754;
-                                                                                                                                                                        color: #fff;
-                                                                                                                                                                    } */
+                                                                                                                                                                                        border-color: #198754;
+                                                                                                                                                                                        background: #198754;
+                                                                                                                                                                                        color: #fff;
+                                                                                                                                                                                    } */
     </style>
 
     @php
@@ -274,7 +274,7 @@
                                 <div class="col-md-8">
                                     <input type="password" class="form-control" name="new_password_confirmation"
                                         placeholder="Confirm Password">
-                                     <small class="text-danger error-new_password"></small>
+                                    <small class="text-danger error-new_password"></small>
                                 </div>
                             </div>
 
@@ -613,6 +613,7 @@
                             </div>
                         </div>
 
+                        @if ($role != 4)
                         <div class="col-lg-6">
                             <div class="card shadow-sm h-100">
                                 <div class="card-header bg-transparent fw-bold text-dark">
@@ -642,7 +643,7 @@
                                         <div class="mb-3">
                                             <label class="form-label fw-semibold">Confirm New MPIN <span
                                                     class="text-danger">*</span></label>
-                                            <input type="password" class="form-control" name="confirm_mpin"
+                                            <input type="password" class="form-control" name="new_mpin_confirmation"
                                                 maxlength="6" pattern="\d*" inputmode="numeric" required
                                                 placeholder="Confirm 6-digit new MPIN">
                                         </div>
@@ -656,6 +657,8 @@
                                 </div>
                             </div>
                         </div>
+                    @endif
+
                     </div>
                 </div>
 
@@ -672,11 +675,10 @@
                         <div class="col-md-4 fw-bold">PAN Number:</div>
                         <div class="col-md-8">{{ $businessInfo->pan_number ?? '----' }}</div>
                     </div>
-
                     <div class="row mb-4">
                         <div class="col-md-4 fw-bold">Document Status:</div>
                         <div class="col-md-8">
-                            <span class="badge bg-success">Verified</span>
+                            <span class="badge  bg-{{$businessInfo?->is_kyc == '1' ? 'success' : 'danger'}}"> {{$businessInfo?->is_kyc == '1' ? 'Verified' : 'Not Verified'}}  </span>
                         </div>
                     </div>
 
@@ -1039,6 +1041,14 @@
                             <div class="step-label">Banking</div>
                         </div>
 
+                        <div class="step-line"></div>
+
+                        <div class="step-item" data-step="5">
+                            <span class="step-circle">5</span>
+                            <div class="step-label">Transaction</div>
+                        </div>
+
+
                     </div>
                 </div>
 
@@ -1102,8 +1112,8 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label">Business Category</label>
-                                <select class="form-select" name="business_category" id="business_category">
+                                <label for="business_category" class="form-label">Business Category</label>
+                                <select class="form-select form-select2 w-100" name="business_category" id="business_category">
                                     <option value="">--Select Business Category--</option>
                                     @foreach ($businessCategory as $category)
                                         <option value="{{ $category->id }}"
@@ -1177,7 +1187,7 @@
 
                             <div class="col-md-6">
                                 <label class="form-label">State</label>
-                                <select class="form-select" name="state">
+                                <select class="form-select form-select2" name="state">
                                     <option value="">--Select State--</option>
                                     <option value="Uttar Pradesh" value="{{ $businessInfo->state ?? '' }}"
                                         {{ $businessInfo?->state == 'Uttar Pradesh' ? 'selected' : '' }}>Uttar Pradesh
@@ -1188,7 +1198,7 @@
 
                             <div class="col-md-6">
                                 <label class="form-label">City</label>
-                                <select class="form-select" name="city">
+                                <select class="form-select form-select2" name="city">
                                     <option value="">--Select City--</option>
                                     <option value="Lucknow" value="{{ $businessInfo->city ?? '' }}"
                                         {{ $businessInfo?->city == 'Lucknow' ? 'selected' : '' }}>Lucknow</option>
@@ -1357,6 +1367,45 @@
                         </div>
                     </div>
 
+
+                    <div class="step step-5 d-none">
+                        <h6 class="mb-3">Transaction Details</h6>
+
+                        <form id="nsdlPayForm">
+                            @csrf
+
+                            <div class="row g-2 align-items-end">
+                                <div class="col-md-8">
+                                    <label class="form-label">Amount</label>
+                                    <input type="number" class="form-control" name="amount" placeholder="Enter amount"
+                                        min="1" required>
+                                </div>
+
+                                <div class="col-md-4 d-grid">
+                                    <button type="submit" class="btn buttonColor" id="payNowBtn">
+                                        Pay Now
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <div class="mt-3 d-none" id="qrBox">
+                            <div class="alert alert-info mb-2">
+                                <div><b>Txn ID:</b> <span id="txnIdText">-</span></div>
+                                <div><b>Order ID:</b> <span id="orderIdText">-</span></div>
+                            </div>
+
+                            <div class="text-center border rounded p-3">
+                                <img id="qrImg" src="" alt="QR Code"
+                                    style="max-width:220px; display:none;">
+                                <div id="qrCanvasWrap"></div>
+                                <div class="small text-muted mt-2">Scan this QR to pay</div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
                 </div>
 
                 <!-- FOOTER BUTTONS -->
@@ -1387,11 +1436,11 @@
                                 <option value="{{ $userService->slug }}">{{ $userService->service_name }}</option>
                             @endforeach
                         </select> --}}
-                        <select class="form-select" name="service" id="service" required>
+                        <select class="form-select form-select2" name="service" id="service" required>
                             <option value="">-- Select Service --</option>
                             @foreach ($UserServices as $userService)
-                                <option value="{{ $userService->service->slug }}">
-                                    {{ $userService->service->service_name }}
+                                <option value="{{ $userService?->service?->slug }}">
+                                    {{ $userService?->service?->service_name }}
                                 </option>
                             @endforeach
                         </select>
@@ -1431,12 +1480,12 @@
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Select Service <span
                                     class="text-danger">*</span></label>
-                            <select class="form-select" name="service_id" id="modal_service_id" required>
+                            <select class="form-select form-select2" name="service_id" id="modal_service_id" required>
                                 <option value="">-- Choose Service --</option>
                                 @foreach ($UserServices as $userService)
-                                    @if ($userService->service)
+                                    @if ($userService?->service)
                                         <option value="{{ $userService->service_id }}">
-                                            {{ $userService->service->service_name }}
+                                            {{ $userService?->service?->service_name }}
                                         </option>
                                     @endif
                                 @endforeach
@@ -1452,6 +1501,10 @@
         </div>
     </div>
 
+
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <script>
         function showInitials(img) {
@@ -1520,7 +1573,9 @@
 
                 // progress bar
                 const stepNo = next.classList.contains('step-2') ? 2 :
-                    next.classList.contains('step-3') ? 3 : 4;
+                    next.classList.contains('step-3') ? 3 :
+                    next.classList.contains('step-4') ? 4 : 5;
+
 
                 document.querySelectorAll('.step-item').forEach(item => {
                     item.classList.toggle('active', item.dataset.step == stepNo);
@@ -1532,7 +1587,8 @@
 
     <script>
         let currentStep = 1;
-        const totalSteps = 4;
+        const totalSteps = 5;
+
 
         function updateNextButton(step, totalSteps) {
             if (step === totalSteps) {
@@ -1543,11 +1599,11 @@
         }
 
         function showStep(step) {
-            // Show form step
+
             $('.step').addClass('d-none');
             $('.step-' + step).removeClass('d-none');
 
-            // Update progress bar
+
             $('.step-item').removeClass('active completed');
 
             $('.step-item').each(function() {
@@ -1559,10 +1615,10 @@
                 }
             });
 
-            // Buttons
+
             $('#prevStep').toggle(step !== 1);
             $('#nextStep').text(step === totalSteps ? 'Submit' : 'Next');
-            updateNextButton(step, 4);
+            updateNextButton(step, 5);
         }
 
         $('#nextStep').click(function() {
@@ -1589,6 +1645,61 @@
             $('#nextStep').removeClass('submitProfileButton')
         });
     </script>
+
+    <script>
+        $(document).on('submit', '#nsdlPayForm', function(e) {
+            e.preventDefault();
+
+            let btn = $('#payNowBtn');
+            btn.prop('disabled', true).html(
+                '<span class="spinner-border spinner-border-sm me-1"></span>Generating...');
+
+            $('#qrBox').addClass('d-none');
+            $('#qrCanvasWrap').html('');
+            $('#qrImg').hide().attr('src', '');
+
+            $.ajax({
+                url: "{{ route('nsdl-initiatePayment') }}",
+                type: "POST",
+                data: $(this).serialize(),
+                success: function(res) {
+                    if (!res.status) {
+                        Swal.fire('Error', res.message || 'Failed', 'error');
+                        return;
+                    }
+
+                    $('#txnIdText').text(res.data.transaction_id || '-');
+                    $('#orderIdText').text(res.data.order_id || '-');
+                    $('#qrBox').removeClass('d-none');
+
+
+                    if (res.data.qr_url) {
+                        $('#qrImg').attr('src', res.data.qr_url).show();
+                        return;
+                    }
+
+
+                    if (res.data.qr_string) {
+                        new QRCode(document.getElementById("qrCanvasWrap"), {
+                            text: res.data.qr_string,
+                            width: 220,
+                            height: 220
+                        });
+                        return;
+                    }
+
+                    Swal.fire('Warning', 'QR data not found in API response', 'warning');
+                },
+                error: function(xhr) {
+                    Swal.fire('Error', xhr.responseJSON?.message || 'Server Error', 'error');
+                },
+                complete: function() {
+                    btn.prop('disabled', false).text('Pay Now');
+                }
+            });
+        });
+    </script>
+
 
 
     <script>

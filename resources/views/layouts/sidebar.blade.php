@@ -249,6 +249,16 @@
                     Assign User to Support
                 </a>
             </li>
+            <li class="nav-item">
+                <a href="{{ route('nsdl-payment') }}"
+                   class="nav-link text-white {{ Route::currentRouteName() == 'nsdl-payment' ? 'sidebar-active' : '' }}">
+                  <i class="bi bi-receipt me-2"></i>
+                   NSDL Payment
+                </a>
+            </li>
+
+          
+
 
 
             <!-- Ledger -->

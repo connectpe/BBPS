@@ -262,7 +262,7 @@ use App\Facades\FileUpload;
                     {{-- Service Dropdown --}}
                     <div class="mb-3">
                         <label class="form-label fw-bold">Service Name</label>
-                        <select class="form-select" id="serviceSelect" name="service_id">
+                        <select class="form-select form-select2" id="serviceSelect" name="service_id">
                             <option value="">-- Select Service --</option>
                             @foreach ($globalServices as $svc)
                             <option value="{{ $svc->id }}" data-service-name="{{ $svc->service_name }}">

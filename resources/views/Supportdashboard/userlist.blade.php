@@ -9,7 +9,7 @@
     <div class="accordion-item">
         <h2 class="accordion-header" id="headingFilter">
             <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
-                Filter 
+                Filter
             </button>
         </h2>
         <div id="collapseFilter" class="accordion-collapse collapse" aria-labelledby="headingFilter" data-bs-parent="#filterAccordion">
@@ -46,7 +46,6 @@
                         <tr>
                             <th>ID</th>
                             <th>Organization Name</th>
-                            <th>Name</th>
                             <th>Email</th>
                             <th>Mobile</th>
                             <th>Assigned at</th>
@@ -103,13 +102,18 @@
                     data: 'id'
                 },
                 {
-                    data: 'user.business.business_name',
-                    render: function(data) {
-                        return data || '----';
+                    data: null,
+                    render: function(row, type) {
+                        let url = "{{ route('view_user', ['id' => ':id']) }}".replace(':id', row.user_id);
+                        const businessName = row?.user?.business?.business_name || '----';
+                        const userName = row?.user?.name || '----';
+                        return `
+                                <a href="${url}" class="text-primary fw-semibold text-decoration-none">
+                                    ${userName ?? '----'} <br/>
+                                    [${businessName ?? '----'}]
+                                </a>
+                            `;
                     }
-                },
-                {
-                    data: 'user.name'
                 },
                 {
                     data: 'user.email'
