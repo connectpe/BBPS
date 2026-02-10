@@ -126,7 +126,10 @@ Route::group(['middleware' => ['auth']], function () {
     // Users Related Route
     Route::get('/users', [UserController::class, 'bbpsUsers'])->name('users');
     Route::get('/complete-kyc', [UserController::class, 'redirectToKycPage'])->name('open.kyc.page');
-    Route::get('reports/{type}', [ReportController::class, 'index'])->name('reports');
+    Route::group(['middleware' => ['isUserAccessPage']], function () {
+         Route::get('reports/{type}', [ReportController::class, 'index'])->name('reports');
+    });
+   
     Route::get('reports', [LadgerController::class, 'reports'])->name('reseller_reports');
 
     // Route::get('recharge-report', [ReportController::class, 'RechargeReport'])->name('recharge_report');

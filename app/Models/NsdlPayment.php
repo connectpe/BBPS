@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\Models\GlobalService;
 
-use Illuminate\Database\Eloquent\Model;
+
 
 class NsdlPayment extends Model
 {
