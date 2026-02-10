@@ -797,7 +797,9 @@
 
         /* ===============================
            BUTTON HANDLERS
+
             FIXED: prevents multiple Pay Now hits
+
         ================================ */
         $('#nextBtn').off('click').on('click', function(e) {
             e.preventDefault();
@@ -1048,7 +1050,7 @@
             })
             .then(res => res.json())
             .then(res => {
-                if (res.status == 'Success') {
+                if (res.status == true) {
                     Swal.fire({
                         icon: 'success',
                         title: 'MPIN Verified',

@@ -111,8 +111,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('status-provider/{id}', [AdminController::class, 'statusProvider'])->name('status_provider');
 
     // Default Provider 
-    Route::post('add-default-provider', [AdminController::class, 'addDefaultProvider'])->name('add-default-provider');
-    Route::post('edit-default-provider/{id}', [AdminController::class, 'editDefaultProvider'])->name('edit-default-provider');
+    // Route::post('add-default-provider', [AdminController::class, 'addDefaultProvider'])->name('add-default-provider');
+    // Route::post('edit-default-provider/{id}', [AdminController::class, 'editDefaultProvider'])->name('edit-default-provider');
 
 
     // Route::prefix('recharge')->group(function () {

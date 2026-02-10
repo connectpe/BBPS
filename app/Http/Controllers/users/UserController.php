@@ -1049,6 +1049,7 @@ class UserController extends Controller
                 'status' => false,
                 'message' => $e->getMessage(),
             ], 500);
-        }
+
+}
     }
 }
