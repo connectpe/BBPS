@@ -121,8 +121,8 @@ use App\Facades\FileUpload;
                     <span class="value">{{ $userData->mobile ?? '----' }}</span>
                 </div>
                 <div class="info-row">
-                    <span class="label">Last Login at </span>
-                    <span class="value"> </span>
+                    <span class="label">User Id  </span>
+                    <span class="value">{{ $userData->id ?? '----' }} </span>
                 </div>
                 <div class="info-row mb-3">
                     <span class="label">Status</span>
@@ -256,7 +256,7 @@ use App\Facades\FileUpload;
 
                     <div class="d-flex align-items-center mb-3">
                         <i class="bi bi-diagram-3 text-primary fs-4 me-2"></i>
-                        <h6 class="fw-bold mb-0">Routing Configuration</h6>
+                        <h6 class="fw-bold mb-0">Route Configuration</h6>
                     </div>
 
                     {{-- Service Dropdown --}}

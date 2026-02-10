@@ -65,10 +65,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('edit-default-provider/{id}', [AdminController::class, 'editDefaultProvider'])->name('edit-default-provider');
 
         // NSDL Transaction Routes
-       Route::get('/nsdl-payment', [AdminController::class, 'nsdlPayment'])->name('nsdl-payment');
-       
-
-        
+        Route::get('/nsdl-payment', [AdminController::class, 'nsdlPayment'])->name('nsdl-payment');
     });
 
     // RECHARGE RELATED ROUTE 8010801087
@@ -217,7 +214,6 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::post('generate-mpin', [UserController::class, 'generateMpin'])->name('generate_mpin');
     Route::post('nsdl-initiated-payment', [UserController::class, 'initiateNsdlPayment'])->name('nsdl-initiatePayment');
-
 });
 
 Route::prefix('admin', function () {

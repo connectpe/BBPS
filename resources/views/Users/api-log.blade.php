@@ -134,7 +134,12 @@
             },
 
             columns: [{
-                    data: 'id'
+                    data: null,
+                    orderable: false,
+                    searchable: false,
+                    render: function(data, type, row, meta) {
+                        return meta.settings._iDisplayStart + meta.row + 1;
+                    }
                 },
                 {
                     data: function(row) {
@@ -196,7 +201,7 @@
                         return formatDateTime(row.created_at)
                     }
                 },
-                 {
+                {
                     data: function(row) {
                         const content = typeof row.location_details === 'object' ? JSON.stringify(row.location_details, null, 4) : row.location_details;
                         return `<i class="fas fa-eye cursor-pointer viewContent"
@@ -215,7 +220,7 @@
 
         // Reset filter
         $('#resetFilter').on('click', function() {
-            $('#filterName').val('');
+            $('#filterName').val('').trigger('change');
             $('#date_from').val('');
             $('#date_to').val('');
             table.ajax.reload();

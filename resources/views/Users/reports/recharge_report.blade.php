@@ -83,7 +83,7 @@
                 <table id="rechargeTable" class="table table-striped table-bordered table-hover w-100">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>S.No</th>
                             <th>User</th>
                             <th>Operator</th>
                             <th>Circle</th>
@@ -103,7 +103,7 @@
 <script>
     $(document).ready(function() {
 
-    
+
         var table = $('#rechargeTable').DataTable({
             processing: true,
             serverSide: true,
@@ -140,7 +140,12 @@
                 searchPlaceholder: "Search Transactions..."
             },
             columns: [{
-                    data: 'id'
+                    data: null,
+                    orderable: false,
+                    searchable: false,
+                    render: function(data, type, row, meta) {
+                        return meta.settings._iDisplayStart + meta.row + 1;
+                    }
                 },
                 {
                     data: 'user.name',
@@ -205,9 +210,9 @@
         });
 
         $('#resetFilter').on('click', function() {
-            $('#filterUser').val('');
+            $('#filterUser').val('').trigger('change');;
             $('#filterreferenceId').val('');
-            $('#filterStatus').val('');
+            $('#filterStatus').val('').trigger('change');;
             $('#filterDateFrom').val('');
             $('#filterDateTo').val('');
             table.ajax.reload();

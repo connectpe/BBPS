@@ -243,7 +243,12 @@
                 searchPlaceholder: "Search Complaints..."
             },
             columns: [{
-                    data: 'id'
+                    data: null,
+                    orderable: false,
+                    searchable: false,
+                    render: function(data, type, row, meta) {
+                        return meta.settings._iDisplayStart + meta.row + 1;
+                    }
                 },
                 {
                     data: null,
@@ -384,10 +389,10 @@
         // Reset filter
         $('#resetFilter').on('click', function() {
             $('#ticketId').val('');
-            $('#filterStatus').val('');
+            $('#filterStatus').val('').trigger('change');
             $('#filterDateFrom').val('');
             $('#filterDateTo').val('');
-            $("#filterUser").val('')
+            $("#filterUser").val('').trigger('change');
             table.ajax.reload();
         });
 

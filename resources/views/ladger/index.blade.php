@@ -148,7 +148,12 @@ $role = Auth::user()->role_id;
             },
 
             columns: [{
-                    data: 'id'
+                    data: null,
+                    orderable: false,
+                    searchable: false,
+                    render: function(data, type, row, meta) {
+                        return meta.settings._iDisplayStart + meta.row + 1;
+                    }
                 },
                 {
                     data: null,
@@ -220,7 +225,7 @@ $role = Auth::user()->role_id;
 
         // Reset filter
         $('#resetFilter').on('click', function() {
-            $('#filterUser').val('');
+            $('#filterUser').val('').trigger('change');
             $('#filterDateFrom').val('');
             $('#filterDateTo').val('');
             $('#referenceNo').val('');

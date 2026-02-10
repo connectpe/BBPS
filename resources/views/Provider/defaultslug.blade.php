@@ -1,15 +1,15 @@
 @extends('layouts.app')
 
-@section('title', 'Default Slug')
-@section('page-title', 'Default Slug')
+@section('title', 'Default Providers')
+@section('page-title', 'Default Providers')
 
 @section('content')
     <div class="container-fluid py-4">
         <div class="card shadow-sm">
             <div class="card-header d-flex justify-content-between align-items-center bg-white">
-                <h5 class="mb-0 text-dark fw-bold">Default Slug List</h5>
+                <h5 class="mb-0 text-dark fw-bold">Default Providers List</h5>
                 <button class="btn buttonColor btn-sm" id="openCreateModal" data-bs-toggle="modal" data-bs-target="#slugModal">
-                    <i class="bi bi-plus-lg"></i> Configure Default Slug
+                    <i class="bi bi-plus-lg"></i> Configure Default Provider
                 </button>
             </div>
             <div class="card-body">

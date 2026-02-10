@@ -67,7 +67,7 @@ $role = Auth::user()->role_id;
                 <table id="bankingTable" class="table table-striped table-bordered table-hover w-100">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>S.No</th>
                             <th>User</th>
                             <th>OrderId</th>
                             <th>Reference No.</th>
@@ -119,11 +119,16 @@ $role = Auth::user()->role_id;
                 }
             ],
             language: {
-                searchPlaceholder: "Search users..."
+                searchPlaceholder: "Search Transactions..."
             },
 
             columns: [{
-                    data: 'id'
+                    data: null,
+                    orderable: false,
+                    searchable: false,
+                    render: function(data, type, row, meta) {
+                        return meta.settings._iDisplayStart + meta.row + 1;
+                    }
                 },
                 {
                     data: 'user.name',
@@ -176,7 +181,7 @@ $role = Auth::user()->role_id;
         $('#resetFilter').on('click', function() {
             $('#filterName').val('');
             $('#filterEmail').val('');
-            $('#filterStatus').val('');
+            $('#filterStatus').val('').trigger('change');;
 
             $('#filterDateFrom').val('');
             $('#filterDateTo').val('');

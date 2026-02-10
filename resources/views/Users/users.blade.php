@@ -67,7 +67,7 @@
                 <table id="usersTable" class="table table-striped table-bordered table-hover w-100">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>S.No</th>
                             <th>Organization Name</th>
                             <th>Email</th>
                             <th>PanNO.</th>
@@ -129,7 +129,12 @@
             },
 
             columns: [{
-                    data: 'id'
+                    data: null,
+                    orderable: false,
+                    searchable: false,
+                    render: function(data, type, row, meta) {
+                        return meta.settings._iDisplayStart + meta.row + 1;
+                    }
                 },
                 {
                     data: null,
@@ -222,9 +227,9 @@
 
         // Reset filter
         $('#resetFilter').on('click', function() {
-            $('#filterName').val('');
+            $('#filterName').val('').trigger('change');
             $('#filterEmail').val('');
-            $('#filterStatus').val('');
+            $('#filterStatus').val('').trigger('change');
             table.ajax.reload();
         });
     });

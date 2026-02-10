@@ -85,4 +85,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Complaint::class, 'user_id');
     }
+
+    public function nsdlPayments()
+    {
+        return $this->hasMany(NsdlPayment::class, 'user_id');
+    }
 }
