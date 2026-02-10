@@ -1000,4 +1000,47 @@ class UserController extends Controller
             ], 500);
         }
     }
+    public function initiateNsdlPayment(Request $request){
+        try{
+            $request->validate([
+                'name'=> 'required|string',
+                'amount'=> 'required|min:100',
+                'mobile'=> 'required|max:10'
+            ]);
+
+            $txnId = 'PAY'.time().rand(10000000,99999999);
+
+            $payload = [
+                'name' => $request->name,
+                'amount' => $request->amount,
+                'mobile' => $request->mobile,
+                'transaction_id' => $txnId,
+
+            ];
+
+            $data = NSDLPayment::processOrderCreation($payload);
+
+            NSDLPayment::create([
+                'name' => $request->name,
+                'amount' => $request->amount,
+                'mobile' => $request->mobile,
+                'transaction_id' => $txnId,
+                'status' =>'initiated',
+
+            ]);
+
+            return response()->json([
+                'status'=> true,
+                'messagse'=> 'Payment Initiated Successfully'
+            ]);
+
+
+
+        }catch(Exception $e){
+            return response()->json([
+                'status'=> false,
+                'messgae'=> $e->getMessage(),
+            ]);
+        }
+    }
 }
