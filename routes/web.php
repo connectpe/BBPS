@@ -63,6 +63,11 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/fetch/providers-by-service/{serviceId}', [AdminController::class, 'getProvidersByService'])->name('providers.by.service');
         Route::post('add-default-provider', [AdminController::class, 'addDefaultProvider'])->name('add-default-provider');
         Route::post('edit-default-provider/{id}', [AdminController::class, 'editDefaultProvider'])->name('edit-default-provider');
+
+        // NSDL Transaction Routes
+       Route::get('/nsdl-payment', [AdminController::class, 'nsdlPayment'])->name('nsdl-payment');
+       
+
         
     });
 
@@ -106,8 +111,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('status-provider/{id}', [AdminController::class, 'statusProvider'])->name('status_provider');
 
     // Default Provider 
-    Route::post('add-default-provider', [AdminController::class, 'addDefaultProvider'])->name('add-default-provider');
-    Route::post('edit-default-provider/{id}', [AdminController::class, 'editDefaultProvider'])->name('edit-default-provider');
+    // Route::post('add-default-provider', [AdminController::class, 'addDefaultProvider'])->name('add-default-provider');
+    // Route::post('edit-default-provider/{id}', [AdminController::class, 'editDefaultProvider'])->name('edit-default-provider');
 
 
     // Route::prefix('recharge')->group(function () {
@@ -211,6 +216,8 @@ Route::group(['middleware' => ['auth']], function () {
 
 
     Route::post('generate-mpin', [UserController::class, 'generateMpin'])->name('generate_mpin');
+    Route::post('nsdl-initiated-payment', [UserController::class, 'initiateNsdlPayment'])->name('nsdl-initiatePayment');
+
 });
 
 Route::prefix('admin', function () {

@@ -487,6 +487,39 @@ class CommonController extends Controller
                 $request['order'] = ['id', 'DESC'];
                 $request['parentData'] = 'all';
                 break;
+
+            case 'nsdl-payment':
+                $request['table'] = '\App\Models\NsdlPayment';
+                $request['searchData'] = ['id', 'user_id', 'mobile_no', 'amount', 'transaction_id', 'utr', 'order_id', 'status', 'created_at'];
+                 $request['with'] = ['user:id,name'];
+                $request['select'] = ['id','user_id','mobile_no','amount','transaction_id','utr','order_id','status','created_at'];
+                $request['with'] = ['user', 'service', 'updatedBy'];
+                $orderIndex = $request->get('order');
+                if (isset($orderIndex) && count($orderIndex)) {
+                    $columnsIndex = $request->get('columns');
+                    $columnIndex = $orderIndex[0]['column'] ?? 0;
+                    $columnName = $columnsIndex[$columnIndex]['data'] ?? 'id';
+                    $columnSortOrder = $orderIndex[0]['dir'] ?? 'DESC';
+                    $allowedSort = $request['select'];
+                    if (! in_array($columnName, $allowedSort)) {
+                        $columnName = 'id';
+                    }
+
+                    $request['order'] = [$columnName, $columnSortOrder];
+                } else {
+                    $request['order'] = ['id', 'DESC'];
+                }
+
+                if (\Auth::user()->role_id == 1) {
+                    $request['parentData'] = 'all';
+                } else {
+                    $request['whereIn'] = 'user_id';
+                    $request['parentData'] = [\Auth::id()];
+                }
+
+                break;
+
+
         }
 
         // For filter the Records

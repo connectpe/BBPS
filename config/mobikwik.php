@@ -23,6 +23,7 @@ return [
     */
     
     'key_version' => env('MOBIKWIK_KEY_VERSION', '1.0'),
+    'payment_account_info' => env('MOBIKWIK_PAYMENT_ACCOUNT_INFO'), 
     'public_key' => storage_path(env('MOBIKWIK_PUBLIC_KEY_PATH','app/public/keys/mobikwik_public_key.pem')),
 
     /*

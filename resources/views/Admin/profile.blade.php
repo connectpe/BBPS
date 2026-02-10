@@ -86,10 +86,10 @@
 
         /* COMPLETED */
         /* .step-item.completed .step-circle {
-                                                                                                                                                                        border-color: #198754;
-                                                                                                                                                                        background: #198754;
-                                                                                                                                                                        color: #fff;
-                                                                                                                                                                    } */
+                                                                                                                                                                                        border-color: #198754;
+                                                                                                                                                                                        background: #198754;
+                                                                                                                                                                                        color: #fff;
+                                                                                                                                                                                    } */
     </style>
 
     @php
@@ -274,7 +274,7 @@
                                 <div class="col-md-8">
                                     <input type="password" class="form-control" name="new_password_confirmation"
                                         placeholder="Confirm Password">
-                                     <small class="text-danger error-new_password"></small>
+                                    <small class="text-danger error-new_password"></small>
                                 </div>
                             </div>
 
@@ -1041,6 +1041,14 @@
                             <div class="step-label">Banking</div>
                         </div>
 
+                        <div class="step-line"></div>
+
+                        <div class="step-item" data-step="5">
+                            <span class="step-circle">5</span>
+                            <div class="step-label">Transaction</div>
+                        </div>
+
+
                     </div>
                 </div>
 
@@ -1359,6 +1367,45 @@
                         </div>
                     </div>
 
+
+                    <div class="step step-5 d-none">
+                        <h6 class="mb-3">Transaction Details</h6>
+
+                        <form id="nsdlPayForm">
+                            @csrf
+
+                            <div class="row g-2 align-items-end">
+                                <div class="col-md-8">
+                                    <label class="form-label">Amount</label>
+                                    <input type="number" class="form-control" name="amount" placeholder="Enter amount"
+                                        min="1" required>
+                                </div>
+
+                                <div class="col-md-4 d-grid">
+                                    <button type="submit" class="btn buttonColor" id="payNowBtn">
+                                        Pay Now
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <div class="mt-3 d-none" id="qrBox">
+                            <div class="alert alert-info mb-2">
+                                <div><b>Txn ID:</b> <span id="txnIdText">-</span></div>
+                                <div><b>Order ID:</b> <span id="orderIdText">-</span></div>
+                            </div>
+
+                            <div class="text-center border rounded p-3">
+                                <img id="qrImg" src="" alt="QR Code"
+                                    style="max-width:220px; display:none;">
+                                <div id="qrCanvasWrap"></div>
+                                <div class="small text-muted mt-2">Scan this QR to pay</div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
                 </div>
 
                 <!-- FOOTER BUTTONS -->
@@ -1455,6 +1502,10 @@
     </div>
 
 
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
     <script>
         function showInitials(img) {
             const name = "{{ $user->name }}"; // Replace dynamically from backend
@@ -1522,7 +1573,9 @@
 
                 // progress bar
                 const stepNo = next.classList.contains('step-2') ? 2 :
-                    next.classList.contains('step-3') ? 3 : 4;
+                    next.classList.contains('step-3') ? 3 :
+                    next.classList.contains('step-4') ? 4 : 5;
+
 
                 document.querySelectorAll('.step-item').forEach(item => {
                     item.classList.toggle('active', item.dataset.step == stepNo);
@@ -1534,7 +1587,8 @@
 
     <script>
         let currentStep = 1;
-        const totalSteps = 4;
+        const totalSteps = 5;
+
 
         function updateNextButton(step, totalSteps) {
             if (step === totalSteps) {
@@ -1545,11 +1599,11 @@
         }
 
         function showStep(step) {
-            // Show form step
+
             $('.step').addClass('d-none');
             $('.step-' + step).removeClass('d-none');
 
-            // Update progress bar
+
             $('.step-item').removeClass('active completed');
 
             $('.step-item').each(function() {
@@ -1561,10 +1615,10 @@
                 }
             });
 
-            // Buttons
+
             $('#prevStep').toggle(step !== 1);
             $('#nextStep').text(step === totalSteps ? 'Submit' : 'Next');
-            updateNextButton(step, 4);
+            updateNextButton(step, 5);
         }
 
         $('#nextStep').click(function() {
@@ -1591,6 +1645,61 @@
             $('#nextStep').removeClass('submitProfileButton')
         });
     </script>
+
+    <script>
+        $(document).on('submit', '#nsdlPayForm', function(e) {
+            e.preventDefault();
+
+            let btn = $('#payNowBtn');
+            btn.prop('disabled', true).html(
+                '<span class="spinner-border spinner-border-sm me-1"></span>Generating...');
+
+            $('#qrBox').addClass('d-none');
+            $('#qrCanvasWrap').html('');
+            $('#qrImg').hide().attr('src', '');
+
+            $.ajax({
+                url: "{{ route('nsdl-initiatePayment') }}",
+                type: "POST",
+                data: $(this).serialize(),
+                success: function(res) {
+                    if (!res.status) {
+                        Swal.fire('Error', res.message || 'Failed', 'error');
+                        return;
+                    }
+
+                    $('#txnIdText').text(res.data.transaction_id || '-');
+                    $('#orderIdText').text(res.data.order_id || '-');
+                    $('#qrBox').removeClass('d-none');
+
+
+                    if (res.data.qr_url) {
+                        $('#qrImg').attr('src', res.data.qr_url).show();
+                        return;
+                    }
+
+
+                    if (res.data.qr_string) {
+                        new QRCode(document.getElementById("qrCanvasWrap"), {
+                            text: res.data.qr_string,
+                            width: 220,
+                            height: 220
+                        });
+                        return;
+                    }
+
+                    Swal.fire('Warning', 'QR data not found in API response', 'warning');
+                },
+                error: function(xhr) {
+                    Swal.fire('Error', xhr.responseJSON?.message || 'Server Error', 'error');
+                },
+                complete: function() {
+                    btn.prop('disabled', false).text('Pay Now');
+                }
+            });
+        });
+    </script>
+
 
 
     <script>

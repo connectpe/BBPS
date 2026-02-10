@@ -14,6 +14,7 @@ class UserService extends Model
     protected $fillable = [
         'user_id',
         'service_id',
+        'default_slug',
         'status',
         'transaction_amount',
         'is_api_enable',

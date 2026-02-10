@@ -4,10 +4,12 @@ namespace App\Http\Controllers\users;
 
 use App\Facades\FileUpload;
 use App\Helpers\CommonHelper;
+use App\Helpers\NSDLHelper;
 use App\Http\Controllers\Controller;
 use App\Models\BusinessInfo;
 use App\Models\GlobalService;
 use App\Models\IpWhitelist;
+use App\Models\NSDLPayment;
 use App\Models\OauthUser;
 use App\Models\Provider;
 use App\Models\User;
@@ -1003,5 +1005,55 @@ class UserController extends Controller
                 'message' => 'Error: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function initiateNsdlPayment(Request $request)
+    {
+        try {
+            $request->validate([
+                'amount' => 'required|numeric|min:1',
+            ]);
+            $user = auth()->user();
+            $txnId = 'PAY'.time().rand(1000, 9999);
+            $payload = [
+                'name' => $user->name,
+                'amount' => $request->amount,
+                'mobile' => $user->mobile,
+                'transaction_id' => $txnId,
+            ];
+
+            $api = NSDLHelper::processOrderCreation($payload);
+            $orderId = $api['data']['order_id'] ?? $api['order_id'] ?? null;
+            $qrString = $api['data']['qr_string'] ?? $api['qr_string'] ?? null;
+            $qrUrl = $api['data']['qr_url'] ?? $api['qr_url'] ?? null;
+            NsdlPayment::create([
+                'user_id' => $user->id,
+                'service_id' => null, 
+                'mobile_no' => $user->mobile,
+                'amount' => $request->amount,
+                'transaction_id' => $txnId,
+                'order_id' => $orderId,
+                'status' => 'initiated',
+                'updated_by' => $user->id,
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Payment Initiated Successfully',
+                'data' => [
+                    'transaction_id' => $txnId,
+                    'order_id' => $orderId,
+                    'qr_string' => $qrString,
+                    'qr_url' => $qrUrl,
+                ],
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+
+}
     }
 }
