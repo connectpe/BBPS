@@ -178,17 +178,11 @@
         }
 
 
-      
-        .table-responsive::-webkit-scrollbar-thumb:hover {
-            background: #a8a8a8;
-            /* Color when you hover over it */
-        }
-
         /* Styling for Firefox */
         .table-responsive {
             scrollbar-width: thin !important;
             /* Options: auto, thin, none */
-            scrollbar-color: #c1c1c1 #f1f1f1;
+            scrollbar-color: #4962c0 #dcdde0;
             /* handle color, track color */
         }
     </style>
