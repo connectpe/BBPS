@@ -382,7 +382,7 @@
                         <div class="card-body">
                             <i class="bi bi-check-circle-fill fs-4 text-success mb-2"></i>
                             <h6 class="card-title mb-1">Completed Transaction</h6>
-                            <p class="card-text fs-6 fw-bold">{{ number_format(2345) }}</p>
+                            <p class="card-text fs-6 fw-bold">{{ number_format($completedTxn) }}</p>
                         </div>
                     </div>
                 </div>
@@ -393,7 +393,7 @@
                         <div class="card-body">
                             <i class="bi bi-currency-dollar fs-4 text-primary mb-2"></i>
                             <h6 class="card-title mb-1">Total Spent</h6>
-                            <p class="card-text fs-6 fw-bold">{{ number_format(1245) }}</p>
+                            <p class="card-text fs-6 fw-bold">₹ {{ number_format($totalSpent, 2) }}</p>
                         </div>
                     </div>
                 </div>
@@ -404,7 +404,7 @@
                         <div class="card-body">
                             <i class="bi bi-wallet2 fs-4 text-warning mb-2"></i>
                             <h6 class="card-title mb-1">Wallet Balance</h6>
-                            <p class="card-text fs-6 fw-bold">{{ number_format(4567) }}</p>
+                            <p class="card-text fs-6 fw-bold">₹ {{ number_format($walletBalance ?? 0, 2) }}</p>
                         </div>
                     </div>
                 </div>
@@ -415,7 +415,7 @@
                         <div class="card-body">
                             <i class="bi bi-calendar-check fs-4 text-info mb-2"></i>
                             <h6 class="card-title mb-1">Member Since</h6>
-                            <p class="card-text fs-6 fw-bold">{{ number_format(2012) }}</p>
+                            <p class="card-text fs-6 fw-bold">{{ $memberSince }}</p>
                         </div>
                     </div>
                 </div>
