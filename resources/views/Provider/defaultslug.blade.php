@@ -77,19 +77,34 @@
                 ajax: {
                     url: "{{ url('fetch/default-slug') }}",
                     type: "POST",
-                    data: function(d) { d._token = "{{ csrf_token() }}"; },
+                    data: function(d) {
+                        d._token = "{{ csrf_token() }}";
+                    },
                     error: function(xhr) {
                         console.error("DataTable Error: ", xhr.responseText);
                         Swal.fire('Error', 'Failed to fetch data from server.', 'error');
                     }
                 },
-                columns: [
-                    { data: null, render: (data, type, row, meta) => meta.row + meta.settings._iDisplayStart + 1 },
-                    { data: 'service.service_name', name: 'service.service_name', defaultContent: 'N/A' },
-                    { data: 'provider.provider_name', name: 'provider.provider_name', defaultContent: 'N/A' },
-                    { data: 'created_at', name: 'created_at' },
-                    { 
-                        data: 'id', 
+                columns: [{
+                        data: null,
+                        render: (data, type, row, meta) => meta.row + meta.settings._iDisplayStart + 1
+                    },
+                    {
+                        data: 'service.service_name',
+                        name: 'service.service_name',
+                        defaultContent: 'N/A'
+                    },
+                    {
+                        data: 'provider.provider_name',
+                        name: 'provider.provider_name',
+                        defaultContent: 'N/A'
+                    },
+                    {
+                        data: 'created_at',
+                        name: 'created_at'
+                    },
+                    {
+                        data: 'id',
                         orderable: false,
                         render: function(id, type, row) {
                             return `
@@ -106,7 +121,8 @@
                 let serviceId = $(this).val();
                 let providerSelect = $('#modal_provider_id');
 
-                providerSelect.prop('disabled', true).html('<option value="">Loading providers...</option>');
+                providerSelect.prop('disabled', true).html(
+                    '<option value="">Loading providers...</option>');
 
                 if (!serviceId) {
                     providerSelect.html('<option value="">-- Select Service First --</option>');
@@ -118,18 +134,23 @@
                     type: "GET",
                     dataType: "json",
                     success: function(res) {
-                        providerSelect.empty().append('<option value="">-- Choose Provider --</option>');
+                        providerSelect.empty().append(
+                            '<option value="">-- Choose Provider --</option>');
                         if (res.status && res.data.length > 0) {
                             $.each(res.data, function(key, provider) {
-                                providerSelect.append(`<option value="${provider.id}">${provider.provider_name}</option>`);
+                                providerSelect.append(
+                                    `<option value="${provider.id}">${provider.provider_name}</option>`
+                                );
                             });
                             providerSelect.prop('disabled', false);
                         } else {
-                            providerSelect.html('<option value="">No Active Providers found</option>');
+                            providerSelect.html(
+                                '<option value="">No Active Providers found</option>');
                         }
                     },
                     error: function() {
-                        providerSelect.html('<option value="">Error fetching providers</option>');
+                        providerSelect.html(
+                            '<option value="">Error fetching providers</option>');
                     }
                 });
             });
@@ -159,8 +180,8 @@
             $('#slugForm').on('submit', function(e) {
                 e.preventDefault();
                 let id = $('#default_id').val();
-                let postUrl = id ? "{{ url('admin/edit-default-provider') }}/" + id : "{{ route('add-default-provider') }}";
-
+                let editUrl = "{{ route('edit-default-provider', ':id') }}".replace(':id', id);
+                let postUrl = id ? editUrl : "{{ route('add-default-provider') }}";
                 $.ajax({
                     url: postUrl,
                     type: "POST",
@@ -175,8 +196,21 @@
                         }
                     },
                     error: function(xhr) {
-                        let msg = xhr.responseJSON?.message || 'Validation or Server Error';
-                        Swal.fire('Error', msg, 'warning');
+                        let errorMsg = 'Something went wrong';
+                        if (xhr.status === 422) {
+                            let errors = xhr.responseJSON.errors;
+                            errorMsg = '';
+                            $.each(errors, function(field, messages) {
+                                errorMsg += messages.join("<br>") + "<br>";
+                            });
+                        } else {
+                            errorMsg = xhr.responseJSON?.message || 'Server Error';
+                        }
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Validation Error',
+                            html: errorMsg,
+                        });
                     }
                 });
             });
@@ -192,9 +226,12 @@
                     confirmButtonText: 'Yes, delete it!'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        $.post("{{ url('delete-default-provider') }}/" + id, { _token: "{{ csrf_token() }}" }, function(res) {
+                        $.post("{{ url('delete-default-provider') }}/" + id, {
+                            _token: "{{ csrf_token() }}"
+                        }, function(res) {
                             if (res.status) {
-                                Swal.fire('Deleted!', 'Configuration has been removed.', 'success');
+                                Swal.fire('Deleted!', 'Configuration has been removed.',
+                                    'success');
                                 table.ajax.reload(null, false);
                             } else {
                                 Swal.fire('Error', 'Could not delete the record.', 'error');

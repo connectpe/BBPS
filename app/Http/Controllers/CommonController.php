@@ -434,7 +434,7 @@ class CommonController extends Controller
             case 'support-user-list-server':
                 $request['table'] = '\App\Models\User';
                 $request['searchData'] = ['id', 'name', 'email', 'mobile'];
-                $request['select'] = ['id', 'name', 'email', 'mobile', 'role_id', 'created_at']; 
+                $request['select'] = ['id', 'name', 'email', 'mobile', 'role_id', 'created_at'];
                 $request['whereIn'] = 'role_id';
                 $request['parentData'] = [4];
                 $request['order'] = ['id', 'DESC'];
@@ -483,6 +483,36 @@ class CommonController extends Controller
                 $request['order'] = ['id', 'DESC'];
                 $request['parentData'] = 'all';
                 break;
+            case 'nsdl-payment':
+                $request['table'] = '\App\Models\NsdlPayment';
+                $request['searchData'] = ['id', 'user_id', 'mobile_no', 'amount', 'transaction_id', 'utr', 'order_id', 'status', 'created_at'];
+                 $request['with'] = ['user:id,name'];
+                $request['select'] = ['id','user_id','mobile_no','amount','transaction_id','utr','order_id','status','created_at'];
+                $request['with'] = ['user', 'service', 'updatedBy'];
+                $orderIndex = $request->get('order');
+                if (isset($orderIndex) && count($orderIndex)) {
+                    $columnsIndex = $request->get('columns');
+                    $columnIndex = $orderIndex[0]['column'] ?? 0;
+                    $columnName = $columnsIndex[$columnIndex]['data'] ?? 'id';
+                    $columnSortOrder = $orderIndex[0]['dir'] ?? 'DESC';
+                    $allowedSort = $request['select'];
+                    if (! in_array($columnName, $allowedSort)) {
+                        $columnName = 'id';
+                    }
+
+                    $request['order'] = [$columnName, $columnSortOrder];
+                } else {
+                    $request['order'] = ['id', 'DESC'];
+                }
+
+                if (\Auth::user()->role_id == 1) {
+                    $request['parentData'] = 'all';
+                } else {
+                    $request['whereIn'] = 'user_id';
+                    $request['parentData'] = [\Auth::id()];
+                }
+
+                break;
 
         }
 
@@ -492,7 +522,7 @@ class CommonController extends Controller
             'global-service' => ['service_name', 'status'],
             'insurance' => ['name', 'email', 'mobile', 'pan', 'agentId', 'status'],
             'transactions' => ['reference_number', 'user_id', 'operator_id', 'circle_id', 'status', 'amount', 'transaction_type'],
-            'serviceRequest' => ['status', 'service_id','user_id'],
+            'serviceRequest' => ['status', 'service_id', 'user_id'],
             'providers' => ['status', 'service_id'],
             'api-logs' => ['status', 'user_id'],
             'enabled-services' => ['service_id', 'user_id'],
