@@ -86,10 +86,10 @@
 
         /* COMPLETED */
         /* .step-item.completed .step-circle {
-                                                                                                                                                                                        border-color: #198754;
-                                                                                                                                                                                        background: #198754;
-                                                                                                                                                                                        color: #fff;
-                                                                                                                                                                                    } */
+                                                                                                                                                                                                                    border-color: #198754;
+                                                                                                                                                                                                                    background: #198754;
+                                                                                                                                                                                                                    color: #fff;
+                                                                                                                                                                                                                } */
     </style>
 
     @php
@@ -614,50 +614,50 @@
                         </div>
 
                         @if ($role != 4)
-                        <div class="col-lg-6">
-                            <div class="card shadow-sm h-100">
-                                <div class="card-header bg-transparent fw-bold text-dark">
-                                    <i class="bi bi-pci-card me-2"></i> Change MPIN
-                                </div>
-                                <div class="card-body">
-                                    <form id="changeMpinForm">
-                                        @csrf
-                                        <div class="mb-3">
-                                            <label class="form-label fw-semibold">Current MPIN <span
-                                                    class="text-danger">*</span></label>
-                                            <input type="password" class="form-control" name="current_mpin"
-                                                maxlength="6" pattern="\d*" inputmode="numeric"
-                                                placeholder="Enter 6-digit current MPIN" required>
-                                            <small class="text-danger error-current_mpin"></small>
-                                        </div>
+                            <div class="col-lg-6">
+                                <div class="card shadow-sm h-100">
+                                    <div class="card-header bg-transparent fw-bold text-dark">
+                                        <i class="bi bi-pci-card me-2"></i> Change MPIN
+                                    </div>
+                                    <div class="card-body">
+                                        <form id="changeMpinForm">
+                                            @csrf
+                                            <div class="mb-3">
+                                                <label class="form-label fw-semibold">Current MPIN <span
+                                                        class="text-danger">*</span></label>
+                                                <input type="password" class="form-control" name="current_mpin"
+                                                    maxlength="6" pattern="\d*" inputmode="numeric"
+                                                    placeholder="Enter 6-digit current MPIN" required>
+                                                <small class="text-danger error-current_mpin"></small>
+                                            </div>
 
-                                        <div class="mb-3">
-                                            <label class="form-label fw-semibold">New MPIN <span
-                                                    class="text-danger">*</span></label>
-                                            <input type="password" class="form-control" name="new_mpin" maxlength="6"
-                                                pattern="\d*" inputmode="numeric" placeholder="Set 6-digit new MPIN"
-                                                required>
-                                            <small class="text-danger error-new_mpin"></small>
-                                        </div>
+                                            <div class="mb-3">
+                                                <label class="form-label fw-semibold">New MPIN <span
+                                                        class="text-danger">*</span></label>
+                                                <input type="password" class="form-control" name="new_mpin"
+                                                    maxlength="6" pattern="\d*" inputmode="numeric"
+                                                    placeholder="Set 6-digit new MPIN" required>
+                                                <small class="text-danger error-new_mpin"></small>
+                                            </div>
 
-                                        <div class="mb-3">
-                                            <label class="form-label fw-semibold">Confirm New MPIN <span
-                                                    class="text-danger">*</span></label>
-                                            <input type="password" class="form-control" name="new_mpin_confirmation"
-                                                maxlength="6" pattern="\d*" inputmode="numeric" required
-                                                placeholder="Confirm 6-digit new MPIN">
-                                        </div>
+                                            <div class="mb-3">
+                                                <label class="form-label fw-semibold">Confirm New MPIN <span
+                                                        class="text-danger">*</span></label>
+                                                <input type="password" class="form-control" name="new_mpin_confirmation"
+                                                    maxlength="6" pattern="\d*" inputmode="numeric" required
+                                                    placeholder="Confirm 6-digit new MPIN">
+                                            </div>
 
-                                        <div class="text-end">
-                                            <button type="submit" class="btn buttonColor w-100">
-                                                Update MPIN
-                                            </button>
-                                        </div>
-                                    </form>
+                                            <div class="text-end">
+                                                <button type="submit" class="btn buttonColor w-100">
+                                                    Update MPIN
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    @endif
+                        @endif
 
                     </div>
                 </div>
@@ -678,7 +678,8 @@
                     <div class="row mb-4">
                         <div class="col-md-4 fw-bold">Document Status:</div>
                         <div class="col-md-8">
-                            <span class="badge  bg-{{$businessInfo?->is_kyc == '1' ? 'success' : 'danger'}}"> {{$businessInfo?->is_kyc == '1' ? 'Verified' : 'Not Verified'}}  </span>
+                            <span class="badge  bg-{{ $businessInfo?->is_kyc == '1' ? 'success' : 'danger' }}">
+                                {{ $businessInfo?->is_kyc == '1' ? 'Verified' : 'Not Verified' }} </span>
                         </div>
                     </div>
 
@@ -1113,7 +1114,8 @@
 
                             <div class="col-md-6">
                                 <label for="business_category" class="form-label">Business Category</label>
-                                <select class="form-select form-select2 w-100" name="business_category" id="business_category">
+                                <select class="form-select form-select2 w-100" name="business_category"
+                                    id="business_category">
                                     <option value="">--Select Business Category--</option>
                                     @foreach ($businessCategory as $category)
                                         <option value="{{ $category->id }}"
@@ -1368,7 +1370,7 @@
                     </div>
 
 
-                    <div class="step step-5 d-none">
+                    {{-- <div class="step step-5 d-none">
                         <h6 class="mb-3">Transaction Details</h6>
 
                         <form id="nsdlPayForm">
@@ -1400,6 +1402,100 @@
                                     style="max-width:220px; display:none;">
                                 <div id="qrCanvasWrap"></div>
                                 <div class="small text-muted mt-2">Scan this QR to pay</div>
+                            </div>
+                        </div>
+                    </div> --}}
+                    <div class="step step-5 d-none">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-7">
+                                <div class="card border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+                                    <div class="p-4 text-center"
+                                        style="background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%); border-bottom: 1px solid #e2e8f0;">
+
+                                        {{-- <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-2 shadow-sm"
+                                            style="width:54px; height:54px;">
+                                            <i class="bi bi-shield-lock-fill fs-4"></i>
+                                        </div> --}}
+
+                                        <h5 class="fw-bold mb-1" style="color: #1e293b;">Secure Transaction</h5>
+
+                                        <div class="d-inline-block px-3 py-1 rounded-pill bg-success bg-opacity-10 text-success small fw-medium"
+                                            style="font-size: 11px;">
+                                            <i class="bi bi-patch-check-fill me-1"></i> 100% Safe & Encrypted Payment
+                                        </div>
+                                    </div>
+
+                                    <div class="card-body p-4">
+
+                                        <div class="bg-light rounded-4 p-3 mb-4">
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span class="text-muted">Amount</span>
+                                                <span class="fw-semibold text-dark">₹ <span
+                                                        id="baseAmountText">0.00</span></span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span class="text-muted">Tax (GST 18%)</span>
+                                                <span class="fw-semibold text-warning">+ ₹ <span
+                                                        id="gstAmountText">0.00</span></span>
+                                            </div>
+                                            <hr class="my-2" style="border-top: 1px dashed #cbd5e1;">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="fw-bold text-dark">Total Amount</span>
+                                                <span class="fs-3 fw-bolder text-success">₹ <span
+                                                        id="totalAmountText">0.00</span></span>
+                                            </div>
+                                        </div>
+
+                                        <div id="gstHelperText" class="mt-2 small text-muted">
+                                            <i class="bi bi-info-circle-fill text-warning me-1"></i>
+                                            An additional 18% GST will be charged on ₹<span id="txt_base">0</span>.
+                                            (GST: ₹<span id="txt_gst">0</span>)
+                                        </div>
+
+                                        <form id="nsdlPayForm">
+                                            @csrf
+                                            <input type="hidden" name="amount" id="finalAmount">
+
+                                            <button type="submit"
+                                                class="btn btn-primary btn-lg w-100 py-3 shadow fw-bold border-0"
+                                                id="payNowBtn"
+                                                style="border-radius: 12px; background: #3c5be4; transition: 0.3s;">
+                                                <i class="bi bi-qr-code me-2"></i>
+                                                Pay Now
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                    <div class="card-footer bg-white border-0 text-center pb-4">
+                                        <div class="d-flex justify-content-center align-items-center gap-3">
+                                            <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/UPI-Logo-vector.svg"
+                                                alt="UPI" height="20" style="opacity: 0.6;">
+                                            <span class="text-muted" style="font-size: 12px;">Supported by NSDL
+                                                Gateway</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4 d-none animate__animated animate__zoomIn" id="qrBox">
+                                    <div class="card border-2 border-dashed border-primary bg-white">
+                                        <div class="card-body text-center p-4">
+                                            <span
+                                                class="badge bg-success bg-opacity-10 text-success px-4 py-2 rounded-pill mb-3">
+                                                <i class="bi bi-clock me-1"></i> QR Valid for 5:00 mins
+                                            </span>
+
+                                            <div id="qrCanvasWrap" class="d-flex justify-content-center mb-3"></div>
+
+                                            <div class="bg-light p-2 rounded-3 small">
+                                                <span class="text-muted">Transaction ID:</span>
+                                                <span class="fw-bold ms-1" id="txnIdText">-</span>
+                                            </div>
+
+                                            <p class="small text-muted mt-3 mb-0">Scan with PhonePe, GPay, or any UPI App
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
