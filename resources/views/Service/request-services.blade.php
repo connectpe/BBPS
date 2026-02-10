@@ -18,9 +18,9 @@
             <div class="accordion-body">
                 <div class="row g-3 align-items-end">
 
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label for="filterUser" class="form-label">User</label>
-                        <select name="filterUser" id="filterUser" class="form-control">
+                        <select name="filterUser" id="filterUser" class="form-control form-select2">
                             <option value="">--Select User--</option>
                             @foreach($users as $value)
                             <option value="{{$value->id}}">{{$value->name}}</option>
@@ -28,9 +28,9 @@
                         </select>
                     </div>
 
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label for="filterService" class="form-label">Service</label>
-                        <select name="filterService" id="filterService" class="form-control">
+                        <select name="filterService" id="filterService" class="form-control form-select2">
                             <option value="">--Select Service--</option>
                             @foreach($globalServices as $value)
                             <option value="{{$value->id}}">{{$value->service_name}}</option>
@@ -39,25 +39,25 @@
                     </div>
 
 
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label class="form-label">Status</label>
-                        <select id="filterStatus" class="form-select">
+                        <select id="filterStatus" class="form-select form-select2">
                             <option value="">All</option>
                             <option value="pending">Pending</option>
                             <option value="approved">Approved</option>
                         </select>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label class="form-label">From Date</label>
                         <input type="date" id="filterDateFrom" class="form-control">
                     </div>
 
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label class="form-label">To Date</label>
                         <input type="date" id="filterDateTo" class="form-control">
                     </div>
 
-                    <div class="col-md-2 d-flex gap-2">
+                    <div class="col-md-3 d-flex gap-2">
                         <button type="button" class="btn buttonColor" id="applyFilter">Filter</button>
                         <button type="button" class="btn btn-secondary" id="resetFilter">Reset</button>
                     </div>

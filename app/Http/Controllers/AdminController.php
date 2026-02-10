@@ -51,7 +51,7 @@ class AdminController extends Controller
             $data['supportRepresentative'] = UserAssignedToSupport::where('user_id', $userId)->with('assigned_support')->first();
 
             $data['usersBank'] = UsersBank::where('user_id', $userId)->first();
-            $data['UserServices'] = UserService::where('user_id', $userId)->where('status', 'approved')->get();
+            $data['UserServices'] = UserService::where('user_id', $userId)->where('status', 'approved')->where('is_active', '1')->get();
             $data['webhookUrl'] = WebHookUrl::where('user_id', $userId)->first();
 
             return view('Admin.profile')->with($data);
@@ -200,7 +200,7 @@ class AdminController extends Controller
             }
 
             $request->validate([
-                'service_name' => 'required|string|max:50|unique:global_services,service_name,'.$serviceId,
+                'service_name' => 'required|string|max:50|unique:global_services,service_name,' . $serviceId,
             ]);
 
             $service = GlobalService::where('id', $serviceId)->first();
@@ -362,7 +362,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -373,7 +373,7 @@ class AdminController extends Controller
         $request->validate(
             [
                 'serviceId' => 'required|exists:global_services,id',
-                'providerName' => 'required|string|max:100|unique:providers,provider_name,'.$Id,
+                'providerName' => 'required|string|max:100|unique:providers,provider_name,' . $Id,
             ],
             [
                 'serviceId.required' => 'Please select a service.',
@@ -410,7 +410,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -544,13 +544,13 @@ class AdminController extends Controller
 
                 return response()->json([
                     'status' => false,
-                    'message' => 'Error : '.$e->getMessage(),
+                    'message' => 'Error : ' . $e->getMessage(),
                 ]);
             }
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
@@ -575,7 +575,7 @@ class AdminController extends Controller
         // Validation
         $validator = Validator::make($request->all(), [
 
-            'scheme_name' => 'required|string|max:255|unique:schemes,scheme_name,'.$schemeId,
+            'scheme_name' => 'required|string|max:255|unique:schemes,scheme_name,' . $schemeId,
             'rules' => 'required|array|min:1',
             'rules.*.rule_id' => 'nullable|integer|exists:scheme_rules,id',
             'rules.*.service_id' => 'required|integer|exists:global_services,id',
@@ -760,7 +760,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
@@ -778,7 +778,7 @@ class AdminController extends Controller
     public function updateAssignedSchemetoUser(Request $request, $configId)
     {
         $validator = Validator::make($request->all(), [
-            'user_id' => 'required|exists:users,id|unique:user_configs,user_id,'.$configId,
+            'user_id' => 'required|exists:users,id|unique:user_configs,user_id,' . $configId,
             'scheme_id' => 'required|exists:schemes,id',
         ], [
             'user_id.required' => 'User Id is required',
@@ -852,7 +852,7 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json(['status' => false, 'message' => 'Error: '.$e->getMessage()], 500);
+            return response()->json(['status' => false, 'message' => 'Error: ' . $e->getMessage()], 500);
         }
     }
 
@@ -957,10 +957,9 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error: '.$e->getMessage(),
+                'message' => 'Error: ' . $e->getMessage(),
             ], 500);
         }
-
     }
 
     public function supportdetails()
@@ -1160,7 +1159,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error: '.$e->getMessage(),
+                'message' => 'Error: ' . $e->getMessage(),
             ]);
         }
     }
@@ -1194,13 +1193,12 @@ class AdminController extends Controller
                 'message' => 'Category Status Updated Successfully',
                 'data' => $category,
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json([
                 'status' => false,
-                'message' => 'Something went wrong: '.$e->getMessage(),
+                'message' => 'Something went wrong: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -1330,7 +1328,7 @@ class AdminController extends Controller
         ]);
 
 
-        if ($validator->fails()) {
+        if ($validator->fails()) {  
             return response()->json([
                 'status' => false,
                 'errors' => $validator->errors(),
@@ -1409,14 +1407,14 @@ class AdminController extends Controller
     public function getProvidersByService($serviceId)
     {
         $providers = Provider::where('service_id', (int)$serviceId)
-        ->where('is_active', '1')
-        ->select('id', 'provider_name')
-        ->orderBy('provider_name')
-        ->get();
+            ->where('is_active', '1')
+            ->select('id', 'provider_name')
+            ->orderBy('provider_name')
+            ->get();
 
         return response()->json([
-        'status' => true,
-        'data' => $providers,
+            'status' => true,
+            'data' => $providers,
         ]);
     }
 

@@ -121,7 +121,7 @@
 
                         <div class="col-12">
                             <label for="category" class="form-label">Category</label>
-                            <select class="form-select" id="category">
+                            <select class="form-select form-select2" id="category">
                                 <option selected>--Select Category--</option>
                                 <option value="support">Support</option>
                                 <option value="feedback">Feedback</option>

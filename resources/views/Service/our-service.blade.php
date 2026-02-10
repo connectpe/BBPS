@@ -68,7 +68,7 @@
 
                     <div class="col-md-3">
                         <label for="userId" class="form-label">User</label>
-                        <select name="userId" id="userId" class="form-control">
+                        <select name="userId" id="userId" class="form-control form-select2">
                             <option value="">--Select User--</option>
                             @foreach($users as $value)
                             <option value="{{$value->id}}">{{$value->name}}</option>
@@ -78,7 +78,7 @@
 
                     <div class="col-md-3">
                         <label for="globalService" class="form-label">Service</label>
-                        <select name="globalService" id="globalService" class="form-control">
+                        <select name="globalService" id="globalService" class="form-control form-select2">
                             <option value="">--Select Service--</option>
                             @foreach($globalServices as $value)
                             <option value="{{$value->id}}">{{$value->service_name}}</option>

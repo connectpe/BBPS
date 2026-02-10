@@ -19,7 +19,7 @@
 
                     <div class="col-md-3">
                         <label for="filterUser" class="form-label">User</label>
-                        <select name="filterUser" id="filterUser" class="form-control">
+                        <select name="filterUser" id="filterUser" class="form-control form-select2">
                             <option value="">--Select User--</option>
                             @foreach($users as $value)
                             <option value="{{$value->id}}">{{$value->name}}</option>
@@ -34,7 +34,7 @@
 
                     <div class="col-md-3">
                         <label for="filterStatus" class="form-label">Status</label>
-                        <select class="form-select" id="filterStatus">
+                        <select class="form-select form-select2" id="filterStatus">
                             <option value="">--Select Status--</option>
                             <option value="Open">Open</option>
                             <option value="In Progress">In Progress</option>
@@ -66,7 +66,7 @@
     <div class="card shadow-sm">
         <div class="card-body pt-4">
             <div class="table-responsive">
-                <table id="complaintTable" class="table table-striped table-bordered table-hover w-100">
+                <table id="complaintTable" class="table table-striped table-bordered table-hover">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -337,7 +337,7 @@
 
                         const remarkEscaped = escapeHtml(row.remark || '');
 
-                        let dropdown = `<select class="form-select form-select-sm"
+                        let dropdown = `<select class="form-select form-select-sm form-select2"
                             data-id="${row.id}"
                             data-status="${escapeHtml(row.status)}"
                             data-ticket="${escapeHtml(row.ticket_number)}"
@@ -374,6 +374,7 @@
                 }
             ]
         });
+
 
         // Apply filter
         $('#applyFilter').on('click', function() {

@@ -196,6 +196,8 @@ class CommonController extends Controller
                 $request['parentData'] = [$request->id];
                 if (Auth::user()->role_id == '1') {
                     $request['parentData'] = 'all';
+                    $request['whereIn'] = 'status';
+                    $request['parentData'] = ['pending'];
                 } else {
                     $request['whereIn'] = 'user_id';
                     $request['parentData'] = [Auth::user()->id];
@@ -457,7 +459,8 @@ class CommonController extends Controller
                 }
                 $request['whereIn'] = 'user_id';
                 $request['parentData'] = [Auth::user()->id];
-                $request->merge(['filters' => ['is_deleted' => '0']]);
+                $request['whereIn'] = 'is_deleted';
+                $request['parentData'] = '0';
                 break;
             case 'complaint-category':
                 $request['table'] = '\App\Models\ComplaintsCategory';
@@ -475,6 +478,7 @@ class CommonController extends Controller
                 }
                 $request['parentData'] = 'all';
                 break;
+
             case 'default-slug':
                 $request['table'] = '\App\Models\DefaultProvider';
                 $request['searchData'] = ['id', 'created_at'];
@@ -483,6 +487,7 @@ class CommonController extends Controller
                 $request['order'] = ['id', 'DESC'];
                 $request['parentData'] = 'all';
                 break;
+
             case 'nsdl-payment':
                 $request['table'] = '\App\Models\NsdlPayment';
                 $request['searchData'] = ['id', 'user_id', 'mobile_no', 'amount', 'transaction_id', 'utr', 'order_id', 'status', 'created_at'];
@@ -513,6 +518,7 @@ class CommonController extends Controller
                 }
 
                 break;
+
 
         }
 
@@ -645,7 +651,7 @@ class CommonController extends Controller
                 if (is_numeric($value)) {
                     $query->where($column, $value);
                 } else {
-                    $query->where($column, 'LIKE', '%'.$value.'%');
+                    $query->where($column, 'LIKE', '%' . $value . '%');
                 }
             }
         }
@@ -653,7 +659,7 @@ class CommonController extends Controller
         if (isset($request['where']) && $request['where'] == 1 && isset($request->searchText) && ! empty($request->searchText)) {
             $query->where(function ($q) use ($request) {
                 foreach ($request['searchData'] as $column) {
-                    $q->orWhere($column, 'LIKE', '%'.$request->searchText.'%');
+                    $q->orWhere($column, 'LIKE', '%' . $request->searchText . '%');
                 }
             });
         }

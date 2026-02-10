@@ -27,7 +27,7 @@
                         </div>
                         <div class="col-md-3">
                             <label for="filterStatus" class="form-label">Status</label>
-                            <select class="form-select" id="filterStatus">
+                            <select class="form-select form-select2" id="filterStatus">
                                 <option value="">All</option>
                                 <option value="Active">Active</option>
                                 <option value="Inactive">Inactive</option>

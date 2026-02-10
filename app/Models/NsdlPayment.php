@@ -1,11 +1,12 @@
 <?php
 
 namespace App\Models;
-
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\Models\GlobalService;
+
+use Illuminate\Database\Eloquent\Model;
 
 class NsdlPayment extends Model
 {
@@ -53,4 +54,5 @@ class NsdlPayment extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
+
 }

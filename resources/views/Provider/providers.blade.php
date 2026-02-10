@@ -51,7 +51,7 @@
 
                         <div class="col-md-12">
                             <label for="service_id">Service<span class="text-danger">*</span> </label>
-                            <select name="service_id" id="service_id" class="form-control">
+                            <select name="service_id" id="service_id" class="form-control form-select2">
                                 <option value="">--Select Service--</option>
                                 @foreach($globalServices as $service)
                                 <option value="{{$service->id}}" {{$service->id == old('service_id') ? 'selected' : ''}}>{{$service->service_name}}</option>

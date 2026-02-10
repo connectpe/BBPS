@@ -40,7 +40,7 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label fw-bold">Select Service</label>
-                            <select id="modal_service_id" name="service_id" class="form-select searchable-select" required>
+                            <select id="modal_service_id" name="service_id" class="form-select form-select2" required>
                                 <option value="">-- Choose Service --</option>
                                 @foreach ($services as $service)
                                     <option value="{{ $service->id }}">{{ $service->service_name }}</option>
@@ -67,10 +67,7 @@
 
     <script>
         $(document).ready(function() {
-            $('.searchable-select').select2({
-                dropdownParent: $('#slugModal'),
-                width: '100%'
-            });
+           
             let table = $('#defaultSlugTable').DataTable({
                 processing: true,
                 serverSide: true,

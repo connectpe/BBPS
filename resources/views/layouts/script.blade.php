@@ -59,6 +59,19 @@
     }
 </script>
 
+
+<!-- For Data table horizontally scrolling -->
+<script>
+    $(document).on('init.dt', function(e, settings) {
+        var api = new $.fn.dataTable.Api(settings);
+
+        // This runs automatically for EVERY table once it's ready
+        setTimeout(function() {
+            api.columns.adjust().draw();
+        }, 500);
+    });
+</script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const sidebar = document.getElementById('sidebar');
@@ -92,6 +105,20 @@
 
         // On window resize
         window.addEventListener('resize', updateSidebarState);
+
+        $('.form-select2').select2({
+            width: '100%'
+        });
+
+        $(document).on('shown.bs.modal', '.modal', function() {
+            $(this).find('.form-select2').select2({
+                dropdownParent: $(this),
+                width: '100%',
+                placeholder: '-- Search --',
+                allowClear: true
+            });
+        });
+
     });
 
     function logoutConfirmation() {
