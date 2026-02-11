@@ -176,10 +176,10 @@ Route::group(['middleware' => ['auth']], function () {
 
 
 
-    Route::get('edit-assigned-scheme/{id}', [AdminController::class, 'editAssignedScheme']);
+    Route::get('edit-assigned-scheme/{id}', [AdminController::class, 'editAssignedScheme'])->name('edit_assign_scheme');
     Route::post('assign-scheme', [AdminController::class, 'assignSchemetoUser'])->name('assign_scheme');
     Route::post('update-user-assigned-scheme/{id}', [AdminController::class, 'updateAssignedSchemetoUser'])->name('update_user_assigned_scheme');
-    Route::get('delete-assigned-scheme/{id}', [AdminController::class, 'deleteAssignedScheme']);
+    Route::get('delete-assigned-scheme/{id}', [AdminController::class, 'deleteAssignedScheme'])->name('delete_assign_scheme');
     Route::post('update-scheme-rule/{id}', [AdminController::class, 'updateSchemeAndRule'])->name('update_scheme_rule');
 
 
