@@ -329,7 +329,7 @@
             $('#schemeForm')[0].reset();
             $('#rulesTable tbody').empty();
             $.ajax({
-                url: "{{ url('edit-scheme') }}/" + id,
+                url: "{{route('edit_scheme',['id'=>':id'])}}".replace(':id',id),
                 type: "GET",
                 success: function(res) {
                     if (res.status) {

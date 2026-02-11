@@ -17,8 +17,8 @@ class VerifyOauthCredentials
      */
     public function handle(Request $request, Closure $next)
     {
-        $clientId = $request->header('X-Client-ID');
-        $clientSecret = $request->header('X-Client-Secret');
+        $clientId = $request->header('username');
+        $clientSecret = $request->header('password');
 
         if (!$clientId || !$clientSecret) {
             return response()->json([
