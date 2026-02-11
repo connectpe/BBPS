@@ -11,19 +11,21 @@
             </button>
         </div>
         <div class="card-body">
-            <table id="schemeTable" class="table table-bordered table-striped w-100">
-                <thead>
-                    <tr>
-                        <th>S.N.</th>
-                        <th>SCHEME NAME</th>
-                        <th>STATUS</th>
-                        <th>CREATED AT</th>
-                        <th>ACTION</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table id="schemeTable" class="table table-bordered table-striped w-100">
+                    <thead>
+                        <tr>
+                            <th>S.N.</th>
+                            <th>SCHEME NAME</th>
+                            <th>STATUS</th>
+                            <th>CREATED AT</th>
+                            <th>ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -36,7 +38,7 @@
             </button>
         </div>
         <div class="card-body">
-            <div class="row mb-4">
+            <div class="row mb-4 g-3">
                 <div class="col-md-4">
                     <label class="form-label small fw-bold">User:</label>
                     <select class="form-control form-select shadow-none form-select2" id="filter_user">
@@ -67,18 +69,20 @@
                 </div>
             </div>
 
-            <table id="relationTable" class="table table-bordered table-striped w-100">
-                <thead class="bg-light">
-                    <tr>
-                        <th>S.N.</th>
-                        <th>ORGANIZATION NAME</th>
-                        <th>SCHEME NAME</th>
-                        <th class="text-center">ACTION</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table id="relationTable" class="table table-bordered table-striped w-100">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>S.N.</th>
+                            <th>ORGANIZATION NAME</th>
+                            <th>SCHEME NAME</th>
+                            <th class="text-center">ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

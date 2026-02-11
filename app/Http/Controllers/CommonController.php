@@ -30,7 +30,7 @@ class CommonController extends Controller
                 $request['searchData'] = ['id', 'name', 'email', 'mobile', 'created_at'];   // it is for the Datatable search box
                 $request['select'] = 'all';
                 $request['with'] = ['business'];
-                $request['filters'] = array_merge($request->get('filters', []), ['role_id' => [4, '!=']]);
+                // $request['filters'] = array_merge($request->get('filters', []), ['role_id' => [4, '!=']]);
 
                 $orderIndex = $request->get('order');
 
@@ -57,6 +57,8 @@ class CommonController extends Controller
 
                 if (Auth::user()->role_id == '1') {
                     $request['parentData'] = 'all';
+                    $request['whereIn'] = 'role_id';
+                    $request['parentData'] = [2, 3];
                 } else {
                     $request['whereIn'] = 'user_id';
                     $request['parentData'] = [Auth::user()->id];

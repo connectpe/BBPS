@@ -9,7 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Models\BusinessInfo;
 use App\Models\GlobalService;
 use App\Models\IpWhitelist;
-use App\Models\NSDLPayment;
+use App\Models\NsdlPayment;
 use App\Models\OauthUser;
 use App\Models\Provider;
 use App\Models\User;
@@ -1016,13 +1016,14 @@ class UserController extends Controller
             $user = auth()->user();
             $txnId = 'PAY'.time().rand(1000, 9999);
             $payload = [
-                'name' => $user->name,
+                'name' => $user->name . ' Chauhan',
                 'amount' => $request->amount,
                 'mobile' => $user->mobile,
                 'transaction_id' => $txnId,
             ];
-
+            dd($payload);
             $api = NSDLHelper::processOrderCreation($payload);
+            dd($api);
             $orderId = $api['data']['order_id'] ?? $api['order_id'] ?? null;
             $qrString = $api['data']['qr_string'] ?? $api['qr_string'] ?? null;
             $qrUrl = $api['data']['qr_url'] ?? $api['qr_url'] ?? null;

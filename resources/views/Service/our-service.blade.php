@@ -3,16 +3,17 @@
 @section('title', 'Our Services')
 @section('page-title', 'Our Services')
 
-@section('content')
-
+@section('page-button')
 <div class="row align-items-center mb-2">
     <div class="col-auto ms-auto">
-        <button type="button" class="btn buttonColor" data-bs-toggle="modal" data-bs-target="#serviceModal">
+        <button type="button" class="btn buttonColor text-nowrap" data-bs-toggle="modal" data-bs-target="#serviceModal">
             <i class="bi bi-plus fs-6 me-1"></i> Service
         </button>
     </div>
 </div>
+@endsection
 
+@section('content')
 
 <div class="accordion mb-3" id="filterAccordion">
     <div class="accordion-item">
@@ -522,7 +523,8 @@
             let url = "{{ route('admin.service.add') }}";
 
             if (formType === 'edit') {
-                url = "{{ url('admin/service/edit') }}/" + serviceId;
+                url = "{{ route('admin.service.edit',['id' => ':id']) }}";
+                url = url.replace(':id', serviceId)
             }
 
             $.ajax({

@@ -3,17 +3,17 @@
 @section('title', 'Providers')
 @section('page-title', 'Providers')
 
-@section('content')
-
+@section('page-button')
 <div class="row align-items-center mb-2">
     <div class="col-auto ms-auto">
-        <button type="button" class="btn buttonColor" data-bs-toggle="modal" data-bs-target="#providerModal">
+        <button type="button" class="btn buttonColor text-nowrap" data-bs-toggle="modal" data-bs-target="#providerModal">
             <i class="bi bi-plus fs-6 me-1"></i> Provider
         </button>
     </div>
 </div>
+@endsection
 
-
+@section('content')
 <div class="col-12 col-md-10 col-lg-12">
     <div class="card shadow-sm">
 

@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\GlobalService;
+use App\Models\User;
 use App\Models\UserService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
@@ -16,21 +17,29 @@ class ViewServiceProvider extends ServiceProvider
 
             $services = GlobalService::where('is_active', '1')->get();
 
-            if (Auth::check() && Auth::user()->status == '1') {
-                $requestedServices = UserService::latest()
-                    ->where('user_id', Auth::id())
-                    ->where('is_active', '1')
-                    ->get()
-                    ->unique('service_id')
-                    ->keyBy('service_id');
+            $requestedServices = collect();
+            $businessWallet = 0;
 
-            } else {
-                $requestedServices = UserService::where('user_id', Auth::id())
-                    ->get()
-                    ->keyBy('service_id');
+            if (Auth::check()) {
+
+                if (Auth::user()->status == '1') {
+                    $requestedServices = UserService::latest()
+                        ->where('user_id', Auth::id())
+                        ->where('is_active', '1')
+                        ->get()
+                        ->unique('service_id')
+                        ->keyBy('service_id');
+                } else {
+                    $requestedServices = UserService::where('user_id', Auth::id())
+                        ->get()
+                        ->keyBy('service_id');
+                }
+
+               
+                $businessWallet = User::where('id', Auth::id())->value('transaction_amount') ?? 0;
             }
 
-            $view->with(compact('services', 'requestedServices'));
+            $view->with(compact('services', 'requestedServices', 'businessWallet'));
         });
     }
 }

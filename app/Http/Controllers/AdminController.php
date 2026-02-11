@@ -17,6 +17,7 @@ use App\Models\UserAssignedToSupport;
 use App\Models\UserConfig;
 use App\Models\UsersBank;
 use App\Models\UserService;
+use App\Models\Transaction;
 use App\Models\WebHookUrl;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -45,7 +46,7 @@ class AdminController extends Controller
             //     ->select('id', 'slug', 'service_name')
             //     ->get();
 
-            $data['userdata'] = User::where('id', $userId)->select('name', 'email', 'mobile', 'status', 'role_id', 'profile_image')->first();
+            $data['userdata'] = User::where('id', $userId)->select('name', 'email', 'mobile', 'status', 'role_id', 'profile_image', 'transaction_amount','created_at')->first();
             $data['businessInfo'] = BusinessInfo::where('user_id', $userId)->first();
             $data['businessCategory'] = BusinessCategory::where('status', 1)->orderBy('id', 'desc')->get();
             $data['supportRepresentative'] = UserAssignedToSupport::where('user_id', $userId)->with('assigned_support')->first();
@@ -53,6 +54,12 @@ class AdminController extends Controller
             $data['usersBank'] = UsersBank::where('user_id', $userId)->first();
             $data['UserServices'] = UserService::where('user_id', $userId)->where('status', 'approved')->where('is_active', '1')->get();
             $data['webhookUrl'] = WebHookUrl::where('user_id', $userId)->first();
+            $data['txnStats'] = Transaction::where('user_id', $userId)->where('status', 'processed')
+            ->selectRaw('COUNT(id) as total_count, SUM(amount) as total_amount, MIN(created_at) as first_txn_date')
+            ->first();
+            $data['walletBalance'] = $data['userdata']->transaction_amount ?? 0;
+            $data['completedTxn']  = $data['txnStats']->total_count ?? 0;
+            $data['totalSpent']    = $data['txnStats']->total_amount ?? 0;
 
             return view('Admin.profile')->with($data);
         } catch (\Exception $e) {

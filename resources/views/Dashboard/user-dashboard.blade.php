@@ -18,10 +18,13 @@
 
                 <h6 class="fw-bold mb-3">Our Services</h6>
 
-                <img src="{{ asset('assets/image/icon_logo.svg') }}" alt="" class="position-absolute top-0 end-0 m-3" style="width: 70px;">
+                <!-- Top-right images container -->
+                <div class="position-absolute top-0 end-0 m-3 d-flex" style="gap: 0.5rem;">
+                    <img src="{{ asset('assets/image/icon_logo.svg') }}" alt="" style="width: 70px;">
+                    <img src="{{ asset('assets/image/mobikwik-logo-black.jpg') }}" alt="" style="width: 70px;">
+                </div>
 
                 <div class="row g-3 text-center">
-
                     @php
                     $services = [
                     ['name' => 'Bill Pay', 'icon' => 'bi-receipt'],
@@ -53,6 +56,7 @@
 
                 </div>
             </div>
+
         </div>
     </div>
 

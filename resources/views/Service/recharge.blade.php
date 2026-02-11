@@ -334,11 +334,6 @@
 <div class="modal fade" id="rechargeModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <!-- 
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="modalTitle">Recharge</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div> -->
 
             <div class="modal-header position-relative overflow-visible">
                 <h5 class="modal-title" id="modalTitle">
@@ -357,16 +352,17 @@
                 </button>
             </div>
 
-            <form id="rechargeForm">
-                <div class="modal-body" id="modalBody"></div>
+                <form id="rechargeForm">
+                   
+                    <div class="modal-body" id="modalBody"></div>
 
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary d-none" id="backBtn">Back</button>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary d-none" id="backBtn">Back</button>
 
-                    {{-- ✅ keep as button (no form submit auto) --}}
-                    <button type="button" class="btn btn-primary" id="nextBtn">View Plans</button>
-                </div>
-            </form>
+                        {{-- ✅ keep as button (no form submit auto) --}}
+                        <button type="button" class="btn btn-primary" id="nextBtn">View Plans</button>
+                    </div>
+                </form>
         </div>
     </div>
 </div>
@@ -895,6 +891,72 @@ $rechargePlanTypes = [
         if (currentService === "Mobile Prepaid" && stepIndex === 0) {
             return;
         }
+    });
+
+    /* ===============================
+       BUTTON HANDLERS
+       FIXED: prevents multiple Pay Now hits
+    ================================ */
+    $('#nextBtn').off('click').on('click', function(e) {
+        e.preventDefault();
+
+        const config = serviceConfig[currentService];
+        const step = config.steps[stepIndex];
+
+
+        if (__nextClickLock) return;
+        __nextClickLock = true;
+        setTimeout(() => {
+            __nextClickLock = false;
+        }, 350);
+
+
+        if (currentService === "Mobile Prepaid" && stepIndex === 0) {
+            return;
+        }
+
+
+
+        if (currentService === "Mobile Postpaid" && stepIndex === 0) {
+            document.getElementById('rechargeForm')
+                .dispatchEvent(new Event('submit', {
+                    cancelable: true
+                }));
+            return;
+        }
+
+
+
+        if (step === "PAY") {
+            if (__payLock) return;
+            __payLock = true;
+            $('#nextBtn').prop('disabled', true);
+            rechargeValidation();
+            return;
+        }
+
+        if (stepIndex < config.steps.length - 1) {
+            stepIndex++;
+            loadStep();
+        } else {
+            rechargeValidation();
+        }
+    });
+
+    $('#backBtn').on('click', function() {
+        if (__plansAbortController) {
+            try {
+                __plansAbortController.abort();
+            } catch (e) {}
+        }
+        __plansAbortController = null;
+
+        __fetchingPlans = false;
+        __plansReqId++;
+
+
+        __payLock = false;
+        $('#nextBtn').prop('disabled', false);
 
 
         if (currentService === "Mobile Postpaid" && stepIndex === 0) {
@@ -921,6 +983,7 @@ $rechargePlanTypes = [
             rechargeValidation();
         }
     });
+
 
     $('#backBtn').on('click', function() {
         if (__plansAbortController) {

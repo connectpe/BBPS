@@ -154,7 +154,7 @@
         $(document).on('click', '.editSupport', function() {
             let id = $(this).data('id');
             $('#editErrorBox').hide();
-            $.get("{{ url('admin/get-s-member') }}/" + id, function(res) {
+            $.get("{{ route('get.support.member',['id' => ':id']) }}".replace(':id',id), function(res) {
                 if (res.status) {
                     $('#edit_user_id').val(res.data.id);
                     $('#edit_name').val(res.data.name);
@@ -174,7 +174,7 @@
             $btn.prop('disabled', true).text('Updating...');
 
             $.ajax({
-                url: "{{ url('admin/edit-s-member') }}/" + id,
+                url: "{{ route('edit.support.member',['user_id' => ':id']) }}".replace(':id', id),
                 type: "POST",
                 data: $(this).serialize(),
                 headers: {

@@ -147,7 +147,7 @@
             return state.text;
         }
 
-       
+
         $('#btnAddNew').click(function() {
             window.currentEditingUserId = null;
             $('#assignment_id').val('');
@@ -242,7 +242,7 @@
         $(document).on('click', '.edit-btn', function() {
             let id = $(this).data('id');
             $.ajax({
-                url: "{{ url('edit-support-assignment') }}/" + id,
+                url: "{{ route('edit_support_assignment',['id' => ':id']) }}".replace(':id', id),
                 type: "GET",
                 success: function(res) {
                     if (res.status) {
@@ -308,7 +308,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-                        url: "{{ url('delete-support-assignment') }}/" + id,
+                        url: "{{ route('delete_support_assignment',['id' => ':id']) }}".replace(':id',id) ,
                         type: "DELETE",
                         data: {
                             _token: "{{ csrf_token() }}"
