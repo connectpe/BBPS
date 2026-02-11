@@ -3,16 +3,18 @@
 @section('title', 'Transaction Complaint')
 @section('page-title', 'Transaction Complaint')
 
-@section('content')
 
+@section('page-button')
 <div class="row align-items-center mb-2">
     <div class="col-auto ms-auto">
-        <button type="button" class="btn buttonColor" data-bs-toggle="modal" data-bs-target="#serviceModal">
+        <button type="button" class="btn buttonColor text-nowrap" data-bs-toggle="modal" data-bs-target="#serviceModal">
             <i class="bi bi-plus fs-6 me-1"></i> Complaint
         </button>
     </div>
 </div>
+@endsection
 
+@section('content')
 <div class="accordion mb-3" id="filterAccordion">
     <div class="accordion-item">
         <h2 class="accordion-header" id="headingFilter">

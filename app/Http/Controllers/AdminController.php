@@ -46,7 +46,7 @@ class AdminController extends Controller
             //     ->select('id', 'slug', 'service_name')
             //     ->get();
 
-            $data['userdata'] = User::where('id', $userId)->select('name', 'email', 'mobile', 'status', 'role_id', 'profile_image', 'transaction_amount')->first();
+            $data['userdata'] = User::where('id', $userId)->select('name', 'email', 'mobile', 'status', 'role_id', 'profile_image', 'transaction_amount','created_at')->first();
             $data['businessInfo'] = BusinessInfo::where('user_id', $userId)->first();
             $data['businessCategory'] = BusinessCategory::where('status', 1)->orderBy('id', 'desc')->get();
             $data['supportRepresentative'] = UserAssignedToSupport::where('user_id', $userId)->with('assigned_support')->first();
@@ -60,7 +60,6 @@ class AdminController extends Controller
             $data['walletBalance'] = $data['userdata']->transaction_amount ?? 0;
             $data['completedTxn']  = $data['txnStats']->total_count ?? 0;
             $data['totalSpent']    = $data['txnStats']->total_amount ?? 0;
-            $data['memberSince']   = $data['txnStats']->first_txn_date ? \Carbon\Carbon::parse($data['txnStats']->first_txn_date)->format('Y') : '';
 
             return view('Admin.profile')->with($data);
         } catch (\Exception $e) {
