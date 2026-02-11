@@ -210,6 +210,8 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::post('generate-mpin', [UserController::class, 'generateMpin'])->name('generate_mpin');
     Route::post('nsdl-initiated-payment', [UserController::class, 'initiateNsdlPayment'])->name('nsdl-initiatePayment');
+    Route::get('recharge/invoice/{id}',[TransactionController::class, 'downloadInvoice'])->name('recharge.invoice.download');
+
 
 });
 
