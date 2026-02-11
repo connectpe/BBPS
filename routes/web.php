@@ -106,6 +106,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('generate/client-credentials', [UserController::class, 'generateClientCredentials'])->name('generate_client_credentials');
         Route::post('generate-mpin', [UserController::class, 'generateMpin'])->name('generate_mpin');
     });
+   
 });
 
     Route::group(['middleware'=>['isUser','logs','auth'],'prefix'=> 'user'],function () {
@@ -167,6 +168,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/ledger', [LadgerController::class, 'index'])->name('ladger.index');
         Route::post('logout', [AuthController::class, 'logout'])->name('admin.logout');
         Route::get('/transaction-report', [TransactionController::class, 'transaction_Report'])->name('transaction.report');
+        Route::get('recharge/invoice/{id}', [TransactionController::class, 'downloadInvoice'])
+        ->name('recharge.invoice.download');
 
 
         Route::get('unauthrized',function(){

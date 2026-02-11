@@ -92,6 +92,7 @@
                             <th>Referene No</th>
                             <th>Created at</th>
                             <th>Status</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                 </table>
@@ -201,7 +202,30 @@
                         const color = colors[data] || 'secondary';
                         return `<span class="badge bg-${color}">${formatStatus(data)}</span>`;
                     }
-                }
+                },
+                {
+    data: null,
+    orderable: false,
+    searchable: false,
+    render: function (data, type, row) {
+
+       
+        if (row.status === 'processed') {
+            let url = "{{ route('recharge.invoice.download', ':id') }}"
+                        .replace(':id', row.id);
+
+            return `
+                <a href="${url}" 
+                   class="btn btn-sm btn-success">
+                    <i class="bi bi-download"></i> Invoice
+                </a>
+            `;
+        }
+
+        return `<span class="text-muted">----</span>`;
+    }
+}
+
             ]
         });
 
