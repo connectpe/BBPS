@@ -65,7 +65,6 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/nsdl-payment', [AdminController::class, 'nsdlPayment'])->name('nsdl-payment');
 
 
-
         Route::get('our-services', [ServiceController::class, 'ourService'])->name('our_servicess');
         Route::post('/admin/service/add', [AdminController::class, 'AddService'])
             ->name('admin.service.add');
@@ -78,6 +77,9 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('edit-provider/{id}', [AdminController::class, 'editProvider'])->name('edit_provider');
         Route::get('status-provider/{id}', [AdminController::class, 'statusProvider'])->name('status_provider');
 
+       
+
+        
     });
 
 
@@ -208,6 +210,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::post('generate-mpin', [UserController::class, 'generateMpin'])->name('generate_mpin');
     Route::post('nsdl-initiated-payment', [UserController::class, 'initiateNsdlPayment'])->name('nsdl-initiatePayment');
+
 });
 
 Route::prefix('admin', function () {
