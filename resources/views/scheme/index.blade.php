@@ -11,6 +11,7 @@
                 </button>
             </div>
             <div class="card-body">
+                 <div class="table-responsive">
                 <table id="schemeTable" class="table table-bordered table-striped w-100">
                     <thead>
                         <tr>
@@ -24,6 +25,7 @@
                     <tbody>
                     </tbody>
                 </table>
+                 </div>
             </div>
         </div>
 
@@ -67,6 +69,8 @@
                     </div>
                 </div>
 
+                 <div class="table-responsive">
+
                 <table id="relationTable" class="table table-bordered table-striped w-100">
                     <thead class="bg-light">
                         <tr>
@@ -79,6 +83,7 @@
                     <tbody>
                     </tbody>
                 </table>
+                 </div>
             </div>
         </div>
     </div>

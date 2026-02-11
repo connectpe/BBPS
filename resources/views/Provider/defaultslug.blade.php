@@ -13,17 +13,19 @@
                 </button>
             </div>
             <div class="card-body">
-                <table id="defaultSlugTable" class="table table-bordered table-striped w-100">
-                    <thead>
-                        <tr>
-                            <th>S.N.</th>
-                            <th>SERVICE</th>
-                            <th>PROVIDER</th>
-                            <th>CREATED AT</th>
-                            <th>ACTION</th>
-                        </tr>
-                    </thead>
-                </table>
+                <div class="table-responsive">
+                    <table id="defaultSlugTable" class="table table-bordered table-striped w-100">
+                        <thead>
+                            <tr>
+                                <th>S.N.</th>
+                                <th>SERVICE</th>
+                                <th>PROVIDER</th>
+                                <th>CREATED AT</th>
+                                <th>ACTION</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -67,7 +69,7 @@
 
     <script>
         $(document).ready(function() {
-           
+
             let table = $('#defaultSlugTable').DataTable({
                 processing: true,
                 serverSide: true,
@@ -127,7 +129,8 @@
                 }
 
                 $.ajax({
-                   url: "{{ route('providers_by_service', ['serviceId' => ':id']) }}".replace(':id', serviceId),
+                    url: "{{ route('providers_by_service', ['serviceId' => ':id']) }}".replace(
+                        ':id', serviceId),
                     type: "GET",
                     dataType: "json",
                     success: function(res) {
@@ -211,7 +214,7 @@
                     }
                 });
             });
-           
+
         });
     </script>
 @endsection
