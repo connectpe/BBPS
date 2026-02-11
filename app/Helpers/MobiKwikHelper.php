@@ -2,10 +2,14 @@
 
 namespace App\Helpers;
 
+use App\Models\Ladger;
 use App\Models\MobikwikToken;
 use App\Models\Transaction;
+use App\Models\UserService;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class MobiKwikHelper
 {
@@ -14,6 +18,7 @@ class MobiKwikHelper
     protected string $keyVersion;
     private  $clientId;
     private  $clientSecret;
+    private  $paymentAccountInfo;
 
     public function __construct()
     {
@@ -22,6 +27,7 @@ class MobiKwikHelper
         $this->keyVersion = config('mobikwik.key_version');
         $this->clientSecret = config('mobikwik.client_secret');
         $this->clientId     = config('mobikwik.client_id');
+        $this->paymentAccountInfo = config('mobikwik.payment_account_info');
     }
 
     public static function generateMobikwikToken()
@@ -156,13 +162,34 @@ class MobiKwikHelper
         return $encrypted;
     }
 
-    public function Payment(string $endpoint, array $payload)
+    public function Payment(string $endpoint, $mobile, $operatorId, $circleId, $planId, $amount)
     {
         try {
-          
+            $user = Auth::user();
+            $connectPeId = CommonHelper::generateConnectPeTransactionId();
+            $reqId = CommonHelper::generateTransactionId();
+            $paymentRefId = CommonHelper::generatePaymentRefId();
+            $userService = (int) 10;
+
+            $payload = [
+                'cn'                  => $mobile,
+                'op'                  => $operatorId,
+                'cir'                 => $circleId,
+                'amt'                 => $amount,
+                'customerMobile'      => $mobile,
+                'remitterName'        => $user->name,
+                'paymentMode'         => 'Wallet',
+                'paymentAccountInfo'  => $this->paymentAccountInfo,
+                'reqid'               => $reqId,
+                'paymentRefID'        => $paymentRefId,
+                'plan_id'             => $planId,
+                'userid'              => $user->id,
+                'connectpeId'         => $connectPeId,
+                'call'                => 'balance_debit',
+            ];
 
             Transaction::create([
-                'user_id'               => $payload['user_id'],
+                'user_id'               => $user->id,
                 'operator_id'           => $payload['op'],
                 'circle_id'             => $payload['cir'],
                 'amount'                => $payload['amt'],
@@ -171,15 +198,44 @@ class MobiKwikHelper
                 'mobile_number'         => $payload['customerMobile'],
                 'payment_ref_id'        => $payload['paymentRefID'],
                 'payment_account_info'  => $payload['paymentAccountInfo'],
-                'recharge_type'         => $payload['prepaid'],
+                'recharge_type'         => 'prepaid',
                 'connectpe_id'          => $connectPeId,
+            ]);
+
+            $result = DB::select(
+                "CALL debitAmountFromUserWallet(?, ?, ?, ?)",
+                [
+                    $user->id,
+                    $userService,
+                    $amount,
+                    false
+                ]
+            );
+
+            $response = json_decode($result[0]->response, true);
+
+            Ladger::create([
+                'reference_no'      => $paymentRefId,
+                'request_id'        => $reqId,
+                'connectpe_id'      => $connectPeId,
+                'user_id'           => $user->id,
+                'txn_amount'        => $amount,
+                'txn_date'          => now(),
+                'txn_type'          => 'dr',
+                'service_id'        => $userService,
+                'opening_balance'   => $response['opening_balance'],
+                'closing_balance'   => $response['remaining_balance'],
+                'remarks'           => "Payment for mobile recharge of ₹$amount to $mobile (Operator ID: $operatorId, Circle ID: $circleId)",
             ]);
 
 
             $token = CommonHelper::isTokenPresent();
 
             $response = $this->sendRequest($endpoint, $payload, $token);
-            return response()->json($response);
+            return response()->json([
+                'status' => true,
+                'data' => $response,
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,

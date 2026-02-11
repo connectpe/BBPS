@@ -192,7 +192,12 @@
             },
 
             columns: [{
-                    data: 'id'
+                    data: null,
+                    orderable: false,
+                    searchable: false,
+                    render: function(data, type, row, meta) {
+                        return meta.settings._iDisplayStart + meta.row + 1;
+                    }
                 },
                 {
                     data: 'service_name'
@@ -286,7 +291,12 @@
             },
 
             columns: [{
-                    data: 'id'
+                    data: null,
+                    orderable: false,
+                    searchable: false,
+                    render: function(data, type, row, meta) {
+                        return meta.settings._iDisplayStart + meta.row + 1;
+                    }
                 },
                 {
                     data: function(row) {
@@ -360,8 +370,8 @@
         });
 
         $('#resetFilterServicesTable').on('click', function() {
-            $('#userId').val('');
-            $('#globalService').val('');
+            $('#userId').val('').trigger('change');
+            $('#globalService').val('').trigger('change');
             $('#date_from').val('');
             $('#date_to').val('');
             table.ajax.reload();

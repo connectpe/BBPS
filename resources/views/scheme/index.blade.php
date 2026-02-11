@@ -257,7 +257,7 @@
                 }
             },
             columns: [{
-                    data: null,
+                    data: 'id',
                     render: (data, type, row, meta) => meta.row + meta.settings._iDisplayStart + 1
                 },
                 {

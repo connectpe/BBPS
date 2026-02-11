@@ -1336,7 +1336,7 @@ class AdminController extends Controller
         ]);
 
 
-        if ($validator->fails()) {  
+        if ($validator->fails()) {
             return response()->json([
                 'status' => false,
                 'errors' => $validator->errors(),
@@ -1508,8 +1508,10 @@ class AdminController extends Controller
 
 
 
-    public function nsdlPayment(){
-        return view('Transaction.nsdl-payment');
+    public function nsdlPayment()
+    {
+        $users = User::where('role_id', '!=', '1')->whereHas('nsdlPayments')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
+        $globalServices = GlobalService::where('is_active', '1')->orderBy('id', 'desc')->get();
+        return view('Transaction.nsdl-payment', compact('users', 'globalServices'));
     }
-
 }
