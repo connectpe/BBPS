@@ -29,8 +29,11 @@ Route::get('kyc', function () {
 
 
 
-Route::group(['middleware' => ['auth'],'prefix'=>'admin'], function () {
-    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+Route::group(['middleware' => ['auth']], function () {
+    Route::group(['prefix'=>'admin'],function(){
+        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+    });
+    
     Route::group(['middleware'=>['isAdmin'],'prefix'=>'admin'],function () {
         // Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
         
@@ -41,7 +44,7 @@ Route::group(['middleware' => ['auth'],'prefix'=>'admin'], function () {
         Route::put('edit-service/{service_id}', [AdminController::class, 'editService'])->name('admin.edit_service');
 
         Route::post('servicetoggle', [AdminController::class, 'disableUserService'])->name('admin.service_toggle');
-        Route::post('logout', [AuthController::class, 'logout'])->name('admin.logout');
+        
 
         // Support member routes here
         Route::get('/support-details', [AdminController::class, 'supportdetails'])->name('support_details');
@@ -162,7 +165,7 @@ Route::group(['middleware' => ['auth'],'prefix'=>'admin'], function () {
         Route::get('/complain-report', [ComplainReportController::class, 'complainReport'])->name('complain.report'); //common in admin and support user
         Route::get('reports/{type}', [ReportController::class, 'index'])->name('reports'); //common for transaction section report, banking, utility 
         Route::get('/ledger', [LadgerController::class, 'index'])->name('ladger.index');
-
+        Route::post('logout', [AuthController::class, 'logout'])->name('admin.logout');
         Route::get('/transaction-report', [TransactionController::class, 'transaction_Report'])->name('transaction.report');
 
 
