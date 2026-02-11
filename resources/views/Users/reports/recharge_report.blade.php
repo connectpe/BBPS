@@ -209,7 +209,7 @@
     searchable: false,
     render: function (data, type, row) {
 
-        // 👉 sirf processed ke liye button
+       
         if (row.status === 'processed') {
             let url = "{{ route('recharge.invoice.download', ':id') }}"
                         .replace(':id', row.id);
