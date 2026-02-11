@@ -74,7 +74,7 @@
                 <table id="serviceRequestTable" class="table table-striped table-bordered table-hover w-100">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>S.No</th>
                             <th>Organization Name</th>
                             <th>Service</th>
                             <th>Status</th>
@@ -131,7 +131,10 @@
             },
 
             columns: [{
-                    data: 'id'
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return meta.row + 1;
+                    }
                 },
                 {
                     data: function(row) {
@@ -187,9 +190,9 @@
         });
 
         $('#resetFilter').on('click', function() {
-            $('#filterUser').val('');
-            $('#filterService').val('');
-            $('#filterStatus').val('');
+            $('#filterUser').val('').trigger('change');;
+            $('#filterService').val('').trigger('change');;
+            $('#filterStatus').val('').trigger('change');;
             $('#filterDateFrom').val('');
             $('#filterDateTo').val('');
             table.ajax.reload();

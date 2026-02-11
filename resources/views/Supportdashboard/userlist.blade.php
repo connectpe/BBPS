@@ -99,7 +99,12 @@
             },
 
             columns: [{
-                    data: 'id'
+                    data: null,
+                    orderable: false,
+                    searchable: false,
+                    render: function(data, type, row, meta) {
+                        return meta.settings._iDisplayStart + meta.row + 1;
+                    }
                 },
                 {
                     data: null,
