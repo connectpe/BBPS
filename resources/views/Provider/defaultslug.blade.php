@@ -127,7 +127,7 @@
                 }
 
                 $.ajax({
-                    url: "{{ url('admin/fetch/providers-by-service') }}/" + serviceId,
+                   url: "{{ route('providers_by_service', ['serviceId' => ':id']) }}".replace(':id', serviceId),
                     type: "GET",
                     dataType: "json",
                     success: function(res) {
@@ -211,32 +211,7 @@
                     }
                 });
             });
-            $(document).on('click', '.deleteBtn', function() {
-                let id = $(this).data('id');
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: "This configuration will be permanently deleted!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, delete it!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.post("{{ url('delete-default-provider') }}/" + id, {
-                            _token: "{{ csrf_token() }}"
-                        }, function(res) {
-                            if (res.status) {
-                                Swal.fire('Deleted!', 'Configuration has been removed.',
-                                    'success');
-                                table.ajax.reload(null, false);
-                            } else {
-                                Swal.fire('Error', 'Could not delete the record.', 'error');
-                            }
-                        });
-                    }
-                });
-            });
+           
         });
     </script>
 @endsection

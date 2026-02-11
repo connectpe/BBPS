@@ -57,7 +57,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('change-ekyc-status', [AdminController::class, 'changeKycStatus'])->name('change_ekyc_status');
 
         Route::get('/default-slug', [AdminController::class, 'defalutSlug'])->name('defaultslug');
-        Route::get('/fetch/providers-by-service/{serviceId}', [AdminController::class, 'getProvidersByService'])->name('providers.by.service');
+        Route::get('/fetch/providers-by-service/{serviceId}', [AdminController::class, 'getProvidersByService'])->name('providers_by_service');
         Route::post('add-default-provider', [AdminController::class, 'addDefaultProvider'])->name('add-default-provider');
         Route::post('edit-default-provider/{id}', [AdminController::class, 'editDefaultProvider'])->name('edit-default-provider');
 
