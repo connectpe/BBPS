@@ -104,6 +104,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('nsdl-initiated-payment', [UserController::class, 'initiateNsdlPayment'])->name('nsdl-initiatePayment');
      Route::post('/service-request', [ServiceRequestController::class, 'store'])
         ->name('service.request');
+            Route::post('/users/{id}/routing/save', [UserController::class, 'saveUserRouting'])
+        ->name('admin.users.routing.save');
 
 
 
@@ -175,13 +177,12 @@ Route::group(['middleware' => ['auth']], function () {
 
 
 
-    Route::post('/users/{id}/routing/save', [UserController::class, 'saveUserRouting'])
-        ->name('admin.users.routing.save');
 
 
 
-    Route::post('/users/{id}/routing/save', [UserController::class, 'saveUserRouting'])
-        ->name('admin.users.routing.save');
+
+    // Route::post('/users/{id}/routing/save', [UserController::class, 'saveUserRouting'])
+    //     ->name('admin.users.routing.save');
 
     
 
