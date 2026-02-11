@@ -33,10 +33,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::prefix('admin')->group(function () {
         Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-        // Route::get('/dashboard', function () {
-        //     return view('dashboard');
-        // })->name('dashboard');
-
+       
         Route::post('servicetoggle', [AdminController::class, 'disableUserService'])->name('admin.service_toggle.user');
         Route::post('user-status-change', [AdminController::class, 'changeUserStatus'])->name('admin.user_status.change');
         Route::post('add-service', [AdminController::class, 'addService'])->name('admin.add_service');
@@ -66,56 +63,53 @@ Route::group(['middleware' => ['auth']], function () {
 
         // NSDL Transaction Routes
         Route::get('/nsdl-payment', [AdminController::class, 'nsdlPayment'])->name('nsdl-payment');
+
+
+
+        Route::get('our-services', [ServiceController::class, 'ourService'])->name('our_servicess');
+        Route::post('/admin/service/add', [AdminController::class, 'AddService'])
+            ->name('admin.service.add');
+        Route::post('admin/service/edit/{id}', [AdminController::class, 'EditService'])
+            ->name('admin.service.edit');
+
+        // Provider Related Route
+        Route::get('providers', [AdminController::class, 'providers'])->name('providers');
+        Route::post('add-provider', [AdminController::class, 'addProvider'])->name('add_provider');
+        Route::post('edit-provider/{id}', [AdminController::class, 'editProvider'])->name('edit_provider');
+        Route::get('status-provider/{id}', [AdminController::class, 'statusProvider'])->name('status_provider');
+
     });
 
+
+    Route::group(['middleware' => ['auth']],function(){
+        Route::prefix('user')->group(function (){
+            Route::prefix('bbps-recharge')->group(function () {
+                Route::post('getPlans/{operator_id}/{circle_id}/{plan_type?}', [BbpsRechargeController::class, 'getPlans'])->name('bbps.getPlans');
+                
+                Route::post('validateRecharge', [BbpsRechargeController::class, 'validateRecharge'])->name('bbps.validateRecharge');
+            
+                Route::post('status', [BbpsRechargeController::class, 'status'])->name('bbps.status');
+                Route::post('mpin-auth', [BbpsRechargeController::class, 'mpinAuth'])->name('bbps.mpin_auth');
+            });
+
+            Route::post('completeProfile/{user_id}', [UserController::class, 'completeProfile'])->name('admin.complete_profile');
+            // Service Related Route
+            Route::group(['middleware' => ['isUserAccessPage']], function () {
+                Route::get('/utility-service', [ServiceController::class, 'utilityService'])->name('utility_service');
+                Route::get('/recharge-service', [ServiceController::class, 'rechargeService'])->name('recharge_service');
+                Route::get('/banking-service', [ServiceController::class, 'bankingService'])->name('banking_service');
+            });
+        });
+    });
     // RECHARGE RELATED ROUTE 8010801087
-    Route::prefix('bbps-recharge')->group(function () {
-        Route::post('getPlans/{operator_id}/{circle_id}/{plan_type?}', [BbpsRechargeController::class, 'getPlans'])->name('bbps.getPlans');
-        // Route::post('genrate-token',[BbpsRechargeController::class,'generateToken'])->name('bbps.generate_token');
-
-        // Route::post('balance', [BbpsRechargeController::class, 'balance'])->name('bbps.balance');
-        Route::post('validateRecharge', [BbpsRechargeController::class, 'validateRecharge'])->name('bbps.validateRecharge');
-        // Route::post('payment', [BbpsRechargeController::class, 'payment'])->name('bbps.payment');
-        Route::post('status', [BbpsRechargeController::class, 'status'])->name('bbps.status');
-        Route::post('mpin-auth', [BbpsRechargeController::class, 'mpinAuth'])->name('bbps.mpin_auth');
-        // Route::post('postpaid-villbill', [BbpsRechargeController::class, 'postpaidVillBill'])->name('bbps.postpaid_villBill');
-    });
+     
+   
 
     Route::post('change-password', [AuthController::class, 'passwordReset'])->name('admin.change_password');
 
-    Route::post('completeProfile/{user_id}', [UserController::class, 'completeProfile'])->name('admin.complete_profile');
-
+    
     // Admin  Related Route
     Route::get('profile/{user_id}', [AdminController::class, 'adminProfile'])->name('admin_profile');
-
-    // Service Related Route
-    Route::group(['middleware' => ['isUserAccessPage']], function () {
-        Route::get('/utility-service', [ServiceController::class, 'utilityService'])->name('utility_service');
-        Route::get('/recharge-service', [ServiceController::class, 'rechargeService'])->name('recharge_service');
-        Route::get('/banking-service', [ServiceController::class, 'bankingService'])->name('banking_service');
-    });
-
-    Route::get('our-services', [ServiceController::class, 'ourService'])->name('our_servicess');
-    Route::post('/admin/service/add', [AdminController::class, 'AddService'])
-        ->name('admin.service.add');
-    Route::post('admin/service/edit/{id}', [AdminController::class, 'EditService'])
-        ->name('admin.service.edit');
-
-    // Provider Related Route
-    Route::get('providers', [AdminController::class, 'providers'])->name('providers');
-    Route::post('add-provider', [AdminController::class, 'addProvider'])->name('add_provider');
-    Route::post('edit-provider/{id}', [AdminController::class, 'editProvider'])->name('edit_provider');
-    Route::get('status-provider/{id}', [AdminController::class, 'statusProvider'])->name('status_provider');
-
-    // Default Provider 
-    // Route::post('add-default-provider', [AdminController::class, 'addDefaultProvider'])->name('add-default-provider');
-    // Route::post('edit-default-provider/{id}', [AdminController::class, 'editDefaultProvider'])->name('edit-default-provider');
-
-
-    // Route::prefix('recharge')->group(function () {
-    //     Route::post('/get-plans', [BbpsRechargeController::class, 'getPlans']);
-    // });
-
     Route::get('services', [ServiceRequestController::class, 'enabledServices'])->name('enabled_services');
     Route::get('request-services', [ServiceRequestController::class, 'index'])->name('request_services');
     Route::post('active-user-service-status', [ServiceController::class, 'activeUserService'])->name('active_user_service_status');
@@ -123,13 +117,13 @@ Route::group(['middleware' => ['auth']], function () {
     // Users Related Route
     Route::get('/users', [UserController::class, 'bbpsUsers'])->name('users');
     Route::get('/complete-kyc', [UserController::class, 'redirectToKycPage'])->name('open.kyc.page');
-    Route::get('reports/{type}', [ReportController::class, 'index'])->name('reports');
+    Route::group(['middleware' => ['isUserAccessPage']], function () {
+        Route::get('reports/{type}', [ReportController::class, 'index'])->name('reports');
+    });
+   
     Route::get('reports', [LadgerController::class, 'reports'])->name('reseller_reports');
 
-    // Route::get('recharge-report', [ReportController::class, 'RechargeReport'])->name('recharge_report');
-    // Route::get('banking-report', [ReportController::class, 'BankingTransactionReport'])->name('banking_report');
-    // Route::get('utility-report', [ReportController::class, 'UtilityTransactionReport'])->name('utility_report');
-
+    
     Route::get('/view-user/{id}', [UserController::class, 'viewSingleUsers'])->name('view_user');
 
     // Transaction Related Route
