@@ -323,12 +323,12 @@
             }
 
 
-        $('.btn-add-new').click(function() {
-            $('#modalTitle').text('Add New Scheme Rules');
-            $('#scheme_id').val('');
-            $('#schemeForm')[0].reset();
-            $('#rulesTable tbody').empty();
-        });
+            $('.btn-add-new').click(function() {
+                $('#modalTitle').text('Add New Scheme Rules');
+                $('#scheme_id').val('');
+                $('#schemeForm')[0].reset();
+                $('#rulesTable tbody').empty();
+            });
 
         $(document).on('click', '.edit-scheme-btn', function() {
             let id = $(this).data('id');
@@ -550,6 +550,7 @@
                 });
             });
 
+        });
         });
     </script>
 @endsection
