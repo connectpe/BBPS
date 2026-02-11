@@ -322,11 +322,32 @@
                 </tr>`;
             }
 
-            $('.btn-add-new').click(function() {
-                $('#modalTitle').text('Add New Scheme Rules');
-                $('#scheme_id').val('');
-                $('#schemeForm')[0].reset();
-                $('#rulesTable tbody').empty();
+
+        $('.btn-add-new').click(function() {
+            $('#modalTitle').text('Add New Scheme Rules');
+            $('#scheme_id').val('');
+            $('#schemeForm')[0].reset();
+            $('#rulesTable tbody').empty();
+        });
+
+        $(document).on('click', '.edit-scheme-btn', function() {
+            let id = $(this).data('id');
+            $('#modalTitle').text('Update Scheme Rules');
+            $('#schemeForm')[0].reset();
+            $('#rulesTable tbody').empty();
+            $.ajax({
+                url: "{{route('edit_scheme',['id'=>':id'])}}".replace(':id',id),
+                type: "GET",
+                success: function(res) {
+                    if (res.status) {
+                        $('#scheme_id').val(res.scheme.id);
+                        $('#scheme_name').val(res.scheme.scheme_name);
+                        res.scheme.rules.forEach(rule => {
+                            $('#rulesTable tbody').append(getRowHtml(rule));
+                        });
+                        $('#schemeModal').modal('show');
+                    }
+                }
             });
 
             $(document).on('click', '.edit-scheme-btn', function() {

@@ -25,7 +25,7 @@
                     Back To Home Page
                 </a>
 
-                <a href="{{ route('contact') ?? '#' }}"
+                <a href="#"
                     class="btn btn-outline-secondary px-4">
                     Contact Us
                 </a>
