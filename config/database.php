@@ -40,13 +40,13 @@ return [
         ],
 
         'mysql' => [
-            'read' => [
-                'host' => [
+            // 'read' => [
+            //     'host' => [
 
-                    env('SLAVE_HOST', '127.0.0.1'),
+            //         env('SLAVE_HOST', '127.0.0.1'),
 
-                ],
-            ],
+            //     ],
+            // ],
 
             'write' => [
                 'host' => [
