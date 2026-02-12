@@ -627,7 +627,7 @@
                                                         class="text-danger">*</span></label>
                                                 <input type="password" class="form-control" name="current_mpin"
                                                     maxlength="6" pattern="\d*" inputmode="numeric"
-                                                    placeholder="Enter 6-digit current MPIN" required>
+                                                    placeholder="Enter 4-digit current MPIN" required>
                                                 <small class="text-danger error-current_mpin"></small>
                                             </div>
 
@@ -636,7 +636,7 @@
                                                         class="text-danger">*</span></label>
                                                 <input type="password" class="form-control" name="new_mpin"
                                                     maxlength="6" pattern="\d*" inputmode="numeric"
-                                                    placeholder="Set 6-digit new MPIN" required>
+                                                    placeholder="Set 4-digit new MPIN" required>
                                                 <small class="text-danger error-new_mpin"></small>
                                             </div>
 
@@ -645,7 +645,7 @@
                                                         class="text-danger">*</span></label>
                                                 <input type="password" class="form-control" name="new_mpin_confirmation"
                                                     maxlength="6" pattern="\d*" inputmode="numeric" required
-                                                    placeholder="Confirm 6-digit new MPIN">
+                                                    placeholder="Confirm 4-digit new MPIN">
                                             </div>
 
                                             <div class="text-end">
