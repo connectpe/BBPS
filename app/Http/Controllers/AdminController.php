@@ -1035,7 +1035,7 @@ class AdminController extends Controller
             }
 
             $request->validate([
-                'name' => 'required|string|min:3',
+                'name' => 'required|string',
                 'email' => 'required|email|unique:users,email,' . $user_id,
                 'mobile' => 'required|digits:10|unique:users,mobile,' . $user_id,
 
