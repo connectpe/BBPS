@@ -365,6 +365,14 @@
 
             ]
         });
+    
+        $('#date_from').on('change', function () {
+            let from = $(this).val();
+            $('#date_to').attr('min', from);
+            if ($('#date_to').val() && $('#date_to').val() < from) {
+                $('#date_to').val('');
+            }
+        });
 
         $('#applyFilterServicesTable').on('click', function() {
             table.ajax.reload();
@@ -375,6 +383,7 @@
             $('#globalService').val('').trigger('change');
             $('#date_from').val('');
             $('#date_to').val('');
+            $('#date_to').val('').removeAttr('min');
             table.ajax.reload();
         });
     });

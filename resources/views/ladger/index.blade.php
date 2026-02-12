@@ -108,8 +108,8 @@ $role = Auth::user()->role_id;
             processing: true,
             serverSide: true,
             columnDefs: [{
-                targets: 1, // 👈 column index
-                visible: role == 1 // 👈 ONLY show for role 1
+                targets: 1, 
+                visible: role == 1 
             }],
             ajax: {
                 url: "{{url('fetch')}}/ledger/0",
@@ -217,6 +217,14 @@ $role = Auth::user()->role_id;
                 },
             ]
         });
+        $('#filterDateFrom').on('change', function () {
+            let from = $(this).val();
+            $('#filterDateTo').attr('min', from);
+            if ($('#filterDateTo').val() && $('#filterDateTo').val() < from) {
+                $('#filterDateTo').val('');
+            }
+        });
+
 
         // Apply filter
         $('#applyFilter').on('click', function() {
@@ -228,6 +236,7 @@ $role = Auth::user()->role_id;
             $('#filterUser').val('').trigger('change');
             $('#filterDateFrom').val('');
             $('#filterDateTo').val('');
+            $('#filterDateTo').val('').removeAttr('min');
             $('#referenceNo').val('');
             $('#requestId').val('');
             $('#connectPeId').val('');
