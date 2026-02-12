@@ -18,6 +18,63 @@ class TransactionController extends Controller
         return view('Transaction.transaction-status');
     }
 
+    public function transactionStatusCheck(Request $request)
+    {
+        $request->validate([
+            'txn_id' => 'nullable|string',
+            'mobile' => 'nullable|string',
+            'from_date' => 'nullable|date',
+            'to_date' => 'nullable|date',
+        ]);
+
+        $query = Transaction::query();
+
+        // If txn_id provided → exact match
+        if ($request->txn_id) {
+            $query->where('payment_ref_id', $request->txn_id);
+        }
+
+        // If mobile provided
+        if ($request->mobile) {
+            $query->where('mobile_number', $request->mobile);
+        }
+
+        // Date range filter
+        if ($request->from_date && $request->to_date) {
+            $query->whereBetween('created_at', [
+                $request->from_date . ' 00:00:00',
+                $request->to_date . ' 23:59:59'
+            ]);
+        }
+
+        $transactions = $query->get();
+
+        if ($transactions->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No record found'
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $transactions->map(function ($txn) {
+                return [
+                    'amount' => $txn->amount,
+                    'status' => $txn->status,
+                    'reference_number' => $txn->reference_number,
+                    'request_id' => $txn->request_id,
+                    'mobile_number' => $txn->mobile_number,
+                    'payment_ref_id' => $txn->payment_ref_id,
+                    'connectpe_id' => $txn->connectpe_id,
+                    'created_at' => $txn->created_at,
+                ];
+            })
+        ]);
+    }
+
+
+
     public function transactionComplaint()
     {
         $priorities = ['Low', 'Medium', 'High'];
@@ -46,7 +103,7 @@ class TransactionController extends Controller
         }
 
         do {
-            $ticketId = '#'.strtoupper(rand(000000000000, 111111111111));
+            $ticketId = '#' . strtoupper(rand(000000000000, 111111111111));
         } while (Complaint::where('ticket_number', $ticketId)->exists());
 
         $userId = Auth::user()->id;
@@ -112,7 +169,7 @@ class TransactionController extends Controller
 
     public function downloadInvoice($id)
     {
-        $txn = Transaction::with(['user','user.business'])
+        $txn = Transaction::with(['user', 'user.business'])
             ->where('id', $id)
             ->where('status', 'processed')
             ->firstOrFail();
@@ -121,7 +178,6 @@ class TransactionController extends Controller
 
         $fileRef = $txn->payment_ref_id ?? $txn->connectpe_id ?? $txn->request_id ?? $txn->id;
 
-        return $pdf->download('Invoice_'.$fileRef.'.pdf');
-
+        return $pdf->download('Invoice_' . $fileRef . '.pdf');
     }
 }
