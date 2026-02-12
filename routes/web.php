@@ -30,13 +30,13 @@ Route::get('kyc', function () {
 
 
 Route::group(['middleware' => ['auth']], function () {
-    Route::group(['prefix'=>'admin'],function(){
+    Route::group(['prefix' => 'admin'], function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     });
-    
-    Route::group(['middleware'=>['isAdmin'],'prefix'=>'admin'],function () {
+
+    Route::group(['middleware' => ['isAdmin'], 'prefix' => 'admin'], function () {
         // Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
-        
+
 
         Route::post('servicetoggle', [AdminController::class, 'disableUserService'])->name('admin.service_toggle.user');
         Route::post('user-status-change', [AdminController::class, 'changeUserStatus'])->name('admin.user_status.change');
@@ -44,7 +44,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::put('edit-service/{service_id}', [AdminController::class, 'editService'])->name('admin.edit_service');
 
         Route::post('servicetoggle', [AdminController::class, 'disableUserService'])->name('admin.service_toggle');
-        
+
 
         // Support member routes here
         Route::get('/support-details', [AdminController::class, 'supportdetails'])->name('support_details');
@@ -102,89 +102,84 @@ Route::group(['middleware' => ['auth']], function () {
         Route::delete('delete-support-assignment/{id}', [AdminController::class, 'deleteSupportAssignment'])->name('delete_support_assignment');
 
         // Complain Report Route
-       
+
         Route::post('generate/client-credentials', [UserController::class, 'generateClientCredentials'])->name('generate_client_credentials');
-        Route::post('generate-mpin', [UserController::class, 'generateMpin'])->name('generate_mpin');
     });
-   
 });
 
-    Route::group(['middleware'=>['isUser','logs','auth'],'prefix'=> 'user'],function () {
-        Route::prefix('bbps-recharge')->group(function () {
-            Route::post('getPlans/{operator_id}/{circle_id}/{plan_type?}', [BbpsRechargeController::class, 'getPlans'])->name('bbps.getPlans');
+Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], function () {
+    Route::prefix('bbps-recharge')->group(function () {
+        Route::post('getPlans/{operator_id}/{circle_id}/{plan_type?}', [BbpsRechargeController::class, 'getPlans'])->name('bbps.getPlans');
 
-            Route::post('validateRecharge', [BbpsRechargeController::class, 'validateRecharge'])->name('bbps.validateRecharge');
+        Route::post('validateRecharge', [BbpsRechargeController::class, 'validateRecharge'])->name('bbps.validateRecharge');
 
-            Route::post('status', [BbpsRechargeController::class, 'status'])->name('bbps.status');
-            Route::post('mpin-auth', [BbpsRechargeController::class, 'mpinAuth'])->name('bbps.mpin_auth');
-        });
-
-        Route::post('completeProfile/{user_id}', [UserController::class, 'completeProfile'])->name('admin.complete_profile');
-        // Service Related Route
-        Route::group(['middleware' => ['isUserAccessPage']], function () {
-            Route::get('/utility-service', [ServiceController::class, 'utilityService'])->name('utility_service');
-            Route::get('/recharge-service', [ServiceController::class, 'rechargeService'])->name('recharge_service');
-            Route::get('/banking-service', [ServiceController::class, 'bankingService'])->name('banking_service');
-        });
-
-        // Users Route
-        Route::get('/transaction-status', [TransactionController::class, 'transactionStatus'])->name('transaction_status');
-        Route::get('/transaction-complaint', [TransactionController::class, 'transactionComplaint'])->name('transaction_complaint');
-        Route::post('add-ip-address', [UserController::class, 'addIpWhiteList'])->name('add_ip_address');
-        Route::post('update-ip-address/{id}', [UserController::class, 'editIpWhiteList'])->name('update_ip_address');
-        Route::get('status-ip-address/{id}', [UserController::class, 'statusIpWhiteList'])->name('status_ip_address');
-        Route::get('delete-ip-address/{id}', [UserController::class, 'deleteIpWhiteList'])->name('delete_ip_address');
-        Route::post('webhook-url/save', [UserController::class, 'WebHookUrl'])->name('web_hook_url');
-        Route::post('/complaints', [TransactionController::class, 'store'])->name('complaints.store');
-        Route::get('/complete-kyc', [UserController::class, 'redirectToKycPage'])->name('open.kyc.page');
-        Route::get('/complaint-status', [TransactionController::class, 'complaintStatus'])->name('complaint_status');
-        Route::post('/complaint-status/check', [TransactionController::class, 'checkComplaintStatus'])->name('complaint.status.check');
-        Route::post('nsdl-initiated-payment', [UserController::class, 'initiateNsdlPayment'])->name('nsdl-initiatePayment');
-        Route::post('/service-request', [ServiceRequestController::class, 'store'])
-            ->name('service.request');
-        Route::post('/users/{id}/routing/save', [UserController::class, 'saveUserRouting'])
-            ->name('admin.users.routing.save');
-        Route::post('completeProfile/{user_id}', [UserController::class, 'completeProfile'])->name('admin.complete_profile');
-
-        // reseller routes
-        Route::get('reports', [LadgerController::class, 'reports'])->name('reseller_reports');
-        Route::get('services', [ServiceRequestController::class, 'enabledServices'])->name('enabled_services');
+        Route::post('status', [BbpsRechargeController::class, 'status'])->name('bbps.status');
+        Route::post('mpin-auth', [BbpsRechargeController::class, 'mpinAuth'])->name('bbps.mpin_auth');
     });
 
+    Route::post('completeProfile/{user_id}', [UserController::class, 'completeProfile'])->name('admin.complete_profile');
+    // Service Related Route
+    Route::group(['middleware' => ['isUserAccessPage']], function () {
+        Route::get('/utility-service', [ServiceController::class, 'utilityService'])->name('utility_service');
+        Route::get('/recharge-service', [ServiceController::class, 'rechargeService'])->name('recharge_service');
+        Route::get('/banking-service', [ServiceController::class, 'bankingService'])->name('banking_service');
+    });
 
-    Route::group(['middleware'=>['auth']],function(){
-           // Support User Route
-        Route::prefix('support')->group(function () {
-            Route::get('complaints-report', [SupportDashboardController::class, 'userComplaints'])->name('complaints_report');
-            Route::get('/support-userlist', [SupportDashboardController::class, 'supportUserList'])->name('support_userlist');
-        });
-        Route::post('/update-complaint-report/{id}', [ComplainReportController::class, 'updateComplaint'])->name('update_complaint_report');
-        // Admin/User Common Routes 
-        Route::post('change-password', [AuthController::class, 'passwordReset'])->name('admin.change_password');
-        Route::get('profile/{user_id}', [AdminController::class, 'adminProfile'])->name('admin_profile');
-        Route::post('fetch/{type}/{id?}/{returntype?}', [CommonController::class, 'fetchData']);
-        Route::get('/complain-report', [ComplainReportController::class, 'complainReport'])->name('complain.report'); //common in admin and support user
-        Route::get('reports/{type}', [ReportController::class, 'index'])->name('reports'); //common for transaction section report, banking, utility 
-        Route::get('/ledger', [LadgerController::class, 'index'])->name('ladger.index');
-        Route::post('logout', [AuthController::class, 'logout'])->name('admin.logout');
-        Route::get('/transaction-report', [TransactionController::class, 'transaction_Report'])->name('transaction.report');
-        Route::get('recharge/invoice/{id}', [TransactionController::class, 'downloadInvoice'])
+    // Users Route
+    Route::get('/transaction-status', [TransactionController::class, 'transactionStatus'])->name('transaction_status');
+    Route::get('/transaction-complaint', [TransactionController::class, 'transactionComplaint'])->name('transaction_complaint');
+    Route::post('add-ip-address', [UserController::class, 'addIpWhiteList'])->name('add_ip_address');
+    Route::post('update-ip-address/{id}', [UserController::class, 'editIpWhiteList'])->name('update_ip_address');
+    Route::get('status-ip-address/{id}', [UserController::class, 'statusIpWhiteList'])->name('status_ip_address');
+    Route::get('delete-ip-address/{id}', [UserController::class, 'deleteIpWhiteList'])->name('delete_ip_address');
+    Route::post('webhook-url/save', [UserController::class, 'WebHookUrl'])->name('web_hook_url');
+    Route::post('/complaints', [TransactionController::class, 'store'])->name('complaints.store');
+    Route::get('/complete-kyc', [UserController::class, 'redirectToKycPage'])->name('open.kyc.page');
+    Route::get('/complaint-status', [TransactionController::class, 'complaintStatus'])->name('complaint_status');
+    Route::post('/complaint-status/check', [TransactionController::class, 'checkComplaintStatus'])->name('complaint.status.check');
+    Route::post('nsdl-initiated-payment', [UserController::class, 'initiateNsdlPayment'])->name('nsdl-initiatePayment');
+    Route::post('/service-request', [ServiceRequestController::class, 'store'])
+        ->name('service.request');
+    Route::post('/users/{id}/routing/save', [UserController::class, 'saveUserRouting'])
+        ->name('admin.users.routing.save');
+    Route::post('completeProfile/{user_id}', [UserController::class, 'completeProfile'])->name('admin.complete_profile');
+    Route::post('generate-mpin', [UserController::class, 'generateMpin'])->name('generate_mpin');
+
+
+    // reseller routes
+    Route::get('reports', [LadgerController::class, 'reports'])->name('reseller_reports');
+    Route::get('services', [ServiceRequestController::class, 'enabledServices'])->name('enabled_services');
+});
+
+
+Route::group(['middleware' => ['auth']], function () {
+    // Support User Route
+    Route::prefix('support')->group(function () {
+        Route::get('complaints-report', [SupportDashboardController::class, 'userComplaints'])->name('complaints_report');
+        Route::get('/support-userlist', [SupportDashboardController::class, 'supportUserList'])->name('support_userlist');
+    });
+    Route::post('/update-complaint-report/{id}', [ComplainReportController::class, 'updateComplaint'])->name('update_complaint_report');
+    // Admin/User Common Routes 
+    Route::post('change-password', [AuthController::class, 'passwordReset'])->name('admin.change_password');
+    Route::get('profile/{user_id}', [AdminController::class, 'adminProfile'])->name('admin_profile');
+    Route::post('fetch/{type}/{id?}/{returntype?}', [CommonController::class, 'fetchData']);
+    Route::get('/complain-report', [ComplainReportController::class, 'complainReport'])->name('complain.report'); //common in admin and support user
+    Route::get('reports/{type}', [ReportController::class, 'index'])->name('reports'); //common for transaction section report, banking, utility 
+    Route::get('/ledger', [LadgerController::class, 'index'])->name('ladger.index');
+    Route::post('logout', [AuthController::class, 'logout'])->name('admin.logout');
+    Route::get('/transaction-report', [TransactionController::class, 'transaction_Report'])->name('transaction.report');
+    Route::get('recharge/invoice/{id}', [TransactionController::class, 'downloadInvoice'])
         ->name('recharge.invoice.download');
 
 
-        Route::get('unauthrized',function(){
-            return view('errors.401');
-        })->name('unauthrized.page');
+    Route::get('unauthrized', function () {
+        return view('errors.401');
+    })->name('unauthrized.page');
+});
 
-    });
- 
 
 
 
 Route::prefix('admin', function () {
     Route::get('me', [AuthController::class, 'me']);
 });
-
-
-
-

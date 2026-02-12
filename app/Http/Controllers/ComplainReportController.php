@@ -35,7 +35,7 @@ class ComplainReportController extends Controller
 
         $request->validate([
             'status' => 'required|in:Open,In Progress,Closed',
-            'remark' => 'required_if:status,Closed|string',
+            'remark' => 'required_if:status,Closed|string|nullable',
         ]);
 
         DB::beginTransaction();
