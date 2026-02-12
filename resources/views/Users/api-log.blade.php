@@ -212,6 +212,14 @@
                 },
             ]
         });
+        $('#date_from').on('change', function () {
+            let from = $(this).val();
+            $('#date_to').attr('min', from);
+            if ($('#date_to').val() && $('#date_to').val() < from) {
+            $('#date_to').val('');
+            }
+        });
+
 
         // Apply filter
         $('#applyFilter').on('click', function() {
@@ -223,6 +231,7 @@
             $('#filterName').val('').trigger('change');
             $('#date_from').val('');
             $('#date_to').val('');
+            $('#filterDateTo').val('').removeAttr('min');
             table.ajax.reload();
         });
     });

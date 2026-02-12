@@ -24,10 +24,6 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-3">
-                        <label for="filterEmail" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="filterEmail" placeholder="Enter Email">
-                    </div>
 
                     <div class="col-md-3">
                         <label for="filterStatus" class="form-label">Status</label>
