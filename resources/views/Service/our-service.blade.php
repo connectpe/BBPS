@@ -72,7 +72,7 @@
                         <select name="userId" id="userId" class="form-control form-select2">
                             <option value="">--Select User--</option>
                             @foreach($users as $value)
-                            <option value="{{$value->id}}">{{$value->name}}</option>
+                            <option value="{{$value->id}}">{{$value->name}} ({{ $value->email }})</option>
                             @endforeach
                         </select>
                     </div>
@@ -365,6 +365,14 @@
 
             ]
         });
+    
+        $('#date_from').on('change', function () {
+            let from = $(this).val();
+            $('#date_to').attr('min', from);
+            if ($('#date_to').val() && $('#date_to').val() < from) {
+                $('#date_to').val('');
+            }
+        });
 
         $('#applyFilterServicesTable').on('click', function() {
             table.ajax.reload();
@@ -375,6 +383,7 @@
             $('#globalService').val('').trigger('change');
             $('#date_from').val('');
             $('#date_to').val('');
+            $('#date_to').val('').removeAttr('min');
             table.ajax.reload();
         });
     });
