@@ -407,6 +407,14 @@
             ]
         });
 
+        $('#filterDateFrom').on('change', function() {
+            let from = $(this).val();
+            $('#filterDateTo').attr('min', from);
+            if ($('#filterDateTo').val() && $('#filterDateTo').val() < from) {
+            $('#filterDateTo').val('');
+            }
+        });
+
 
         // Apply filter
         $('#applyFilter').on('click', function() {
@@ -421,6 +429,7 @@
             $('#filterDateFrom').val('');
             $('#filterDateTo').val('');
             $("#filterUser").val('').trigger('change');
+            $('#filterDateTo').val('').removeAttr('min');
             table.ajax.reload();
         });
 
