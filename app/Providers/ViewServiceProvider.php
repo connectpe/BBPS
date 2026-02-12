@@ -35,8 +35,16 @@ class ViewServiceProvider extends ServiceProvider
                         ->keyBy('service_id');
                 }
 
-               
-                $businessWallet = User::where('id', Auth::id())->value('transaction_amount') ?? 0;
+                if (Auth::check()) {
+
+                    if (Auth::user()->role_id == 1) {
+                        $businessWallet = User::sum('transaction_amount') ?? 0;
+                    } else {
+                        $businessWallet = User::where('id', Auth::id())
+                            ->value('transaction_amount') ?? 0;
+                    }
+                }
+
             }
 
             $view->with(compact('services', 'requestedServices', 'businessWallet'));
