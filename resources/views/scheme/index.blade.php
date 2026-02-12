@@ -38,7 +38,7 @@
             </button>
         </div>
         <div class="card-body">
-            <div class="row mb-4 g-3">
+            <div class="row mb-4">
                 <div class="col-md-4">
                     <label class="form-label small fw-bold">User:</label>
                     <select class="form-control form-select shadow-none form-select2" id="filter_user">
@@ -70,6 +70,7 @@
             </div>
 
             <div class="table-responsive">
+
                 <table id="relationTable" class="table table-bordered table-striped w-100">
                     <thead class="bg-light">
                         <tr>
@@ -320,6 +321,7 @@
                 </tr>`;
         }
 
+
         $('.btn-add-new').click(function() {
             $('#modalTitle').text('Add New Scheme Rules');
             $('#scheme_id').val('');
@@ -346,171 +348,207 @@
                     }
                 }
             });
-        });
 
-        $('#addMoreRules').click(function() {
-            $('#rulesTable tbody').append(getRowHtml());
-        });
-
-        $(document).on('click', '.remove-row', function() {
-            $(this).closest('tr').remove();
-        });
-
-        $('#schemeForm').on('submit', function(e) {
-            e.preventDefault();
-            let rules = [];
-            $('.rule-row').each(function() {
-                rules.push({
-                    rule_id: $(this).find('.row-rule-id').val(),
-                    service_id: $(this).find('.row-service').val(),
-                    start_value: $(this).find('.row-start').val(),
-                    end_value: $(this).find('.row-end').val(),
-                    type: $(this).find('.row-type').val(),
-                    fee: $(this).find('.row-fee').val(),
-                    min_fee: $(this).find('.row-min').val(),
-                    max_fee: $(this).find('.row-max').val(),
-                    is_active: $(this).find('.row-status').val()
+            $(document).on('click', '.edit-scheme-btn', function() {
+                let id = $(this).data('id');
+                $('#modalTitle').text('Update Scheme Rules');
+                $('#schemeForm')[0].reset();
+                $('#rulesTable tbody').empty();
+                $.ajax({
+                    url: "{{ url('edit-scheme') }}/" + id,
+                    type: "GET",
+                    success: function(res) {
+                        if (res.status) {
+                            $('#scheme_id').val(res.scheme.id);
+                            $('#scheme_name').val(res.scheme.scheme_name);
+                            res.scheme.rules.forEach(rule => {
+                                $('#rulesTable tbody').append(getRowHtml(rule));
+                            });
+                            $('#schemeModal').modal('show');
+                        }
+                    }
                 });
             });
 
-            let schemeId = $('#scheme_id').val();
-            let baseUrl = "{{ url('update-scheme-rule') }}";
-            let url = schemeId ? baseUrl + "/" + schemeId : "{{ route('add_scheme_rule') }}";
+            $('#addMoreRules').click(function() {
+                $('#rulesTable tbody').append(getRowHtml());
+            });
 
-            $.ajax({
-                url: url,
-                type: "POST",
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    scheme_name: $('#scheme_name').val(),
-                    rules: rules
-                },
-                beforeSend: function() {
-                    $('#submitBtn').prop('disabled', true).text('Saving...');
-                },
-                success: function(res) {
-                    if (res.status) {
-                        Swal.fire({
-                                icon: 'success',
-                                title: 'Success!',
-                                text: res.message,
-                                timer: 1500,
-                                showConfirmButton: false
-                            })
-                            .then(() => location.reload());
-                    } else {
-                        Swal.fire('Error', res.message, 'error');
+            $(document).on('click', '.remove-row', function() {
+                $(this).closest('tr').remove();
+            });
+
+            $('#schemeForm').on('submit', function(e) {
+                e.preventDefault();
+                let rules = [];
+                $('.rule-row').each(function() {
+                    rules.push({
+                        rule_id: $(this).find('.row-rule-id').val(),
+                        service_id: $(this).find('.row-service').val(),
+                        start_value: $(this).find('.row-start').val(),
+                        end_value: $(this).find('.row-end').val(),
+                        type: $(this).find('.row-type').val(),
+                        fee: $(this).find('.row-fee').val(),
+                        min_fee: $(this).find('.row-min').val(),
+                        max_fee: $(this).find('.row-max').val(),
+                        is_active: $(this).find('.row-status').val()
+                    });
+                });
+
+
+                let schemeId = $('#scheme_id').val();
+                let url = schemeId ? "{{ route('update_scheme_rule', ['id' => ':id']) }}".replace(':id',
+                    schemeId) : "{{ route('add_scheme_rule') }}";
+
+
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        scheme_name: $('#scheme_name').val(),
+                        rules: rules
+                    },
+                    beforeSend: function() {
+                        $('#submitBtn').prop('disabled', true).text('Saving...');
+                    },
+                    success: function(res) {
+                        if (res.status) {
+                            Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success!',
+                                    text: res.message,
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                })
+                                .then(() => location.reload());
+                        } else {
+                            Swal.fire('Error', res.message, 'error');
+                            $('#submitBtn').prop('disabled', false).text('Save Changes');
+                        }
+                    },
+                    error: function(xhr) {
                         $('#submitBtn').prop('disabled', false).text('Save Changes');
-                    }
-                },
-                error: function(xhr) {
-                    $('#submitBtn').prop('disabled', false).text('Save Changes');
-                    if (xhr.status === 422) {
-                        let errors = xhr.responseJSON.errors;
-                        let errorList = '';
-                        $.each(errors, function(key, value) {
-                            errorList += '<li>' + value[0] + '</li>';
-                        });
+                        if (xhr.status === 422) {
+                            let errors = xhr.responseJSON.errors;
+                            let errorList = '';
+                            $.each(errors, function(key, value) {
+                                errorList += '<li>' + value[0] + '</li>';
+                            });
 
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Validation Error',
-                            html: '<ul style="text-align: left;">' + errorList +
-                                '</ul>',
-                        });
-                    } else {
-                        Swal.fire('Error', 'Something went wrong on the server.', 'error');
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Validation Error',
+                                html: '<ul style="text-align: left;">' + errorList +
+                                    '</ul>',
+                            });
+                        } else {
+                            Swal.fire('Error', 'Something went wrong on the server.', 'error');
+                        }
                     }
-                }
+                });
             });
-        });
 
-        $('.btn-assign-new').click(function() {
-            $('#assignModalTitle').text('Assign Scheme to User');
-            $('#config_id').val('');
-            $('#assignUserForm')[0].reset();
-            $('#user_search, #scheme_search').val(null).trigger('change');
-        });
-
-        $(document).on('click', '.edit-assigned-btn', function() {
-            let id = $(this).data('id');
-            $('#assignModalTitle').text('Update Assigned Scheme');
-            $.ajax({
-                url: "{{ url('edit-assigned-scheme') }}/" + id,
-                type: "GET",
-                success: function(res) {
-                    if (res.status) {
-                        $('#config_id').val(res.data.id);
-                        $('#user_search').val(res.data.user_id).trigger('change');
-                        $('#scheme_search').val(res.data.scheme_id).trigger('change');
-                        $('#assignUserModal').modal('show');
-                    }
-                }
+            $('.btn-assign-new').click(function() {
+                $('#assignModalTitle').text('Assign Scheme to User');
+                $('#config_id').val('');
+                $('#assignUserForm')[0].reset();
+                $('#user_search, #scheme_search').val(null).trigger('change');
             });
-        });
 
-        $('#assignUserForm').on('submit', function(e) {
-            e.preventDefault();
-            let configId = $('#config_id').val();
-            let url = configId ? "{{ url('update-user-assigned-scheme') }}/" + configId :
-                "{{ route('assign_scheme') }}";
-            $.ajax({
-                url: url,
-                type: "POST",
-                data: $(this).serialize(),
-                beforeSend: function() {
-                    $('#assignSubmitBtn').prop('disabled', true).text('Updating...');
-                },
-                success: function(res) {
-                    if (res.status) {
-                        Swal.fire({
-                                icon: 'success',
-                                title: 'Success!',
-                                text: res.message,
-                                timer: 1500,
-                                showConfirmButton: false
-                            })
-                            .then(() => location.reload());
+            $(document).on('click', '.edit-assigned-btn', function() {
+                let id = $(this).data('id');
+
+                $('#assignModalTitle').text('Update Assigned Scheme');
+
+                let editUrl = "{{ route('edit_assign_scheme', ['id' => ':id']) }}".replace(':id', id);
+
+                $.ajax({
+                    url: editUrl,
+                    type: "GET",
+                    success: function(res) {
+                        if (res.status) {
+                            $('#config_id').val(res.data.id);
+                            $('#user_search').val(res.data.user_id).trigger('change');
+                            $('#scheme_search').val(res.data.scheme_id).trigger('change');
+                            $('#assignUserModal').modal('show');
+                        }
                     }
-                },
-                error: function(err) {
-                    $('#assignSubmitBtn').prop('disabled', false).text('Submit');
-                    Swal.fire('Error!', err.responseJSON.message || 'Validation failed.',
-                        'error');
-                }
+                });
             });
-        });
 
-        $('#searchBtn').on('click', function() {
-            relationTable.ajax.reload();
-        });
 
-        $(document).on('click', '.delete-assigned-btn', function() {
-            let id = $(this).data('id');
-            Swal.fire({
-                title: 'Are you sure?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Yes, delete it!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: "{{ url('delete-assigned-scheme') }}/" + id,
-                        type: "GET",
-                        success: function(res) {
-                            if (res.status) {
-                                Swal.fire({
+            $('#assignUserForm').on('submit', function(e) {
+                e.preventDefault();
+                let configId = $('#config_id').val();
+
+                let updateRouteTemplate = "{{ route('update_user_assigned_scheme', ['id' => ':id']) }}";
+                let url = configId ?
+                    updateRouteTemplate.replace(':id', configId) :
+                    "{{ route('assign_scheme') }}";
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    data: $(this).serialize(),
+                    beforeSend: function() {
+                        $('#assignSubmitBtn').prop('disabled', true).text('Updating...');
+                    },
+                    success: function(res) {
+                        if (res.status) {
+                            Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success!',
+                                    text: res.message,
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                })
+                                .then(() => location.reload());
+                        }
+                    },
+                    error: function(err) {
+                        $('#assignSubmitBtn').prop('disabled', false).text('Submit');
+                        Swal.fire('Error!', err.responseJSON.message || 'Validation failed.',
+                            'error');
+                    }
+                });
+            });
+
+            $('#searchBtn').on('click', function() {
+                relationTable.ajax.reload();
+            });
+
+            $(document).on('click', '.delete-assigned-btn', function() {
+                let id = $(this).data('id');
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+
+                        let deleteUrl = "{{ route('delete_assign_scheme', ['id' => ':id']) }}"
+                            .replace(':id', id);
+
+                        $.ajax({
+                            url: deleteUrl,
+                            type: "GET",
+                            success: function(res) {
+                                if (res.status) {
+                                    Swal.fire({
                                         icon: 'success',
                                         title: 'Deleted!',
                                         timer: 1500,
                                         showConfirmButton: false
-                                    })
-                                    .then(() => location.reload());
+                                    }).then(() => location.reload());
+                                }
                             }
-                        }
-                    });
-                }
+                        });
+                    }
+                });
             });
+
         });
     });
 </script>
