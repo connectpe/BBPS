@@ -467,7 +467,7 @@ class UserController extends Controller
                 ->select('id', 'service_name', 'slug')
                 ->orderBy('service_name')
                 ->get();
-                
+
             $data['userRootings'] = UserRooting::where('user_id', $userId)->get()->keyBy('service_id');
 
             return view('Users.view-user')->with($data);
@@ -798,8 +798,6 @@ class UserController extends Controller
     public function generateMpin(Request $request)
     {
         try {
-
-
             if (Auth::user()->role_id != '2') {
                 return response()->json([
                     'status' => false,
@@ -810,7 +808,7 @@ class UserController extends Controller
             $request->validate([
                 'current_mpin' => 'required',
                 'new_mpin' => 'required|min:4|max:10',
-                'confirm_mpin' => 'required|same:new_mpin',
+                'new_mpin_confirmation' => 'required|same:new_mpin',
             ]);
 
 
@@ -1014,7 +1012,7 @@ class UserController extends Controller
                 'amount' => 'required|numeric|min:1',
             ]);
             $user = auth()->user();
-            $txnId = 'PAY'.time().rand(1000, 9999);
+            $txnId = 'PAY' . time() . rand(1000, 9999);
             $payload = [
                 'name' => $user->name . ' Chauhan',
                 'amount' => $request->amount,
@@ -1029,7 +1027,7 @@ class UserController extends Controller
             $qrUrl = $api['data']['qr_url'] ?? $api['qr_url'] ?? null;
             NsdlPayment::create([
                 'user_id' => $user->id,
-                'service_id' => null, 
+                'service_id' => null,
                 'mobile_no' => $user->mobile,
                 'amount' => $request->amount,
                 'transaction_id' => $txnId,
@@ -1048,13 +1046,11 @@ class UserController extends Controller
                     'qr_url' => $qrUrl,
                 ],
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
             ], 500);
-
-}
+        }
     }
 }

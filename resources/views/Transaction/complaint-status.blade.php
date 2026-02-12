@@ -13,7 +13,7 @@
             <div class="card border shadow-sm">
                 <div class="card-header position-relative">
                     <h5 class="mb-0">Check Complaint Status</h5>
-                    <img src="{{ asset('assets/image/icon_logo.svg') }}" alt="logo" style="position:absolute; top:10px; right:10px; width:60px; height:auto;">
+                    <img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}" alt="logo" style="position:absolute; top:3px; right:10px; width:60px; height:auto;">
                 </div>
 
 
