@@ -42,12 +42,16 @@
         </li>
 
 
+        @php
+        $serviceRequestCount = App\Models\UserService::where('status','pending')->count();
+        @endphp
+
         <!-- User Management -->
         <li class="nav-item mt-2">
             <ul class="nav nav-pills flex-column mb-auto">
 
                 @php
-                $userRoute = ['users', 'view_user', 'request_services'];
+                $userRoute = ['users', 'view_user', 'request_services','support_details'];
                 $userActive = in_array(Route::currentRouteName(), $userRoute);
                 @endphp
 
@@ -71,11 +75,20 @@
 
                             <li class="nav-item">
                                 <a href="{{ route('request_services') }}"
-                                    class="nav-link text-white {{ Route::currentRouteName() == 'request_services' ? 'sidebar-active' : '' }}">
-                                    <i class="bi bi-clipboard-check me-2"></i>
-                                    Service Requests
+                                    class="nav-link text-white d-flex justify-content-between align-items-center  {{ Route::currentRouteName() == 'request_services' ? 'sidebar-active' : '' }}">
+
+                                    <span>
+                                        <i class="bi bi-clipboard-check me-2"></i>
+                                        Service Requests
+                                    </span>
+
+                                    @if($serviceRequestCount)
+                                    <span class="badge bg-light text-dark">{{ $serviceRequestCount }}</span>
+                                    @endif
+
                                 </a>
                             </li>
+
                             <li class="nav-item">
                                 <a href="{{ route('support_details') }}"
                                     class="nav-link text-white {{ Route::currentRouteName() == 'support_details' ? 'sidebar-active' : '' }}">
@@ -181,7 +194,7 @@
         <li class="nav-item mt-2">
             <ul class="nav nav-pills flex-column mb-auto">
                 @php
-                $masterRoute = ['our_servicess', 'providers'];
+                $masterRoute = ['our_servicess', 'providers','categories.index','defaultslug'];
                 $masterActive = in_array(Route::currentRouteName(), $masterRoute);
                 @endphp
 
@@ -219,6 +232,14 @@
                                     Categories
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a href="{{ route('defaultslug') }}"
+                                    class="nav-link text-white {{ Route::currentRouteName() == 'defaultslug' ? 'sidebar-active' : '' }}">
+                                    <i class="bi bi-link-45deg me-2"></i>
+                                    Switch
+                                </a>
+                            </li>
+
 
 
                         </ul>
@@ -241,6 +262,16 @@
                 Assign User to Support
             </a>
         </li>
+        <li class="nav-item">
+            <a href="{{ route('nsdl-payment') }}"
+                class="nav-link text-white {{ Route::currentRouteName() == 'nsdl-payment' ? 'sidebar-active' : '' }}">
+                <i class="bi bi-receipt me-2"></i>
+                NSDL Payment
+            </a>
+        </li>
+
+
+
 
 
         <!-- Ledger -->
@@ -265,6 +296,7 @@
             </form>
         </li>
     </ul>
+
     @elseif($role == 2)
     <ul class="nav nav-pills flex-column mb-auto">
 
@@ -500,7 +532,7 @@
                         <ul class="nav flex-column">
 
                             <li class="nav-item">
-                                <a href="{{ url('reports/recharge') }}"
+                                <a href="{{ route('reports',['type' => ':type']) }}"
                                     class="nav-link text-white {{ request()->is('reports/recharge') ? 'sidebar-active' : '' }}">
                                     <i class="bi bi-phone me-2"></i>
                                     Recharge

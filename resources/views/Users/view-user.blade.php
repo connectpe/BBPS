@@ -121,8 +121,8 @@ use App\Facades\FileUpload;
                     <span class="value">{{ $userData->mobile ?? '----' }}</span>
                 </div>
                 <div class="info-row">
-                    <span class="label">Last Login at </span>
-                    <span class="value"> </span>
+                    <span class="label">User Id  </span>
+                    <span class="value">{{ $userData->id ?? '----' }} </span>
                 </div>
                 <div class="info-row mb-3">
                     <span class="label">Status</span>
@@ -256,13 +256,13 @@ use App\Facades\FileUpload;
 
                     <div class="d-flex align-items-center mb-3">
                         <i class="bi bi-diagram-3 text-primary fs-4 me-2"></i>
-                        <h6 class="fw-bold mb-0">Routing Configuration</h6>
+                        <h6 class="fw-bold mb-0">Route Configuration</h6>
                     </div>
 
                     {{-- Service Dropdown --}}
                     <div class="mb-3">
                         <label class="form-label fw-bold">Service Name</label>
-                        <select class="form-select" id="serviceSelect" name="service_id">
+                        <select class="form-select form-select2" id="serviceSelect" name="service_id">
                             <option value="">-- Select Service --</option>
                             @foreach ($globalServices as $svc)
                             <option value="{{ $svc->id }}" data-service-name="{{ $svc->service_name }}">
@@ -315,9 +315,6 @@ use App\Facades\FileUpload;
                 <div class="info-row">
                     <span class="label">{{ $service->service?->service_name ?? '----' }}</span>
                     <span class="value">
-                        <!-- Reject Icon -->
-                        <i class="bi bi-x-circle text-danger cursor-pointer"
-                            onclick="handleServiceAction('{{ $service->id }}', 'reject')"></i>
 
                         <!-- Approve Icon -->
                         <i class="bi bi-check-circle text-success cursor-pointer ms-2"
@@ -454,9 +451,9 @@ use App\Facades\FileUpload;
 
 
 <script>
-    function handleServiceAction(serviceId, userId, action) {
+    function handleServiceAction(serviceId) {
         Swal.fire({
-            title: `Are you sure you want to ${action}?`,
+            title: `Are you sure you want to approve?`,
             icon: 'question',
             showCancelButton: true,
             confirmButtonText: 'Yes',
@@ -465,13 +462,11 @@ use App\Facades\FileUpload;
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: '/service/action',
+                    url: "{{route('service_request_approve_reject')}}",
                     type: 'POST',
                     data: {
                         _token: $('meta[name="csrf-token"]').attr('content'),
-                        service_id: serviceId,
-                        user_id: userId,
-                        action: action
+                        serviceId: serviceId,
                     },
                     success: function(response) {
                         Swal.fire({

@@ -18,9 +18,9 @@
             <div class="accordion-body">
                 <div class="row g-3 align-items-end">
 
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label for="filterUser" class="form-label">User</label>
-                        <select name="filterUser" id="userId" class="form-control">
+                        <select name="filterUser" id="filterUser" class="form-control form-select2">
                             <option value="">--Select User--</option>
                             @foreach($users as $value)
                             <option value="{{$value->id}}">{{$value->name}}</option>
@@ -28,9 +28,9 @@
                         </select>
                     </div>
 
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label for="filterService" class="form-label">Service</label>
-                        <select name="filterService" id="filterService" class="form-control">
+                        <select name="filterService" id="filterService" class="form-control form-select2">
                             <option value="">--Select Service--</option>
                             @foreach($globalServices as $value)
                             <option value="{{$value->id}}">{{$value->service_name}}</option>
@@ -38,26 +38,26 @@
                         </select>
                     </div>
 
-                    <div class="col-md-2">
+
+                    <div class="col-md-3">
                         <label class="form-label">Status</label>
-                        <select id="filterStatus" class="form-select">
+                        <select id="filterStatus" class="form-select form-select2">
                             <option value="">All</option>
                             <option value="pending">Pending</option>
                             <option value="approved">Approved</option>
-                            <option value="rejected">Rejected</option>
                         </select>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label class="form-label">From Date</label>
                         <input type="date" id="filterDateFrom" class="form-control">
                     </div>
 
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label class="form-label">To Date</label>
                         <input type="date" id="filterDateTo" class="form-control">
                     </div>
 
-                    <div class="col-md-2 d-flex gap-2">
+                    <div class="col-md-3 d-flex gap-2">
                         <button type="button" class="btn buttonColor" id="applyFilter">Filter</button>
                         <button type="button" class="btn btn-secondary" id="resetFilter">Reset</button>
                     </div>
@@ -74,7 +74,7 @@
                 <table id="serviceRequestTable" class="table table-striped table-bordered table-hover w-100">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>S.No</th>
                             <th>Organization Name</th>
                             <th>Service</th>
                             <th>Status</th>
@@ -100,7 +100,8 @@
                 type: 'POST',
                 data: function(d) {
                     d._token = $('meta[name="csrf-token"]').attr('content');
-                    d.id = $('#filterName').val();
+                    d.user_id = $('#filterUser').val();
+                    d.service_id = $('#filterService').val();
                     d.email = $('#filterEmail').val();
                     d.status = $('#filterStatus').val();
                     d.date_from = $('#filterDateFrom').val();
@@ -130,7 +131,10 @@
             },
 
             columns: [{
-                    data: 'id'
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return meta.row + 1;
+                    }
                 },
                 {
                     data: function(row) {
@@ -156,15 +160,13 @@
 
                         const colors = {
                             'approved': 'success',
-                            'rejected': 'danger',
                         }
 
                         if (data === 'pending') {
                             return `
-                                <select class="status-dropdown form-control" onchange="approveRejectService(${row.id}, this.value)">
+                                <select class="status-dropdown form-control" onchange="approveRejectService(${row.id})">
                                     <option value="pending" selected>Pending</option>
                                     <option value="approved">Approved</option>
-                                    <option value="rejected">Rejected</option>
                                 </select>
                             `;
                         }
@@ -188,12 +190,14 @@
         });
 
         $('#resetFilter').on('click', function() {
-            $('#filterUser').val('');
-            $('#filterService').val('');
-            $('#filterStatus').val('');
+            $('#filterUser').val('').trigger('change');;
+            $('#filterService').val('').trigger('change');;
+            $('#filterStatus').val('').trigger('change');;
             $('#filterDateFrom').val('');
             $('#filterDateTo').val('');
             table.ajax.reload();
+
+
         });
 
 
@@ -207,15 +211,12 @@
     });
 
 
-    function approveRejectService(serviceId, status) {
+    function approveRejectService(serviceId) {
 
         const url = "{{route('service_request_approve_reject')}}";
-        let title = status === 'approved' ? 'Approve Request?' : 'Reject Request?';
-        let text = status === 'rejected' ? 'Are you sure to Reject request' : 'Are you sure to Approve request';
 
         Swal.fire({
-            title: title,
-            text: text,
+            title: 'Approve Request',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Yes',
@@ -229,7 +230,6 @@
                     data: {
                         _token: $('meta[name="csrf-token"]').attr('content'),
                         serviceId: serviceId,
-                        status: status,
                     },
                     success: function(response) {
                         if (response.status) {

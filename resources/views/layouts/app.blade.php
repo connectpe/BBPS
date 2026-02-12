@@ -147,6 +147,44 @@
         .cursor-pointer {
             cursor: pointer !important;
         }
+
+
+        /* Allow the main wrapper to handle flex-overflow properly */
+        .main-wrapper {
+            min-width: 0;
+            overflow-x: hidden;
+        }
+
+        /* Make every responsive wrapper actually scrollable */
+        .table-responsive {
+            width: 100% !important;
+            overflow-x: auto !important;
+            display: block !important;
+        }
+
+        /* Target ANY DataTables table globally */
+        table.dataTable {
+            width: 100% !important;
+            min-width: 900px !important;
+            /* Forces scrollbar on all tables */
+            border-collapse: collapse !important;
+        }
+
+        /* Prevent text wrapping for all tables to keep them clean */
+        table.dataTable th,
+        table.dataTable td {
+            white-space: nowrap !important;
+            padding: 10px !important;
+        }
+
+
+        /* Styling for Firefox */
+        .table-responsive {
+            scrollbar-width: thin !important;
+            /* Options: auto, thin, none */
+            scrollbar-color: #4962c0 #dcdde0;
+            /* handle color, track color */
+        }
     </style>
 </head>
 
@@ -163,8 +201,17 @@
 
         {{-- Main Content --}}
         <main class="flex-grow-1 p-4 bg-light">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h2 class="mb-0">@yield('page-title')</h2>
+                <!-- Button placeholder, will be injected by child if exists -->
+                <div>
+                    @yield('page-button')
+                </div>
+            </div>
+
             @yield('content')
         </main>
+
 
         {{-- Footer --}}
         @include('layouts.footer')

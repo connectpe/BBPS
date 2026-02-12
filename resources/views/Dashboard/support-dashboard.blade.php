@@ -24,7 +24,7 @@
 
                     <div class="col-md-3">
                         <label for="filterStatus" class="form-label">Status</label>
-                        <select class="form-select" id="filterStatus">
+                        <select class="form-select form-select2" id="filterStatus">
                             <option value="">--select--</option>
                             <option value="pending">Pending</option>
                             <option value="processing">Processing</option>
@@ -36,7 +36,7 @@
 
                     <div class="col-md-3">
                         <label for="reportType" class="form-label">Transaction Type</label>
-                        <select id="reportType" class="form-select">
+                        <select id="reportType" class="form-select form-select2">
                             <option value="">--Select Transaction Type--</option>
                             <option value="recharge">Recharge</option>
                             <option value="bill">Bill</option>
@@ -107,7 +107,7 @@
     <!-- Category Select -->
     <div class="col-md-3">
         <label class="form-label small">Category</label>
-        <select class="form-select">
+        <select class="form-select form-select2">
             <option selected disabled>--Select Category--</option>
             <option value="billing">Billing</option>
             <option value="recharge">Recharge</option>
@@ -119,7 +119,7 @@
     <!-- Service Select -->
     <div class="col-md-3">
         <label class="form-label small">Service</label>
-        <select class="form-select">
+        <select class="form-select form-select2">
             <option selected disabled>--Select Service--</option>
             <option value="billpay">Bill Pay</option>
             <option value="cashcollection">Cash Collection</option>

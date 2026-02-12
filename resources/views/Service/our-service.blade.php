@@ -3,16 +3,17 @@
 @section('title', 'Our Services')
 @section('page-title', 'Our Services')
 
-@section('content')
-
+@section('page-button')
 <div class="row align-items-center mb-2">
     <div class="col-auto ms-auto">
-        <button type="button" class="btn buttonColor" data-bs-toggle="modal" data-bs-target="#serviceModal">
+        <button type="button" class="btn buttonColor text-nowrap" data-bs-toggle="modal" data-bs-target="#serviceModal">
             <i class="bi bi-plus fs-6 me-1"></i> Service
         </button>
     </div>
 </div>
+@endsection
 
+@section('content')
 
 <div class="accordion mb-3" id="filterAccordion">
     <div class="accordion-item">
@@ -68,7 +69,7 @@
 
                     <div class="col-md-3">
                         <label for="userId" class="form-label">User</label>
-                        <select name="userId" id="userId" class="form-control">
+                        <select name="userId" id="userId" class="form-control form-select2">
                             <option value="">--Select User--</option>
                             @foreach($users as $value)
                             <option value="{{$value->id}}">{{$value->name}}</option>
@@ -78,7 +79,7 @@
 
                     <div class="col-md-3">
                         <label for="globalService" class="form-label">Service</label>
-                        <select name="globalService" id="globalService" class="form-control">
+                        <select name="globalService" id="globalService" class="form-control form-select2">
                             <option value="">--Select Service--</option>
                             @foreach($globalServices as $value)
                             <option value="{{$value->id}}">{{$value->service_name}}</option>
@@ -192,7 +193,12 @@
             },
 
             columns: [{
-                    data: 'id'
+                    data: null,
+                    orderable: false,
+                    searchable: false,
+                    render: function(data, type, row, meta) {
+                        return meta.settings._iDisplayStart + meta.row + 1;
+                    }
                 },
                 {
                     data: 'service_name'
@@ -286,7 +292,12 @@
             },
 
             columns: [{
-                    data: 'id'
+                    data: null,
+                    orderable: false,
+                    searchable: false,
+                    render: function(data, type, row, meta) {
+                        return meta.settings._iDisplayStart + meta.row + 1;
+                    }
                 },
                 {
                     data: function(row) {
@@ -360,8 +371,8 @@
         });
 
         $('#resetFilterServicesTable').on('click', function() {
-            $('#userId').val('');
-            $('#globalService').val('');
+            $('#userId').val('').trigger('change');
+            $('#globalService').val('').trigger('change');
             $('#date_from').val('');
             $('#date_to').val('');
             table.ajax.reload();
@@ -512,7 +523,8 @@
             let url = "{{ route('admin.service.add') }}";
 
             if (formType === 'edit') {
-                url = "{{ url('admin/service/edit') }}/" + serviceId;
+                url = "{{ route('admin.service.edit',['id' => ':id']) }}";
+                url = url.replace(':id', serviceId)
             }
 
             $.ajax({

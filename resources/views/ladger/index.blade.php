@@ -18,11 +18,11 @@ $role = Auth::user()->role_id;
         </h2>
         <div id="collapseFilter" class="accordion-collapse collapse" aria-labelledby="headingFilter" data-bs-parent="#filterAccordion">
             <div class="accordion-body">
-                <div class="row g-3 align-items-end">
+                <div class="row g-2 align-items-end">
                     @if($role == 1)
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label for="filterUser" class="form-label">User</label>
-                        <select name="filterUser" id="filterUser" class="form-control">
+                        <select name="filterUser" id="filterUser" class="form-control form-select2">
                             <option value="">--Select User--</option>
                             @foreach($users as $value)
                             <option value="{{$value->id}}">{{$value->name}}</option>
@@ -32,29 +32,29 @@ $role = Auth::user()->role_id;
                     @endif
 
 
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label for="referenceNo" class="form-label">Reference No</label>
                         <input type="text" class="form-control" id="referenceNo" placeholder="Reference No">
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label for="requestId" class="form-label">Request Id</label>
                         <input type="text" class="form-control" id="requestId" placeholder="Request Id">
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label for="connectPeId" class="form-label">ConnectPe Id</label>
                         <input type="text" class="form-control" id="connectPeId" placeholder="ConnectPe Id">
                     </div>
 
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label for="filterDateFrom" class="form-label">From Date</label>
                         <input type="date" class="form-control" id="filterDateFrom">
                     </div>
 
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label for="filterDateTo" class="form-label">To Date</label>
                         <input type="date" class="form-control" id="filterDateTo">
                     </div>
-                    <div class="col-md-2 d-flex gap-2">
+                    <div class="col-md-3 d-flex gap-2">
                         <!-- Buttons aligned with input fields -->
                         <button class="btn buttonColor " id="applyFilter"> Filter</button>
 
@@ -148,7 +148,12 @@ $role = Auth::user()->role_id;
             },
 
             columns: [{
-                    data: 'id'
+                    data: null,
+                    orderable: false,
+                    searchable: false,
+                    render: function(data, type, row, meta) {
+                        return meta.settings._iDisplayStart + meta.row + 1;
+                    }
                 },
                 {
                     data: null,
@@ -220,7 +225,7 @@ $role = Auth::user()->role_id;
 
         // Reset filter
         $('#resetFilter').on('click', function() {
-            $('#filterUser').val('');
+            $('#filterUser').val('').trigger('change');
             $('#filterDateFrom').val('');
             $('#filterDateTo').val('');
             $('#referenceNo').val('');

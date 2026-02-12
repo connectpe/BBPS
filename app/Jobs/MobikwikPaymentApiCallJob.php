@@ -2,64 +2,131 @@
 
 namespace App\Jobs;
 
-use App\Helpers\CommonHelper;
 use App\Helpers\MobiKwikHelper;
+use App\Helpers\TransactionHelper;
 use App\Models\Transaction;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class MobikwikPaymentApiCallJob implements ShouldQueue
 {
-    use Queueable;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    private $payload, $endpoint, $token, $types;
+    public $tries = 3;
+    public $timeout = 120;
 
-    public function __construct($payload, $endpoint, $token, $types)
+    private array $payload;
+    private string $endpoint;
+    private string $token;
+    private string $type;
+
+    public function __construct(string $endpoint, array $payload, string $token, string $type)
     {
-        $this->payload = $payload;
-        $this->types = $types;
         $this->endpoint = $endpoint;
-        $this->token = $token;
+        $this->payload  = $payload;
+        $this->token    = $token;
+        $this->type     = $type;
     }
 
-    public function handle()
+    public function handle(): void
     {
         try {
-            $types = $this->types;
-            $payload = $this->payload;
-            $endpoint = $this->endpoint;
-            $token = $this->token;
 
-            switch ('mobikwik') {
+            switch ($this->type) {
+
                 case 'mobikwik':
-                    $mobikwik = new MobiKwikHelper;
-                    $requestTransfer = $mobikwik->sendRequest($endpoint, $payload, $token);
-                    $transactionStatus = 'pending';
-                    if (isset($requestTransfer['data']) && !empty($requestTransfer['data']) && $requestTransfer['data']['status'] === 'SUCCESS') {
-                        Transaction::where('payment_ref_id', $transactionStatus['data']['txId'])->update([
-                            'status' => $transactionStatus['data']['status'],
-                            'opRefNo' => $transactionStatus['data']['reference_number '],
-                            'discountprice' => $transactionStatus['data']['discountprice']
-                        ]);
+                    $this->handleMobikwik();
+                    break;
 
-                        return response()->json([
-                            'status' => true,
-                            'message' => 'Recharge Successfully !'
-                        ]);
-                    } else {
-                        return response()->json([
-                            'status'  => false,
-                            'message' => 'Transaction failed',
-                            'response' => $requestTransfer
-                        ]);
-                    }
+                default:
+                    Log::warning('Unsupported payment type', [
+                        'type' => $this->type,
+                        'payload' => $this->payload
+                    ]);
                     break;
             }
-        } catch (\Exception $e) {
-            Log::error('Mobikwik Payment API Call Job Error: ' . $e->getMessage());
+
+        } catch (\Throwable $e) {
+            Log::error('Payment API Job Failed', [
+                'error' => $e->getMessage(),
+                'type' => $this->type,
+                'payload' => $this->payload
+            ]);
+            throw $e; 
         }
+    }
+
+    
+    private function handleMobikwik(): void
+    {
+        $mobikwik = new MobiKwikHelper();
+
+        $response = $mobikwik->sendRequest(
+            $this->endpoint,
+            $this->payload,
+            $this->token
+        );
+
+        if (!isset($response['data'])) {
+            throw new \Exception('Invalid Mobikwik response');
+        }
+
+        DB::transaction(function () use ($response) {
+
+           
+            $transaction = Transaction::where('user_id', $this->payload['userid'])
+                ->where('request_id', $this->payload['reqid'])
+                ->lockForUpdate()
+                ->first();
+
+            if (!$transaction) {
+                Log::warning('Transaction not found', $this->payload);
+                return;
+            }
+
+            $status = strtoupper($response['data']['status'] ?? 'FAILED');
+
+            if ($status === 'SUCCESS') {
+
+                $transaction->update([
+                    'status'      => 'success',
+                    'utr'         => $response['data']['txId'] ?? null,
+                    'opRefNo'     => $response['data']['reference_number'] ?? null,
+                    'discountprice' => $response['data']['discountprice'] ?? 0,
+                ]);
+
+                TransactionHelper::sendCallback(
+                    $transaction->user_id,
+                    $transaction->request_id,
+                    'success'
+                );
+
+            } elseif ($status === 'FAILED') {
+
+                
+                $this->payload['call'] = 'failed_order';
+
+                dispatch(
+                    new DebitBalanceUpdateJob(
+                        $this->endpoint,
+                        $this->payload,
+                        $this->token
+                    )
+                )->delay(now()->addSeconds(5))
+                 ->onQueue('recharge_process_queue');
+
+            } else {
+                
+                Log::info('Mobikwik transaction pending', [
+                    'request_id' => $this->payload['reqid']
+                ]);
+            }
+
+        });
     }
 }

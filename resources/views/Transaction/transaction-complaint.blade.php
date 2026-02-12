@@ -3,16 +3,18 @@
 @section('title', 'Transaction Complaint')
 @section('page-title', 'Transaction Complaint')
 
-@section('content')
 
+@section('page-button')
 <div class="row align-items-center mb-2">
     <div class="col-auto ms-auto">
-        <button type="button" class="btn buttonColor" data-bs-toggle="modal" data-bs-target="#serviceModal">
+        <button type="button" class="btn buttonColor text-nowrap" data-bs-toggle="modal" data-bs-target="#serviceModal">
             <i class="bi bi-plus fs-6 me-1"></i> Complaint
         </button>
     </div>
 </div>
+@endsection
 
+@section('content')
 <div class="accordion mb-3" id="filterAccordion">
     <div class="accordion-item">
         <h2 class="accordion-header" id="headingFilter">
@@ -31,7 +33,7 @@
 
                     <div class="col-md-3">
                         <label for="filterStatus" class="form-label">Status</label>
-                        <select class="form-select" id="filterStatus">
+                        <select class="form-select form-select2" id="filterStatus">
                             <option value="">--Select Status--</option>
                             <option value="Open">Open</option>
                             <option value="In Progress">In Progress</option>
@@ -105,11 +107,11 @@
 
                         <div class="col-12">
                             <label class="form-label">Service Name<span class="text-danger">*</span></label>
-                            <select name="service_id" class="form-select" required>
+                            <select name="service_id" class="form-select form-select2" required>
                                 <option value="">-- Select Service --</option>
                                 @foreach ($services as $service)
-                                <option value="{{ $service->id }}">
-                                    {{ $service->service_name }}
+                                <option value="{{ $service?->service?->id }}">
+                                    {{ $service->service?->service_name }}
                                 </option>
                                 @endforeach
                             </select>
@@ -118,7 +120,7 @@
 
                         <div class="col-12">
                             <label class="form-label">Priority</label>
-                            <select name="priority" class="form-select" required>
+                            <select name="priority" class="form-select form-select2" required>
                                 @foreach ($priorities as $p)
                                 <option value="{{ $p }}" {{ $p == 'normal' ? 'selected' : '' }}>
                                     {{ ucfirst($p) }}
@@ -130,7 +132,7 @@
 
                         <div class="col-12">
                             <label class="form-label">Category<span class="text-danger">*</span></label>
-                            <select name="category" class="form-select">
+                            <select name="category" class="form-select form-select2">
                                 <option value="">-- Select Category --</option>
                                 @foreach ($categories as $value)
                                 <option value="{{ $value->id }}">{{ $value->category_name }}</option>
@@ -278,7 +280,12 @@
                 searchPlaceholder: "Search Complaints..."
             },
             columns: [{
-                    data: 'id'
+                    data: null,
+                    orderable: false,
+                    searchable: false,
+                    render: function(data, type, row, meta) {
+                        return meta.settings._iDisplayStart + meta.row + 1;
+                    }
                 },
                 {
                     data: 'ticket_number'
@@ -385,7 +392,7 @@
         // Reset filter
         $('#resetFilter').on('click', function() {
             $('#ticketId').val('');
-            $('#filterStatus').val('');
+            $('#filterStatus').val('').trigger('change');
             $('#filterDateFrom').val('');
             $('#filterDateTo').val('');
             table.ajax.reload();

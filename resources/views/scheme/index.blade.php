@@ -39,7 +39,7 @@
                 <div class="row mb-4">
                     <div class="col-md-4">
                         <label class="form-label small fw-bold">User:</label>
-                        <select class="form-control form-select shadow-none searchable-select" id="filter_user">
+                        <select class="form-control form-select shadow-none form-select2" id="filter_user">
                             <option value="">-- Select user --</option>
                             @foreach ($assignedUsers as $u)
                                 <option value="{{ $u->id }}">{{ $u->name }}</option>
@@ -48,7 +48,7 @@
                     </div>
                     <div class="col-md-4">
                         <label class="form-label small fw-bold">Scheme Name:</label>
-                        <select class="form-control form-select shadow-none searchable-select" id="filter_scheme">
+                        <select class="form-control form-select shadow-none form-select2" id="filter_scheme">
                             <option value="">-- Select --</option>
                             @foreach ($assignedSchemes as $s)
                                 <option value="{{ $s->id }}">{{ $s->scheme_name }}</option>
@@ -149,7 +149,7 @@
                         <div class="row">
                             <div class="col-md-12 mb-3">
                                 <label class="fw-bold small">Select User *</label>
-                                <select name="user_id" id="user_search" class="form-control" required>
+                                <select name="user_id" id="user_search" class="form-control form-select2" required>
                                     <option value="">-- Select User --</option>
                                     @foreach ($users as $user)
                                         <option value="{{ $user->id }}">
@@ -163,7 +163,7 @@
                             </div>
                             <div class="col-md-12 mb-3">
                                 <label class="fw-bold small">Select Scheme *</label>
-                                <select name="scheme_id" id="scheme_search" class="form-control" required>
+                                <select name="scheme_id" id="scheme_search" class="form-control form-select2" required>
                                     <option value="">-- Select Scheme --</option>
                                     @foreach ($schemes as $scheme)
                                         <option value="{{ $scheme->id }}">{{ $scheme->scheme_name }}</option>
@@ -193,14 +193,6 @@
                 }
             });
 
-            $('.searchable-select').select2();
-            $('#assignUserModal').on('shown.bs.modal', function() {
-                $('#user_search, #scheme_search').select2({
-                    dropdownParent: $('#assignUserModal'),
-                    placeholder: "-- Search --",
-                    allowClear: true
-                });
-            });
 
             let schemeTable = $('#schemeTable').DataTable({
                 processing: true,
@@ -266,7 +258,7 @@
                     }
                 },
                 columns: [{
-                        data: null,
+                        data: 'id',
                         render: (data, type, row, meta) => meta.row + meta.settings._iDisplayStart + 1
                     },
                     {
@@ -338,7 +330,7 @@
                 $('#schemeForm')[0].reset();
                 $('#rulesTable tbody').empty();
                 $.ajax({
-                    url: "{{ url('edit-scheme') }}/" + id,
+                     url: "{{ route('edit_scheme', ['id' => ':id']) }}".replace(':id', id),
                     type: "GET",
                     success: function(res) {
                         if (res.status) {
@@ -378,9 +370,11 @@
                     });
                 });
 
+
                 let schemeId = $('#scheme_id').val();
-                let baseUrl = "{{ url('update-scheme-rule') }}";
-                let url = schemeId ? baseUrl + "/" + schemeId : "{{ route('add_scheme_rule') }}";
+                let url = schemeId ? "{{ route('update_scheme_rule', ['id' => ':id']) }}".replace(':id',
+                    schemeId) : "{{ route('add_scheme_rule') }}";
+
 
                 $.ajax({
                     url: url,
@@ -439,9 +433,13 @@
 
             $(document).on('click', '.edit-assigned-btn', function() {
                 let id = $(this).data('id');
+
                 $('#assignModalTitle').text('Update Assigned Scheme');
+
+                let editUrl = "{{ route('edit_assign_scheme', ['id' => ':id']) }}".replace(':id', id);
+
                 $.ajax({
-                    url: "{{ url('edit-assigned-scheme') }}/" + id,
+                    url: editUrl,
                     type: "GET",
                     success: function(res) {
                         if (res.status) {
@@ -454,10 +452,14 @@
                 });
             });
 
+
             $('#assignUserForm').on('submit', function(e) {
                 e.preventDefault();
                 let configId = $('#config_id').val();
-                let url = configId ? "{{ url('update-user-assigned-scheme') }}/" + configId :
+
+                let updateRouteTemplate = "{{ route('update_user_assigned_scheme', ['id' => ':id']) }}";
+                let url = configId ?
+                    updateRouteTemplate.replace(':id', configId) :
                     "{{ route('assign_scheme') }}";
                 $.ajax({
                     url: url,
@@ -492,6 +494,7 @@
 
             $(document).on('click', '.delete-assigned-btn', function() {
                 let id = $(this).data('id');
+
                 Swal.fire({
                     title: 'Are you sure?',
                     icon: 'warning',
@@ -499,24 +502,28 @@
                     confirmButtonText: 'Yes, delete it!'
                 }).then((result) => {
                     if (result.isConfirmed) {
+
+                        let deleteUrl = "{{ route('delete_assign_scheme', ['id' => ':id']) }}"
+                            .replace(':id', id);
+
                         $.ajax({
-                            url: "{{ url('delete-assigned-scheme') }}/" + id,
+                            url: deleteUrl,
                             type: "GET",
                             success: function(res) {
                                 if (res.status) {
                                     Swal.fire({
-                                            icon: 'success',
-                                            title: 'Deleted!',
-                                            timer: 1500,
-                                            showConfirmButton: false
-                                        })
-                                        .then(() => location.reload());
+                                        icon: 'success',
+                                        title: 'Deleted!',
+                                        timer: 1500,
+                                        showConfirmButton: false
+                                    }).then(() => location.reload());
                                 }
                             }
                         });
                     }
                 });
             });
+
         });
     </script>
 @endsection

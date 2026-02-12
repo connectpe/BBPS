@@ -14,63 +14,18 @@
     <!-- Card 2 : Our Services -->
     <div class="col-md-8">
         <div class="card shadow-sm h-100">
-            <div class="card-body">
+            <div class="card-body position-relative">
+
                 <h6 class="fw-bold mb-3">Our Services</h6>
 
-                <div class="row">
-                    {{-- <div class="row g-2 align-items-end">
-
-
-                        <div class="col-md-3">
-                            <label for="filterreferenceId" class="form-label">ReferenceId</label>
-                            <input type="text" class="form-control" id="filterreferenceId" placeholder="Enter ReferenceId">
-                        </div>
-
-                        <div class="col-md-3">
-                            <label for="filterStatus" class="form-label">Status</label>
-                            <select class="form-select" id="filterStatus">
-                                <option value="">--select--</option>
-                                <option value="pending">Pending</option>
-                                <option value="processing">Processing</option>
-                                <option value="processed">Processed</option>
-                                <option value="failed">Failed</option>
-                                <option value="reversed">Reversed</option>
-                            </select>
-                        </div>
-
-
-
-                        <div class="col-md-3">
-                            <label for="reportType" class="form-label">Transaction Type</label>
-                            <select id="reportType" class="form-select">
-                                <option value="">--Select Transaction Type--</option>
-                                <option value="recharge">Recharge</option>
-                                <option value="bill">Bill</option>
-                                <option value="utility">Utility</option>
-                                <option value="banking">Banking</option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-3">
-                            <label for="fromDate" class="form-label">From</label>
-                            <input type="date" id="fromDate" name="fromDate" class="form-control" value="{{ now()->toDateString() }}">
-                        </div>
-
-                        <div class="col-md-3">
-                            <label for="toDate" class="form-label">To</label>
-                            <input type="date" id="toDate" name="toDate" class="form-control" value="{{ now()->toDateString() }}">
-                        </div>
-
-                        <div class="col-md-3 d-flex gap-2">
-                            <button class="btn buttonColor " id="applyFilter"> Filter</button>
-                            <button class="btn btn-secondary" id="resetFilter">Reset</button>
-                        </div>
-                    </div> --}}
+                <!-- Top-right images container -->
+                <div class="position-absolute top-0 end-0 m-3 d-flex" style="gap: 0.5rem;">
+                    <img src="{{ asset('assets/image/icon_logo.svg') }}" alt="" style="width: 70px;">
+                    <img src="{{ asset('assets/image/mobikwik-logo-black.jpg') }}" alt="" style="width: 70px;">
                 </div>
 
                 <div class="row g-3 text-center">
-
-                     @php
+                    @php
                     $services = [
                     ['name' => 'Bill Pay', 'icon' => 'bi-receipt'],
                     ['name' => 'Cash Collection', 'icon' => 'bi-cash-stack'],
@@ -99,14 +54,13 @@
                     </div>
                     @endforeach
 
-                    <!-- <div class="chart-wrapper mt-4" style="position: relative; width: 100%; max-width: 250px; margin: 0 auto;">
-                        <canvas id="reportChart" class="chart-canvas"></canvas>
-                        <div id="customTooltip" style="position:absolute; background:#fff; border:1px solid #ccc; padding:10px; max-height:100px; overflow-y:auto; display:none;"></div>
-                    </div> -->
                 </div>
             </div>
+
         </div>
     </div>
+
+
 
     <!-- Card 3 : Welcome + User Details + Actions -->
     <div class="col-md-4">
@@ -173,7 +127,7 @@
     <!-- Category Select -->
     <div class="col-md-3">
         <label class="form-label small">Category</label>
-        <select class="form-select">
+        <select class="form-select form-select2">
             <option selected disabled>--Select Category--</option>
             <option value="billing">Billing</option>
             <option value="recharge">Recharge</option>
@@ -185,7 +139,7 @@
     <!-- Service Select -->
     <div class="col-md-3">
         <label class="form-label small">Service</label>
-        <select class="form-select">
+        <select class="form-select form-select2">
             <option selected disabled>--Select Service--</option>
             <option value="billpay">Bill Pay</option>
             <option value="cashcollection">Cash Collection</option>
@@ -210,7 +164,12 @@
     <!-- Card 1: Success vs Failure Transaction -->
     <div class="col-md-6">
         <div class="card shadow-sm p-3" style="height:400px;">
-            <h5 class="card-title fw-bold">Success Vs Failure Transaction</h5>
+            <div class="d-flex justify-content-between align-items-start">
+                <h5 class="card-title fw-bold mb-0">
+                    Success Vs Failure Transaction
+                </h5>
+                <img src="{{ asset('assets/image/icon_logo.svg') }}" alt="" style="width: 70px;">
+            </div>
             <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
                 <p class="text-muted">No data found</p>
             </div>
@@ -220,12 +179,18 @@
     <!-- Card 2: Success Transaction By Service Wise -->
     <div class="col-md-6">
         <div class="card shadow-sm p-3" style="height:400px;">
-            <h5 class="card-title fw-bold">Success Transaction By Service Wise</h5>
+            <div class="d-flex justify-content-between align-items-start">
+                <h5 class="card-title fw-bold mb-0">
+                    Success Transaction By Service Wise
+                </h5>
+                <img src="{{ asset('assets/image/icon_logo.svg') }}" alt="" style="width: 70px;">
+            </div>
             <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
                 <p class="text-muted">No data found</p>
             </div>
         </div>
     </div>
+
 </div>
 
 <!-- Reusable chart details modal -->

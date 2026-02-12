@@ -35,7 +35,8 @@
 
     <div class="col-md-12">
         <div class="card shadow-sm h-100">
-            <div class="card-body">
+            <div class="card-body position-relative">
+                <img src="{{ asset('assets/image/icon_logo.svg') }}" alt="" class="position-absolute top-0 end-0 m-3" style="width: 45px;">
                 <div class="row g-3">
                     @foreach($services as $service)
                     @php
@@ -57,18 +58,16 @@
         </div>
     </div>
 
-
 </div>
 
 
 <div class="row mt-3">
-
     <div class="row">
-
         <div class="col-md-6">
             <div class="card shadow-sm card-height h-100">
-                <div class="card-header">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Request Form</h5>
+                    <img src="{{ asset('assets/image/icon_logo.svg') }}" alt="" style="width: 65px;">
                 </div>
                 <div class="card-body d-flex flex-column">
                     <form class="row g-3 flex-grow-1">
@@ -113,15 +112,16 @@
             @endphp
 
             <div class="card shadow-sm card-height h-100">
-                <div class="card-header">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Basic List Group</h5>
+                    <img src="{{ asset('assets/image/icon_logo.svg') }}" alt="" style="width: 65px;">
                 </div>
                 <div class="card-body d-flex flex-column">
                     <form class="row g-3 flex-grow-1">
 
                         <div class="col-12">
                             <label for="category" class="form-label">Category</label>
-                            <select class="form-select" id="category">
+                            <select class="form-select form-select2" id="category">
                                 <option selected>--Select Category--</option>
                                 <option value="support">Support</option>
                                 <option value="feedback">Feedback</option>
@@ -158,10 +158,7 @@
                 </div>
             </div>
         </div>
-
     </div>
-
-
 </div>
 
 <!-- Modal  -->
@@ -171,10 +168,14 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
 
-            <div class="modal-header">
-                <h5 class="modal-title" id="utilityModalTitle">Utility Payment</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-header position-relative">
+                <h5 class="modal-title" id="modalTitle">
+                    Utility Service
+                </h5>
+                <img src="{{ asset('assets/image/icon_logo.svg') }}" alt="" class="position-absolute" style="top: 10px; right: 50px; width: 70px;">
+                <button type="button" class="btn-close position-absolute bg-light" data-bs-dismiss="modal" style="top: -15px; right: -15px;"></button>
             </div>
+
 
             <div class="modal-body" id="utilityModalBody">
                 <!-- Step content loads here -->

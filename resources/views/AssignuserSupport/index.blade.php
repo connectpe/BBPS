@@ -20,7 +20,7 @@
                             <div class="row align-items-end g-2">
                                 <div class="col-md-3">
                                     <label class="form-label small fw-bold">User Name</label>
-                                    <select id="filterUser" class="form-select">
+                                    <select id="filterUser" class="form-select form-select2">
                                         <option value="">-- All Assigned Users --</option>
                                         @foreach ($assignedUsers as $u)
                                         <option value="{{ $u->id }}">{{ $u->name }}</option>
@@ -31,7 +31,7 @@
 
                                 <div class="col-md-3">
                                     <label class="form-label small fw-bold">Support Name</label>
-                                    <select id="filterSupport" class="form-select">
+                                    <select id="filterSupport" class="form-select form-select2">
                                         <option value="">-- All Assigned Support --</option>
                                         @foreach ($assignedSupports as $s)
                                         <option value="{{ $s->id }}">{{ $s->name }}</option>
@@ -93,7 +93,7 @@
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <label class="form-label small fw-bold mb-0">Select Users (Multiple) *</label>
                         </div>
-                        <select name="user_id[]" id="user_id" class="form-control searchable-select"
+                        <select name="user_id[]" id="user_id" class="form-control form-select2"
                             multiple="multiple" required>
                             @foreach ($users as $user)
                             @php $isAssigned = in_array($user->id, $alreadyAssignedIds); @endphp
@@ -107,7 +107,7 @@
 
                     <div class="mb-3">
                         <label class="form-label small fw-bold">Assign To Support</label>
-                        <select name="assined_to" id="assined_to" class="form-select shadow-none" required>
+                        <select name="assined_to" id="assined_to" class="form-select form-select2 shadow-none" required>
                             <option value="" selected disabled>-- Select Support --</option>
                             @foreach ($supportStaffs as $staff)
                             <option value="{{ $staff->id }}">{{ $staff->name }}</option>
@@ -147,19 +147,6 @@
             return state.text;
         }
 
-        let userSelect = $('.searchable-select').select2({
-            dropdownParent: $('#assignSupportModal'),
-            width: '100%',
-            placeholder: "-- Search & Select Users --",
-            allowClear: true,
-            templateResult: formatUserOption,
-            closeOnSelect: false
-        });
-
-        $('.searchable-filter').select2({
-            width: '100%',
-            allowClear: true
-        });
 
         $('#btnAddNew').click(function() {
             window.currentEditingUserId = null;
@@ -255,7 +242,7 @@
         $(document).on('click', '.edit-btn', function() {
             let id = $(this).data('id');
             $.ajax({
-                url: "{{ url('edit-support-assignment') }}/" + id,
+                url: "{{ route('edit_support_assignment',['id' => ':id']) }}".replace(':id', id),
                 type: "GET",
                 success: function(res) {
                     if (res.status) {
@@ -321,7 +308,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-                        url: "{{ url('delete-support-assignment') }}/" + id,
+                        url: "{{ route('delete_support_assignment',['id' => ':id']) }}".replace(':id',id) ,
                         type: "DELETE",
                         data: {
                             _token: "{{ csrf_token() }}"

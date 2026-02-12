@@ -26,7 +26,7 @@ class ServiceRequestController extends Controller
         //     ->latest()
         //     ->get();
 
-        $users = User::where('role_id', '!=', '1')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
+        $users = User::where('role_id', '!=', '1')->where('role_id', '!=', '4')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
         $globalServices = GlobalService::where('is_active', '1')->orderBy('id', 'desc')->get();
 
         return view('Service.request-services', compact('users', 'globalServices'));
@@ -124,7 +124,6 @@ class ServiceRequestController extends Controller
 
         $request->validate([
             'serviceId' => 'required|exists:user_services,id',
-            'status' => 'required|in:approved,rejected',
         ]);
 
 
@@ -139,15 +138,13 @@ class ServiceRequestController extends Controller
                 ]);
             }
 
-            $service->status = $request->status;
+            $service->status = 'approved';
             $service->save();
-
-            $message =  $request->status == 'approved'  ? 'Approved'  : 'Rejected';
 
             DB::commit();
             return response()->json([
                 'status' => true,
-                'message' => "Service Request $message Successfully"
+                'message' => "Service Request Approved Successfully"
             ]);
         } catch (\Exception $e) {
 

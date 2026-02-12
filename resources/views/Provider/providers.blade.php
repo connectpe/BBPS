@@ -3,17 +3,17 @@
 @section('title', 'Providers')
 @section('page-title', 'Providers')
 
-@section('content')
-
+@section('page-button')
 <div class="row align-items-center mb-2">
     <div class="col-auto ms-auto">
-        <button type="button" class="btn buttonColor" data-bs-toggle="modal" data-bs-target="#providerModal">
+        <button type="button" class="btn buttonColor text-nowrap" data-bs-toggle="modal" data-bs-target="#providerModal">
             <i class="bi bi-plus fs-6 me-1"></i> Provider
         </button>
     </div>
 </div>
+@endsection
 
-
+@section('content')
 <div class="col-12 col-md-10 col-lg-12">
     <div class="card shadow-sm">
 
@@ -51,7 +51,7 @@
 
                         <div class="col-md-12">
                             <label for="service_id">Service<span class="text-danger">*</span> </label>
-                            <select name="service_id" id="service_id" class="form-control">
+                            <select name="service_id" id="service_id" class="form-control form-select2">
                                 <option value="">--Select Service--</option>
                                 @foreach($globalServices as $service)
                                 <option value="{{$service->id}}" {{$service->id == old('service_id') ? 'selected' : ''}}>{{$service->service_name}}</option>
@@ -114,7 +114,12 @@
             },
 
             columns: [{
-                    data: 'id'
+                    data: null,
+                    orderable: false,
+                    searchable: false,
+                    render: function(data, type, row, meta) {
+                        return meta.settings._iDisplayStart + meta.row + 1;
+                    }
                 },
                 {
                     data: 'service.service_name'

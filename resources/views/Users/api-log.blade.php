@@ -18,7 +18,7 @@
 
                     <div class="col-md-3">
                         <label for="filterName" class="form-label">User</label>
-                        <select name="filterName" id="filterName" class="form-control">
+                        <select name="filterName" id="filterName" class="form-control form-select2">
                             <option value="">--Select User--</option>
                             @foreach($users as $value)
                             <option value="{{$value->id}}">{{$value->name}}</option>
@@ -66,6 +66,7 @@
                             <th>User Agent</th>
                             <th>Execution time</th>
                             <th>Date Time</th>
+                            <th>Location Details</th>
                         </tr>
                     </thead>
                 </table>
@@ -133,7 +134,12 @@
             },
 
             columns: [{
-                    data: 'id'
+                    data: null,
+                    orderable: false,
+                    searchable: false,
+                    render: function(data, type, row, meta) {
+                        return meta.settings._iDisplayStart + meta.row + 1;
+                    }
                 },
                 {
                     data: function(row) {
@@ -194,7 +200,16 @@
                     data: function(row) {
                         return formatDateTime(row.created_at)
                     }
-                }
+                },
+                {
+                    data: function(row) {
+                        const content = typeof row.location_details === 'object' ? JSON.stringify(row.location_details, null, 4) : row.location_details;
+                        return `<i class="fas fa-eye cursor-pointer viewContent"
+                                    data-title="API Response Body"
+                                    data-content='${content.replace(/'/g, "&#39;")}'>
+                                </i>`;
+                    }
+                },
             ]
         });
 
@@ -205,7 +220,7 @@
 
         // Reset filter
         $('#resetFilter').on('click', function() {
-            $('#filterName').val('');
+            $('#filterName').val('').trigger('change');
             $('#date_from').val('');
             $('#date_to').val('');
             table.ajax.reload();

@@ -15,39 +15,39 @@
         <div id="collapseFilter" class="accordion-collapse collapse" aria-labelledby="headingFilter" data-bs-parent="#filterAccordion">
             <div class="accordion-body">
                 <div class="row g-3 align-items-end">
-                    <div class="col-md-2">
-                        <label for="filterName" class="form-label">User</label>
-                        <select name="filterName" id="filterName" class="form-control">
+                    <div class="col-md-3">
+                        <label for="filterName" class="form-label d-block">User</label>
+                        <select name="filterName" id="filterName" class="form-control form-select2">
                             <option value="">--Select User--</option>
                             @foreach($users as $value)
                             <option value="{{$value->id}}">{{$value->name}}</option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label for="filterEmail" class="form-label">Email</label>
                         <input type="email" class="form-control" id="filterEmail" placeholder="Enter Email">
                     </div>
 
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label for="filterStatus" class="form-label">Status</label>
-                        <select class="form-select" id="filterStatus">
+                        <select class="form-select form-select2" id="filterStatus">
                             <option value="">All</option>
                             <option value="0">Initiated</option>
                             <option value="1">Active</option>
                             <option value="2">Inactive</option>
                         </select>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label for="filterDateFrom" class="form-label">From Date</label>
                         <input type="date" class="form-control" id="filterDateFrom">
                     </div>
 
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label for="filterDateTo" class="form-label">To Date</label>
                         <input type="date" class="form-control" id="filterDateTo">
                     </div>
-                    <div class="col-md-2 d-flex gap-2">
+                    <div class="col-md-3 d-flex gap-2">
                         <!-- Buttons aligned with input fields -->
                         <button class="btn buttonColor " id="applyFilter"> Filter</button>
 
@@ -67,7 +67,7 @@
                 <table id="usersTable" class="table table-striped table-bordered table-hover w-100">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>S.No</th>
                             <th>Organization Name</th>
                             <th>Email</th>
                             <th>PanNO.</th>
@@ -129,7 +129,12 @@
             },
 
             columns: [{
-                    data: 'id'
+                    data: null,
+                    orderable: false,
+                    searchable: false,
+                    render: function(data, type, row, meta) {
+                        return meta.settings._iDisplayStart + meta.row + 1;
+                    }
                 },
                 {
                     data: null,
@@ -173,7 +178,7 @@
                             4: 'SUSPENDED'
                         };
 
-                        let dropdown = `<select class="form-select form-select-sm" onchange="changeStatusDropdown(this, ${row.id})" onfocus="this.setAttribute('data-prev', this.value)">`;
+                        let dropdown = `<select class="form-select form-select2" onchange="changeStatusDropdown(this, ${row.id})" onfocus="this.setAttribute('data-prev', this.value)">`;
 
                         for (const [value, label] of Object.entries(statusOptions)) {
                             let selected = data == value ? 'selected' : '';
@@ -222,9 +227,9 @@
 
         // Reset filter
         $('#resetFilter').on('click', function() {
-            $('#filterName').val('');
+            $('#filterName').val('').trigger('change');
             $('#filterEmail').val('');
-            $('#filterStatus').val('');
+            $('#filterStatus').val('').trigger('change');
             table.ajax.reload();
         });
     });

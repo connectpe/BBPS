@@ -171,7 +171,7 @@
     #rechargeModal .modal-content {
         border: 0;
         border-radius: 18px;
-        overflow: hidden;
+        /* overflow: hidden; */
         box-shadow: 0 18px 45px rgba(0, 0, 0, .18);
     }
 
@@ -272,19 +272,17 @@
         }
     }
 </style>
+
 @section('content')
 <div class="row g-4 mb-3">
     <div class="col-12">
         <div class="banner position-relative overflow-hidden rounded" style="height: 250px;">
             <img src="{{ asset('assets/image/recharge.jpg') }}" alt="Banking Services Banner"
                 class="w-100 h-100 object-fit-cover">
-
-            <!-- Optional overlay text -->
             <div class="position-absolute top-50 start-50 translate-middle text-center text-white">
                 <h2 class="fw-bold">Fast & Easy Recharge Services</h2>
                 <p class="mb-0">Recharge your mobile, DTH, and pay bills instantly</p>
             </div>
-
         </div>
     </div>
 
@@ -306,14 +304,15 @@
     @endphp
 
     <div class="col-md-12">
-        <div class="card shadow-sm h-100">
+        <div class="card shadow-sm h-100 position-relative">
+
+            <img src="{{ asset('assets/image/icon_logo.svg') }}" alt="logo" style="position:absolute; top:10px; right:10px; width:70px; height:auto;">
+
             <div class="card-body">
                 <div class="row g-3">
                     @foreach ($services as $service)
-                    @php
-                    $randColor = $colors[array_rand($colors)];
-                    @endphp
-                    <div class="col-6 col-sm-4 col-md-3 col-lg-2 text-center mb-3">
+                    @php $randColor = $colors[array_rand($colors)]; @endphp
+                    <div class="col-6 col-sm-4 col-md-3 col-lg-3 text-center mb-3">
                         <a href="javascript:void(0)"
                             class="text-decoration-none text-dark d-flex flex-column align-items-center service-btn"
                             data-service="{{ $service['name'] }}">
@@ -335,58 +334,55 @@
 <div class="modal fade" id="rechargeModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <!-- FORM START -->
-            <form id="rechargeForm">
 
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalTitle">Recharge</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
+            <div class="modal-header position-relative overflow-visible">
+                <h5 class="modal-title" id="modalTitle">
+                    Recharge
+                </h5>
 
-                <div class="modal-body" id="modalBody">
-                    <!-- Dynamic content will be loaded here -->
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary d-none" id="backBtn">
-                        Back
-                    </button>
+                <img src="{{ asset('assets/image/icon_logo.svg') }}"
+                    alt=""
+                    class="position-absolute"
+                    style="top: 10px; right: 50px; width: 70px; z-index: 1060;">
 
-                    <button type="submit" class="btn btn-primary" id="nextBtn">
-                        View Plans
-                    </button>
-                </div>
-            </form>
-            <!-- FORM END -->
+                <button type="button"
+                    class="btn-close position-absolute bg-light"
+                    data-bs-dismiss="modal"
+                    style="top: -15px; right: -15px; z-index: 1061;">
+                </button>
+            </div>
+
+                <form id="rechargeForm">
+                   
+                    <div class="modal-body" id="modalBody"></div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary d-none" id="backBtn">Back</button>
+
+                        {{-- ✅ keep as button (no form submit auto) --}}
+                        <button type="button" class="btn btn-primary" id="nextBtn">View Plans</button>
+                    </div>
+                </form>
         </div>
     </div>
 </div>
 
-
-<!-- Mpin model to enter mpin  -->
+<!-- MPIN Modal -->
 <div class="modal fade" id="mpinModal" tabindex="-1" aria-labelledby="mpinModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-
             <form id="mpinForm" onsubmit="submitMpin(event)">
-
                 <div class="modal-header">
                     <h5 class="modal-title" id="mpinModalLabel">Enter MPIN</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
 
                 <div class="modal-body text-center">
-                    <p class="text-muted mb-3">
-                        Please enter your 4-digit MPIN to proceed with recharge
-                    </p>
+                    <p class="text-muted mb-3">Please enter your 4-digit MPIN to proceed with recharge</p>
 
-                    <!-- MPIN INPUT -->
-                    <input
-                        type="password"
-                        name="mpin"
-                        id="mpinInput"
+                    <input type="password" name="mpin" id="mpinInput"
                         class="form-control text-center fw-bold"
-                        maxlength="4"
-                        inputmode="numeric"
+                        maxlength="4" inputmode="numeric"
                         placeholder="Enter your MPIN"
                         style="letter-spacing: 10px; font-size: 22px;"
                         required />
@@ -397,31 +393,19 @@
                     <input type="hidden" name="circle_id" id="rechargeCircleId">
                     <input type="hidden" name="plan_id" id="rechargePlanId">
 
-                    <div class="text-danger mt-2 d-none" id="mpinError">
-                        Invalid MPIN
-                    </div>
+                    <div class="text-danger mt-2 d-none" id="mpinError">Invalid MPIN</div>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        Cancel
-                    </button>
-
-                    <button type="submit" class="btn btn-primary">
-                        Confirm Recharge
-                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" onclick="var e=this;setTimeout(function(){e.disabled=true;},0);return true;" class="btn btn-primary">Confirm Recharge</button>
                 </div>
-
             </form>
-
         </div>
     </div>
 </div>
 
-
-
 @php
-
 $rechargeOperators = [
 ['name' => 'Jio', 'icon' => 'bi-telephone-fill', 'op_id' => 140],
 ['name' => 'Airtel', 'icon' => 'bi-telephone-fill', 'op_id' => 141],
@@ -469,14 +453,11 @@ $rechargePlanTypes = [
 ['name' => 'SMS', 'code' => 'SMS', 'plan_id' => 5],
 ['name' => 'Roaming', 'code' => 'ROAMING', 'plan_id' => 6],
 ];
-
 @endphp
-
 
 <script>
     function buildOperatorDropdown() {
         let options = `<option value="">Select Operator</option>`;
-
         window.rechargeOperators.forEach(op => {
             options += `<option value="${op.op_id}">${op.name}</option>`;
         });
@@ -493,7 +474,6 @@ $rechargePlanTypes = [
 
     function buildCircleDropdown() {
         let options = `<option value="">Select Circle</option>`;
-
         window.rechargeCircles.forEach(circle => {
             options += `<option value="${circle.circle_id}">${circle.name}</option>`;
         });
@@ -510,7 +490,6 @@ $rechargePlanTypes = [
 
     function buildPlanTypeDropdown() {
         let options = `<option value="">Select Plan Type</option>`;
-
         window.rechargePlanTypes.forEach(plan => {
             options += `<option value="${plan.plan_id}">${plan.name}</option>`;
         });
@@ -528,16 +507,15 @@ $rechargePlanTypes = [
 
 <script>
     /* ===============================
-                           SERVICE CONFIG
-                        ================================ */
+           SERVICE CONFIG
+        ================================ */
     const serviceConfig = {
-
         "Mobile Postpaid": {
-            steps: ["INPUT", "FETCH_BILL", "PAY"],
+            steps: ["INPUT"],
             input: () => `
                     <div class="mb-3">
                         <label>Mobile Number</label>
-                        <input class="form-control" id="mobile" name="mobile" type="text">
+                        <input class="form-control" id="postmobile" name="postmobile" type="text">
                     </div>
                     ${buildOperatorDropdown()}
                     ${buildCircleDropdown()}
@@ -558,7 +536,7 @@ $rechargePlanTypes = [
         },
 
         "Landline Postpaid": {
-            steps: ["INPUT", "FETCH_BILL", "PAY"],
+            steps: ["INPUT", "FETCH_BILL"],
             input: () => `
                     <div class="mb-3">
                         <label>Landline Number</label>
@@ -653,7 +631,7 @@ $rechargePlanTypes = [
             steps: ["SCAN", "PAY"],
             input: () => `
                     <div class="text-center">
-                        <button class="btn btn-outline-primary w-100">
+                        <button type="button" class="btn btn-outline-primary w-100">
                             <i class="bi bi-qr-code-scan me-2"></i> Scan QR Code
                         </button>
                     </div>
@@ -668,6 +646,11 @@ $rechargePlanTypes = [
     let stepIndex = 0;
     let selectedAmount = 0;
     let __fetchingPlans = false;
+
+
+    let __payLock = false; // Pay Now multi hit stop
+    let __nextClickLock = false; // fast click spam stop
+
     let selectedMeta = {
         mobile: '',
         operator_id: '',
@@ -678,6 +661,7 @@ $rechargePlanTypes = [
         planName: '',
         amount: '',
     };
+
     let cachedPlans = [];
     let __plansReqId = 0;
     let __plansAbortController = null;
@@ -688,7 +672,8 @@ $rechargePlanTypes = [
                     <div class="meta-top">
                         <div class="meta-title">
                             <div class="meta-ico"><i class="bi bi-receipt-cutoff"></i></div>
-                            <div><div style="font-size:12px; opacity:.75;">Recharge Details</div>
+                            <div>
+                                <div style="font-size:12px; opacity:.75;">Recharge Details</div>
                                 <div class="meta-mobile">${meta.mobile || ''}</div>
                             </div>
                         </div>
@@ -704,24 +689,13 @@ $rechargePlanTypes = [
     }
 
     function renderPlansList(plans, mobile) {
-        const operatorText = selectedMeta.operatorName || '';
-        const circleText = selectedMeta.circleName || '';
-        const planText = selectedMeta.planName || '';
         let html = `${renderMetaHeader(selectedMeta)}<div class="plans-wrap"><div class="plans-scroll">`;
+
         plans.forEach((p) => {
             const amt = p.amount ?? p.price ?? p.recharge_amount ?? p.amt ?? 0;
 
             let validity = p.validity ?? p.validityDays ?? p.days ?? p.planValidity ?? '';
             let desc = p.description ?? p.desc ?? p.planName ?? '';
-            let planCategory =
-                p.plan_type ??
-                p.planType ??
-                p.category ??
-                p.type ??
-                p.plan_category ??
-                p.planCategory ??
-                p.plan_name ??
-                '';
 
             let talktimeValue =
                 p.talktime ??
@@ -733,7 +707,6 @@ $rechargePlanTypes = [
 
             validity = (validity + '').replace(/--/g, '').replace(/\s+/g, ' ').trim();
             desc = (desc + '').replace(/\s+/g, ' ').trim();
-            planCategory = (planCategory + '').replace(/\s+/g, ' ').trim();
 
             const validityText = validity ? validity : '—';
 
@@ -745,28 +718,24 @@ $rechargePlanTypes = [
             const descText = desc ? desc : 'Plan details';
 
             html += `
-            <button type="button" class="plan-card plan" data-amt="${amt}">
-                <div class="plan-left">
-                    <div class="plan-badge">₹</div>
-                    <div class="plan-meta">
-                        <p class="plan-amt">₹${amt}</p>
-                        <p class="plan-sub">${descText}</p>
-                    </div>
-                </div>
+                    <button type="button" class="plan-card plan" data-amt="${amt}">
+                        <div class="plan-left">
+                            <div class="plan-badge">₹</div>
+                            <div class="plan-meta">
+                                <p class="plan-amt">₹${amt}</p>
+                                <p class="plan-sub">${descText}</p>
+                            </div>
+                        </div>
 
-                <div class="plan-right">
-                    <span class="plan-chip">${validityText}</span>
-                    <i class="bi bi-chevron-right"></i>
-                </div>
-
-            </button>
-        `;
+                        <div class="plan-right">
+                            <span class="plan-chip">${validityText}</span>
+                            <i class="bi bi-chevron-right"></i>
+                        </div>
+                    </button>
+                `;
         });
 
-        html += `
-            </div>
-        </div>
-    `;
+        html += `</div></div>`;
 
         document.getElementById('modalBody').innerHTML = html;
 
@@ -775,21 +744,17 @@ $rechargePlanTypes = [
             $(this).addClass('active');
 
             selectedAmount = $(this).data('amt') || 0;
-
             selectedMeta.amount = selectedAmount;
-            selectedMeta.planCode = $(this).data('plancode');
 
-            stepIndex = 2;
+            stepIndex = 2; // PAY step
             loadStep();
         });
     }
-
 
     /* ===============================
        INIT
     ================================ */
     $(document).ready(function() {
-
         window.rechargeOperators = @json($rechargeOperators);
         window.rechargeCircles = @json($rechargeCircles);
         window.rechargePlanTypes = @json($rechargePlanTypes);
@@ -800,7 +765,10 @@ $rechargePlanTypes = [
             selectedAmount = 0;
             __fetchingPlans = false;
 
-            // reset meta
+
+            __payLock = false;
+            __nextClickLock = false;
+
             selectedMeta = {
                 mobile: '',
                 operator_id: '',
@@ -814,7 +782,6 @@ $rechargePlanTypes = [
 
             cachedPlans = [];
 
-            // abort old request
             if (__plansAbortController) {
                 try {
                     __plansAbortController.abort();
@@ -827,27 +794,25 @@ $rechargePlanTypes = [
             loadStep();
             $('#rechargeModal').modal('show');
         });
-
     });
 
     /* ===============================
        STEP ENGINE
     ================================ */
     function loadStep() {
-
         const config = serviceConfig[currentService];
         const step = config.steps[stepIndex];
 
         $('#backBtn').toggleClass('d-none', stepIndex === 0);
 
         if (step === "INPUT" || step === "SCAN") {
-            $('#nextBtn').text('View Plans').show();
+            $('#nextBtn').text('View Plans').show().prop('disabled', false);
             $('#modalBody').html(config.input());
             return;
         }
 
         if (step === "FETCH_BILL") {
-            $('#nextBtn').text('Fetching...');
+            $('#nextBtn').text('Fetching...').prop('disabled', true).show();
             $('#modalBody').html(loader("Fetching bill details..."));
 
             setTimeout(() => {
@@ -859,7 +824,6 @@ $rechargePlanTypes = [
         }
 
         if (step === "FETCH_PLANS") {
-
             $('#nextBtn').hide();
 
             if (cachedPlans && cachedPlans.length) {
@@ -875,8 +839,7 @@ $rechargePlanTypes = [
         }
 
         if (step === "PAY") {
-
-            $('#nextBtn').text('Pay Now').show();
+            $('#nextBtn').text('Pay Now').show().prop('disabled', false);
 
             $('#modalBody').html(`
                     ${renderMetaHeader(selectedMeta)}
@@ -903,15 +866,72 @@ $rechargePlanTypes = [
 
             return;
         }
-
     }
 
     /* ===============================
        BUTTON HANDLERS
+
+        FIXED: prevents multiple Pay Now hits
+
     ================================ */
-    $('#nextBtn').on('click', function() {
+    $('#nextBtn').off('click').on('click', function(e) {
+        e.preventDefault();
+
         const config = serviceConfig[currentService];
+        const step = config.steps[stepIndex];
+
+
+        if (__nextClickLock) return;
+        __nextClickLock = true;
+        setTimeout(() => {
+            __nextClickLock = false;
+        }, 350);
+
+
         if (currentService === "Mobile Prepaid" && stepIndex === 0) {
+            return;
+        }
+    });
+
+    /* ===============================
+       BUTTON HANDLERS
+       FIXED: prevents multiple Pay Now hits
+    ================================ */
+    $('#nextBtn').off('click').on('click', function(e) {
+        e.preventDefault();
+
+        const config = serviceConfig[currentService];
+        const step = config.steps[stepIndex];
+
+
+        if (__nextClickLock) return;
+        __nextClickLock = true;
+        setTimeout(() => {
+            __nextClickLock = false;
+        }, 350);
+
+
+        if (currentService === "Mobile Prepaid" && stepIndex === 0) {
+            return;
+        }
+
+
+
+        if (currentService === "Mobile Postpaid" && stepIndex === 0) {
+            document.getElementById('rechargeForm')
+                .dispatchEvent(new Event('submit', {
+                    cancelable: true
+                }));
+            return;
+        }
+
+
+
+        if (step === "PAY") {
+            if (__payLock) return;
+            __payLock = true;
+            $('#nextBtn').prop('disabled', true);
+            rechargeValidation();
             return;
         }
 
@@ -919,13 +939,11 @@ $rechargePlanTypes = [
             stepIndex++;
             loadStep();
         } else {
-            // alert('Call Payment API');
             rechargeValidation();
         }
     });
 
     $('#backBtn').on('click', function() {
-
         if (__plansAbortController) {
             try {
                 __plansAbortController.abort();
@@ -936,13 +954,56 @@ $rechargePlanTypes = [
         __fetchingPlans = false;
         __plansReqId++;
 
+
+        __payLock = false;
+        $('#nextBtn').prop('disabled', false);
+
+
+        if (currentService === "Mobile Postpaid" && stepIndex === 0) {
+            document.getElementById('rechargeForm')
+                .dispatchEvent(new Event('submit', {
+                    cancelable: true
+                }));
+            return;
+        }
+
+
+        if (step === "PAY") {
+            if (__payLock) return;
+            __payLock = true;
+            $('#nextBtn').prop('disabled', true);
+            rechargeValidation();
+            return;
+        }
+
+        if (stepIndex < config.steps.length - 1) {
+            stepIndex++;
+            loadStep();
+        } else {
+            rechargeValidation();
+        }
+    });
+
+
+    $('#backBtn').on('click', function() {
+        if (__plansAbortController) {
+            try {
+                __plansAbortController.abort();
+            } catch (e) {}
+        }
+        __plansAbortController = null;
+
+        __fetchingPlans = false;
+        __plansReqId++;
+
+
+        __payLock = false;
+        $('#nextBtn').prop('disabled', false);
+
         stepIndex--;
         loadStep();
     });
 
-    /* ===============================
-       HELPERS
-    ================================ */
     function loader(text) {
         return `
                 <div class="text-center my-4">
@@ -957,6 +1018,10 @@ $rechargePlanTypes = [
     document.getElementById('nextBtn').addEventListener('click', function() {
 
         if (currentService !== "Mobile Prepaid") return;
+
+
+        if (stepIndex !== 0) return;
+
         if (!document.getElementById('mobile')) return;
         if (__fetchingPlans) return;
 
@@ -995,7 +1060,7 @@ $rechargePlanTypes = [
 
         cachedPlans = [];
 
-        stepIndex = 1;
+        stepIndex = 1; // FETCH_PLANS
         loadStep();
 
         if (__plansAbortController) {
@@ -1011,28 +1076,29 @@ $rechargePlanTypes = [
                 signal: __plansAbortController.signal,
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
-                        'content')
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 },
                 body: JSON.stringify({
-                    mobile: mobile,
-                    operator_id: operator_id,
-                    circle_id: circle_id,
-                    plan_type: plan_type,
+                    mobile,
+                    operator_id,
+                    circle_id,
+                    plan_type
                 })
             })
             .then(res => res.json())
             .then(response => {
                 if (reqId !== __plansReqId) return;
+
                 __fetchingPlans = false;
+
                 if (!response.success) {
                     alert(response.message || 'Plans not available');
                     stepIndex = 0;
                     loadStep();
                     return;
                 }
-                const plans = response.data || [];
-                cachedPlans = plans;
+
+                cachedPlans = response.data || [];
                 renderPlansList(cachedPlans, mobile);
             })
             .catch(error => {
@@ -1048,7 +1114,6 @@ $rechargePlanTypes = [
 
 <script>
     function rechargeValidation() {
-
         const payload = {
             amt: String(selectedMeta.amount),
             cn: String(selectedMeta.mobile),
@@ -1065,12 +1130,10 @@ $rechargePlanTypes = [
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                 },
                 body: JSON.stringify(payload)
-
             })
             .then(res => res.json())
             .then(res => {
                 if (res.message?.code === "RECHARGEVALIDATIONSUCCESS") {
-
                     Swal.fire({
                         icon: 'error',
                         title: `<span style="font-size:15px; color: #AA4A44;">${res.message?.code || 'N/A'}</span>`,
@@ -1082,7 +1145,6 @@ $rechargePlanTypes = [
                 } else if (res.message?.code === "RECHARGEVALIDATIONFAILURE") {
 
                     const currentModalEl = document.querySelector('#rechargeModal.modal.show');
-
                     if (currentModalEl) {
                         const currentModal = bootstrap.Modal.getInstance(currentModalEl);
                         currentModal.hide();
@@ -1094,25 +1156,26 @@ $rechargePlanTypes = [
                     document.getElementById('rechargeCircleId').value = selectedMeta.circle_id;
                     document.getElementById('rechargePlanId').value = selectedMeta.plan_id;
 
-                    // Open MPIN modal
-                    const mpinModal = new bootstrap.Modal(
-                        document.getElementById('mpinModal')
-                    );
+                    const mpinModal = new bootstrap.Modal(document.getElementById('mpinModal'));
                     mpinModal.show();
 
                 } else {
                     Swal.fire({
                         icon: 'error',
-                        title: `<span style="font-size:15px; color: #AA4A44;">${res.message|| 'N/A'}</span>`,
+                        title: `<span style="font-size:15px; color: #AA4A44;">${res.message || 'N/A'}</span>`,
                         html: `<p>${res.message || 'Validation failed. Please try again.'}</p>`,
                         confirmButtonText: 'OK'
                     });
                 }
-
             })
             .catch(err => {
                 console.error(err);
                 alert('Recharge validation error');
+            })
+            .finally(() => {
+
+                __payLock = false;
+                $('#nextBtn').prop('disabled', false);
             });
     }
 
@@ -1139,19 +1202,16 @@ $rechargePlanTypes = [
             })
             .then(res => res.json())
             .then(res => {
-                if (res.status == 'Success') {
+                if (res.status == true) {
                     Swal.fire({
                         icon: 'success',
                         title: 'MPIN Verified',
                         html: res.message?.text || res.message || 'MPIN verified successfully',
                         confirmButtonText: 'OK'
                     }).then(() => {
-                        // hide modal after user clicks OK
                         const mpinModalEl = document.getElementById('mpinModal');
                         const mpinModal = bootstrap.Modal.getInstance(mpinModalEl);
                         if (mpinModal) mpinModal.hide();
-
-                        // clear MPIN input for next time
                         document.getElementById('mpinInput').value = '';
                     });
                 } else {
@@ -1162,7 +1222,6 @@ $rechargePlanTypes = [
                         confirmButtonText: 'OK'
                     });
                 }
-
             })
             .catch(err => {
                 console.error(err);
@@ -1176,65 +1235,37 @@ $rechargePlanTypes = [
     }
 </script>
 
-<!-- ----------------------------------------------------------------------------------------------------------->
-<!-------------------------------------Postpaid Recharge JS Starts Here------------------------------------------>
-
 <script>
-    __fetchingPlans = false;
-
     document.getElementById('rechargeForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
-        if (currentService !== "Mobile Postpaid") return;
-        if (__fetchingPlans) return;
+        if (currentService !== 'Mobile Postpaid') return;
 
-        const form = e.target;
+        const modal = document.getElementById('rechargeModal');
 
-        const formData = new FormData(form);
+        const data = {
+            cn: modal.querySelector('#postmobile')?.value,
+            op: modal.querySelector('#operator')?.value,
+            cir: modal.querySelector('#circle')?.value
+        };
 
-        const mobile = formData.get('mobile');
-        const operator = formData.get('operator');
-        const circle = formData.get('circle');
-
-        console.log({
-            mobile,
-            operator,
-            circle
-        });
-
-        if (!mobile || !operator || !circle) {
-            alert('Please fill all fields');
-            return;
-        }
-
-        __fetchingPlans = true;
-
-        stepIndex = 1;
-        loadStep();
+        console.log('Postpaid Data:', data);
 
         fetch("{{ route('bbps.postpaid_villBill') }}", {
-                method: 'POST',
+                method: "POST",
                 headers: {
-                    'X-CSRF-TOKEN': document
-                        .querySelector('meta[name="csrf-token"]')
-                        .getAttribute('content')
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 },
-                body: formData
+                body: JSON.stringify(data)
             })
             .then(res => res.json())
-            .then(data => {
-                __fetchingPlans = false;
-                console.log(data);
+            .then(res => {
+                console.log('Server Response:', res);
             })
-            .catch(() => __fetchingPlans = false);
+            .catch(err => {
+                console.error('Error:', err);
+            });
     });
 </script>
-
-
-
-
-
-
-
-
 @endsection

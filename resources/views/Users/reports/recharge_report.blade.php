@@ -23,9 +23,9 @@
                                         <input type="text" class="form-control" id="filterOrderId" placeholder="Enter OrderId">
                                     </div> -->
 
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="filterUser" class="form-label">User</label>
-                        <select id="filterUser" class="form-control">
+                        <select id="filterUser" class="form-control form-select2">
                             <option value="">--Select User--</option>
                             @foreach ($users as $value)
                             <option value="{{ $value->id }}">{{ $value->name }}</option>
@@ -33,15 +33,15 @@
                         </select>
                     </div>
 
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="filterreferenceId" class="form-label">ReferenceId</label>
                         <input type="text" class="form-control" id="filterreferenceId"
                             placeholder="Enter ReferenceId">
                     </div>
 
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="filterStatus" class="form-label">Status</label>
-                        <select class="form-select" id="filterStatus">
+                        <select class="form-select form-select2" id="filterStatus">
                             <option value="">--select--</option>
                             <option value="pending">Pending</option>
                             <option value="processing">Processing</option>
@@ -83,7 +83,7 @@
                 <table id="rechargeTable" class="table table-striped table-bordered table-hover w-100">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>S.No</th>
                             <th>User</th>
                             <th>Operator</th>
                             <th>Circle</th>
@@ -92,6 +92,7 @@
                             <th>Referene No</th>
                             <th>Created at</th>
                             <th>Status</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                 </table>
@@ -103,7 +104,7 @@
 <script>
     $(document).ready(function() {
 
-    
+
         var table = $('#rechargeTable').DataTable({
             processing: true,
             serverSide: true,
@@ -140,7 +141,12 @@
                 searchPlaceholder: "Search Transactions..."
             },
             columns: [{
-                    data: 'id'
+                    data: null,
+                    orderable: false,
+                    searchable: false,
+                    render: function(data, type, row, meta) {
+                        return meta.settings._iDisplayStart + meta.row + 1;
+                    }
                 },
                 {
                     data: 'user.name',
@@ -196,7 +202,30 @@
                         const color = colors[data] || 'secondary';
                         return `<span class="badge bg-${color}">${formatStatus(data)}</span>`;
                     }
-                }
+                },
+                {
+    data: null,
+    orderable: false,
+    searchable: false,
+    render: function (data, type, row) {
+
+       
+        if (row.status === 'processed') {
+            let url = "{{ route('recharge.invoice.download', ':id') }}"
+                        .replace(':id', row.id);
+
+            return `
+                <a href="${url}" 
+                   class="btn btn-sm btn-success">
+                    <i class="bi bi-download"></i> Invoice
+                </a>
+            `;
+        }
+
+        return `<span class="text-muted">----</span>`;
+    }
+}
+
             ]
         });
 
@@ -205,9 +234,9 @@
         });
 
         $('#resetFilter').on('click', function() {
-            $('#filterUser').val('');
+            $('#filterUser').val('').trigger('change');;
             $('#filterreferenceId').val('');
-            $('#filterStatus').val('');
+            $('#filterStatus').val('').trigger('change');;
             $('#filterDateFrom').val('');
             $('#filterDateTo').val('');
             table.ajax.reload();

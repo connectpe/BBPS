@@ -3,143 +3,176 @@
 namespace App\Jobs;
 
 use App\Helpers\CommonHelper;
+use App\Helpers\TransactionHelper;
+use App\Models\Transaction;
+use App\Models\UserService;
+use App\Models\Ledger;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use App\Models\Transaction;
-use App\Models\UserService;
 
 class DebitBalanceUpdateJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-    /**
-     * The number of times the job may be attempted.
-     *
-     * @var int
-     */
-    public $tries = 400;
 
-    /**
-     * The number of seconds the job can run before timing out.
-     *
-     * @var int
-     */
-    public $timeout = 14400;
-
-    /**
-     * Indicate if the job should be marked as failed on timeout.
-     *
-     * @var bool
-     */
+    public $tries = 5;
+    public $timeout = 300;
     public $failOnTimeout = true;
 
-    /**
-     * Create a new job instance.
-     *
-     *
-     * */
+    private string $endpoint;
+    private array $payload;
+    private string $token;
 
-
-    private $endpoint, $payload, $token;
-
-
-    public function __construct($endpoint, $payload, $token)
+    public function __construct(string $endpoint, array $payload, string $token)
     {
         $this->endpoint = $endpoint;
-        $this->payload = $payload;
-        $this->token = $token;
+        $this->payload  = $payload;
+        $this->token    = $token;
     }
-
-    /**
-     * Execute the job.
-     */
 
     public function handle(): void
     {
-        //Scheduled S0036 //Queued E0520
         try {
+            match ($this->payload['call']) {
+                'balance_debit' => $this->handleDebit(),
+                'failed_order'  => $this->handleFailedOrder(),
+                default         => Log::warning('Unknown job call', $this->payload),
+            };
+        } catch (\Throwable $e) {
+            Log::error('DebitBalanceUpdateJob failed', [
+                'error' => $e->getMessage(),
+                'payload' => $this->payload,
+            ]);
 
-            if ($this->payload['call'] == 'balance_debit') {
-                $OrderData = Transaction::select('user_id', 'request_id')
-                    ->where(['cron_status' => '0', 'status' => 'processing', 'user_id' => $this->payload['userid'], 'request_id' => $this->payload['reqid']])
-                    ->first();
-
-                if (isset($OrderData) && !empty($OrderData)) {
-                    $userServiceId = UserService::select('service_id ')->where('user_id ', $this->payload['userid'])->first();
-                    $userRoot = CommonHelper::getUserRouteUsingUserId($OrderData->user_id, $userServiceId, 'api');
-                    if ($userRoot['status']) {
-                        $types = $userRoot['slug'];
-                    } else {
-                        $defaultRoot = UserService::select('default_slug')->where('user_id ', $this->payload['userid'])->where('service_id', $userServiceId)->first();
-                        $types = $defaultRoot;
-                    }
-
-                    // $lockeOrder = TransactionHelper::moveOrderToProcessingByOrderId($OrderData->user_id, $OrderData->order_ref_id, $integrationId);
-
-                    if ($lockeOrder['status'] && isset($OrderData)) {
-                        dispatch(new \App\Jobs\MobikwikPaymentApiCallJob($OrderData->request_id, $OrderData->user_id, $types))->delay(rand(2, 7))->onQueue('payout_process_queue');
-                    } else {
-                        $errorDesc = $lockeOrder['message'];
-                        $statusCode = '';
-                        $txn = CommonHelper::getRandomString('txn', false);
-                        $utr = '';
-
-                        $getServicePkId = DB::table('user_services')->select('id')->where('user_id', $OrderData->user_id)->where('service_id', PAYOUT_SERVICE_ID)->first();
-
-                        if ($errorDesc == 'debit_balance_failed') {
-                            dispatch(new \App\Jobs\PayoutBalanceDebitAndStatusUpdateJob($OrderData->order_ref_id, $OrderData->user_id, 'balance_debit', '', '', '', '', ''))->delay(rand(5, 10))->onQueue('payout_debit_queue');
-                        }
-
-                        DB::select("CALL OrderStatusUpdate('" . $OrderData->order_ref_id . "', $OrderData->user_id, $getServicePkId->id, 'failed', '" . $txn . "', '" . $errorDesc . "', '" . $statusCode . "','" . $utr . "', @json)");
-                        $results = DB::select('select @json as json');
-                        $response = json_decode($results[0]->json, true);
-                        if ($response['status'] == '1') {
-                            TransactionHelper::sendCallback($OrderData->user_id, $OrderData->order_ref_id, 'failed');
-                        }
-                    }
-
-                    $ApiCallresponse =  dispatch(new \App\Jobs\MobikwikPaymentApiCallJob($this->endpoint, $this->payload, $this->token, $types));
-
-                    if (isset($ApiCallresponse) && !empty($ApiCallresponse)) {
-                        if ($ApiCallresponse['success'] == true) {
-                            $data = $ApiCallresponse['data'];
-                        } else {
-                            $errorDesc = $ApiCallresponse['message'];
-                        }
-                    }
-                }
-            } else if ($this->call == 'failed_order') {
-                \Log::info('failed_order', ['user_id' => $this->userId, 'order_ref_id' => $this->orderRefId]);
-                $OrderData = Order::select('order_ref_id', 'user_id', 'batch_id', 'area')
-                    ->where(['status' => 'processing', 'user_id' => $this->userId, 'order_ref_id' => $this->orderRefId])
-                    ->whereIn('orders.area', ['00', '11', '22'])
-                    ->first();
-                \Log::info('failed_order:OrderData', ['data' => json_encode($OrderData), 'order_ref_id' => $this->orderRefId]);
-                if (isset($OrderData) && !empty($OrderData)) {
-                    $txn = CommonHelper::getRandomString('txn', false);
-                    \Log::info('OrderStatusUpdate:', [$OrderData->order_ref_id, $this->status, $this->utr, $this->getServicePkId, $txn, $this->errorDesc, $this->statusCode]);
-                    DB::select("CALL OrderStatusUpdate('" . $OrderData->order_ref_id . "', $OrderData->user_id, $this->getServicePkId, '" . $this->status . "', '" . $txn . "', '" . $this->errorDesc . "', '" . $this->statusCode . "','" . $this->utr . "', @json)");
-                    $results = DB::select('select @json as json');
-                    $response = json_decode($results[0]->json, true);
-                    \Log::info('After OrderStatusUpdate:', [$results[0]->json]);
-                    \Log::info('Response payoutBalanceAndStatusUpdate:', $response);
-                    if ($response['status'] == '1') {
-                        if ($OrderData->area == '00') {
-                            BulkPayoutDetail::payStatusUpdate($OrderData->batch_id, 'failed', $OrderData->order_ref_id, $this->errorDesc, $this->utr);
-                            BulkPayout::updateStatusByBatch($OrderData->batch_id, array('status' => 'processed'));
-                        }
-                        TransactionHelper::sendCallback($OrderData->user_id, $OrderData->order_ref_id,  $this->status);
-                    }
-                }
-            }
-        } catch (\Exception  $e) {
-            $fileName = 'public/orderDeadlock' . $this->orderRefId . '.txt';
-            Storage::disk('local')->append($fileName, $e . date('H:i:s'));
+            throw $e;
         }
+    }
+
+    /**
+     * Debit wallet and initiate payment 
+     */
+    private function handleDebit(): void
+    {
+        DB::transaction(function () {
+
+            $transaction = Transaction::where([
+                'user_id'    => $this->payload['userid'],
+                'request_id' => $this->payload['reqid'],
+                'status'     => 'processing',
+            ])->lockForUpdate()->first();
+
+            if (!$transaction) {
+                Log::warning('Transaction not found for debit', $this->payload);
+                return;
+            }
+
+            $userService = UserService::where('user_id', $this->payload['userid'])->first();
+            if (!$userService) {
+                throw new \Exception('User service not found');
+            }
+
+            // Wallet debit
+            DB::statement(
+                "CALL debitAmountFromUserWallet(?, ?, ?, ?)",
+                [
+                    $this->payload['userid'],
+                    $this->payload['amt'],
+                    $userService->service_id,
+                    false
+                ]
+            );
+
+            $result = DB::selectOne('SELECT @json AS json');
+            $response = json_decode($result->json, true);
+
+            if (!$response['success']) {
+                throw new \Exception('Wallet debit failed');
+            }
+
+            Ledger::create([
+                'reference_no'     => $this->payload['paymentRefID'],
+                'request_id'       => $this->payload['reqid'],
+                'connectpe_id'     => $this->payload['connectpeId'],
+                'user_id'          => $this->payload['userid'],
+                'txn_amount'       => '-' . $response['amount'],
+                'txn_type'         => 'dr',
+                'service_id'       => $userService->service_id,
+                'opening_balance'  => $response['opening_balance'],
+                'closing_balance'  => $response['remaining_balance'],
+                'remark'           => 'Recharge debit',
+            ]);
+
+            dispatch(
+                new MobikwikPaymentApiCallJob(
+                    $this->endpoint,
+                    $this->payload,
+                    $this->token
+                )
+            )->onQueue('recharge_process_queue');
+        });
+    }
+
+    /**
+     *          Credit wallet if transaction failed any reason
+     */
+    private function handleFailedOrder(): void
+    {
+        DB::transaction(function () {
+
+            $transaction = Transaction::where([
+                'user_id'    => $this->payload['userid'],
+                'request_id' => $this->payload['reqid'],
+                'status'     => 'processing',
+            ])->lockForUpdate()->first();
+
+            if (!$transaction) {
+                return;
+            }
+
+            $userService = UserService::where('user_id', $this->payload['userid'])->first();
+
+            DB::statement(
+                "CALL debitAmountFromUserWallet(?, ?, ?, ?)",
+                [
+                    $this->payload['userid'],
+                    $this->payload['amt'],
+                    $userService->service_id,
+                    true
+                ]
+            );
+
+            $result = DB::selectOne('SELECT @json AS json');
+            $response = json_decode($result->json, true);
+
+            if (!$response['success']) {
+                throw new \Exception('Wallet credit failed');
+            }
+
+            Ledger::create([
+                'reference_no'     => $this->payload['paymentRefID'],
+                'request_id'       => $this->payload['reqid'],
+                'connectpe_id'     => $this->payload['connectpeId'],
+                'user_id'          => $this->payload['userid'],
+                'txn_amount'       => '+' . $response['amount'],
+                'txn_type'         => 'cr',
+                'service_id'       => $userService->service_id,
+                'opening_balance'  => $response['opening_balance'],
+                'closing_balance'  => $response['remaining_balance'],
+                'remark'           => 'Recharge refund',
+            ]);
+
+            $transaction->update(['status' => 'failed']);
+
+            TransactionHelper::sendCallback(
+                $transaction->user_id,
+                $transaction->request_id,
+                'failed'
+            );
+        });
     }
 }

@@ -44,19 +44,34 @@
 
     <div class="col-md-12">
         <div class="card shadow-sm h-100">
-            <div class="card-body">
+            <div class="card-body position-relative">
+
+                <!-- Top-right image -->
+                <img
+                    src="{{ asset('assets/image/icon_logo.svg') }}"
+                    alt=""
+                    class="position-absolute top-0 end-0 m-3"
+                    style="width: 70px;">
+
                 <div class="row g-3">
                     @foreach($services as $service)
                     @php
                     $randColor = $colors[array_rand($colors)];
                     @endphp
-                    <div class="col-6 col-sm-4 col-md-3 col-lg-2 text-center mb-3">
-                        <a href="javascript:void(0)" class="text-decoration-none text-dark d-flex flex-column align-items-center service-btn" data-service="{{ $service['name'] }}">
+
+                    <div class="col-6 col-sm-4 col-md-3 col-lg-3 text-center mb-3">
+                        <a href="javascript:void(0)"
+                            class="text-decoration-none text-dark d-flex flex-column align-items-center service-btn"
+                            data-service="{{ $service['name'] }}">
+
                             <div class="rounded-circle d-flex justify-content-center align-items-center border border-light"
                                 style="width:60px; height:60px; font-size:1.5rem; background-color: #e1e8ef; color: {{ $randColor }};">
                                 <i class="bi {{ $service['icon'] }}"></i>
                             </div>
-                            <span class="small fw-semibold text-center mt-2">{{ $service['name'] }}</span>
+
+                            <span class="small fw-semibold text-center mt-2">
+                                {{ $service['name'] }}
+                            </span>
                         </a>
                     </div>
 
@@ -65,6 +80,7 @@
             </div>
         </div>
     </div>
+
 </div>
 
 
@@ -74,9 +90,13 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
 
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalTitle">Banking</h5>
-                <button class="btn-close" data-bs-dismiss="modal"></button>
+
+            <div class="modal-header position-relative">
+                <h5 class="modal-title" id="modalTitle">
+                    Banking
+                </h5>
+                <img src="{{ asset('assets/image/icon_logo.svg') }}" alt="" class="position-absolute" style="top: 10px; right: 50px; width: 70px;">
+                <button type="button" class="btn-close position-absolute bg-light" data-bs-dismiss="modal" style="top: -15px; right: -15px;"></button>
             </div>
 
             <div class="modal-body" id="modalBody"></div>

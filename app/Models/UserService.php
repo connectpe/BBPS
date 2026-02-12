@@ -14,6 +14,7 @@ class UserService extends Model
     protected $fillable = [
         'user_id',
         'service_id',
+        'default_slug',
         'status',
         'transaction_amount',
         'is_api_enable',
@@ -27,6 +28,6 @@ class UserService extends Model
 
     public function service()
     {
-        return $this->belongsTo(GlobalService::class, 'service_id');
+        return $this->belongsTo(GlobalService::class, 'service_id')->where('is_active', '1');
     }
 }

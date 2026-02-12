@@ -26,7 +26,7 @@ class WebhookHelper {
     public static function RechargeTransaction($data, $url = '',$secret = '', $headers = '')
     {
 
-        if ($data->status == 'SUCCESS') {
+        if ($data->status == 'success') {
             $arrayPayLoad['event'] = 'recharge.transfer.success';
             $arrayPayLoad['code'] = "0x0200";
             $arrayPayLoad['message'] = 'Transaction Successful';

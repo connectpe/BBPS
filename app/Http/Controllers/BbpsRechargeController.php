@@ -9,11 +9,13 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Client\ConnectionException;
 use App\Models\MobikwikToken;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Models\Transaction;
 use App\Jobs\MobikwikPaymentApiCallJob;
 use App\Helpers\CommonHelper;
 use App\Jobs\DebitBalanceUpdateJob;
+use App\Models\UserService;
 
 class BbpsRechargeController extends Controller
 {
@@ -29,95 +31,68 @@ class BbpsRechargeController extends Controller
         $this->keyVersion   = config('mobikwik.key_version');
         $this->clientSecret = config('mobikwik.client_secret');
         $this->clientId     = config('mobikwik.client_id');
-        // $this->publicKey     = file_get_contents(config('mobikwik.public_key'));
+        $this->publicKey     = file_get_contents(config('mobikwik.public_key'));
     }
 
     public function mpinAuth(Request $request)
     {
         try {
-            // dd($request->all());
             $request->validate([
-                'mpin' => 'required|numeric',
-                'mobile' => 'required|string',
+                'mpin'        => 'required|numeric',
+                'mobile'      => 'required|string',
                 'operator_id' => 'required|string',
-                'circle_id' => 'required|string',
-                'amount' => 'required|string',
-                'plan_id' => 'required|string',
+                'circle_id'   => 'required|string',
+                'amount'      => 'required|numeric|min:1',
+                'plan_id'     => 'required|string',
             ]);
-            // dd($request->mpin);
 
-            $userid = Auth::id();
-
-            if (!$userid) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'User not authenticated',
-                ]);
-            }
-
-            $user = User::where('id', $userid)->first();
-
+            $user = Auth::user();
             if (!$user) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'User not found',
-                ]);
+                    'message' => 'User not authenticated',
+                ], 401);
             }
 
-            if ($request->mpin != 1122) {
+            if (!Hash::check($request->mpin, $user->mpin)) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Invalid MPIN',
+                ], 401);
+            }
+
+            $endpoint = '/recharge/v3/retailerPayment';
+
+            $mobikwikHelper = new MobiKwikHelper();
+            $paymentResponse = $mobikwikHelper->Payment($endpoint, $request->mobile, $request->operator_id, $request->circle_id, $request->plan_id, $request->amount);
+            dd($paymentResponse);
+
+            if (!empty($paymentResponse)) {
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Payment request sent successfully',
+                    'data' => $paymentResponse,
                 ]);
             }
 
-            $payload = [
-                'cn' => $request->mobile,
-                'op' => $request->operator_id,
-                'cir' => $request->circle_id,
-                'amt' => $request->amount,
-                'customerMobile' => $request->mobile,
-                'remitterName' => $user->name,
-                'paymentMode' => 'Wallet',
-                'paymentAccountInfo' => '9519041116',
-                'reqid' => commonHelper::generateTransactionId(),
-                'paymentRefID' => commonHelper::generatePaymentRefId(),
-                'plan_id' => $request->plan_id,
-                'userid' => $userid,
-                'call' => 'balance_debit',
-            ];
-
-            $endpoint = '/recharge/v3/retailerPayment';
-            $token = CommonHelper::isTokenPresent();
-            $connectPeId = CommonHelper::generateConnectPeTransactionId();
-
-            Transaction::create([
-                'user_id'               => $userid,
-                'operator_id'           => $payload['op'],
-                'circle_id'             => $payload['cir'],
-                'amount'                => $payload['amt'],
-                'transaction_type'      => $payload['paymentMode'],
-                'request_id'            => $payload['reqid'],
-                'mobile_number'         => $payload['customerMobile'],
-                'payment_ref_id'        => $payload['paymentRefID'],
-                'payment_account_info'  => $payload['paymentAccountInfo'],
-                'recharge_type'         => 'prepaid',
-                'connectpe_id'          => $connectPeId,
-            ]);
-
-            dispatch(new DebitBalanceUpdateJob($endpoint, $payload,$token));
-
             return response()->json([
-                'status'  => 'Success',
-                'message' => 'MPIN verified. Recharge processing started.',
+                'status'  => false,
+                'message' => 'Payment response is empty or invalid',
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
+            Log::error('MPIN Recharge Error', [
+                'error' => $e->getMessage(),
+            ]);
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
-            ]);
+            ], 500);
         }
     }
+
+    
+
 
     public function getPlans($operator_id, $circle_id, $plan_type = null)
     {
@@ -334,10 +309,13 @@ class BbpsRechargeController extends Controller
                 'txId' => $request->txId
             ];
 
-            $data =  $this->sendRequest(
+            $mobikwikHelper = new MobiKwikHelper;
+            $token = CommonHelper::isTokenPresent();
+
+            $data =  $mobikwikHelper->sendRequest(
                 '/recharge/v3/retailerStatus',
                 $payload,
-                $request->bearerToken()
+                $token,
             );
 
             return response()->json([

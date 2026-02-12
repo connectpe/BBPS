@@ -6,6 +6,7 @@ use App\Helpers\CommonHelper;
 use App\Models\BusinessCategory;
 use App\Models\BusinessInfo;
 use App\Models\ComplaintsCategory;
+use App\Models\DefaultProvider;
 use App\Models\GlobalService;
 use App\Models\OauthUser;
 use App\Models\Provider;
@@ -14,9 +15,10 @@ use App\Models\SchemeRule;
 use App\Models\User;
 use App\Models\UserAssignedToSupport;
 use App\Models\UserConfig;
-use App\Models\WebHookUrl;
 use App\Models\UsersBank;
 use App\Models\UserService;
+use App\Models\Transaction;
+use App\Models\WebHookUrl;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -40,18 +42,24 @@ class AdminController extends Controller
             }
 
             // $data['activeService'] = GlobalService::where(['is_active' => '1'])
-                
+
             //     ->select('id', 'slug', 'service_name')
             //     ->get();
 
-            $data['userdata'] = User::where('id', $userId)->select('name', 'email', 'mobile', 'status', 'role_id', 'profile_image')->first();
+            $data['userdata'] = User::where('id', $userId)->select('name', 'email', 'mobile', 'status', 'role_id', 'profile_image', 'transaction_amount','created_at')->first();
             $data['businessInfo'] = BusinessInfo::where('user_id', $userId)->first();
             $data['businessCategory'] = BusinessCategory::where('status', 1)->orderBy('id', 'desc')->get();
             $data['supportRepresentative'] = UserAssignedToSupport::where('user_id', $userId)->with('assigned_support')->first();
 
             $data['usersBank'] = UsersBank::where('user_id', $userId)->first();
-            $data['UserServices'] = UserService::where('user_id', $userId)->where('status', 'approved')->get();
-             $data['webhookUrl'] = WebHookUrl::where('user_id', $userId)->first();
+            $data['UserServices'] = UserService::where('user_id', $userId)->where('status', 'approved')->where('is_active', '1')->get();
+            $data['webhookUrl'] = WebHookUrl::where('user_id', $userId)->first();
+            $data['txnStats'] = Transaction::where('user_id', $userId)->where('status', 'processed')
+            ->selectRaw('COUNT(id) as total_count, SUM(amount) as total_amount, MIN(created_at) as first_txn_date')
+            ->first();
+            $data['walletBalance'] = $data['userdata']->transaction_amount ?? 0;
+            $data['completedTxn']  = $data['txnStats']->total_count ?? 0;
+            $data['totalSpent']    = $data['txnStats']->total_amount ?? 0;
 
             return view('Admin.profile')->with($data);
         } catch (\Exception $e) {
@@ -72,11 +80,9 @@ class AdminController extends Controller
     {
         $role = Auth::user()->role_id;
 
-        if (in_array($role, [1, 2])) {
-
+        if (in_array($role, [1])) {
             return view('Dashboard.dashboard');
         } elseif (in_array($role, [3])) {
-
             return view('Dashboard.api-dashboard');
         } elseif ($role == 4) {
             return view('Dashboard.support-dashboard');
@@ -573,111 +579,145 @@ class AdminController extends Controller
 
     public function updateSchemeAndRule(Request $request, $schemeId)
     {
+        // Validation
+        $validator = Validator::make($request->all(), [
 
-        try {
-            $validator = Validator::make($request->all(), [
-                'scheme_name' => 'required|string|max:255|unique:schemes,scheme_name',
-                'rules' => 'required|array|min:1',
-                'rules.*.service_id' => 'required|integer|exists:global_services,id',
-                'rules.*.start_value' => 'required|numeric|min:0',
-                'rules.*.end_value' => 'required|numeric|gte:rules.*.start_value',
-                'rules.*.type' => 'required|in:Percentage,Fixed',
-                'rules.*.fee' => 'required|numeric|min:0',
-                'rules.*.min_fee' => 'required|numeric|min:0',
-                'rules.*.max_fee' => 'required|numeric|gte:rules.*.min_fee',
-            ], [
+            'scheme_name' => 'required|string|max:255|unique:schemes,scheme_name,' . $schemeId,
+            'rules' => 'required|array|min:1',
+            'rules.*.rule_id' => 'nullable|integer|exists:scheme_rules,id',
+            'rules.*.service_id' => 'required|integer|exists:global_services,id',
+            'rules.*.start_value' => 'required|numeric|min:0',
+            'rules.*.end_value' => 'required|numeric|gte:rules.*.start_value',
+            'rules.*.type' => 'required|in:Percentage,Fixed',
+            'rules.*.fee' => 'required|numeric|min:0',
+            'rules.*.min_fee' => 'required|numeric|min:0',
+            'rules.*.max_fee' => 'required|numeric|gte:rules.*.min_fee',
+            'rules.*.is_active' => 'nullable|boolean',
+        ], [
+            'scheme_name.required' => 'Scheme name is required.',
+            'scheme_name.string' => 'Scheme name must be a string.',
+            'scheme_name.max' => 'Scheme name may not be greater than 255 characters.',
 
-                'scheme_name.required' => 'Scheme name is required.',
-                'scheme_name.string' => 'Scheme name must be a string.',
-                'scheme_name.max' => 'Scheme name may not be greater than 255 characters.',
+            'rules.required' => 'At least one rule is required.',
+            'rules.array' => 'Rules must be an array.',
+            'rules.min' => 'At least one rule must be provided.',
 
-                // Rules array
-                'rules.required' => 'At least one rule is required.',
-                'rules.array' => 'Rules must be an array.',
-                'rules.min' => 'At least one rule must be provided.',
+            'rules.*.service_id.required' => 'Service ID is required.',
+            'rules.*.service_id.integer' => 'Service ID must be a number.',
+            'rules.*.service_id.exists' => 'Selected service does not exist.',
 
-                // Rules.* fields
-                'rules.*.service_id.required' => 'Service ID is required.',
-                'rules.*.service_id.integer' => 'Service ID must be a number.',
-                'rules.*.service_id.exists' => 'Selected service does not exist.',
+            'rules.*.start_value.required' => 'Start value is required.',
+            'rules.*.start_value.numeric' => 'Start value must be a number.',
+            'rules.*.start_value.min' => 'Start value must be at least 0.',
 
-                'rules.*.start_value.required' => 'Start value is required.',
-                'rules.*.start_value.numeric' => 'Start value must be a number.',
-                'rules.*.start_value.min' => 'Start value must be at least 0.',
+            'rules.*.end_value.required' => 'End value is required.',
+            'rules.*.end_value.numeric' => 'End value must be a number.',
+            'rules.*.end_value.gte' => 'End value must be greater than or equal to start value.',
 
-                'rules.*.end_value.required' => 'End value is required.',
-                'rules.*.end_value.numeric' => 'End value must be a number.',
-                'rules.*.end_value.gte' => 'End value must be greater than or equal to start value.',
+            'rules.*.type.required' => 'Type is required.',
+            'rules.*.type.in' => 'Type must be either Percentage or Fixed.',
 
-                'rules.*.type.required' => 'Type is required.',
-                'rules.*.type.in' => 'Type must be either Percentage or Fixed.',
+            'rules.*.fee.required' => 'Fee is required.',
+            'rules.*.fee.numeric' => 'Fee must be a number.',
+            'rules.*.fee.min' => 'Fee must be at least 0.',
 
-                'rules.*.fee.required' => 'Fee is required.',
-                'rules.*.fee.numeric' => 'Fee must be a number.',
-                'rules.*.fee.min' => 'Fee must be at least 0.',
+            'rules.*.min_fee.required' => 'Minimum fee is required.',
+            'rules.*.min_fee.numeric' => 'Minimum fee must be a number.',
+            'rules.*.min_fee.min' => 'Minimum fee must be at least 0.',
 
-                'rules.*.min_fee.required' => 'Minimum fee is required.',
-                'rules.*.min_fee.numeric' => 'Minimum fee must be a number.',
-                'rules.*.min_fee.min' => 'Minimum fee must be at least 0.',
+            'rules.*.max_fee.required' => 'Maximum fee is required.',
+            'rules.*.max_fee.numeric' => 'Maximum fee must be a number.',
+            'rules.*.max_fee.gte' => 'Maximum fee must be greater than or equal to minimum fee.',
 
-                'rules.*.max_fee.required' => 'Maximum fee is required.',
-                'rules.*.max_fee.numeric' => 'Maximum fee must be a number.',
-                'rules.*.max_fee.gte' => 'Maximum fee must be greater than or equal to minimum fee.',
+        ]);
 
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Validation Error',
-                    'errors' => $validator->errors(),
-                ], 422);
-            }
-
-            DB::beginTransaction();
-
-            try {
-
-                $updatedBy = Auth::user()->id;
-
-                $scheme = Scheme::create([
-                    'scheme_name' => $request->scheme_name,
-                    'updated_by' => $updatedBy,
-                ]);
-
-                foreach ($request->rules as $rule) {
-                    SchemeRule::create([
-                        'scheme_id' => $scheme->id,
-                        'service_id' => $rule['service_id'],
-                        'start_value' => $rule['start_value'],
-                        'end_value' => $rule['end_value'],
-                        'type' => $rule['type'],
-                        'fee' => $rule['fee'],
-                        'min_fee' => $rule['min_fee'],
-                        'max_fee' => $rule['max_fee'],
-                        'updated_by' => $updatedBy,
-                    ]);
-                }
-
-                DB::commit();
-
-                return response()->json([
-                    'status' => true,
-                    'message' => 'Scheme and Rules are Created Successfully',
-                ]);
-            } catch (\Exception $e) {
-                DB::rollBack();
-
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Error : ' . $e->getMessage(),
-                ]);
-            }
-        } catch (\Exception $e) {
+        if ($validator->fails()) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error : ' . $e->getMessage(),
+                'message' => 'Validation Error',
+
+                'errors' => $validator->errors(),
+
+            ], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+
+            $updatedBy = Auth::user()->id;
+            $scheme = Scheme::findOrFail($schemeId);
+
+
+            if (!$scheme) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Scheme not found'
+                ]);
+            }
+
+            $scheme->update([
+                'scheme_name' => $request->scheme_name,
+
+                'updated_by'  => $updatedBy,
             ]);
+
+            $existingRuleIds = [];
+
+            foreach ($request->rules as $ruleData) {
+
+                if (!empty($ruleData['rule_id'])) {
+                    // Update existing rule
+                    $rule = SchemeRule::findOrFail($ruleData['rule_id']);
+                    $rule->update([
+                        'service_id'  => $ruleData['service_id'],
+                        'start_value' => (float) $ruleData['start_value'],
+                        'end_value'   => (float) $ruleData['end_value'],
+                        'type'        => $ruleData['type'],
+                        'fee'         => (float) $ruleData['fee'],
+                        'min_fee'     => (float) $ruleData['min_fee'],
+                        'max_fee'     => (float) $ruleData['max_fee'],
+                        'updated_by'  => $updatedBy,
+                    ]);
+
+                    $existingRuleIds[] = $rule->id;
+                } else {
+                    // Insert new rule
+                    $newRule = SchemeRule::create([
+                        'scheme_id' => $scheme->id,
+                        'service_id' => $ruleData['service_id'],
+                        'start_value' => (float) $ruleData['start_value'],
+                        'end_value' => (float) $ruleData['end_value'],
+                        'type' => $ruleData['type'],
+                        'fee' => (float) $ruleData['fee'],
+                        'min_fee' => (float) $ruleData['min_fee'],
+                        'max_fee' => (float) $ruleData['max_fee'],
+                        'updated_by' => $updatedBy,
+
+                    ]);
+
+                    $existingRuleIds[] = $newRule->id;
+                }
+            }
+
+            // Optional: delete rules removed from the request
+            SchemeRule::where('scheme_id', $scheme->id)
+                ->whereNotIn('id', $existingRuleIds)
+                ->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Scheme and Rules Updated Successfully',
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
         }
     }
 
@@ -888,8 +928,8 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json(['status' => false, 'message' => 'Error: ' . $e->getMessage()], 500);
 
+            return response()->json(['status' => false, 'message' => 'Error: ' . $e->getMessage()], 500);
         }
     }
 
@@ -927,10 +967,6 @@ class AdminController extends Controller
                 'message' => 'Error: ' . $e->getMessage(),
             ], 500);
         }
-
-
-
-
     }
 
     public function supportdetails()
@@ -950,7 +986,7 @@ class AdminController extends Controller
             $request->validate([
                 'name' => 'required|string|min:3',
                 'email' => 'required|email|unique:users',
-                'mobile' => 'required|max:10',
+                'mobile' => 'required|digits:10',
                 'password' => 'required|min:6',
                 'password' => 'required|min:6|confirmed',
             ]);
@@ -1000,8 +1036,8 @@ class AdminController extends Controller
 
             $request->validate([
                 'name' => 'required|string|min:3',
-                'email' => 'required|email|unique:users,email,'.$user_id,
-                'mobile' => 'required|digits:10|unique:users,mobile,'.$user_id,
+                'email' => 'required|email|unique:users,email,' . $user_id,
+                'mobile' => 'required|digits:10|unique:users,mobile,' . $user_id,
 
             ]);
 
@@ -1036,7 +1072,7 @@ class AdminController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            'category_name' => 'required|string|max:50|unique:complaints_categories,id|regex:/^[A-Za-z0-9 _-]+$/',
+            'category_name' => 'required|string|max:50|unique:complaints_categories,category_name|regex:/^[A-Za-z0-9 _-]+$/',
         ], [
             'category_name.required' => 'Category name is required.',
             'category_name.string' => 'Category name must be a valid string.',
@@ -1074,7 +1110,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error: '.$e->getMessage(),
+                'message' => 'Error: ' . $e->getMessage(),
             ]);
         }
     }
@@ -1083,7 +1119,7 @@ class AdminController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            'category_name' => 'required|string|max:50|regex:/^[A-Za-z0-9 _-]+$/|unique:complaints_categories,id,'.$Id,
+            'category_name' => 'required|string|max:50|regex:/^[A-Za-z0-9 _-]+$/|unique:complaints_categories,category_name,' . $Id,
         ], [
             'category_name.required' => 'Category name is required.',
             'category_name.string' => 'Category name must be a valid string.',
@@ -1134,6 +1170,7 @@ class AdminController extends Controller
             ]);
         }
     }
+
     public function statusComplaintCategory(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
@@ -1149,7 +1186,7 @@ class AdminController extends Controller
 
         DB::beginTransaction();
         try {
-            $category = ComplaintsCategory::findOrFail($id); 
+            $category = ComplaintsCategory::findOrFail($id);
 
             $category->update([
                 'status' => $request->status,
@@ -1163,8 +1200,6 @@ class AdminController extends Controller
                 'message' => 'Category Status Updated Successfully',
                 'data' => $category,
             ]);
-
-
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -1182,7 +1217,6 @@ class AdminController extends Controller
             'userId' => 'required|exists:users,id',
         ]);
 
-
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
@@ -1196,33 +1230,287 @@ class AdminController extends Controller
 
             $business = BusinessInfo::where('id', $request->id)->where('user_id', $request->userId)->first();
 
-            if (!$business) {
+            if (! $business) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Business Not Found',
                 ], 404);
             }
-
             $data = [
-                'is_kyc' => $business->is_kyc == '0' ? '1' : '0'
+                'is_kyc' => $business->is_kyc == '0' ? '1' : '0',
             ];
 
-           $business->update($data);
+            $business->update($data);
             DB::commit();
 
             return response()->json([
                 'status' => true,
                 'message' => 'Kyc Updated Successfully',
             ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
 
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+    public function addDefaultProvider(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'service_id' => 'required|exists:global_services,id|unique:default_providers,service_id',
+            'provider_id' => 'required|exists:providers,id',
+        ]);
+
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+
+        DB::beginTransaction();
+
+
+        try {
+
+            $updatedBy = Auth::user()->id;
+            $provider = Provider::find($request->provider_id);
+            $duplicateProvider = DefaultProvider::where('service_id', $request->service_id)->where('provider_id', $request->provider_id)->first();
+
+            if (!$provider) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Provider not found',
+                ]);
+            }
+
+            if ($duplicateProvider) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Default Provider already exist for selected Service',
+                ]);
+            }
+
+            $data = [
+                'service_id' => $request->service_id,
+                'provider_id' => $request->provider_id,
+                'provider_slug' => 'default_' . $provider->provider_slug,
+                'updated_by' => $updatedBy,
+            ];
+
+
+
+            $provider = DefaultProvider::create($data);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Default Provider Added Successfully',
+                'data' => $provider,
+            ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json([
                 'status' => false,
-                'message' => 'Something went wrong: '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ], 500);
         }
     }
 
+
+    public function editDefaultProvider(Request $request, $Id)
+    {
+        $validator = Validator::make($request->all(), [
+            'service_id' => 'required|exists:global_services,id|unique:default_providers,service_id,' . $Id,
+            'provider_id' => 'required|exists:providers,id',
+        ]);
+
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+
+        DB::beginTransaction();
+
+        try {
+
+            $updatedBy = Auth::user()->id;
+            $provider = Provider::find($request->provider_id);
+            $defaultProvider = DefaultProvider::find($Id);
+            $duplicateProvider = DefaultProvider::where('service_id', $request->service_id)
+                ->where('provider_id', $request->provider_id)
+                ->where('id', '!=', $Id)
+                ->first();
+
+            if (!$provider) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Provider not found',
+                ]);
+            }
+
+            if (!$defaultProvider) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Default Provider not found',
+                ]);
+            }
+
+            if ($duplicateProvider) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Default Provider already exist for selected Service',
+                ]);
+            }
+
+            $data = [
+                'service_id' => $request->service_id,
+                'provider_id' => $request->provider_id,
+                'provider_slug' => 'default_' . $provider->provider_slug,
+                'updated_by' => $updatedBy,
+            ];
+
+
+            $defaultProvider->update($data);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Default Provider Updated Successfully',
+                'data' => $provider,
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Error : ' . $e->getMessage(),
+
+            ], 500);
+        }
+    }
+
+
+    public function defalutSlug()
+    {
+        $services = GlobalService::where('is_active', '1')->select('id', 'service_name')->orderBy('service_name')->get();
+        return view('Provider.defaultslug', compact('services'));
+    }
+
+    public function getProvidersByService($serviceId)
+    {
+        $providers = Provider::where('service_id', (int)$serviceId)
+            ->where('is_active', '1')
+            ->select('id', 'provider_name')
+            ->orderBy('provider_name')
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $providers,
+        ]);
+    }
+
+
+
+    // public function editDefaultProvider(Request $request, $Id)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'service_id' => 'required|exists:global_services,id',
+    //         'provider_id' => 'required|exists:providers,id',
+    //     ]);
+
+
+    //     if ($validator->fails()) {
+    //         return response()->json([
+    //             'status' => false,
+    //             'errors' => $validator->errors(),
+    //         ], 422);
+    //     }
+
+
+    //     DB::beginTransaction();
+
+    //     try {
+
+    //         $updatedBy = Auth::user()->id;
+    //         $provider = Provider::find($request->provider_id);
+    //         $defaultProvider = DefaultProvider::find($Id);
+    //         $duplicateProvider = DefaultProvider::where('service_id', $request->service_id)
+    //             ->where('provider_id', $request->provider_id)
+    //             ->where('id', '!=', $Id)
+    //             ->first();
+
+    //         if (!$provider) {
+    //             return response()->json([
+    //                 'status' => false,
+    //                 'message' => 'Provider not found',
+    //             ]);
+    //         }
+
+    //         if (!$defaultProvider) {
+    //             return response()->json([
+    //                 'status' => false,
+    //                 'message' => 'Default Provider not found',
+    //             ]);
+    //         }
+
+    //         if ($duplicateProvider) {
+    //             return response()->json([
+    //                 'status' => false,
+    //                 'message' => 'Default Provider already exist for selected Service',
+    //             ]);
+    //         }
+
+    //         $data = [
+    //             'service_id' => $request->service_id,
+    //             'provider_id' => $request->provider_id,
+    //             'provider_slug' => 'default_' . $provider->provider_slug,
+    //             'updated_by' => $updatedBy,
+    //         ];
+
+
+    //         $defaultProvider->update($data);
+
+    //         DB::commit();
+
+    //         return response()->json([
+    //             'status' => true,
+    //             'message' => 'Default Provider Updated Successfully',
+    //             'data' => $provider,
+    //         ], 200);
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+
+    //         return response()->json([
+    //             'status' => false,
+    //             'message' => 'Error : ' . $e->getMessage(),
+    //         ], 500);
+    //     }
+    // }
+
+
+
+
+
+    public function nsdlPayment()
+    {
+        $users = User::where('role_id', '!=', '1')->whereHas('nsdlPayments')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
+        $globalServices = GlobalService::where('is_active', '1')->orderBy('id', 'desc')->get();
+        return view('Transaction.nsdl-payment', compact('users', 'globalServices'));
+    }
 }
