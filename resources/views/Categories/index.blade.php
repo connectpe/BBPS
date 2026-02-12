@@ -129,9 +129,7 @@
             $('.error-category_name').text('');
 
             let id = $('#category_id').val();
-            let targetUrl = id ?
-                "{{ url('admin/update-complaint-category') }}/" + id :
-                "{{ route('add_complaint_category') }}";
+            let targetUrl = id ? "{{ route('update_complaint_category',['id' => ':id']) }}".replace(':id', id) : "{{ route('add_complaint_category') }}";
 
             $.ajax({
                 url: targetUrl,

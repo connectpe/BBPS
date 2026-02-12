@@ -165,7 +165,7 @@
                     <div class="card-body">
                         <i class="bi bi-calendar-check fs-4 text-info mb-2"></i>
                         <h6 class="card-title mb-1">Member Since</h6>
-                        <p class="card-text fs-6 fw-bold">{{ number_format(2012) }}</p>
+                        <p class="card-text fs-6 fw-bold">{{ 2012 }}</p>
                     </div>
                 </div>
             </div>
@@ -415,7 +415,7 @@
                         <div class="card-body">
                             <i class="bi bi-calendar-check fs-4 text-info mb-2"></i>
                             <h6 class="card-title mb-1">Member Since</h6>
-                            <p class="card-text fs-6 fw-bold">{{ $memberSince }}</p>
+                            <p class="card-text fs-6 fw-bold">{{ $userdata->created_at ? \Carbon\Carbon::parse($userdata->created_at)->format('Y')  : ''}}</p>
                         </div>
                     </div>
                 </div>
@@ -627,7 +627,7 @@
                                                         class="text-danger">*</span></label>
                                                 <input type="password" class="form-control" name="current_mpin"
                                                     maxlength="6" pattern="\d*" inputmode="numeric"
-                                                    placeholder="Enter 6-digit current MPIN" required>
+                                                    placeholder="Enter 4-digit current MPIN" required>
                                                 <small class="text-danger error-current_mpin"></small>
                                             </div>
 
@@ -636,7 +636,7 @@
                                                         class="text-danger">*</span></label>
                                                 <input type="password" class="form-control" name="new_mpin"
                                                     maxlength="6" pattern="\d*" inputmode="numeric"
-                                                    placeholder="Set 6-digit new MPIN" required>
+                                                    placeholder="Set 4-digit new MPIN" required>
                                                 <small class="text-danger error-new_mpin"></small>
                                             </div>
 
@@ -645,7 +645,7 @@
                                                         class="text-danger">*</span></label>
                                                 <input type="password" class="form-control" name="new_mpin_confirmation"
                                                     maxlength="6" pattern="\d*" inputmode="numeric" required
-                                                    placeholder="Confirm 6-digit new MPIN">
+                                                    placeholder="Confirm 4-digit new MPIN">
                                             </div>
 
                                             <div class="text-end">
@@ -2022,7 +2022,8 @@
 
             // AJAX request
             $.ajax({
-                url: `/completeProfile/${userId}`, // Replace with your route
+                
+                url: "{{route('admin.complete_profile',['user_id'=>':userId'])}}".replace(':user_id',userId), // Replace with your route
                 type: 'POST',
                 data: formData,
                 processData: false,
@@ -2181,8 +2182,7 @@
                 e.preventDefault();
                 const id = $('#ip_id').val();
                 const submitBtn = $('#modalSubmitBtn');
-                const targetUrl = id ? "{{ url('update-ip-address') }}/" + id :
-                    "{{ route('add_ip_address') }}";
+                const targetUrl = id ? "{{ route('update_ip_address',['id' => ':id']) }}".replace(':id',id)  : "{{ route('add_ip_address') }}";
 
                 submitBtn.prop('disabled', true).html(
                     '<span class="spinner-border spinner-border-sm"></span> Saving...');
@@ -2229,7 +2229,7 @@
                     if (result.isConfirmed) {
 
                         $.ajax({
-                            url: "{{ url('status-ip-address') }}/" + id,
+                            url: "{{ route('status_ip_address',['id' => ':id']) }}".replace(':id',id) ,
                             type: "GET",
                             success: function(res) {
                                 if (res.status) {
@@ -2267,7 +2267,7 @@
             $(document).on('click', '.delete-ip', function(e) {
                 e.preventDefault();
                 let id = $(this).data('id');
-                let deleteUrl = "{{ url('delete-ip-address') }}/" + id;
+                let deleteUrl = "{{ route('delete_ip_address',['id'=> ':id']) }}".replace(':id',id);
 
                 Swal.fire({
                     title: 'Are you sure?',

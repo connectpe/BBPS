@@ -12,9 +12,11 @@
         <!-- Search Form -->
         <div class="col-12">
             <div class="card border shadow-sm">
-                <div class="card-header">
+                <div class="card-header position-relative">
                     <h5 class="mb-0">Check Transactions Status</h5>
+                    <img src="{{ asset('assets/image/icon_logo.svg') }}" alt="logo" style="position:absolute; top:10px; right:10px; width:60px; height:auto;">
                 </div>
+
                 <div class="card-body">
                     <form id="transactionForm">
                         <div class="row g-3 align-items-end">

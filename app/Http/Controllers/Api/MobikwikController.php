@@ -512,17 +512,31 @@ class MobikwikController extends Controller
                         $payload,
                         $token
                     );
-                    if (!isset($response['status']) || $response['status'] !== 'SUCCESS') {
+                    // dd($response);
+                    if ($response['success'] == false) {
                         return response()->json([
                             'status'  => false,
                             'message' => "API Error occurred",
                             'error_details' => $response
                         ]);
                     }
+
+
+
+                    $success = $response['success'];
+                    $finalResponse = [
+                        'success' => $success,
+                        'status' => $response['data']['status'],
+                        'txn_id' => $response['data']['txId'],
+                        'timestamp' => $response['data']['mobikwikstamp'],
+                        'balance' => $response['data']['balance'],
+                        'connectpe_id' => $connectPeId
+
+                    ];
                     return response()->json([
                         'status' => true,
-                        'data' => $response,
-                        'connectRefId' => $connectPeId
+                        'data' => $finalResponse,
+
                     ]);
                 } catch (\Exception $e) {
                     return response()->json([
@@ -530,7 +544,7 @@ class MobikwikController extends Controller
                         "message" => $e->getMessage(),
                     ]);
                 }
-                
+
                 break;
 
             default:
@@ -564,9 +578,6 @@ class MobikwikController extends Controller
 
                 $mobikwikHelper = new MobiKwikHelper();
                 $token = $this->isTokenPresent();
-                dd($token);
-
-
                 $response = $mobikwikHelper->sendRequest(
                     '/recharge/v3/retailerViewbill',
                     $payload,

@@ -201,8 +201,17 @@
 
         {{-- Main Content --}}
         <main class="flex-grow-1 p-4 bg-light">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h2 class="mb-0">@yield('page-title')</h2>
+                <!-- Button placeholder, will be injected by child if exists -->
+                <div>
+                    @yield('page-button')
+                </div>
+            </div>
+
             @yield('content')
         </main>
+
 
         {{-- Footer --}}
         @include('layouts.footer')

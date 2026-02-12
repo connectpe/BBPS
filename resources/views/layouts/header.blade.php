@@ -10,7 +10,7 @@
         </button>
 
 
-        <h2 class="mb-4">@yield('page-title')</h1>
+        <!-- <h2 class="mb-4">@yield('page-title')</h1> -->
             <!-- <h6 class="mb-0">Dashboard</h6> -->
             @php
 
@@ -27,7 +27,6 @@
                     <i class="fa-solid fa-table-list"></i> Services
                 </button>
             @endif
-
 
 
     </div>
