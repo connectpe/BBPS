@@ -627,7 +627,7 @@
                                                         class="text-danger">*</span></label>
                                                 <input type="password" class="form-control" name="current_mpin"
                                                     maxlength="6" pattern="\d*" inputmode="numeric"
-                                                    placeholder="Enter 6-digit current MPIN" required>
+                                                    placeholder="Enter 4-digit current MPIN" required>
                                                 <small class="text-danger error-current_mpin"></small>
                                             </div>
 
@@ -636,7 +636,7 @@
                                                         class="text-danger">*</span></label>
                                                 <input type="password" class="form-control" name="new_mpin"
                                                     maxlength="6" pattern="\d*" inputmode="numeric"
-                                                    placeholder="Set 6-digit new MPIN" required>
+                                                    placeholder="Set 4-digit new MPIN" required>
                                                 <small class="text-danger error-new_mpin"></small>
                                             </div>
 
@@ -645,7 +645,7 @@
                                                         class="text-danger">*</span></label>
                                                 <input type="password" class="form-control" name="new_mpin_confirmation"
                                                     maxlength="6" pattern="\d*" inputmode="numeric" required
-                                                    placeholder="Confirm 6-digit new MPIN">
+                                                    placeholder="Confirm 4-digit new MPIN">
                                             </div>
 
                                             <div class="text-end">
@@ -1980,7 +1980,7 @@
             const formData = new FormData();
             console.log(formData);
             const userId = document.getElementById('user_id').value;
-
+            console.log('User ID:', userId);
             // Automatically append all input, select, textarea values
             $('#completeProfileModal input, #completeProfileModal select, #completeProfileModal textarea').each(function() {
                 const name = $(this).attr('name');
@@ -2022,8 +2022,7 @@
 
             // AJAX request
             $.ajax({
-                
-                url: "{{route('admin.complete_profile',['user_id'=>':userId'])}}".replace(':userId',userId), // Replace with your route
+                url: "{{route('admin.complete_profile',['user_id'=>':userId'])}}".replace(':userId',userId),
                 type: 'POST',
                 data: formData,
                 processData: false,

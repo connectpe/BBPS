@@ -1071,7 +1071,7 @@ $rechargePlanTypes = [
         __plansAbortController = new AbortController();
         const reqId = ++__plansReqId;
 
-        fetch('/bbps-recharge/getPlans/' + operator_id + '/' + circle_id + '/' + plan_type, {
+        fetch('/user/bbps-recharge/getPlans/' + operator_id + '/' + circle_id + '/' + plan_type, {
                 method: 'POST',
                 signal: __plansAbortController.signal,
                 headers: {
