@@ -2022,7 +2022,8 @@
 
             // AJAX request
             $.ajax({
-                url: "{{route('admin.complete_profile',['user_id' => ':id'])}}".replace(':id',userId), // Replace with your route
+                
+                url: "{{route('admin.complete_profile',['user_id'=>':userId'])}}".replace(':user_id',userId), // Replace with your route
                 type: 'POST',
                 data: formData,
                 processData: false,
