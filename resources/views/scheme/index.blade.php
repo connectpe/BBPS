@@ -11,7 +11,6 @@
                 </button>
             </div>
             <div class="card-body">
-                 <div class="table-responsive">
                 <table id="schemeTable" class="table table-bordered table-striped w-100">
                     <thead>
                         <tr>
@@ -25,7 +24,6 @@
                     <tbody>
                     </tbody>
                 </table>
-                 </div>
             </div>
         </div>
 
@@ -69,8 +67,6 @@
                     </div>
                 </div>
 
-                 <div class="table-responsive">
-
                 <table id="relationTable" class="table table-bordered table-striped w-100">
                     <thead class="bg-light">
                         <tr>
@@ -83,7 +79,6 @@
                     <tbody>
                     </tbody>
                 </table>
-                 </div>
             </div>
         </div>
     </div>
@@ -322,32 +317,11 @@
                 </tr>`;
             }
 
-
             $('.btn-add-new').click(function() {
                 $('#modalTitle').text('Add New Scheme Rules');
                 $('#scheme_id').val('');
                 $('#schemeForm')[0].reset();
                 $('#rulesTable tbody').empty();
-            });
-
-        $(document).on('click', '.edit-scheme-btn', function() {
-            let id = $(this).data('id');
-            $('#modalTitle').text('Update Scheme Rules');
-            $('#schemeForm')[0].reset();
-            $('#rulesTable tbody').empty();
-            $.ajax({
-                url: "{{route('edit_scheme',['id'=>':id'])}}".replace(':id',id),
-                type: "GET",
-                success: function(res) {
-                    if (res.status) {
-                        $('#scheme_id').val(res.scheme.id);
-                        $('#scheme_name').val(res.scheme.scheme_name);
-                        res.scheme.rules.forEach(rule => {
-                            $('#rulesTable tbody').append(getRowHtml(rule));
-                        });
-                        $('#schemeModal').modal('show');
-                    }
-                }
             });
 
             $(document).on('click', '.edit-scheme-btn', function() {
@@ -356,7 +330,7 @@
                 $('#schemeForm')[0].reset();
                 $('#rulesTable tbody').empty();
                 $.ajax({
-                    url: "{{ url('edit-scheme') }}/" + id,
+                     url: "{{ route('edit_scheme', ['id' => ':id']) }}".replace(':id', id),
                     type: "GET",
                     success: function(res) {
                         if (res.status) {
@@ -550,7 +524,6 @@
                 });
             });
 
-        });
         });
     </script>
 @endsection
