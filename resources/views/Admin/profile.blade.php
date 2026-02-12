@@ -1980,7 +1980,7 @@
             const formData = new FormData();
             console.log(formData);
             const userId = document.getElementById('user_id').value;
-
+            console.log('User ID:', userId);
             // Automatically append all input, select, textarea values
             $('#completeProfileModal input, #completeProfileModal select, #completeProfileModal textarea').each(function() {
                 const name = $(this).attr('name');
@@ -2023,7 +2023,7 @@
             // AJAX request
             $.ajax({
                 
-                url: "{{route('admin.complete_profile',['user_id'=>':userId'])}}".replace(':user_id',userId), // Replace with your route
+                url: "{{route('admin.complete_profile',['user_id'=>':userId'])}}".replace(':userId',userId),
                 type: 'POST',
                 data: formData,
                 processData: false,
