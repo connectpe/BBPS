@@ -47,7 +47,7 @@
             <!-- AEPS Balance -->
             <div class="text-end">
                 <small class="text-muted">Business Wallet</small>
-                <div class="fw-semibold text-primary">₹ {{ number_format(0, 2) }}</div>
+                <div class="fw-semibold text-primary"> ₹ {{ number_format($businessWallet ?? 0, 2) }}</div>
             </div>
         @else
             <div class="text-end">

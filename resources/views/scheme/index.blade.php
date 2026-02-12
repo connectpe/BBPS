@@ -42,7 +42,7 @@
                         <select class="form-control form-select shadow-none form-select2" id="filter_user">
                             <option value="">-- Select user --</option>
                             @foreach ($assignedUsers as $u)
-                                <option value="{{ $u->id }}">{{ $u->name }}</option>
+                                <option value="{{ $u->id }}">{{ $u->name }} ({{ $u->email }})</option>
                             @endforeach
                         </select>
                     </div>

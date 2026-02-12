@@ -16,45 +16,47 @@
         <div class="card shadow-sm h-100">
             <div class="card-body position-relative">
 
-                <h6 class="fw-bold mb-3">Our Services</h6>
+                <h3 class="fw-bold mb-3">Our Services</h6>
 
-                <!-- Top-right images container -->
-                <div class="position-absolute top-0 end-0 m-3 d-flex" style="gap: 0.5rem;">
-                    <img src="{{ asset('assets/image/icon_logo.svg') }}" alt="" style="width: 70px;">
-                    <img src="{{ asset('assets/image/mobikwik-logo-black.jpg') }}" alt="" style="width: 70px;">
-                </div>
-
-                <div class="row g-3 text-center">
-                    @php
-                    $services = [
-                    ['name' => 'Bill Pay', 'icon' => 'bi-receipt'],
-                    ['name' => 'Cash Collection', 'icon' => 'bi-cash-stack'],
-                    ['name' => 'Digital Wallet', 'icon' => 'bi-wallet2'],
-                    ['name' => 'DTH Recharge', 'icon' => 'bi-tv'],
-                    ['name' => 'OTT', 'icon' => 'bi-play-btn'],
-                    ['name' => 'OTH Recharge', 'icon' => 'bi-phone'],
-                    ];
-
-                    $colors = ['#f94144','#f3722c','#f8961e','#f9c74f','#90be6d','#43aa8b','#577590','#277da1','#9d4edd','#ff6d00','#1982c4','#6a4c93'];
-                    @endphp
-
-                    @foreach($services as $service)
-                    @php
-                    $randColor = $colors[array_rand($colors)];
-                    @endphp
-
-                    <div class="col-6">
-                        <div class="border rounded p-2 h-100 service-box bg-light">
-                            <i class="bi {{ $service['icon'] }} fs-4" style="color: {{ $randColor }}"></i>
-                            <a href="{{ route('utility_service') }}"
-                                class="text-decoration-none text-dark small fw-semibold mt-1 d-block text-center">
-                                {{ $service['name'] }}
-                            </a>
-                        </div>
+                    <!-- Top-right images container -->
+                    <div class="position-absolute end-0 me-3 d-flex"
+                        style="top: 1px; gap: 0.5rem;">
+                        <img src="{{ asset('assets/image/Logo/b-mnemonic-logo.jpg') }}"
+                            alt="" style="width: 50px;">
                     </div>
-                    @endforeach
 
-                </div>
+
+                    <div class="row g-3 text-center">
+                        @php
+                        $services = [
+                        ['name' => 'Bill Pay', 'icon' => 'bi-receipt'],
+                        ['name' => 'Cash Collection', 'icon' => 'bi-cash-stack'],
+                        ['name' => 'Digital Wallet', 'icon' => 'bi-wallet2'],
+                        ['name' => 'DTH Recharge', 'icon' => 'bi-tv'],
+                        ['name' => 'OTT', 'icon' => 'bi-play-btn'],
+                        ['name' => 'OTH Recharge', 'icon' => 'bi-phone'],
+                        ];
+
+                        $colors = ['#f94144','#f3722c','#f8961e','#f9c74f','#90be6d','#43aa8b','#577590','#277da1','#9d4edd','#ff6d00','#1982c4','#6a4c93'];
+                        @endphp
+
+                        @foreach($services as $service)
+                        @php
+                        $randColor = $colors[array_rand($colors)];
+                        @endphp
+
+                        <div class="col-6">
+                            <div class="border rounded p-2 h-100 service-box bg-light">
+                                <i class="bi {{ $service['icon'] }} fs-4" style="color: {{ $randColor }}"></i>
+                                <a href="{{ route('utility_service') }}"
+                                    class="text-decoration-none text-dark small fw-semibold mt-1 d-block text-center">
+                                    {{ $service['name'] }}
+                                </a>
+                            </div>
+                        </div>
+                        @endforeach
+
+                    </div>
             </div>
 
         </div>
@@ -168,7 +170,13 @@
                 <h5 class="card-title fw-bold mb-0">
                     Success Vs Failure Transaction
                 </h5>
-                <img src="{{ asset('assets/image/icon_logo.svg') }}" alt="" style="width: 70px;">
+                <img src="{{ asset('assets/image/Logo/b-mnemonic-logo.jpg') }}" alt="" style="width: 50px;">
+                <!-- <div class="position-absolute end-0 me-3 d-flex"
+                        style="top: 1px; gap: 0.5rem;">
+                        <img src="{{ asset('assets/image/Logo/b-mnemonic-logo.jpg') }}"
+                            alt="" style="width: 50px;">
+                    </div> -->
+
             </div>
             <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
                 <p class="text-muted">No data found</p>
@@ -183,7 +191,7 @@
                 <h5 class="card-title fw-bold mb-0">
                     Success Transaction By Service Wise
                 </h5>
-                <img src="{{ asset('assets/image/icon_logo.svg') }}" alt="" style="width: 70px;">
+                <img src="{{ asset('assets/image/Logo/b-mnemonic-logo.jpg') }}" alt="" style="width: 50px;">
             </div>
             <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
                 <p class="text-muted">No data found</p>

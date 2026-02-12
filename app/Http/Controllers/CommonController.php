@@ -144,7 +144,7 @@ class CommonController extends Controller
             case 'transactions':
                 $request['table'] = '\App\Models\Transaction';
 
-                $request['searchData'] = ['id',  'created_at', 'reference_number', 'user_id', 'operator_id', 'circle_id', 'status', 'amount', 'transaction_type'];
+                $request['searchData'] = ['id',  'created_at', 'reference_number', 'user_id', 'operator_id', 'circle_id', 'status', 'amount', 'transaction_type',];
 
                 $request['select'] = 'all';
                 $request['with'] = ['user', 'operator', 'circle'];
@@ -320,7 +320,7 @@ class CommonController extends Controller
                 break;
             case 'transaction-complaint':
                 $request['table'] = '\App\Models\Complaint';
-                $request['searchData'] = ['id', 'ticket_number', 'priority', 'status'];
+                $request['searchData'] = ['id', 'ticket_number', 'priority', 'status','mobile'];
                 $request['select'] = 'all';
                 $request['with'] = ['user', 'user.business', 'service', 'category'];
 
@@ -710,14 +710,14 @@ class CommonController extends Controller
             'users' => ['id', 'email', 'mobile', 'status'],
             'global-service' => ['service_name', 'status'],
             'insurance' => ['name', 'email', 'mobile', 'pan', 'agentId', 'status'],
-            'transactions' => ['reference_number', 'user_id', 'operator_id', 'circle_id', 'status', 'amount', 'transaction_type'],
+            'transactions' => ['reference_number', 'user_id', 'operator_id', 'circle_id', 'status', 'amount', 'transaction_type', 'mobile_number'],
             'serviceRequest' => ['status', 'service_id', 'user_id'],
             'providers' => ['status', 'service_id'],
             'api-logs' => ['status', 'user_id'],
             'enabled-services' => ['service_id', 'user_id'],
             'scheme-relations' => ['user_id', 'scheme_id'],
             'support-assignments' => ['user_id', 'assined_to'],
-            'transaction-complaint' => ['ticket_number', 'status', 'user_id'],
+            'transaction-complaint' => ['ticket_number', 'status', 'user_id','mobile_number'],
             'ledger' => ['user_id', 'reference_no', 'request_id', 'connectpe_id'],
             'nsdl-payment' => ['user_id',  'service_id',  'mobile_no', 'transaction_id', 'utr',  'order_id',  'status'],
             // add more types and columns here
@@ -883,6 +883,13 @@ class CommonController extends Controller
 
         if (isset($request['select']) && $request['select'] !== 'all') {
             $query->select($request['select']);
+        }
+
+        if(!empty($request->common_id)){
+            $val = $request->common_id;
+            $query->where(function ($q) use ($val) {
+                $q->where('payment_ref_id', 'LIKE', "%{$val}%")->orwhere('connectpe_id', 'LIKE', "%{$val}%")->orWhere('request_id', 'LIKE', "%{$val}%");
+            });
         }
 
         return $query->get();
