@@ -33,6 +33,11 @@
                     </div>
 
                     <div class="col-md-3">
+                        <label for="mobile" class="form-label">Mobile Number</label>
+                        <input type="text" class="form-control" id="mobile" placeholder="Mobile Number">
+                    </div>
+
+                    <div class="col-md-3">
                         <label for="filterStatus" class="form-label">Status</label>
                         <select class="form-select form-select2" id="filterStatus">
                             <option value="">--Select Status--</option>
@@ -74,6 +79,9 @@
                             <th>Ticket Number</th>
                             <th>Service</th>
                             <th>Complaint Category</th>
+                            <th>Reference No.</th>
+                            <th>Date</th>
+                            <th>Mobile</th>
                             <th>Priority</th>
                             <th>Remark</th>
                             <th>Resolved At</th>
@@ -216,6 +224,7 @@
                 data: function(d) {
                     d._token = $('meta[name="csrf-token"]').attr('content');
                     d.ticket_number = $('#ticketId').val();
+                    d.mobile_number = $('#mobile').val();
                     d.status = $('#filterStatus').val();
                     d.date_from = $('#filterDateFrom').val();
                     d.date_to = $('#filterDateTo').val();
@@ -277,6 +286,24 @@
                     data: null,
                     render: function(data, type, row) {
                         return row?.category?.category_name || '----';
+                    }
+                },
+                {
+                    data: 'payment_ref_id',
+                    render: function(data, type, row) {
+                        return data ? data : '-';
+                    }
+                },
+                {
+                    data: 'transaction_date',
+                    render: function(data) {
+                        return formatDate(data)
+                    }
+                },
+                {
+                    data: 'mobile_number',
+                    render: function(data, type, row) {
+                        return data ? data : '-';
                     }
                 },
                 {
@@ -389,6 +416,7 @@
         // Reset filter
         $('#resetFilter').on('click', function() {
             $('#ticketId').val('');
+            $('#mobile').val('');
             $('#filterStatus').val('').trigger('change');
             $('#filterDateFrom').val('');
             $('#filterDateTo').val('');
