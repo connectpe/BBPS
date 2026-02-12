@@ -32,7 +32,9 @@
                         <select id="filterUser" class="form-control form-select2">
                             <option value="">--Select User--</option>
                             @foreach ($users as $value)
+
                             <option value="{{ $value->id }}">{{ $value->name }} ({{ $value->email }})</option>
+
                             @endforeach
                         </select>
                     </div>
@@ -189,7 +191,7 @@
                         let circleName =  row.circle ? row.circle.name : '';
                         if(!operatorName) return '----';
                         if(circleName){
-                            return "[" + circleName + "]" + operatorName;
+                        return    circleName + ' ' + '[' +operatorName + ']';;
                         }
                         return operatorName;
                     }
