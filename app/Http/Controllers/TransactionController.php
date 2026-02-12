@@ -10,6 +10,7 @@ use App\Models\UserService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class TransactionController extends Controller
 {
@@ -32,42 +33,63 @@ class TransactionController extends Controller
     public function store(Request $request)
     {
 
+
         $request->validate([
-            'service_id' => 'required|exists:global_services,id',
-            'description' => 'required|string|min:20|max:500',
-            'priority' => 'required|in:Low,High,Medium',
-            'category' => 'required|exists:complaints_categories,id',
-            'attachment' => 'nullable|file|max:2048|mimes:jpg,png,jpeg',
+            'reference_id' => 'nullable|string|required_without:mobile|max:255',
+            'mobile'       => ['nullable', 'regex:/^[0-9]{10}$/', 'required_without:reference_id'],
+            'txn_date'     => 'required|date|before_or_equal:today',
+            'service_id'   => 'required|exists:global_services,id',
+            'priority'     => 'required|in:Low,High,Medium',
+            'category'     => 'required|exists:complaints_categories,id',
+            'description'  => 'required|string|min:20|max:500',
+            'attachment'   => 'nullable|file|max:2048|mimes:jpg,png,jpeg',
         ]);
 
-        $attachmentPath = null;
-        if ($request->hasFile('attachment')) {
-            $attachmentPath = $request->file('attachment')->store('complaints', 'public');
+        DB::beginTransaction();
+
+        try {
+
+            $attachmentPath = null;
+            if ($request->hasFile('attachment')) {
+                $attachmentPath = $request->file('attachment')->store('complaints', 'public');
+            }
+
+            do {
+                $ticketId = '#' . strtoupper(rand(000000000000, 111111111111));
+            } while (Complaint::where('ticket_number', $ticketId)->exists());
+
+            $userId = Auth::user()->id;
+
+            $data = [
+                'ticket_number' => $ticketId,
+                'user_id' => $userId,
+                'service_id' => $request->service_id,
+                'complaints_category' => $request->category,
+                'payment_ref_id' => $request->reference_id,
+                'mobile_number' => $request->mobile,
+                'transaction_date' => $request->txn_date,
+                'priority' => $request->priority,
+                'attachment_file' => $attachmentPath,
+                'description' => $request->description,
+                'updated_by' => $userId,
+            ];
+
+
+            $complaint = Complaint::create($data);
+             DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Complaint Registered Successfully',
+            ]);
+           
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'message' => 'Error : ' . $e->getMessage(),
+            ]);
         }
-
-        do {
-            $ticketId = '#'.strtoupper(rand(000000000000, 111111111111));
-        } while (Complaint::where('ticket_number', $ticketId)->exists());
-
-        $userId = Auth::user()->id;
-
-        $data = [
-            'ticket_number' => $ticketId,
-            'user_id' => $userId,
-            'service_id' => $request->service_id,
-            'complaints_category' => $request->category,
-            'priority' => $request->priority,
-            'attachment_file' => $attachmentPath,
-            'description' => $request->description,
-            'updated_by' => $userId,
-        ];
-
-        $complaint = Complaint::create($data);
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Complaint Registered Successfully',
-        ]);
     }
 
     public function complaintStatus()
@@ -112,7 +134,7 @@ class TransactionController extends Controller
 
     public function downloadInvoice($id)
     {
-        $txn = Transaction::with(['user','user.business'])
+        $txn = Transaction::with(['user', 'user.business'])
             ->where('id', $id)
             ->where('status', 'processed')
             ->firstOrFail();
@@ -121,7 +143,6 @@ class TransactionController extends Controller
 
         $fileRef = $txn->payment_ref_id ?? $txn->connectpe_id ?? $txn->request_id ?? $txn->id;
 
-        return $pdf->download('Invoice_'.$fileRef.'.pdf');
-
+        return $pdf->download('Invoice_' . $fileRef . '.pdf');
     }
 }

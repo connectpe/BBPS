@@ -320,7 +320,7 @@ class CommonController extends Controller
                 break;
             case 'transaction-complaint':
                 $request['table'] = '\App\Models\Complaint';
-                $request['searchData'] = ['id', 'ticket_number', 'priority', 'status'];
+                $request['searchData'] = ['id', 'ticket_number', 'priority', 'status','mobile'];
                 $request['select'] = 'all';
                 $request['with'] = ['user', 'user.business', 'service', 'category'];
 
@@ -717,7 +717,7 @@ class CommonController extends Controller
             'enabled-services' => ['service_id', 'user_id'],
             'scheme-relations' => ['user_id', 'scheme_id'],
             'support-assignments' => ['user_id', 'assined_to'],
-            'transaction-complaint' => ['ticket_number', 'status', 'user_id'],
+            'transaction-complaint' => ['ticket_number', 'status', 'user_id','mobile_number'],
             'ledger' => ['user_id', 'reference_no', 'request_id', 'connectpe_id'],
             'nsdl-payment' => ['user_id',  'service_id',  'mobile_no', 'transaction_id', 'utr',  'order_id',  'status'],
             // add more types and columns here

@@ -36,13 +36,13 @@
     <div class="col-md-12">
         <div class="card shadow-sm h-100">
             <div class="card-body position-relative">
-                <img src="{{ asset('assets/image/icon_logo.svg') }}" alt="" class="position-absolute top-0 end-0 m-3" style="width: 45px;">
+                <img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}" alt="" class="position-absolute top-0 end-0 m-3" style="width: 70px;">
                 <div class="row g-3">
                     @foreach($services as $service)
                     @php
                     $randColor = $colors[array_rand($colors)];
                     @endphp
-                    <div class="col-6 col-sm-4 col-md-3 col-lg-2 text-center mb-3">
+                    <div class="col-6 col-sm-4 col-md-3 col-lg-3 text-center mb-3">
                         <a href="javascript:void(0)" class="text-decoration-none text-dark d-flex flex-column align-items-center utility-service-btn"
                             data-service="{{ $service['name'] }}">
                             <div class="rounded-circle d-flex justify-content-center align-items-center border border-light"
@@ -67,7 +67,7 @@
             <div class="card shadow-sm card-height h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Request Form</h5>
-                    <img src="{{ asset('assets/image/icon_logo.svg') }}" alt="" style="width: 65px;">
+                    <img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}" alt="" style="width: 70px;">
                 </div>
                 <div class="card-body d-flex flex-column">
                     <form class="row g-3 flex-grow-1">
@@ -114,7 +114,7 @@
             <div class="card shadow-sm card-height h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Basic List Group</h5>
-                    <img src="{{ asset('assets/image/icon_logo.svg') }}" alt="" style="width: 65px;">
+                    <img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}" alt="" style="width: 70px;">
                 </div>
                 <div class="card-body d-flex flex-column">
                     <form class="row g-3 flex-grow-1">
@@ -172,7 +172,7 @@
                 <h5 class="modal-title" id="modalTitle">
                     Utility Service
                 </h5>
-                <img src="{{ asset('assets/image/icon_logo.svg') }}" alt="" class="position-absolute" style="top: 10px; right: 50px; width: 70px;">
+                <img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}" alt="" class="position-absolute" style="top: 10px; right: 50px; width: 70px;">
                 <button type="button" class="btn-close position-absolute bg-light" data-bs-dismiss="modal" style="top: -15px; right: -15px;"></button>
             </div>
 
