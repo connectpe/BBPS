@@ -20,7 +20,7 @@
                         <select name="filterName" id="filterName" class="form-control form-select2">
                             <option value="">--Select User--</option>
                             @foreach($users as $value)
-                            <option value="{{$value->id}}">{{$value->name}}</option>
+                            <option value="{{$value->id}}">{{$value->name}}  ({{ $value->email }})</option>
                             @endforeach
                         </select>
                     </div>
@@ -72,6 +72,7 @@
                             <th>Email</th>
                             <th>PanNO.</th>
                             <th>Aadhar NO.</th>
+                            <th>Bussiness Wallet</th>
                             <th>Created at</th>
                             <th>Status</th>
                             {{-- <th>Root</th> --}}
@@ -161,6 +162,9 @@
                     data: 'business.aadhar_number'
                 },
                 {
+                    data: 'transaction_amount'
+                },
+                {
                     data: 'created_at',
                     render: function(data) {
                         return formatDateTime(data)
@@ -218,6 +222,14 @@
 
                 // }
             ]
+            
+        });
+        $('#filterDateFrom').on('change', function() {
+            let from = $(this).val();
+            $('#filterDateTo').attr('min', from);
+            if ($('#filterDateTo').val() && $('#filterDateTo').val() < from) {
+            $('#filterDateTo').val('');
+            }
         });
 
         // Apply filter
@@ -230,6 +242,7 @@
             $('#filterName').val('').trigger('change');
             $('#filterEmail').val('');
             $('#filterStatus').val('').trigger('change');
+            $('#filterDateTo').val('').removeAttr('min');
             table.ajax.reload();
         });
     });

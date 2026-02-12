@@ -112,7 +112,7 @@
                                 <th>ID</th>
                                 <th>Organization Name</th>
                                 <th>Service</th>
-                                <th>Amount</th>
+                                {{-- <th>Amount</th> --}}
                                 <th>API Enable</th>
                                 <th>Is Active</th>
                                 <th>Status</th>
@@ -317,15 +317,15 @@
                         return row?.service?.service_name || '----'
                     }
                 },
-                {
-                    data: function(row) {
-                        const amount = row.transaction_amount ?? 0;
-                        return '₹ ' + amount.toLocaleString('en-IN', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                        });
-                    }
-                },
+                // {
+                //     data: function(row) {
+                //         const amount = row.transaction_amount ?? 0;
+                //         return '₹ ' + amount.toLocaleString('en-IN', {
+                //             minimumFractionDigits: 2,
+                //             maximumFractionDigits: 2
+                //         });
+                //     }
+                // },
                 {
                     data: 'is_api_enable',
                     render: function(data, type, row) {

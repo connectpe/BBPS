@@ -3,6 +3,10 @@
 @section('title', 'Recharge Report')
 @section('page-title', 'Recharge Report')
 
+@section('page-button')
+<img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}"
+    alt=""  style="width: 84px; z-index: 1060;">
+@endsection
 @section('content')
 
 
@@ -50,7 +54,16 @@
                             <option value="reversed">Reversed</option>
                         </select>
                     </div>
+                    <div class="col-md-3">
+                        <label for="filterCommonId" class="form-label">Search Id</label>
+                         <input type="text" class="form-control" id="filterCommonId"placeholder="Payment / ConnectPe / Request ID">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="filterMobile" class="form-label">Mobile No</label>
+                        <input type="text" class="form-control" id="filterMobile" placeholder="Enter Mobile Number" maxlength="10">
+                    </div>
 
+                
                     <div class="col-md-3">
                         <label for="filterDateFrom" class="form-label">From Date</label>
                         <input type="date" class="form-control" id="filterDateFrom">
@@ -86,15 +99,19 @@
                             <th>S.No</th>
                             <th>User</th>
                             <th>Operator</th>
-                            <th>Circle</th>
                             <th>Amount</th>
+                            <th>Mobile No</th>
                             <th>Transaction Type</th>
-                            <th>Referene No</th>
+                            <th>Reference No</th>
+                            <th>Payment Reference ID</th>
+                            <th>ConnectPe ID</th>
+                            <th>Transaction ID</th>
                             <th>Created at</th>
                             <th>Status</th>
                             <th>Action</th>
                         </tr>
                     </thead>
+
                 </table>
             </div>
         </div>
@@ -118,6 +135,10 @@
                     d.status = $('#filterStatus').val();
                     d.date_from = $('#filterDateFrom').val();
                     d.date_to = $('#filterDateTo').val();
+                    d.common_id = $('#filterCommonId').val();
+                    d.mobile_number = $('#filterMobile').val();
+                    
+
                 }
             },
             pageLength: 10,
@@ -160,28 +181,54 @@
                         return data ?? '----';
                     }
                 },
+
                 {
-                    data: 'operator',
-                    render: function(data) {
-                        if (!data) return '----';
-                        return `${data.name} [${data.code}]`;
+                    data: null,
+                    render : function(data, type, row){
+                        let operatorName = row.operator ? row.operator.name : '';
+                        let circleName =  row.circle ? row.circle.name : '';
+                        if(!operatorName) return '----';
+                        if(circleName){
+                            return "[" + circleName + "]" + operatorName;
+                        }
+                        return operatorName;
                     }
                 },
-                {
-                    data: 'circle',
-                    render: function(data, type, row) {
-                        const circle = `${data.name} [${data.code}]`;
-                        return `${circle} `;
-                    }
-                },
+
+                // {
+                //     data: 'operator',
+                //     render: function(data) {
+                //         if (!data) return '----';
+                //         return `${data.name} [${data.code}]`;
+                //     }
+                // },
+                // {
+                //     data: 'circle',
+                //     render: function(data, type, row) {
+                //         const circle = `${data.name} [${data.code}]`;
+                //         return `${circle} `;
+                //     }
+                // },
                 {
                     data: 'amount'
+                },
+                {
+                    data: 'mobile_number'
                 },
                 {
                     data: 'transaction_type'
                 },
                 {
                     data: 'reference_number'
+                },
+                {
+                    data: 'payment_ref_id'
+                },
+                {
+                    data: 'connectpe_id'
+                },
+                {
+                    data: 'request_id'
                 },
                 {
                     data: 'created_at',
@@ -228,6 +275,13 @@
 
             ]
         });
+        $('#filterDateFrom').on('change', function() {
+            let from = $(this).val();
+            $('#filterDateTo').attr('min', from);
+            if ($('#filterDateTo').val() && $('#filterDateTo').val() < from) {
+            $('#filterDateTo').val('');
+            }
+        });
 
         $('#applyFilter').on('click', function() {
             table.ajax.reload();
@@ -239,6 +293,8 @@
             $('#filterStatus').val('').trigger('change');;
             $('#filterDateFrom').val('');
             $('#filterDateTo').val('');
+            $('#filterDateTo').val('').removeAttr('min');
+            $('#filterMobile').val('');
             table.ajax.reload();
         });
     });
