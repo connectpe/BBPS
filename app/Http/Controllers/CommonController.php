@@ -320,7 +320,7 @@ class CommonController extends Controller
                 break;
             case 'transaction-complaint':
                 $request['table'] = '\App\Models\Complaint';
-                $request['searchData'] = ['id', 'ticket_number', 'priority', 'status','mobile'];
+                $request['searchData'] = ['id', 'ticket_number', 'priority', 'status', 'mobile'];
                 $request['select'] = 'all';
                 $request['with'] = ['user', 'user.business', 'service', 'category'];
 
@@ -592,11 +592,10 @@ class CommonController extends Controller
                     $request['parentData'] = 'all';
                 } else {
                     $request['whereIn'] = 'user_id';
-                    $request['whereIn'] = 'is_deleted';
+                    // $request['whereIn'] = 'is_deleted';
 
-                    $request['parentData'] = [Auth::user()->id, '0'];
+                    $request['parentData'] = [Auth::user()->id];
                 }
-
                 break;
             case 'complaint-category':
                 $request['table'] = '\App\Models\ComplaintsCategory';
@@ -717,9 +716,10 @@ class CommonController extends Controller
             'enabled-services' => ['service_id', 'user_id'],
             'scheme-relations' => ['user_id', 'scheme_id'],
             'support-assignments' => ['user_id', 'assined_to'],
-            'transaction-complaint' => ['ticket_number', 'status', 'user_id','mobile_number'],
+            'transaction-complaint' => ['ticket_number', 'status', 'user_id', 'mobile_number'],
             'ledger' => ['user_id', 'reference_no', 'request_id', 'connectpe_id'],
             'nsdl-payment' => ['user_id',  'service_id',  'mobile_no', 'transaction_id', 'utr',  'order_id',  'status'],
+            'ip-whitelist' => ['is_deleted']
             // add more types and columns here
         ];
 
@@ -885,7 +885,7 @@ class CommonController extends Controller
             $query->select($request['select']);
         }
 
-        if(!empty($request->common_id)){
+        if (!empty($request->common_id)) {
             $val = $request->common_id;
             $query->where(function ($q) use ($val) {
                 $q->where('payment_ref_id', 'LIKE', "%{$val}%")->orwhere('connectpe_id', 'LIKE', "%{$val}%")->orWhere('request_id', 'LIKE', "%{$val}%");

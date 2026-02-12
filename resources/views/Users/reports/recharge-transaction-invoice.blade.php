@@ -148,17 +148,12 @@
                     <div class="business-info">
                         <!-- <span class="business-name">{{ $txn->user->business->business_name ?? 'N/A' }}</span>
                         {{ $txn->user->business->address ?? '-' }} -->
-
-                        <img src="{{ public_path('assets/image/Logo/b-assured-logo.jpg') }}"
-                            alt="Logo"
-                            style="width: 70px;">
-
-
+                        <img src="{{ app()->environment('local')   ? public_path('assets/image/Logo/b-assured-logo.jpg')  : asset('assets/image/Logo/b-assured-logo.jpg') }}" alt="Logo" style="width: 70px;">
                     </div>
                 </td>
             </tr>
         </table>
-        
+
         <table class="row-table">
             <tr>
                 <td class="col-cell">
