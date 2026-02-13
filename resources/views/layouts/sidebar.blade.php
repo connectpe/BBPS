@@ -22,10 +22,12 @@
     @endif --}}
     @if ($role == 1)
     <h5 class="text-center mb-4">ADMIN PANEL</h5>
+    @elseif ($role == 2)
+    <h5 class="text-center mb-4">USER PANEL</h5>
+    @elseif ($role == 3)
+    <h5 class="text-center mb-4">API PARTNER</h5>
     @elseif ($role == 4)
     <h5 class="text-center mb-4">SUPPORT PANEL</h5>
-    @else
-    <h5 class="text-center mb-4">USER PANEL</h5>
     @endif
 
 
@@ -532,7 +534,7 @@
                         <ul class="nav flex-column">
 
                             <li class="nav-item">
-                                <a href="{{ route('reports',['type' => ':type']) }}"
+                                <a href="{{ route('reseller.reports',['type' => 'recharge']) }}"
                                     class="nav-link text-white {{ request()->is('reports/recharge') ? 'sidebar-active' : '' }}">
                                     <i class="bi bi-phone me-2"></i>
                                     Recharge

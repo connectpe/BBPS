@@ -17,7 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'logs' => App\Http\Middleware\ApiActivityLog::class,
             'isUserAccessPage'=>App\Http\Middleware\IsAccessPage::class,
             'isUser'=>App\Http\Middleware\IsUser::class,
-            'isAdmin'=>App\Http\Middleware\IsAdmin::class
+            'isAdmin'=>App\Http\Middleware\IsAdmin::class,
+            'isReseller' => \App\Http\Middleware\IsReseller::class,
+            'isSupport' => \App\Http\Middleware\IsSupport::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

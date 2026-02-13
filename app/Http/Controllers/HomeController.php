@@ -23,7 +23,15 @@ class HomeController extends Controller
         if (Auth::check()) {
             return redirect()->route('dashboard');
         }
-
         return view('Front.user-register');
     }
+
+    public function apiPartner(){
+        return view('Dashboard.api-dashboard');
+    }
+
+    public function supportdashboard(){
+        return view('Dashboard.support-dashboard');
+    }
+ 
 }

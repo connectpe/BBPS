@@ -22,7 +22,7 @@
                 {{-- <button class="btn btn-primary ms-2 mb-3" data-bs-toggle="modal" data-bs-target="#serviceModall">
                     <i class="fa-solid fa-table-list"></i> Services
                 </button> --}}
-            @elseif($role == 2)
+           @elseif (in_array($role, [2, 3]))
                 <button class="btn btn-primary ms-2 mb-3" data-bs-toggle="modal" data-bs-target="#serviceModall">
                     <i class="fa-solid fa-table-list"></i> Services
                 </button>

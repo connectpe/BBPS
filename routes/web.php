@@ -17,6 +17,7 @@ use App\Http\Controllers\SupportDashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'loginRedirect'])->name('home');
+Route::get('/dashboard', [AdminController::class, 'dashboard'])->middleware('auth')->name('dashboard');
 
 
 
@@ -32,13 +33,11 @@ Route::get('kyc', function () {
 
 Route::group(['middleware' => ['auth']], function () {
     Route::group(['prefix' => 'admin'], function () {
-        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+        // Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     });
 
     Route::group(['middleware' => ['isAdmin'], 'prefix' => 'admin'], function () {
-        // Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
-
-
+        Route::get('/dashboard', function() { return view('Dashboard.dashboard'); })->name('admin.dashboard');
         Route::post('servicetoggle', [AdminController::class, 'disableUserService'])->name('admin.service_toggle.user');
         Route::post('user-status-change', [AdminController::class, 'changeUserStatus'])->name('admin.user_status.change');
         Route::post('add-service', [AdminController::class, 'addService'])->name('admin.add_service');
@@ -119,6 +118,7 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
         Route::post('status', [BbpsRechargeController::class, 'status'])->name('bbps.status');
         Route::post('mpin-auth', [BbpsRechargeController::class, 'mpinAuth'])->name('bbps.mpin_auth');
     });
+    Route::get('/dashboard', [UserController::class, 'dashboard'])->name('user.dashboard');
 
     Route::post('completeProfile/{user_id}', [UserController::class, 'completeProfile'])->name('admin.complete_profile');
     // Service Related Route
@@ -181,6 +181,18 @@ Route::group(['middleware' => ['auth']], function () {
     })->name('unauthrized.page');
 });
 
+
+Route::group(['middleware' => ['auth', 'isReseller'], 'prefix' => 'api-partner'], function () {
+    Route::get('/dashboard', [HomeController::class, 'apiPartner'])->name('api.dashboard');
+    Route::get('reports/{type}', [ReportController::class, 'index'])->name('reseller.reports'); //
+    Route::get('services', [ServiceRequestController::class, 'enabledServices'])->name('enabled_services');
+    Route::get('ledger-reports', [LadgerController::class, 'reports'])->name('reseller_reports');
+});
+
+
+Route::group(['middleware' => ['auth', 'isSupport'], 'prefix' => 'support'], function () {
+     Route::get('/dashboard', [HomeController::class, 'supportdashboard'])->name('support.dashboard');
+});
 
 
 
