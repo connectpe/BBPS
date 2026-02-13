@@ -2111,6 +2111,7 @@
                     type: 'POST',
                     data: (d) => {
                         d._token = "{{ csrf_token() }}";
+                        d.is_deleted = '0'
                     }
                 },
                 columns: [{
