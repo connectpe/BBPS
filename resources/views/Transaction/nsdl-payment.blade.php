@@ -21,7 +21,7 @@
                         <select name="filterUser" id="filterUser" class="form-control form-select2">
                             <option value="">--Select User--</option>
                             @foreach($users as $value)
-                            <option value="{{$value->id}}">{{$value->name}}</option>
+                            <option value="{{$value->id}}">{{$value->name}} ({{ $value->email }})</option>
                             @endforeach
                         </select>
                     </div>
@@ -219,6 +219,14 @@
                 [8, "desc"]
             ]
         });
+        $('#filterDateFrom').on('change', function () {
+            let from = $(this).val();
+            $('#filterDateTo').attr('min', from);
+            if ($('#filterDateTo').val() && $('#filterDateTo').val() < from) {
+                $('#filterDateTo').val('');
+            }
+        });
+
 
 
         // Apply filter
@@ -233,6 +241,7 @@
             $('#filterStatus').val('').trigger('change');
             $('#filterDateFrom').val('');
             $('#filterDateTo').val('');
+            $('#filterDateTo').val('').removeAttr('min');
             $("#transactionNo").val('')
             $("#utrNumber").val('')
             $("#orderId").val('')
