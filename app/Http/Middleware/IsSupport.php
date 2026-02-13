@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
+
 class IsSupport
 {
     /**
@@ -15,9 +16,10 @@ class IsSupport
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle(Request $request, Closure $next) {
-    if(Auth::check() && Auth::user()->role_id == '4') {
-        return $next($request);
-    }
+      if(Auth::check() && Auth::user()->role_id == '4') {
+          return $next($request);
+      }
     return redirect()->route('unauthrized.page');
 }
+
 }
