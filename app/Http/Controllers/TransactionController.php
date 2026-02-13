@@ -92,15 +92,46 @@ class TransactionController extends Controller
 
 
         $request->validate([
-            'reference_id' => 'nullable|string|required_without:mobile|max:255',
-            'mobile'       => ['nullable', 'regex:/^[0-9]{10}$/', 'required_without:reference_id'],
+            'reference_id' => 'nullable|string|required_without:mobile|exists:transactions,payment_ref_id|max:255',
+            'mobile'       => 'nullable|regex:/^[0-9]{10}$/|required_without:reference_id|exists:transactions,mobile_number',
             'txn_date'     => 'required|date|before_or_equal:today',
             'service_id'   => 'required|exists:global_services,id',
             'priority'     => 'required|in:Low,High,Medium',
             'category'     => 'required|exists:complaints_categories,id',
             'description'  => 'required|string|min:20|max:500',
             'attachment'   => 'nullable|file|max:2048|mimes:jpg,png,jpeg',
+        ], [
+            'reference_id.required_without' => 'Reference ID is required when mobile number is not provided.',
+            'reference_id.exists'           => 'The provided reference ID does not exist in transactions.',
+            'reference_id.max'              => 'Reference ID may not be greater than 255 characters.',
+
+            'mobile.required_without'       => 'Mobile number is required when reference ID is not provided.',
+            'mobile.regex'                  => 'Mobile number must be exactly 10 digits.',
+            'mobile.exists'                 => 'The provided mobile number does not exist in transactions.',
+
+            'txn_date.required'             => 'Transaction date is required.',
+            'txn_date.date'                 => 'Transaction date must be a valid date.',
+            'txn_date.before_or_equal'      => 'Transaction date cannot be in the future.',
+
+            'service_id.required'           => 'Service selection is required.',
+            'service_id.exists'             => 'Selected service does not exist.',
+
+            'priority.required'             => 'Priority is required.',
+            'priority.in'                   => 'Priority must be one of Low, Medium, or High.',
+
+            'category.required'             => 'Category is required.',
+            'category.exists'               => 'Selected category does not exist.',
+
+            'description.required'          => 'Description is required.',
+            'description.string'            => 'Description must be text.',
+            'description.min'               => 'Description must be at least 20 characters.',
+            'description.max'               => 'Description may not be greater than 500 characters.',
+
+            'attachment.file'               => 'Attachment must be a valid file.',
+            'attachment.max'                => 'Attachment size may not be greater than 2MB.',
+            'attachment.mimes'              => 'Attachment must be a file of type: jpg, png, jpeg.',
         ]);
+
 
         DB::beginTransaction();
 
@@ -134,13 +165,12 @@ class TransactionController extends Controller
 
 
             $complaint = Complaint::create($data);
-             DB::commit();
+            DB::commit();
 
             return response()->json([
                 'status' => true,
                 'message' => 'Complaint Registered Successfully',
             ]);
-           
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([

@@ -13,7 +13,7 @@
         }
 
         .container {
-            width: 100%;
+            /* width: 100%; */
             border: 1px solid #e5e5e5;
             padding: 20px;
             margin: 0 auto;

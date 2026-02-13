@@ -42,7 +42,6 @@
                             <option value="">--Select Status--</option>
                             <option value="Open">Open</option>
                             <option value="In Progress">In Progress</option>
-                            <option value="Resolved">Resolved</option>
                             <option value="Closed">Closed</option>
                         </select>
                     </div>
@@ -257,30 +256,32 @@
                     location.reload();
                 }, 2000);
             },
-
             error: function(xhr) {
-                let msg = 'Something went wrong!';
-                if (xhr.status === 422) msg = 'Validation error! Please check fields.';
+                let title = 'Error';
+                let message = 'Something went wrong!';
+
+                if (xhr.status === 422) {
+                    title = 'Validation Error';
+
+                    if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        let firstKey = Object.keys(xhr.responseJSON.errors)[0];
+                        message = xhr.responseJSON.errors[firstKey][0];
+                    }
+                } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                    message = xhr.responseJSON.message;
+                }
 
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error',
-                    text: msg
+                    title: title,
+                    html: message,
+                    timer: 2000,
+                    showConfirmButton: true
                 });
 
-                if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
-                    const errors = xhr.responseJSON.errors;
-                    if (errors.service_name) $('#err_service_name').removeClass('d-none').text(
-                        errors.service_name[0]);
-                    if (errors.description) $('#err_description').removeClass('d-none').text(errors
-                        .description[0]);
-                    if (errors.priority) $('#err_priority').removeClass('d-none').text(errors
-                        .priority[0]);
-                    if (errors.category) $('#err_category').removeClass('d-none').text(errors
-                        .category[0]);
-                    if (errors.attachment) $('#err_attachment').removeClass('d-none').text(errors
-                        .attachment[0]);
-                }
+                setTimeout(() => {
+                    location.reload();
+                }, 3000);
             }
         });
     });
@@ -451,8 +452,8 @@
 
             ]
         });
-      
-        $('#filterDateFrom').on('change', function () {
+
+        $('#filterDateFrom').on('change', function() {
             let from = $(this).val();
             $('#filterDateTo').attr('min', from);
             if ($('#filterDateTo').val() && $('#filterDateTo').val() < from) {
