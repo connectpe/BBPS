@@ -156,8 +156,8 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
 Route::group(['middleware' => ['auth']], function () {
     // Support User Route
     Route::prefix('support')->group(function () {
-        Route::get('complaints-report', [SupportDashboardController::class, 'userComplaints'])->name('complaints_report');
-        Route::get('/support-userlist', [SupportDashboardController::class, 'supportUserList'])->name('support_userlist');
+        Route::get('complaints-report', [SupportDashboardController::class, 'userComplaints'])->name('complaints_report')->middleware('isSupport');
+        Route::get('/support-userlist', [SupportDashboardController::class, 'supportUserList'])->name('support_userlist')->middleware('isSupport');
     });
     Route::post('/update-complaint-report/{id}', [ComplainReportController::class, 'updateComplaint'])->name('update_complaint_report');
     // Admin/User Common Routes 
