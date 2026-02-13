@@ -297,6 +297,7 @@
             $('#filterDateTo').val('');
             $('#filterDateTo').val('').removeAttr('min');
             $('#filterMobile').val('');
+            $('#filterCommonId').val('').trigger('input').trigger('change');
             table.ajax.reload();
         });
     });

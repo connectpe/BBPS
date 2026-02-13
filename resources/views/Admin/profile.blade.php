@@ -2107,10 +2107,11 @@
                 pageLength: 5,
                 lengthMenu: [5, 10, 25, 50, 100],
                 ajax: {
-                    url: "{{ url('fetch/ip-whitelist/0/all') }}",
+                    url: "{{ url('fetch/ip-whitelist/0') }}",
                     type: 'POST',
                     data: (d) => {
                         d._token = "{{ csrf_token() }}";
+                        d.is_deleted = '0'
                     }
                 },
                 columns: [{

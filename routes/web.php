@@ -144,6 +144,7 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
         ->name('admin.users.routing.save');
     Route::post('completeProfile/{user_id}', [UserController::class, 'completeProfile'])->name('admin.complete_profile');
     Route::post('generate-mpin', [UserController::class, 'generateMpin'])->name('generate_mpin');
+    Route::post('/transaction-status-check', [TransactionController::class, 'transactionStatusCheck'])->name('transaction_status_check');
 
 
     // reseller routes
