@@ -458,7 +458,7 @@ use App\Facades\FileUpload;
             showCancelButton: true,
             confirmButtonText: 'Yes',
             cancelButtonText: 'No',
-            reverseButtons: true
+            reverseButtons: false
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({

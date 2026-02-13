@@ -33,6 +33,10 @@ class UserController extends Controller
         return view('Users.users', compact('users'));
     }
 
+    public function dashboard(){
+        return view('Dashboard.user-dashboard');
+    }
+
 
     public function redirectToKycPage()
     {
