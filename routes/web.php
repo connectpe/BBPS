@@ -14,6 +14,7 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\users\ReportController;
 use App\Http\Controllers\users\UserController;
 use App\Http\Controllers\SupportDashboardController;
+use App\Http\Middleware\IsAdmin;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -73,7 +74,7 @@ Route::group(['middleware' => ['auth']], function () {
         // admin routes
         Route::get('request-services', [ServiceRequestController::class, 'index'])->name('request_services');
         Route::get('/users', [UserController::class, 'bbpsUsers'])->name('users');
-        Route::get('/view-user/{id}', [UserController::class, 'viewSingleUsers'])->name('view_user');
+        Route::get('/view-user/{id}', [UserController::class, 'viewSingleUsers'])->name('view_user')->withoutMiddleware('isAdmin');
         Route::get('api-log', [UserController::class, 'ApiLog'])->name('api_log');
         Route::get('our-services', [ServiceController::class, 'ourService'])->name('our_servicess');
         Route::post('active-user-service-status', [ServiceController::class, 'activeUserService'])->name('active_user_service_status');
@@ -103,7 +104,6 @@ Route::group(['middleware' => ['auth']], function () {
 
         // Complain Report Route
 
-        Route::post('generate/client-credentials', [UserController::class, 'generateClientCredentials'])->name('generate_client_credentials');
     });
 });
 
@@ -150,13 +150,15 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
     // reseller routes
     Route::get('reports', [LadgerController::class, 'reports'])->name('reseller_reports');
     Route::get('services', [ServiceRequestController::class, 'enabledServices'])->name('enabled_services');
+
+    Route::post('generate/client-credentials', [UserController::class, 'generateClientCredentials'])->name('generate_client_credentials');
 });
 
 
 Route::group(['middleware' => ['auth']], function () {
     // Support User Route
     Route::prefix('support')->group(function () {
-        Route::get('complaints-report', [SupportDashboardController::class, 'userComplaints'])->name('complaints_report');
+        // Route::get('/complaints-report', [SupportDashboardController::class, 'userComplaints'])->name('complaints_report');
         Route::get('/support-userlist', [SupportDashboardController::class, 'supportUserList'])->name('support_userlist');
     });
     Route::post('/update-complaint-report/{id}', [ComplainReportController::class, 'updateComplaint'])->name('update_complaint_report');

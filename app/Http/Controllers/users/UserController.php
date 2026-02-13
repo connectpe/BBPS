@@ -103,9 +103,9 @@ class UserController extends Controller
                 $request->all(),
                 [
                     'profile_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-                    'business_name' => 'required|string|max:255',
+                    'business_name' => 'required|string|max:255|regex:/^(?!.*([.,@-])\1{2,}).*$/|regex:/^[a-zA-Z0-9\s&.,-]+$/',
                     'business_category' => 'required|exists:business_categories,id',
-                    'business_type' => 'required|string|max:255',
+                    'business_type' => 'required|string|max:255|regex:/^(?!.*([.,@-])\1{2,}).*$/|regex:/^[a-zA-Z0-9\s&.,-]+$/',
 
                     // 'cin_number'         => 'nullable|string|max:50|unique:business_infos,cin_no',
                     // 'gst_number'         => 'required|string|max:50|unique:business_infos,gst_number',
@@ -124,7 +124,7 @@ class UserController extends Controller
                     'state' => 'required|string|max:255',
                     'city' => 'required|string|max:255',
                     'pincode' => 'required|string|max:10',
-                    'business_address' => 'required|string|max:500',
+                    'business_address' => 'required|string|max:500|regex:/^(?!.*([.,@-])\1{2,}).*$/|regex:/^[a-zA-Z0-9\s&.,-]+$/',
 
                     'adhar_number' => 'required|string|max:20|regex:/^\d{12}$/|unique:business_infos,aadhar_number,' . ($businessData->id ?? 'NULL') . ',id',
                     'pan_number' => 'required|string|max:20|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i|unique:business_infos,pan_number,' . ($businessData->id ?? 'NULL') . ',id',
@@ -132,7 +132,7 @@ class UserController extends Controller
                     'adhar_back_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
                     'pan_card_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
 
-                    'account_holder_name' => 'required|string|max:255',
+                    'account_holder_name' => 'required|string|max:255|regex:/^(?!.*([.,@-])\1{2,}).*$/|regex:/^[a-zA-Z0-9\s&.,-]+$/',
                     'account_number' => 'required|string|max:30|unique:users_banks,account_number,' . ($bankDetail->id ?? 'NULL') . ',id',
                     'ifsc_code' => 'required|string|max:20',
                     'branch_name' => 'required|string|max:255',
@@ -444,8 +444,18 @@ class UserController extends Controller
     public function viewSingleUsers($Id)
     {
         try {
+            
+            if (!auth()->check() || (!in_array(auth()->user()->role_id, [1, 4]))) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized',
+                ], 401);
+            }
+
             CommonHelper::checkAuthUser();
             $userId = $Id;
+
+          
 
             $data['userData'] = User::where('id', $userId)
                 ->select('id', 'name', 'email', 'mobile', 'status', 'role_id')
@@ -806,10 +816,11 @@ class UserController extends Controller
             }
 
             $request->validate([
-                'current_mpin' => 'required',
-                'new_mpin' => 'required|min:4|max:10',
-                'new_mpin_confirmation' => 'required|same:new_mpin',
+                'current_mpin' => ['required', 'digits:4', 'numeric'],
+                'new_mpin' => ['required', 'digits:4', 'numeric', 'different:current_mpin'],
+                'new_mpin_confirmation' => ['required', 'same:new_mpin'],
             ]);
+
 
 
             $user = Auth::user();
