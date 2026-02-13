@@ -22,9 +22,10 @@
                 {{-- <button class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#serviceModall">
                     <i class="bi bi-gear-fill"></i>
                 </button> --}}
-            @elseif($role == 2)
-                <button class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#serviceModall">
-                    <i class="bi bi-gear-fill"></i>
+
+           @elseif (in_array($role, [2, 3]))
+                <button class="btn btn-primary ms-2 mb-3" data-bs-toggle="modal" data-bs-target="#serviceModall">
+                    <i class="fa-solid fa-table-list"></i> Services
                 </button>
             @endif
 

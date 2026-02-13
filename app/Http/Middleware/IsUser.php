@@ -4,8 +4,8 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
 class IsUser
 {
@@ -16,14 +16,20 @@ class IsUser
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if(Auth::check()){
-            $role_id = Auth::user()->role_id;
-            if(in_array($role_id, ['2','3'])){
+        // if(Auth::check()){
+        //     $role_id = Auth::user()->role_id;
+        //     if(in_array($role_id, ['2','3'])){
 
-                return $next($request);
-            }
-        }else{
-            return redirect()->route('unauthrized.page');
+        //         return $next($request);
+        //     }
+        // }else{
+        //     return redirect()->route('unauthrized.page');
+        // }
+
+        if (Auth::check() && Auth::user()->role_id == '2') {
+            return $next($request);
         }
+
+         return redirect()->route('unauthrized.page');
     }
 }
