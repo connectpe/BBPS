@@ -16,9 +16,10 @@ use App\Http\Controllers\users\UserController;
 use App\Http\Controllers\SupportDashboardController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('Front.user-register');
-})->name('home');
+Route::get('/', [HomeController::class, 'loginRedirect'])->name('home');
+
+
+
 
 Route::post('admin/login', [AuthController::class, 'login'])->name('admin.login');
 Route::post('verify-otp', [AuthController::class, 'verifyOtp'])->name('verify_otp');
@@ -69,6 +70,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/nsdl-payment', [AdminController::class, 'nsdlPayment'])->name('nsdl-payment');
 
 
+         Route::post('/users/{id}/routing/save', [UserController::class, 'saveUserRouting'])
+        ->name('admin.users.routing.save');
 
         // admin routes
         Route::get('request-services', [ServiceRequestController::class, 'index'])->name('request_services');
@@ -140,8 +143,8 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
     Route::post('nsdl-initiated-payment', [UserController::class, 'initiateNsdlPayment'])->name('nsdl-initiatePayment');
     Route::post('/service-request', [ServiceRequestController::class, 'store'])
         ->name('service.request');
-    Route::post('/users/{id}/routing/save', [UserController::class, 'saveUserRouting'])
-        ->name('admin.users.routing.save');
+    // Route::post('/users/{id}/routing/save', [UserController::class, 'saveUserRouting'])
+    //     ->name('admin.users.routing.save');
     Route::post('completeProfile/{user_id}', [UserController::class, 'completeProfile'])->name('admin.complete_profile');
     Route::post('generate-mpin', [UserController::class, 'generateMpin'])->name('generate_mpin');
     Route::post('/transaction-status-check', [TransactionController::class, 'transactionStatusCheck'])->name('transaction_status_check');
