@@ -576,7 +576,7 @@ class CommonController extends Controller
                 $request['table'] = '\App\Models\IpWhitelist';
                 $request['with'] = ['service'];
                 $request['searchData'] = ['ip_address'];
-                $request['select'] = 'all';
+                $request['select'] = ['id', 'service_id', 'ip_address', 'created_at','is_active'];
                 $orderIndex = $request->get('order');
                 if (isset($orderIndex) && count($orderIndex)) {
                     $columnsIndex = $request->get('columns');
@@ -587,14 +587,19 @@ class CommonController extends Controller
                 } else {
                     $request['order'] = ['id', 'DESC'];
                 }
-
+                $request['whereIn'] = 'user_id';
+                $request['whereIn'] = 'is_deleted';
                 if (Auth::user()->role_id == '1') {
                     $request['parentData'] = 'all';
-                } else {
+                    
+                } else if (Auth::user()->role_id == '2') {
+                   
                     $request['whereIn'] = 'user_id';
                     $request['whereIn'] = 'is_deleted';
 
-                    $request['parentData'] = [Auth::user()->id, '0'];
+                    $request['parentData'] = [Auth::user()->id];
+                    $request['parentData'] = ['0'];
+                    
                 }
 
                 break;
