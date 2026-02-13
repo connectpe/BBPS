@@ -108,7 +108,7 @@ class MobiKwikHelper
             'keyVersion'          => $this->keyVersion,
             'iv'                  => base64_encode($iv),
         ];
-        // dd($requestData);
+        dd($requestData);
 
         $response = Http::withHeaders([
             'Authorization' => $bearerToken,
@@ -243,4 +243,5 @@ class MobiKwikHelper
             ]);
         }
     }
+    
 }

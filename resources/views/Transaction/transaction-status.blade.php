@@ -106,13 +106,18 @@
             let fromDate = fromDateInput.value;
             let toDate = toDateInput.value;
 
+            if (!txnid && !mobileNumber && !fromDate && !toDate) {
+                notify("Please enter at least one field: Mobile Number, Payment Ref ID, or Date Range", "danger");
+                return;
+            }
+
             if (mobileNumber && !/^[6-9][0-9]{9}$/.test(mobileNumber)) {
-                alert("Please enter valid 10 digit mobile number starting with 6, 7, 8 or 9");
+                notify("Please enter valid 10 digit mobile number starting with 6, 7, 8 or 9", "danger");
                 return;
             }
 
             if (fromDate && toDate && toDate < fromDate) {
-                alert("To Date must be greater than or equal to From Date");
+                notify("To Date must be greater than or equal to From Date", "danger");
                 return;
             }
 
@@ -135,11 +140,11 @@
                     if (response.success && response.data.length > 0) {
 
                         let rows = "";
-
+                        alert('hello');
                         response.data.forEach(txn => {
-
+                            alert(txn.status);
                             let statusClass = "text-warning";
-                            if (txn.status?.toLowerCase() === "success") {
+                            if (txn.status?.toLowerCase() === "processed") {
                                 statusClass = "text-success";
                             } else if (txn.status?.toLowerCase() === "failed") {
                                 statusClass = "text-danger";
