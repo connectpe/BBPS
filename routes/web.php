@@ -14,11 +14,14 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\users\ReportController;
 use App\Http\Controllers\users\UserController;
 use App\Http\Controllers\SupportDashboardController;
+use App\Http\Middleware\IsAdmin;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('Front.user-register');
-})->name('home');
+Route::get('/', [HomeController::class, 'loginRedirect'])->name('home');
+Route::get('/dashboard', [AdminController::class, 'dashboard'])->middleware('auth')->name('dashboard');
+
+
+
 
 Route::post('admin/login', [AuthController::class, 'login'])->name('admin.login');
 Route::post('verify-otp', [AuthController::class, 'verifyOtp'])->name('verify_otp');
@@ -31,13 +34,11 @@ Route::get('kyc', function () {
 
 Route::group(['middleware' => ['auth']], function () {
     Route::group(['prefix' => 'admin'], function () {
-        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+        // Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     });
 
     Route::group(['middleware' => ['isAdmin'], 'prefix' => 'admin'], function () {
-        // Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
-
-
+        Route::get('/dashboard', function() { return view('Dashboard.dashboard'); })->name('admin.dashboard');
         Route::post('servicetoggle', [AdminController::class, 'disableUserService'])->name('admin.service_toggle.user');
         Route::post('user-status-change', [AdminController::class, 'changeUserStatus'])->name('admin.user_status.change');
         Route::post('add-service', [AdminController::class, 'addService'])->name('admin.add_service');
@@ -69,11 +70,13 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/nsdl-payment', [AdminController::class, 'nsdlPayment'])->name('nsdl-payment');
 
 
+         Route::post('/users/{id}/routing/save', [UserController::class, 'saveUserRouting'])
+        ->name('admin.users.routing.save');
 
         // admin routes
         Route::get('request-services', [ServiceRequestController::class, 'index'])->name('request_services');
         Route::get('/users', [UserController::class, 'bbpsUsers'])->name('users');
-        Route::get('/view-user/{id}', [UserController::class, 'viewSingleUsers'])->name('view_user');
+        Route::get('/view-user/{id}', [UserController::class, 'viewSingleUsers'])->name('view_user')->withoutMiddleware('isAdmin');
         Route::get('api-log', [UserController::class, 'ApiLog'])->name('api_log');
         Route::get('our-services', [ServiceController::class, 'ourService'])->name('our_servicess');
         Route::post('active-user-service-status', [ServiceController::class, 'activeUserService'])->name('active_user_service_status');
@@ -103,7 +106,6 @@ Route::group(['middleware' => ['auth']], function () {
 
         // Complain Report Route
 
-        Route::post('generate/client-credentials', [UserController::class, 'generateClientCredentials'])->name('generate_client_credentials');
     });
 });
 
@@ -116,6 +118,7 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
         Route::post('status', [BbpsRechargeController::class, 'status'])->name('bbps.status');
         Route::post('mpin-auth', [BbpsRechargeController::class, 'mpinAuth'])->name('bbps.mpin_auth');
     });
+    Route::get('/dashboard', [UserController::class, 'dashboard'])->name('user.dashboard');
 
     Route::post('completeProfile/{user_id}', [UserController::class, 'completeProfile'])->name('admin.complete_profile');
     // Service Related Route
@@ -140,8 +143,8 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
     Route::post('nsdl-initiated-payment', [UserController::class, 'initiateNsdlPayment'])->name('nsdl-initiatePayment');
     Route::post('/service-request', [ServiceRequestController::class, 'store'])
         ->name('service.request');
-    Route::post('/users/{id}/routing/save', [UserController::class, 'saveUserRouting'])
-        ->name('admin.users.routing.save');
+    // Route::post('/users/{id}/routing/save', [UserController::class, 'saveUserRouting'])
+    //     ->name('admin.users.routing.save');
     Route::post('completeProfile/{user_id}', [UserController::class, 'completeProfile'])->name('admin.complete_profile');
     Route::post('generate-mpin', [UserController::class, 'generateMpin'])->name('generate_mpin');
     Route::post('/transaction-status-check', [TransactionController::class, 'transactionStatusCheck'])->name('transaction_status_check');
@@ -150,14 +153,19 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
     // reseller routes
     Route::get('reports', [LadgerController::class, 'reports'])->name('reseller_reports');
     Route::get('services', [ServiceRequestController::class, 'enabledServices'])->name('enabled_services');
+
+    Route::post('generate/client-credentials', [UserController::class, 'generateClientCredentials'])->name('generate_client_credentials');
 });
 
 
 Route::group(['middleware' => ['auth']], function () {
     // Support User Route
     Route::prefix('support')->group(function () {
-        Route::get('complaints-report', [SupportDashboardController::class, 'userComplaints'])->name('complaints_report');
-        Route::get('/support-userlist', [SupportDashboardController::class, 'supportUserList'])->name('support_userlist');
+
+        // Route::get('/complaints-report', [SupportDashboardController::class, 'userComplaints'])->name('complaints_report');
+//         Route::get('/support-userlist', [SupportDashboardController::class, 'supportUserList'])->name('support_userlist');
+        Route::get('complaints-report', [SupportDashboardController::class, 'userComplaints'])->name('complaints_report')->middleware('isSupport');
+        Route::get('/support-userlist', [SupportDashboardController::class, 'supportUserList'])->name('support_userlist')->middleware('isSupport');
     });
     Route::post('/update-complaint-report/{id}', [ComplainReportController::class, 'updateComplaint'])->name('update_complaint_report');
     // Admin/User Common Routes 
@@ -178,6 +186,18 @@ Route::group(['middleware' => ['auth']], function () {
     })->name('unauthrized.page');
 });
 
+
+Route::group(['middleware' => ['auth', 'isReseller'], 'prefix' => 'api-partner'], function () {
+    Route::get('/dashboard', [HomeController::class, 'apiPartner'])->name('api.dashboard');
+    Route::get('reports/{type}', [ReportController::class, 'index'])->name('reseller.reports'); //
+    Route::get('services', [ServiceRequestController::class, 'enabledServices'])->name('enabled_services');
+    Route::get('ledger-reports', [LadgerController::class, 'reports'])->name('reseller_reports');
+});
+
+
+Route::group(['middleware' => ['auth', 'isSupport'], 'prefix' => 'support'], function () {
+     Route::get('/dashboard', [HomeController::class, 'supportdashboard'])->name('support.dashboard');
+});
 
 
 
