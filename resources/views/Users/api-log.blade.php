@@ -21,7 +21,7 @@
                         <select name="filterName" id="filterName" class="form-control form-select2">
                             <option value="">--Select User--</option>
                             @foreach($users as $value)
-                            <option value="{{$value->id}}">{{$value->name}}</option>
+                            <option value="{{$value->id}}">{{$value->name}} ({{ $value->email }})</option>
                             @endforeach
                         </select>
                     </div>
@@ -212,6 +212,14 @@
                 },
             ]
         });
+        $('#date_from').on('change', function () {
+            let from = $(this).val();
+            $('#date_to').attr('min', from);
+            if ($('#date_to').val() && $('#date_to').val() < from) {
+            $('#date_to').val('');
+            }
+        });
+
 
         // Apply filter
         $('#applyFilter').on('click', function() {
@@ -223,6 +231,7 @@
             $('#filterName').val('').trigger('change');
             $('#date_from').val('');
             $('#date_to').val('');
+            $('#filterDateTo').val('').removeAttr('min');
             table.ajax.reload();
         });
     });

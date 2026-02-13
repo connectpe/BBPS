@@ -22,7 +22,7 @@
                         <select name="filterUser" id="filterUser" class="form-control form-select2">
                             <option value="">--Select User--</option>
                             @foreach($users as $value)
-                            <option value="{{$value->id}}">{{$value->name}}</option>
+                            <option value="{{$value->id}}">{{$value->name}} ({{ $value->email }})</option>
                             @endforeach
                         </select>
                     </div>
@@ -30,6 +30,11 @@
                     <div class="col-md-3">
                         <label for="ticketId" class="form-label">Ticket Number</label>
                         <input type="text" class="form-control" id="ticketId" placeholder="Ex: #47618678714">
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="mobile" class="form-label">Mobile Number</label>
+                        <input type="text" class="form-control" id="mobile" placeholder="Mobile Number">
                     </div>
 
                     <div class="col-md-3">
@@ -74,6 +79,9 @@
                             <th>Ticket Number</th>
                             <th>Service</th>
                             <th>Complaint Category</th>
+                            <th>Reference No.</th>
+                            <th>Date</th>
+                            <th>Mobile</th>
                             <th>Priority</th>
                             <th>Remark</th>
                             <th>Resolved At</th>
@@ -216,6 +224,7 @@
                 data: function(d) {
                     d._token = $('meta[name="csrf-token"]').attr('content');
                     d.ticket_number = $('#ticketId').val();
+                    d.mobile_number = $('#mobile').val();
                     d.status = $('#filterStatus').val();
                     d.date_from = $('#filterDateFrom').val();
                     d.date_to = $('#filterDateTo').val();
@@ -277,6 +286,24 @@
                     data: null,
                     render: function(data, type, row) {
                         return row?.category?.category_name || '----';
+                    }
+                },
+                {
+                    data: 'payment_ref_id',
+                    render: function(data, type, row) {
+                        return data ? data : '-';
+                    }
+                },
+                {
+                    data: 'transaction_date',
+                    render: function(data) {
+                        return formatDate(data)
+                    }
+                },
+                {
+                    data: 'mobile_number',
+                    render: function(data, type, row) {
+                        return data ? data : '-';
                     }
                 },
                 {
@@ -380,6 +407,14 @@
             ]
         });
 
+        $('#filterDateFrom').on('change', function() {
+            let from = $(this).val();
+            $('#filterDateTo').attr('min', from);
+            if ($('#filterDateTo').val() && $('#filterDateTo').val() < from) {
+            $('#filterDateTo').val('');
+            }
+        });
+
 
         // Apply filter
         $('#applyFilter').on('click', function() {
@@ -389,10 +424,12 @@
         // Reset filter
         $('#resetFilter').on('click', function() {
             $('#ticketId').val('');
+            $('#mobile').val('');
             $('#filterStatus').val('').trigger('change');
             $('#filterDateFrom').val('');
             $('#filterDateTo').val('');
             $("#filterUser").val('').trigger('change');
+            $('#filterDateTo').val('').removeAttr('min');
             table.ajax.reload();
         });
 

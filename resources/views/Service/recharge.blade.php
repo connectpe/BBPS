@@ -306,7 +306,7 @@
     <div class="col-md-12">
         <div class="card shadow-sm h-100 position-relative">
 
-            <img src="{{ asset('assets/image/icon_logo.svg') }}" alt="logo" style="position:absolute; top:10px; right:10px; width:70px; height:auto;">
+            <img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}" alt="logo" style="position:absolute; top:10px; right:10px; width:70px; height:auto;">
 
             <div class="card-body">
                 <div class="row g-3">
@@ -340,7 +340,7 @@
                     Recharge
                 </h5>
 
-                <img src="{{ asset('assets/image/icon_logo.svg') }}"
+                <img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}"
                     alt=""
                     class="position-absolute"
                     style="top: 10px; right: 50px; width: 70px; z-index: 1060;">
@@ -1071,7 +1071,7 @@ $rechargePlanTypes = [
         __plansAbortController = new AbortController();
         const reqId = ++__plansReqId;
 
-        fetch('/bbps-recharge/getPlans/' + operator_id + '/' + circle_id + '/' + plan_type, {
+        fetch('/user/bbps-recharge/getPlans/' + operator_id + '/' + circle_id + '/' + plan_type, {
                 method: 'POST',
                 signal: __plansAbortController.signal,
                 headers: {

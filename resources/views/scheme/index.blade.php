@@ -11,6 +11,7 @@
                 </button>
             </div>
             <div class="card-body">
+                <div class="table-responsive">
                 <table id="schemeTable" class="table table-bordered table-striped w-100">
                     <thead>
                         <tr>
@@ -24,6 +25,7 @@
                     <tbody>
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
 
@@ -42,7 +44,7 @@
                         <select class="form-control form-select shadow-none form-select2" id="filter_user">
                             <option value="">-- Select user --</option>
                             @foreach ($assignedUsers as $u)
-                                <option value="{{ $u->id }}">{{ $u->name }}</option>
+                                <option value="{{ $u->id }}">{{ $u->name }} ({{ $u->email }})</option>
                             @endforeach
                         </select>
                     </div>
@@ -67,6 +69,7 @@
                     </div>
                 </div>
 
+            <div class="table-responsive">
                 <table id="relationTable" class="table table-bordered table-striped w-100">
                     <thead class="bg-light">
                         <tr>
@@ -79,6 +82,8 @@
                     <tbody>
                     </tbody>
                 </table>
+                
+            </div>
             </div>
         </div>
     </div>

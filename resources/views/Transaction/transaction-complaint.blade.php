@@ -32,6 +32,11 @@
                     </div>
 
                     <div class="col-md-3">
+                        <label for="mobile" class="form-label">Mobile Number</label>
+                        <input type="text" class="form-control" id="mobile" placeholder="Mobile Number">
+                    </div>
+
+                    <div class="col-md-3">
                         <label for="filterStatus" class="form-label">Status</label>
                         <select class="form-select form-select2" id="filterStatus">
                             <option value="">--Select Status--</option>
@@ -73,6 +78,9 @@
                             <th>Ticket Number</th>
                             <th>Service</th>
                             <th>Complaint Category</th>
+                            <th>Reference No.</th>
+                            <th>Date</th>
+                            <th>Mobile</th>
                             <th>Priority</th>
                             <th>Remark</th>
                             <th>Resolved At</th>
@@ -91,13 +99,31 @@
 
 <!-- Register Complaints Modal -->
 <div class="modal fade" id="serviceModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-md modal-dialog-centered">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
 
-            <div class="modal-header">
+            <!-- <div class="modal-header">
                 <h5 class="modal-title">Register Complaint</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div> -->
+
+            <div class="modal-header position-relative overflow-visible">
+                <h5 class="modal-title" id="modalTitle">
+                    Register Complaint
+                </h5>
+
+                <img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}"
+                    alt=""
+                    class="position-absolute"
+                    style="top: 10px; right: 50px; width: 70px; z-index: 1060;">
+
+                <button type="button"
+                    class="btn-close position-absolute bg-light"
+                    data-bs-dismiss="modal"
+                    style="top: -15px; right: -15px; z-index: 1061;">
+                </button>
             </div>
+
 
             <div class="modal-body">
                 <form id="complaintForm" enctype="multipart/form-data">
@@ -105,7 +131,30 @@
 
                     <div class="row g-3">
 
-                        <div class="col-12">
+                        <div class="col-md-5">
+                            <label class="form-label">TXN Reference Id.</label>
+                            <input type="text" name="reference_id" id="reference_id" class="form-control" placeholder="TXN Reference Id">
+                            <small class="text-danger d-none" id="err_reference_id"></small>
+                        </div>
+
+                        <div class="col-md-2 text-center">
+                            <label class="form-label">OR</label>
+                            <!-- <input type="hidden" class="form-control"> -->
+                        </div>
+
+                        <div class="col-md-5">
+                            <label class="form-label">Mobile</label>
+                            <input type="number" name="mobile" id="mobile" class="form-control" placeholder="Enter Mobile">
+                            <small class="text-danger d-none" id="err_mobile"></small>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">TXN Date</label>
+                            <input type="date" name="txn_date" id="txn_date" class="form-control">
+                            <small class="text-danger d-none" id="err_txn_date"></small>
+                        </div>
+
+                        <div class="col-md-6">
                             <label class="form-label">Service Name<span class="text-danger">*</span></label>
                             <select name="service_id" class="form-select form-select2" required>
                                 <option value="">-- Select Service --</option>
@@ -118,7 +167,7 @@
                             <small class="text-danger d-none" id="err_service_id"></small>
                         </div>
 
-                        <div class="col-12">
+                        <div class="col-md-6">
                             <label class="form-label">Priority</label>
                             <select name="priority" class="form-select form-select2" required>
                                 @foreach ($priorities as $p)
@@ -130,7 +179,7 @@
                             <small class="text-danger d-none" id="err_priority"></small>
                         </div>
 
-                        <div class="col-12">
+                        <div class="col-md-6">
                             <label class="form-label">Category<span class="text-danger">*</span></label>
                             <select name="category" class="form-select form-select2">
                                 <option value="">-- Select Category --</option>
@@ -141,7 +190,7 @@
                             <small class="text-danger d-none" id="err_category"></small>
                         </div>
 
-                        <div class="col-12">
+                        <div class="col-md-6">
                             <label class="form-label">Attachment </label>
                             <input type="file" name="attachment" class="form-control"
                                 accept=".jpg,.jpeg,.png,.pdf">
@@ -254,6 +303,7 @@
                 data: function(d) {
                     d._token = $('meta[name="csrf-token"]').attr('content');
                     d.ticket_number = $('#ticketId').val();
+                    d.mobile_number = $('#mobile').val();
                     d.status = $('#filterStatus').val();
                     d.date_from = $('#filterDateFrom').val();
                     d.date_to = $('#filterDateTo').val();
@@ -300,6 +350,24 @@
                     data: null,
                     render: function(data, type, row) {
                         return row?.category?.category_name || '----';
+                    }
+                },
+                {
+                    data: 'payment_ref_id',
+                    render: function(data, type, row) {
+                        return data ? data : '-';
+                    }
+                },
+                {
+                    data: 'transaction_date',
+                    render: function(data) {
+                        return formatDate(data)
+                    }
+                },
+                {
+                    data: 'mobile_number',
+                    render: function(data, type, row) {
+                        return data ? data : '-';
                     }
                 },
                 {
@@ -383,6 +451,15 @@
 
             ]
         });
+      
+        $('#filterDateFrom').on('change', function () {
+            let from = $(this).val();
+            $('#filterDateTo').attr('min', from);
+            if ($('#filterDateTo').val() && $('#filterDateTo').val() < from) {
+                $('#filterDateTo').val('');
+            }
+        });
+
 
         // Apply filter
         $('#applyFilter').on('click', function() {
@@ -392,9 +469,11 @@
         // Reset filter
         $('#resetFilter').on('click', function() {
             $('#ticketId').val('');
+            $('#mobile').val('');
             $('#filterStatus').val('').trigger('change');
             $('#filterDateFrom').val('');
             $('#filterDateTo').val('');
+            $('#filterDateTo').val('').removeAttr('min');
             table.ajax.reload();
         });
 

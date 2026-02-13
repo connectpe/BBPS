@@ -275,4 +275,23 @@
 
         return `${month}-${day}-${year} ${hours}:${minutes} ${ampm}`;
     }
+
+    function formatDate(dateValue) {
+        if (!dateValue) return '-';
+
+        const date = new Date(dateValue);
+
+        if (isNaN(date)) return '';
+
+        const month = date.toLocaleString('en-US', {
+            month: 'short'
+        });
+
+        const day = String(date.getDate()).padStart(2, '0');
+
+        const year = date.getFullYear();
+
+
+        return `${month}-${day}-${year}`;
+    }
 </script>

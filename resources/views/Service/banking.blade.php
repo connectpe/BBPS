@@ -48,7 +48,7 @@
 
                 <!-- Top-right image -->
                 <img
-                    src="{{ asset('assets/image/icon_logo.svg') }}"
+                    src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}"
                     alt=""
                     class="position-absolute top-0 end-0 m-3"
                     style="width: 70px;">
@@ -95,7 +95,7 @@
                 <h5 class="modal-title" id="modalTitle">
                     Banking
                 </h5>
-                <img src="{{ asset('assets/image/icon_logo.svg') }}" alt="" class="position-absolute" style="top: 10px; right: 50px; width: 70px;">
+                <img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}" alt="" class="position-absolute" style="top: 10px; right: 50px; width: 70px;">
                 <button type="button" class="btn-close position-absolute bg-light" data-bs-dismiss="modal" style="top: -15px; right: -15px;"></button>
             </div>
 

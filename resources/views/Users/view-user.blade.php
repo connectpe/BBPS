@@ -541,7 +541,7 @@ use App\Facades\FileUpload;
                 '<li class="text-muted small p-2 text-center"><div class="spinner-border spinner-border-sm text-primary"></div></li>'
             );
 
-            $.get(`/services/${serviceId}/providers`, {
+            $.get(`/admin/services/${serviceId}/providers`, {
                 user_id: $("#userId").val()
             }, function(res) {
                 if (res.status && res.data.length > 0) {

@@ -1980,7 +1980,7 @@
             const formData = new FormData();
             console.log(formData);
             const userId = document.getElementById('user_id').value;
-
+            console.log('User ID:', userId);
             // Automatically append all input, select, textarea values
             $('#completeProfileModal input, #completeProfileModal select, #completeProfileModal textarea').each(function() {
                 const name = $(this).attr('name');
@@ -2022,8 +2022,8 @@
 
             // AJAX request
             $.ajax({
-                
-                url: "{{route('admin.complete_profile',['user_id'=>':userId'])}}".replace(':user_id',userId), // Replace with your route
+                url: "{{route('admin.complete_profile',['user_id'=>':userId'])}}".replace(':userId',userId),
+
                 type: 'POST',
                 data: formData,
                 processData: false,
@@ -2107,10 +2107,11 @@
                 pageLength: 5,
                 lengthMenu: [5, 10, 25, 50, 100],
                 ajax: {
-                    url: "{{ url('fetch/ip-whitelist/0/all') }}",
+                    url: "{{ url('fetch/ip-whitelist/0') }}",
                     type: 'POST',
                     data: (d) => {
                         d._token = "{{ csrf_token() }}";
+                        d.is_deleted = '0'
                     }
                 },
                 columns: [{
