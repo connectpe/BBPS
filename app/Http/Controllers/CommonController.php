@@ -858,7 +858,14 @@ class CommonController extends Controller
                     })->orWhereHas('service', function ($s) use ($request) {
                         $s->where('service_name', 'LIKE', '%'.$request->searchText.'%');
                     });
+                }if ($request['type'] == 'default-slug') {
+                    $q->orWhereHas('service', function ($s) use ($request) {
+                        $s->where('service_name', 'LIKE', '%'.$request->searchText.'%');
+                    })->orWhereHas('provider', function ($p) use ($request) {
+                        $p->where('provider_name', 'LIKE', '%'.$request->searchText.'%');
+                    });
                 }
+
             });
         }
 
