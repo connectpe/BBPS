@@ -324,7 +324,7 @@ class CommonController extends Controller
                 break;
             case 'transaction-complaint':
                 $request['table'] = '\App\Models\Complaint';
-                $request['searchData'] = ['id', 'ticket_number', 'priority', 'status', 'mobile'];
+                $request['searchData'] = ['ticket_number', 'mobile_number', 'status', 'priority', 'payment_ref_id'];
                 $request['select'] = 'all';
                 $request['with'] = ['user', 'user.business', 'service', 'category'];
 
@@ -769,6 +769,7 @@ class CommonController extends Controller
         }
 
         if (
+            (isset($request->search['value']) && !empty($request->search['value'])) ||
             (isset($request->searchText) && ! empty($request->searchText)) ||
             (isset($request->to) && ! empty($request->to)) ||
             (isset($request->tr_type) && ! empty($request->tr_type)) ||
