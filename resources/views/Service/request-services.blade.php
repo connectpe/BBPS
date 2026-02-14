@@ -132,6 +132,7 @@
 
             columns: [{
                     data: null,
+                    name: 'user.name',
                     render: function(data, type, row, meta) {
                         return meta.row + 1;
                     }
