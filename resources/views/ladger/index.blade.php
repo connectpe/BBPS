@@ -73,7 +73,7 @@ $role = Auth::user()->role_id;
                 <table id="usersTable" class="table table-striped table-bordered table-hover w-100">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>S.No</th>
                             @if($role == 1)
                             <th>Organization Name</th>
                             @else

@@ -76,18 +76,30 @@ class AdminController extends Controller
         return view('Admin.profile')->with($data);
     }
 
+    // public function dashboard()
+    // {
+    //     $role = Auth::user()->role_id;
+
+    //     if (in_array($role, [1])) {
+    //         return view('Dashboard.dashboard');
+    //     } elseif (in_array($role, [3])) {
+    //         return view('Dashboard.api-dashboard');
+    //     } elseif ($role == 4) {
+    //         return view('Dashboard.support-dashboard');
+    //     } elseif ($role == 2) {
+    //         return view('Dashboard.user-dashboard');
+    //     }
+    // }
+
     public function dashboard()
     {
         $role = Auth::user()->role_id;
-
-        if (in_array($role, [1])) {
-            return view('Dashboard.dashboard');
-        } elseif (in_array($role, [3])) {
-            return view('Dashboard.api-dashboard');
-        } elseif ($role == 4) {
-            return view('Dashboard.support-dashboard');
-        } elseif ($role == 2) {
-            return view('Dashboard.user-dashboard');
+        switch ($role) {
+        case 1: return redirect()->route('admin.dashboard');
+        case 2: return redirect()->route('user.dashboard');
+        case 3: return redirect()->route('api.dashboard');
+        case 4: return redirect()->route('support.dashboard');
+        default: return redirect()->route('unauthrized.page');
         }
     }
 

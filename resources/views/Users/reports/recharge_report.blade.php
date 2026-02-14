@@ -5,17 +5,20 @@
 
 @section('page-button')
 <img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}"
-    alt=""  style="width: 84px; z-index: 1060;">
+    alt="" style="width: 84px; z-index: 1060;">
 @endsection
 @section('content')
 
+@php
+$role = Auth::user()->role_id;
+@endphp
 
 <div class="accordion mb-3" id="filterAccordion">
     <div class="accordion-item">
         <h2 class="accordion-header" id="headingFilter">
             <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse"
                 data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
-                Filter Users
+                Filter 
             </button>
         </h2>
         <div id="collapseFilter" class="accordion-collapse collapse" aria-labelledby="headingFilter"
@@ -26,7 +29,7 @@
                                         <label for="filterName" class="form-label">OrderId</label>
                                         <input type="text" class="form-control" id="filterOrderId" placeholder="Enter OrderId">
                                     </div> -->
-
+                    @if(Auth::user()->role_id == 1)
                     <div class="col-md-3">
                         <label for="filterUser" class="form-label">User</label>
                         <select id="filterUser" class="form-control form-select2">
@@ -38,6 +41,7 @@
                             @endforeach
                         </select>
                     </div>
+                    @endif
 
                     <div class="col-md-3">
                         <label for="filterreferenceId" class="form-label">ReferenceId</label>
@@ -58,14 +62,14 @@
                     </div>
                     <div class="col-md-3">
                         <label for="filterCommonId" class="form-label">Search Id</label>
-                         <input type="text" class="form-control" id="filterCommonId"placeholder="Payment / ConnectPe / Request ID">
+                        <input type="text" class="form-control" id="filterCommonId" placeholder="Payment / ConnectPe / Request ID">
                     </div>
                     <div class="col-md-3">
                         <label for="filterMobile" class="form-label">Mobile No</label>
                         <input type="text" class="form-control" id="filterMobile" placeholder="Enter Mobile Number" maxlength="10">
                     </div>
 
-                
+
                     <div class="col-md-3">
                         <label for="filterDateFrom" class="form-label">From Date</label>
                         <input type="date" class="form-control" id="filterDateFrom">
@@ -99,7 +103,11 @@
                     <thead>
                         <tr>
                             <th>S.No</th>
-                            <th>User</th>
+                            @if($role == 1 || $role == 4)
+                            <th>Organization Name</th>
+                            @else
+                            <th> </th>
+                            @endif
                             <th>Operator</th>
                             <th>Amount</th>
                             <th>Mobile No</th>
@@ -123,10 +131,14 @@
 <script>
     $(document).ready(function() {
 
-
+        let role = "{{$role}}";
         var table = $('#rechargeTable').DataTable({
             processing: true,
             serverSide: true,
+            columnDefs: [{
+                targets: 1,
+                visible: (role == 1 || role == 4)
+            }],
             ajax: {
                 url: "{{ url('fetch') }}/transactions/0",
                 type: "POST",
@@ -139,7 +151,7 @@
                     d.date_to = $('#filterDateTo').val();
                     d.common_id = $('#filterCommonId').val();
                     d.mobile_number = $('#filterMobile').val();
-                    
+
 
                 }
             },
@@ -172,26 +184,29 @@
                     }
                 },
                 {
-                    data: 'user.name',
+                    data: null,
                     render: function(data, type, row) {
-                        const userRole = "{{ Auth::user()->role_id }}";
-                        if (userRole == 1) {
-                            let url = "{{ route('view_user', ['id' => 'id']) }}".replace('id',
-                                row.user_id);
-                            return `<a href="${url}" class="text-primary fw-semibold text-decoration-none">${data ?? '----'}</a>`;
-                        }
-                        return data ?? '----';
+                        let url = "{{ route('view_user', ['id' => 'id']) }}".replace('id', row.user_id);
+                        const userName = row?.user?.name;
+                        const businessName = row?.user?.business?.business_name;
+
+                        return `
+                                <a href="${url}" class="text-primary fw-semibold text-decoration-none">
+                                    ${userName ?? '----'} <br/>
+                                    [${businessName ?? '----'}]
+                                </a>
+                            `;
                     }
                 },
 
                 {
                     data: null,
-                    render : function(data, type, row){
+                    render: function(data, type, row) {
                         let operatorName = row.operator ? row.operator.name : '';
-                        let circleName =  row.circle ? row.circle.name : '';
-                        if(!operatorName) return '----';
-                        if(circleName){
-                        return    circleName + ' ' + '[' +operatorName + ']';;
+                        let circleName = row.circle ? row.circle.name : '';
+                        if (!operatorName) return '----';
+                        if (circleName) {
+                            return circleName + ' ' + '[' + operatorName + ']';;
                         }
                         return operatorName;
                     }
@@ -253,27 +268,27 @@
                     }
                 },
                 {
-    data: null,
-    orderable: false,
-    searchable: false,
-    render: function (data, type, row) {
+                    data: null,
+                    orderable: false,
+                    searchable: false,
+                    render: function(data, type, row) {
 
-       
-        if (row.status === 'processed') {
-            let url = "{{ route('recharge.invoice.download', ':id') }}"
-                        .replace(':id', row.id);
 
-            return `
+                        if (row.status === 'processed') {
+                            let url = "{{ route('recharge.invoice.download', ':id') }}"
+                                .replace(':id', row.id);
+
+                            return `
                 <a href="${url}" 
                    class="btn btn-sm btn-success">
                     <i class="bi bi-download"></i> Invoice
                 </a>
             `;
-        }
+                        }
 
-        return `<span class="text-muted">----</span>`;
-    }
-}
+                        return `<span class="text-muted">----</span>`;
+                    }
+                }
 
             ]
         });
@@ -281,7 +296,7 @@
             let from = $(this).val();
             $('#filterDateTo').attr('min', from);
             if ($('#filterDateTo').val() && $('#filterDateTo').val() < from) {
-            $('#filterDateTo').val('');
+                $('#filterDateTo').val('');
             }
         });
 

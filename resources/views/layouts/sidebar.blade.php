@@ -22,10 +22,12 @@
     @endif --}}
     @if ($role == 1)
     <h5 class="text-center mb-4">ADMIN PANEL</h5>
+    @elseif ($role == 2)
+    <h5 class="text-center mb-4">USER PANEL</h5>
+    @elseif ($role == 3)
+    <h5 class="text-center mb-4">API PARTNER</h5>
     @elseif ($role == 4)
     <h5 class="text-center mb-4">SUPPORT PANEL</h5>
-    @else
-    <h5 class="text-center mb-4">USER PANEL</h5>
     @endif
 
 
@@ -532,7 +534,7 @@
                         <ul class="nav flex-column">
 
                             <li class="nav-item">
-                                <a href="{{ route('reports',['type' => ':type']) }}"
+                                <a href="{{ route('reseller.reports',['type' => 'recharge']) }}"
                                     class="nav-link text-white {{ request()->is('reports/recharge') ? 'sidebar-active' : '' }}">
                                     <i class="bi bi-phone me-2"></i>
                                     Recharge
@@ -603,6 +605,56 @@
                 class="nav-link text-white {{ Route::is('complain.report') ? 'sidebar-active' : '' }}">
                 <i class="bi bi-clipboard-data me-2"></i> Complaints Report
             </a>
+        </li>
+
+        <!-- Transactions -->
+        <li class="nav-item mt-2">
+            <ul class="nav nav-pills flex-column mb-auto">
+
+                @php
+                $transactionRoute = ['reports/recharge', 'reports/utility', 'reports/banking', 'reports'];
+                $servicesActive = in_array(Route::currentRouteName(), $transactionRoute);
+                @endphp
+
+                <li class="nav-item">
+                    <a class="nav-link text-white d-flex justify-content-between align-items-center {{ $servicesActive ? '' : 'collapsed' }} {{ $servicesActive ? 'sidebar-active' : '' }}"
+                        data-bs-toggle="collapse" href="#transactionManagement" role="button"
+                        aria-expanded="{{ $servicesActive ? 'true' : 'false' }}">
+                        <span><i class="bi bi-cash-stack me-2"></i> Transactions</span>
+                        <i class="bi bi-chevron-down small"></i>
+                    </a>
+
+                    <div class="collapse {{ $servicesActive ? 'show' : '' }} ms-3" id="transactionManagement">
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a href="{{ url('reports/recharge') }}"
+                                    class="nav-link text-white {{ request()->is('reports/recharge') ? 'sidebar-active' : '' }}">
+                                    <i class="bi bi-phone me-2"></i>
+                                    Recharge
+                                </a>
+                            </li>
+
+
+                            <li class="nav-item">
+                                <a href="{{ url('reports/banking') }}"
+                                    class="nav-link text-white {{ request()->is('reports/banking') ? 'sidebar-active' : '' }}">
+                                    <i class="bi bi-bank me-2"></i>
+                                    Banking
+                                </a>
+                            </li>
+
+
+                            <li class="nav-item">
+                                <a href="{{ url('reports/utility') }}"
+                                    class="nav-link text-white {{ request()->is('reports/utility') ? 'sidebar-active' : '' }}">
+                                    <i class="bi bi-lightning-charge me-2"></i>
+                                    Utility
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
         </li>
 
         <li class="nav-item">
