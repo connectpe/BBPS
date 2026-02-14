@@ -220,6 +220,46 @@
 
     @include('layouts.script')
 
+    <!-- Global Notification -->
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 1080">
+        <div id="globalToast" class="toast align-items-center text-white border-0" role="alert">
+            <div class="d-flex">
+                <div class="toast-body" id="globalToastMessage"></div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                    data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.notify = function(message, type = "danger") {
+
+            let toastEl = document.getElementById('globalToast');
+            let toastMsg = document.getElementById('globalToastMessage');
+
+            // Fully reset classes safely
+            toastEl.className = "toast align-items-center text-white border-0";
+
+            // Add dynamic color
+            toastEl.classList.add("bg-" + type);
+
+            toastMsg.innerText = message;
+
+            // Dispose old instance if exists
+            let existingToast = bootstrap.Toast.getInstance(toastEl);
+            if (existingToast) {
+                existingToast.dispose();
+            }
+
+            let toast = new bootstrap.Toast(toastEl, {
+                delay: 3000
+            });
+
+            toast.show();
+        }
+    </script>
+
+
 </body>
 
 </html>
