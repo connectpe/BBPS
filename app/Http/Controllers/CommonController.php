@@ -144,10 +144,10 @@ class CommonController extends Controller
             case 'transactions':
                 $request['table'] = '\App\Models\Transaction';
 
-                $request['searchData'] = ['id',  'created_at', 'reference_number', 'user_id', 'operator_id', 'circle_id', 'status', 'amount', 'transaction_type',];
+                $request['searchData'] = ['id',  'created_at', 'reference_number', 'user_id', 'operator_id', 'circle_id', 'status', 'amount', 'transaction_type'];
 
                 $request['select'] = 'all';
-                $request['with'] = ['user','user.business', 'operator', 'circle'];
+                $request['with'] = ['user', 'user.business', 'operator', 'circle'];
                 $orderIndex = $request->get('order');
                 if (isset($orderIndex) && count($orderIndex)) {
                     $columnsIndex = $request->get('columns');
@@ -544,7 +544,6 @@ class CommonController extends Controller
                 $request['searchData'] = ['id', 'name', 'email', 'mobile'];
                 $request['select'] = ['id', 'name', 'email', 'mobile', 'role_id', 'created_at'];
 
-
                 $orderIndex = $request->get('order');
                 if (isset($orderIndex) && count($orderIndex)) {
                     $columnsIndex = $request->get('columns');
@@ -595,7 +594,7 @@ class CommonController extends Controller
                 $request['whereIn'] = 'is_deleted';
                 if (Auth::user()->role_id == '1') {
                     $request['parentData'] = 'all';
-                } else if (Auth::user()->role_id == '2') {
+                } elseif (Auth::user()->role_id == '2') {
 
                     $request['whereIn'] = 'user_id';
                     // $request['whereIn'] = 'is_deleted';
@@ -726,7 +725,7 @@ class CommonController extends Controller
             'transaction-complaint' => ['ticket_number', 'status', 'user_id', 'mobile_number'],
             'ledger' => ['user_id', 'reference_no', 'request_id', 'connectpe_id'],
             'nsdl-payment' => ['user_id',  'service_id',  'mobile_no', 'transaction_id', 'utr',  'order_id',  'status'],
-            'ip-whitelist' => ['is_deleted']
+            'ip-whitelist' => ['is_deleted'],
             // add more types and columns here
         ];
 
@@ -769,7 +768,7 @@ class CommonController extends Controller
         }
 
         if (
-            (isset($request->search['value']) && !empty($request->search['value'])) ||
+            (isset($request->search['value']) && ! empty($request->search['value'])) ||
             (isset($request->searchText) && ! empty($request->searchText)) ||
             (isset($request->to) && ! empty($request->to)) ||
             (isset($request->tr_type) && ! empty($request->tr_type)) ||
@@ -843,7 +842,7 @@ class CommonController extends Controller
                 if (is_numeric($value)) {
                     $query->where($column, $value);
                 } else {
-                    $query->where($column, 'LIKE', '%' . $value . '%');
+                    $query->where($column, 'LIKE', '%'.$value.'%');
                 }
             }
         }
@@ -851,7 +850,14 @@ class CommonController extends Controller
         if (isset($request['where']) && $request['where'] == 1 && isset($request->searchText) && ! empty($request->searchText)) {
             $query->where(function ($q) use ($request) {
                 foreach ($request['searchData'] as $column) {
-                    $q->orWhere($column, 'LIKE', '%' . $request->searchText . '%');
+                    $q->orWhere($column, 'LIKE', '%'.$request->searchText.'%');
+                }
+                if ($request['type'] == 'enabled-services') {
+                    $q->orWhereHas('user', function ($u) use ($request) {
+                        $u->where('name', 'LIKE', '%'.$request->searchText.'%');
+                    })->orWhereHas('service', function ($s) use ($request) {
+                        $s->where('service_name', 'LIKE', '%'.$request->searchText.'%');
+                    });
                 }
             });
         }
@@ -893,7 +899,7 @@ class CommonController extends Controller
             $query->select($request['select']);
         }
 
-        if (!empty($request->common_id)) {
+        if (! empty($request->common_id)) {
             $val = $request->common_id;
             $query->where(function ($q) use ($val) {
                 $q->where('payment_ref_id', 'LIKE', "%{$val}%")->orwhere('connectpe_id', 'LIKE', "%{$val}%")->orWhere('request_id', 'LIKE', "%{$val}%");
