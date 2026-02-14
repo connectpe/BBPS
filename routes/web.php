@@ -118,7 +118,11 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
         Route::post('status', [BbpsRechargeController::class, 'status'])->name('bbps.status');
         Route::post('mpin-auth', [BbpsRechargeController::class, 'mpinAuth'])->name('bbps.mpin_auth');
     });
+
+    Route::post('generate/client-credentials', [UserController::class, 'generateClientCredentials'])->name('generate_client_credentials');
+
     Route::get('/dashboard', [UserController::class, 'dashboard'])->name('user.dashboard');
+
 
     Route::post('completeProfile/{user_id}', [UserController::class, 'completeProfile'])->name('admin.complete_profile');
     // Service Related Route
