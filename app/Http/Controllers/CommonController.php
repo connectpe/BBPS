@@ -865,6 +865,13 @@ class CommonController extends Controller
                         $p->where('provider_name', 'LIKE', '%'.$request->searchText.'%');
                     });
                 }
+                if ($request['type'] == 'ledger') {
+                    $q->orWhereHas('user', function ($u) use ($request) {
+                        $u->where('name', 'LIKE', '%'.$request->searchText.'%');
+                    })->orWhereHas('service', function ($s) use ($request) {
+                        $s->where('service_name', 'LIKE', '%'.$request->searchText.'%');
+                    });
+                }
 
             });
         }
