@@ -883,6 +883,14 @@ class CommonController extends Controller
                     });
                 }
 
+                if ($request['type'] == 'support-assignments') {
+                    $q->orWhereHas('user', function ($u) use ($request) {
+                        $u->where('name', 'LIKE', '%'.$request->searchText.'%');
+                    })->orWhereHas('assigned_support', function ($s) use ($request) {
+                        $s->where('name', 'LIKE', '%'.$request->searchText.'%');
+                    });
+                }
+
             });
         }
 
