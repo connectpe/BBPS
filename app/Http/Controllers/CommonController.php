@@ -147,7 +147,7 @@ class CommonController extends Controller
                 $request['searchData'] = ['id',  'created_at', 'reference_number', 'user_id', 'operator_id', 'circle_id', 'status', 'amount', 'transaction_type',];
 
                 $request['select'] = 'all';
-                $request['with'] = ['user', 'operator', 'circle'];
+                $request['with'] = ['user','user.business', 'operator', 'circle'];
                 $orderIndex = $request->get('order');
                 if (isset($orderIndex) && count($orderIndex)) {
                     $columnsIndex = $request->get('columns');
@@ -170,9 +170,13 @@ class CommonController extends Controller
                 $request['parentData'] = [$request->id];
                 if (Auth::user()->role_id == '1') {
                     $request['parentData'] = 'all';
-                } else {
+                } elseif (Auth::user()->role_id == 2) {
                     $request['whereIn'] = 'user_id';
                     $request['parentData'] = [Auth::user()->id];
+                } elseif (Auth::user()->role_id == 4) {
+                    $assignedUser = UserAssignedToSupport::where('assined_to', Auth::user()->id)->pluck('user_id')->toArray();
+                    $request['whereIn'] = 'user_id';
+                    $request['parentData'] = $assignedUser;
                 }
                 break;
             case 'serviceRequest':
@@ -576,7 +580,7 @@ class CommonController extends Controller
                 $request['table'] = '\App\Models\IpWhitelist';
                 $request['with'] = ['service'];
                 $request['searchData'] = ['ip_address'];
-                $request['select'] = ['id', 'service_id', 'ip_address', 'created_at','is_active'];
+                $request['select'] = ['id', 'service_id', 'ip_address', 'created_at', 'is_active'];
                 $orderIndex = $request->get('order');
                 if (isset($orderIndex) && count($orderIndex)) {
                     $columnsIndex = $request->get('columns');
@@ -591,15 +595,13 @@ class CommonController extends Controller
                 $request['whereIn'] = 'is_deleted';
                 if (Auth::user()->role_id == '1') {
                     $request['parentData'] = 'all';
-                    
                 } else if (Auth::user()->role_id == '2') {
-                   
+
                     $request['whereIn'] = 'user_id';
                     // $request['whereIn'] = 'is_deleted';
 
                     $request['parentData'] = [Auth::user()->id];
-                    $request['parentData'] = ['0'];
-                    
+                    // $request['parentData'] = ['0'];
                 }
                 break;
             case 'complaint-category':

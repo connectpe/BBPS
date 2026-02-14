@@ -132,7 +132,7 @@
 
     <!-- Search Button -->
     <div class="col-md-2">
-        <button type="button" class="btn font-semibold text-white rounded hover:opacity-90 transition">
+        <button type="button" class="btn btn-sm font-semibold buttonColor">
             Search
         </button>
     </div>

@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\GlobalService;
 use App\Models\ServiceRequest;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
@@ -17,4 +17,21 @@ class HomeController extends Controller
 
         return view('Dashboard.dashboard', compact('services', 'requestedServices'));
     }
+
+    public function loginRedirect()
+    {
+        if (Auth::check()) {
+            return redirect()->route('dashboard');
+        }
+        return view('Front.user-register');
+    }
+
+    public function apiPartner(){
+        return view('Dashboard.api-dashboard');
+    }
+
+    public function supportdashboard(){
+        return view('Dashboard.support-dashboard');
+    }
+ 
 }
