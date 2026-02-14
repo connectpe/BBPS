@@ -872,6 +872,16 @@ class CommonController extends Controller
                         $s->where('service_name', 'LIKE', '%'.$request->searchText.'%');
                     });
                 }
+                if ($request['type'] == 'support-user-list') {
+                    $q->orWhereHas('user', function ($u) use ($request) {
+                        $u->where('name', 'LIKE', '%'.$request->searchText.'%')
+                            ->orWhere('email', 'LIKE', '%'.$request->searchText.'%')
+                            ->orWhere('mobile', 'LIKE', '%'.$request->searchText.'%')
+                            ->orWhereHas('business', function ($b) use ($request) {
+                                $b->where('business_name', 'LIKE', '%'.$request->searchText.'%');
+                            });
+                    });
+                }
 
             });
         }
