@@ -191,6 +191,7 @@
                 },
                 {
                     data: null,
+                    name: 'user.name',
                     defaultContent: 'N/A',
                     render: function(data, type, row) {
                         let url = "{{ route('view_user', ['id' => 'id']) }}".replace('id', row.user_id);
