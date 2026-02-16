@@ -3,16 +3,19 @@
 @section('title', 'Complaint Categories')
 @section('page-title', 'Categories')
 
-@section('content')
-<div class="card shadow-sm">
-    <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
-        <h6 class="fw-bold mb-0">Complaint Categories List</h6>
+@section('page-button')
+<div class="row align-items-center mb-2">
+    <div class="col-auto ms-auto">
         <button class="btn btn-sm buttonColor shadow-sm" data-bs-toggle="modal" data-bs-target="#categoryModal"
             onclick="resetForm()">
-            <i class="bi bi-plus-circle me-1"></i> Add New Category
+            <i class="fa fa-plus"></i> Add New Category
         </button>
     </div>
+</div>
+@endsection
 
+@section('content')
+<div class="card shadow-sm">
     <div class="card-body">
         <div class="table-responsive">
             <table id="categoryTable" class="table table-striped border w-100">
