@@ -476,6 +476,7 @@ class MobikwikController extends Controller
         switch ($type) {
             case 'mobikwik-payment':
                 try {
+                    $connectPeId = CommonHelper::generateConnectPeTransactionId();
                     $payload = [
                         "cn" => $request->customerNUmber,
                         "op" => $request->operator,
@@ -486,10 +487,15 @@ class MobikwikController extends Controller
                         "remitterName" => $request->remitterName,
                         "paymentRefID" => $request->paymentRefID,
                         "paymentMode" => 'Wallet',
+                        "connectpeId"=> $connectPeId,
                         "paymentAccountInfo" => '9999999999',
+                        'status'                => 'queued',
+                        "call"               => 'balance_debit',
+                        'user_id'            => $userId,
+                        "serviceId"         => $serviceId,
                     ];
 
-                    $connectPeId = CommonHelper::generateConnectPeTransactionId();
+                    
 
                     Transaction::create([
                         'user_id'               => $userId,
@@ -502,40 +508,50 @@ class MobikwikController extends Controller
                         'payment_ref_id'        => $payload['paymentRefID'],
                         'payment_account_info'  => $payload['paymentAccountInfo'],
                         'recharge_type'         => 'prepaid',
+                        'status'                => 'queued',
                         'connectpe_id'          => $connectPeId,
                     ]);
 
                     $mobikwikHelper = new MobiKwikHelper();
                     $token = $this->isTokenPresent();
-                    $response = $mobikwikHelper->sendRequest(
-                        '/recharge/v3/retailerPayment',
-                        $payload,
-                        $token
-                    );
-                    // dd($response);
-                    if ($response['success'] == false) {
-                        return response()->json([
-                            'status'  => false,
-                            'message' => "API Error occurred",
-                            'error_details' => $response
-                        ]);
-                    }
+                    $endpoint = '/recharge/v3/retailerPayment';
+
+                   dispatch(
+                        new DebitBalanceUpdateJob(
+                            $endpoint,
+                            $payload,
+                            $token
+                        )
+                    )->onQueue('recharge_process_queue');
+                    // $response = $mobikwikHelper->sendRequest(
+                    //     '/recharge/v3/retailerPayment',
+                    //     $payload,
+                    //     $token
+                    // );
+                    // // dd($response);
+                    // if ($response['success'] == false) {
+                    //     return response()->json([
+                    //         'status'  => false,
+                    //         'message' => "API Error occurred",
+                    //         'error_details' => $response
+                    //     ]);
+                    // }
 
 
 
-                    $success = $response['success'];
-                    $finalResponse = [
-                        'success' => $success,
-                        'status' => $response['data']['status'],
-                        'txn_id' => $response['data']['txId'],
-                        'timestamp' => $response['data']['mobikwikstamp'],
-                        'balance' => $response['data']['balance'],
-                        'connectpe_id' => $connectPeId
+                    // $success = $response['success'];
+                    // $finalResponse = [
+                    //     'success' => $success,
+                    //     'status' => $response['data']['status'],
+                    //     'txn_id' => $response['data']['txId'],
+                    //     'timestamp' => $response['data']['mobikwikstamp'],
+                    //     'balance' => $response['data']['balance'],
+                    //     'connectpe_id' => $connectPeId
 
-                    ];
+                    // ];
                     return response()->json([
                         'status' => true,
-                        'data' => $finalResponse,
+                        'message' => 'Your recharge is queued successfully'
 
                     ]);
                 } catch (\Exception $e) {
