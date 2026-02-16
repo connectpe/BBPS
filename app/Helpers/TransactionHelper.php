@@ -20,4 +20,8 @@ class TransactionHelper{
              
         }
     }
+
+    public function IsUserServiceEnable($status){
+
+    }
 }
