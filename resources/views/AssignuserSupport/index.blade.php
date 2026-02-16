@@ -13,7 +13,6 @@
 @endsection
 
 @section('content')
-<div class="container-fluid py-4">
     <div class="row">
         <div class="col-12">
             <div class="accordion mb-3" id="filterAccordion">
@@ -81,7 +80,6 @@
             </div>
         </div>
     </div>
-</div>
 
 <div class="modal fade" id="assignSupportModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-md">

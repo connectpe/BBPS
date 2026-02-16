@@ -11,7 +11,6 @@
 </div>
 @endsection
 @section('content')
-<div class="container-fluid py-4">
     <div class="card shadow-sm mb-5">
         <div class="card-body">
             <div class="table-responsive">
@@ -89,7 +88,6 @@
             </div>
         </div>
     </div>
-</div>
 
 <div class="modal fade" id="schemeModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl">

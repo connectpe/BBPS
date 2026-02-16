@@ -15,7 +15,7 @@
     <div class="col-md-8">
         <div class="card shadow-sm h-100">
             <div class="card-body">
-                <h6 class="fw-bold mb-3">Our Services</h6>
+                <!-- <h6 class="fw-bold mb-3">Our Services</h6> -->
 
                 <div class="row">
                     <div class="row g-2 align-items-end">

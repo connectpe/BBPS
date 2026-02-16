@@ -14,7 +14,6 @@
 @endsection
 
 @section('content')
-<div class="container-fluid py-4">
     <div class="card shadow-sm">
         <div class="card-body">
             <div class="table-responsive">
@@ -32,7 +31,6 @@
             </div>
         </div>
     </div>
-</div>
 <div class="modal fade" id="slugModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -104,7 +102,7 @@
                 },
                 {
                     data: 'created_at',
-                    name: 'created_at'
+                    name: 'created_at',
                 },
                 {
                     data: 'id',

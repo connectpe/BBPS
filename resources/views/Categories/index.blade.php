@@ -109,7 +109,10 @@
 
                 {
                     data: 'created_at',
-                    name: 'created_at'
+                    name: 'created_at',
+                    render: function(data) {
+                        return formatDateTime(data)
+                    }
                 },
 
                 {

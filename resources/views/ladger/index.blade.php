@@ -190,18 +190,18 @@ $role = Auth::user()->role_id;
 
                 {
                     data: 'total_txn_amount',
-                    render: data => `₹ ${data}`
+                    render: data => `₹ ${data ?? 0}`
                 },
                 {
                     data: 'txn_type'
                 },
                 {
                     data: 'opening_balance',
-                    render: data => `₹ ${data}`
+                    render: data => `₹ ${data ?? 0}`
                 },
                 {
                     data: 'closing_balanace',
-                    render: data => `₹ ${data}`
+                    render: data => `₹ ${data ?? 0}`
                 },
                 {
                     data: 'txn_date',
