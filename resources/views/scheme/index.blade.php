@@ -38,7 +38,7 @@
                 </button>
             </div>
             <div class="card-body">
-                <div class="row mb-4">
+                <div class="row mb-4 g-3">
                     <div class="col-md-4">
                         <label class="form-label small fw-bold">User:</label>
                         <select class="form-control form-select shadow-none form-select2" id="filter_user">
@@ -151,8 +151,8 @@
                     @csrf
                     <input type="hidden" name="config_id" id="config_id">
                     <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-12 mb-3">
+                        <div class="row mb-3 g-3">
+                            <div class="col-md-12">
                                 <label class="fw-bold small">Select User *</label>
                                 <select name="user_id" id="user_search" class="form-control form-select2" required>
                                     <option value="">-- Select User --</option>
@@ -162,11 +162,9 @@
                                             ({{ $user->business->business_name ?? 'Business Not Added' }})
                                         </option>
                                     @endforeach
-
-
                                 </select>
                             </div>
-                            <div class="col-md-12 mb-3">
+                            <div class="col-md-12">
                                 <label class="fw-bold small">Select Scheme *</label>
                                 <select name="scheme_id" id="scheme_search" class="form-control form-select2" required>
                                     <option value="">-- Select Scheme --</option>

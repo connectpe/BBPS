@@ -121,18 +121,30 @@ use App\Facades\FileUpload;
                     <span class="value">{{ $userData->mobile ?? '----' }}</span>
                 </div>
                 <div class="info-row">
-                    <span class="label">User Id  </span>
+                    <span class="label">User Id </span>
                     <span class="value">{{ $userData->id ?? '----' }} </span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Wallet Amount </span>
+                    <span class="value">{{ number_format($userData->transaction_amount ?? 0,2) }} </span>
                 </div>
                 <div class="info-row mb-3">
                     <span class="label">Status</span>
+                    @php
+                    $statusArray = [
+                    '0' => 'Initiated',
+                    '1' => 'Active',
+                    '2' => 'InActive',
+                    '3' => 'Pending',
+                    '4' => 'Suspended',
+                    ];
+                    $statusClass = ['1' => 'success', '2' => 'danger', '3' => 'warning', '4' => 'secondary'];
+                    $statusLabel = $statusArray[$userData->status] ?? 'NA';
+                    @endphp
 
-                    @if ($userData->status == 1)
-                    <span class="badge bg-success">ACTIVE</span>
-                    @else
-                    <span class="badge bg-danger">INACTIVE</span>
-                    @endif
+                    <span class="badge bg-{{ $statusClass[$userData->status] ?? 'dark' }}">{{ $statusLabel }}</span>
                 </div>
+
 
                 <!-- Divider -->
                 <hr class="my-3">
@@ -458,7 +470,7 @@ use App\Facades\FileUpload;
             showCancelButton: true,
             confirmButtonText: 'Yes',
             cancelButtonText: 'No',
-            reverseButtons: true
+            reverseButtons: false
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
