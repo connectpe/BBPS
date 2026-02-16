@@ -308,7 +308,7 @@
 
             <img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}" alt="logo" style="position:absolute; top:10px; right:10px; width:70px; height:auto;">
 
-            <div class="card-body">
+            <div class="card-body mt-lg-1 mt-5">
                 <div class="row g-3">
                     @foreach ($services as $service)
                     @php $randColor = $colors[array_rand($colors)]; @endphp
