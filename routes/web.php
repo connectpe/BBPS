@@ -38,7 +38,9 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
     Route::group(['middleware' => ['isAdmin'], 'prefix' => 'admin'], function () {
-        Route::get('/dashboard', function() { return view('Dashboard.dashboard'); })->name('admin.dashboard');
+        Route::get('/dashboard', function () {
+            return view('Dashboard.dashboard');
+        })->name('admin.dashboard');
         Route::post('servicetoggle', [AdminController::class, 'disableUserService'])->name('admin.service_toggle.user');
         Route::post('user-status-change', [AdminController::class, 'changeUserStatus'])->name('admin.user_status.change');
         Route::post('add-service', [AdminController::class, 'addService'])->name('admin.add_service');
@@ -70,8 +72,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/nsdl-payment', [AdminController::class, 'nsdlPayment'])->name('nsdl-payment');
 
 
-         Route::post('/users/{id}/routing/save', [UserController::class, 'saveUserRouting'])
-        ->name('admin.users.routing.save');
+        Route::post('/users/{id}/routing/save', [UserController::class, 'saveUserRouting'])
+            ->name('admin.users.routing.save');
 
         // admin routes
         Route::get('request-services', [ServiceRequestController::class, 'index'])->name('request_services');
@@ -167,7 +169,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::prefix('support')->group(function () {
 
         // Route::get('/complaints-report', [SupportDashboardController::class, 'userComplaints'])->name('complaints_report');
-//         Route::get('/support-userlist', [SupportDashboardController::class, 'supportUserList'])->name('support_userlist');
+        //         Route::get('/support-userlist', [SupportDashboardController::class, 'supportUserList'])->name('support_userlist');
         Route::get('complaints-report', [SupportDashboardController::class, 'userComplaints'])->name('complaints_report')->middleware('isSupport');
         Route::get('/support-userlist', [SupportDashboardController::class, 'supportUserList'])->name('support_userlist')->middleware('isSupport');
     });
@@ -200,7 +202,7 @@ Route::group(['middleware' => ['auth', 'isReseller'], 'prefix' => 'api-partner']
 
 
 Route::group(['middleware' => ['auth', 'isSupport'], 'prefix' => 'support'], function () {
-     Route::get('/dashboard', [HomeController::class, 'supportdashboard'])->name('support.dashboard');
+    Route::get('/dashboard', [HomeController::class, 'supportdashboard'])->name('support.dashboard');
 });
 
 

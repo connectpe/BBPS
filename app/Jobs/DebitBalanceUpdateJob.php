@@ -63,7 +63,7 @@ class DebitBalanceUpdateJob implements ShouldQueue
             $transaction = Transaction::where([
                 'user_id'    => $this->payload['userid'],
                 'request_id' => $this->payload['reqid'],
-                'status'     => 'processing',
+                'status'     => 'queued',
             ])->lockForUpdate()->first();
 
             if (!$transaction) {
@@ -71,9 +71,9 @@ class DebitBalanceUpdateJob implements ShouldQueue
                 return;
             }
 
-            $userService = UserService::where('user_id', $this->payload['userid'])->first();
+            $userService = UserService::where(['user_id', $this->payload['userid'],'service_id'=>$this->payload['serviceId']])->first();
             if (!$userService) {
-                throw new \Exception('User service not found');
+                throw new \Exception('User service is not enable right now');
             }
 
             // Wallet debit
@@ -118,7 +118,10 @@ class DebitBalanceUpdateJob implements ShouldQueue
     }
 
     /**
-     *          Credit wallet if transaction failed any reason
+     *      
+     *     Credit wallet if transaction failed any reason
+     * 
+     * 
      */
     private function handleFailedOrder(): void
     {

@@ -55,3 +55,7 @@ label,
     flex-shrink: 0;
     /* prevents shrinking */
 }
+
+.dataTables_filter label{
+    padding: 5px !important;
+}

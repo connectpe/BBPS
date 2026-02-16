@@ -4,7 +4,7 @@
 @section('content')
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <h4 class="card-title">Support User List</h4>
+        <h4 class="card-title">Support User</h4>
         <button type="button" class="btn buttonColor" data-toggle="modal" data-target="#addSupportModal"
             data-bs-toggle="modal" data-bs-target="#addSupportModal">
             <i class="fa fa-plus"></i> Add Support

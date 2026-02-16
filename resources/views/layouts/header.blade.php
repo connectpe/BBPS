@@ -11,23 +11,23 @@
 
 
         <!-- <h2 class="mb-4">@yield('page-title')</h1> -->
-            <!-- <h6 class="mb-0">Dashboard</h6> -->
-            @php
+        <!-- <h6 class="mb-0">Dashboard</h6> -->
+        @php
 
-                $role = Auth::user()->role_id;
+        $role = Auth::user()->role_id;
 
-            @endphp
+        @endphp
 
-            @if ($role == 1)
-                {{-- <button class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#serviceModall">
+        @if ($role == 1)
+        {{-- <button class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#serviceModall">
                     <i class="bi bi-gear-fill"></i>
                 </button> --}}
 
-           @elseif (in_array($role, [2, 3]))
-                <button class="btn btn-primary ms-2 mb-3" data-bs-toggle="modal" data-bs-target="#serviceModall">
-                    <i class="fa-solid fa-table-list"></i> Services
-                </button>
-            @endif
+        @elseif (in_array($role, [2, 3]))
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#serviceModall" title="Services">
+            <i class="bi bi-gear-fill fs-6"></i>
+        </button>
+        @endif
 
 
     </div>
@@ -36,25 +36,25 @@
 
         @php
 
-            $role = Auth::user()->role_id;
+        $role = Auth::user()->role_id;
         @endphp
 
         @if ($role == 1)
-            <div class="text-end">
-                <small class="text-muted">Main Wallet</small>
-                <div class="fw-semibold text-success">₹ {{ number_format(0, 2) }}</div>
-            </div>
+        <div class="text-end">
+            <small class="text-muted">Main Wallet</small>
+            <div class="fw-semibold text-success">₹ {{ number_format(0, 2) }}</div>
+        </div>
 
-            <!-- AEPS Balance -->
-            <div class="text-end">
-                <small class="text-muted">Business Wallet</small>
-                <div class="fw-semibold text-primary"> ₹ {{ number_format($businessWallet ?? 0, 2) }}</div>
-            </div>
+        <!-- AEPS Balance -->
+        <div class="text-end">
+            <small class="text-muted">Business Wallet</small>
+            <div class="fw-semibold text-primary"> ₹ {{ number_format($businessWallet ?? 0, 2) }}</div>
+        </div>
         @else
-            <div class="text-end">
-                <small class="text-muted">Business Wallet</small>
-                <div class="fw-semibold text-success">₹ {{ number_format($businessWallet ?? 0, 2) }}</div>
-            </div>
+        <div class="text-end">
+            <small class="text-muted">Business Wallet</small>
+            <div class="fw-semibold text-success">₹ {{ number_format($businessWallet ?? 0, 2) }}</div>
+        </div>
         @endif
 
 
@@ -119,47 +119,47 @@
 
                     <tbody>
                         @php
-                            $isAdmin = auth()->check() && auth()->user()->role_id == 1;
+                        $isAdmin = auth()->check() && auth()->user()->role_id == 1;
                         @endphp
 
 
                         @foreach ($services as $service)
+                        @php
+                        $request = $requestedServices->get($service->id);
+                        @endphp
+
+                        <tr>
+                            <td>{{ $service->service_name }}</td>
+
+
                             @php
-                                $request = $requestedServices->get($service->id);
+                            $userKycStatus = false;
+                            if (auth()->check()) {
+                            $business = \App\Models\BusinessInfo::where('user_id', auth()->id())->first();
+                            $userKycStatus = $business && $business->is_kyc == 1;
+                            }
+                            $isAdmin = auth()->check() && auth()->user()->role_id == 1;
                             @endphp
+                            <td>
+                                @if ($userKycStatus || $isAdmin)
+                                @if ($request && $request->status === 'approved')
+                                <button class="btn btn-success btn-sm w-100">Activated</button>
+                                @elseif ($request && $request->status === 'pending')
+                                <button class="btn btn-secondary btn-sm w-100">Requested</button>
+                                @else
+                                <form action="{{ route('service.request') }}" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="service_id" value="{{ $service->id }}">
+                                    <button class="btn btn-primary btn-sm w-100">Raise Request</button>
+                                </form>
+                                @endif
+                                @else
+                                <a href="{{ route('admin_profile', ['user_id' => Auth::user()->id, 'is_kyc' => 'Yes']) }}"
+                                    class="text-danger small text-decoration-none">Complete Profile</a>
+                                @endif
+                            </td>
 
-                            <tr>
-                                <td>{{ $service->service_name }}</td>
-
-
-                                @php
-                                    $userKycStatus = false;
-                                    if (auth()->check()) {
-                                        $business = \App\Models\BusinessInfo::where('user_id', auth()->id())->first();
-                                        $userKycStatus = $business && $business->is_kyc == 1;
-                                    }
-                                    $isAdmin = auth()->check() && auth()->user()->role_id == 1;
-                                @endphp
-                                <td>
-                                    @if ($userKycStatus || $isAdmin)
-                                        @if ($request && $request->status === 'approved')
-                                            <button class="btn btn-success btn-sm w-100">Activated</button>
-                                        @elseif ($request && $request->status === 'pending')
-                                            <button class="btn btn-secondary btn-sm w-100">Requested</button>
-                                        @else
-                                            <form action="{{ route('service.request') }}" method="POST">
-                                                @csrf
-                                                <input type="hidden" name="service_id" value="{{ $service->id }}">
-                                                <button class="btn btn-primary btn-sm w-100">Raise Request</button>
-                                            </form>
-                                        @endif
-                                    @else
-                                        <a href="{{ route('admin_profile', ['user_id' => Auth::user()->id, 'is_kyc' => 'Yes']) }}"
-                                            class="text-danger small text-decoration-none">Complete Profile</a>
-                                    @endif
-                                </td>
-
-                                {{-- <td>
+                            {{-- <td>
                                 @if ($request)
                                 @if ($request->status === 'approved')
                                 <button class="btn btn-success btn-sm w-100">
@@ -191,7 +191,7 @@
 
                             @endif
                             </td> --}}
-                            </tr>
+                        </tr>
                         @endforeach
                     </tbody>
                 </table>
