@@ -7,7 +7,7 @@
 <div class="row align-items-center mb-2">
     <div class="col-auto ms-auto">
         <button type="button" class="btn buttonColor text-nowrap" data-bs-toggle="modal" data-bs-target="#providerModal">
-            <i class="bi bi-plus fs-6 me-1"></i> Provider
+            <i class="fa fa-plus"></i> Provider
         </button>
     </div>
 </div>
