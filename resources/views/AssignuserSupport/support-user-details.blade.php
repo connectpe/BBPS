@@ -1,15 +1,20 @@
 @extends('layouts.app')
 @section('title', 'Support User')
 @section('page-title', 'Support User')
-@section('content')
-<div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h4 class="card-title">Support User</h4>
+
+@section('page-button')
+<div class="row align-items-center mb-2">
+    <div class="col-auto ms-auto">
         <button type="button" class="btn buttonColor" data-toggle="modal" data-target="#addSupportModal"
             data-bs-toggle="modal" data-bs-target="#addSupportModal">
             <i class="fa fa-plus"></i> Add Support
         </button>
     </div>
+</div>
+@endsection
+
+@section('content')
+<div class="card">
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-bordered" id="supportTableServerSide" style="width: 100%;">
@@ -125,9 +130,21 @@
                         return meta.settings._iDisplayStart + meta.row + 1;
                     }
                 },
+                // {
+                //     data: 'name',
+                //     name: 'name'
+                // },
                 {
-                    data: 'name',
-                    name: 'name'
+                    data: null,
+                    render: function(data, type, row) {
+                        let url = "{{ route('support_based_user_list', ['id' => 'id']) }}".replace('id', row.id);
+                        const userName = row?.name;
+                        return `
+                                <a href="${url}" class="text-primary fw-semibold text-decoration-none">
+                                    ${userName ?? '----'} <br/>
+                                </a>
+                            `;
+                    }
                 },
                 {
                     data: 'email',
@@ -154,7 +171,7 @@
         $(document).on('click', '.editSupport', function() {
             let id = $(this).data('id');
             $('#editErrorBox').hide();
-            $.get("{{ route('get.support.member',['id' => ':id']) }}".replace(':id',id), function(res) {
+            $.get("{{ route('get.support.member',['id' => ':id']) }}".replace(':id', id), function(res) {
                 if (res.status) {
                     $('#edit_user_id').val(res.data.id);
                     $('#edit_name').val(res.data.name);
