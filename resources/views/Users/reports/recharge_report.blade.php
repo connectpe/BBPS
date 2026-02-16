@@ -18,7 +18,7 @@ $role = Auth::user()->role_id;
         <h2 class="accordion-header" id="headingFilter">
             <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse"
                 data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
-                Filter 
+                Filter
             </button>
         </h2>
         <div id="collapseFilter" class="accordion-collapse collapse" aria-labelledby="headingFilter"
@@ -53,6 +53,7 @@ $role = Auth::user()->role_id;
                         <label for="filterStatus" class="form-label">Status</label>
                         <select class="form-select form-select2" id="filterStatus">
                             <option value="">--select--</option>
+                            <option value="queued">Queued</option>
                             <option value="pending">Pending</option>
                             <option value="processing">Processing</option>
                             <option value="processed">Processed</option>
@@ -257,6 +258,7 @@ $role = Auth::user()->role_id;
                     data: 'status',
                     render: function(data) {
                         const colors = {
+                            queued: 'primary', // blue – in queue
                             pending: 'secondary', // gray – waiting
                             processing: 'warning', // yellow – in progress
                             processed: 'success', // green – done
