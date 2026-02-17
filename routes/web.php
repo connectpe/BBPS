@@ -157,8 +157,8 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
 
 
     // reseller routes
-    Route::get('reports', [LadgerController::class, 'reports'])->name('reseller_reports');
-    Route::get('services', [ServiceRequestController::class, 'enabledServices'])->name('enabled_services');
+    // Route::get('reports', [LadgerController::class, 'reports'])->name('reseller_reports');
+    // Route::get('services', [ServiceRequestController::class, 'enabledServices'])->name('enabled_services');
 
     Route::post('generate/client-credentials', [UserController::class, 'generateClientCredentials'])->name('generate_client_credentials');
 });
@@ -185,6 +185,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/transaction-report', [TransactionController::class, 'transaction_Report'])->name('transaction.report');
     Route::get('recharge/invoice/{id}', [TransactionController::class, 'downloadInvoice'])
         ->name('recharge.invoice.download');
+         Route::get('reports/{type}', [ReportController::class, 'index'])->name('reseller.reports'); //
+    Route::get('services', [ServiceRequestController::class, 'enabledServices'])->name('enabled_services');
 
 
     Route::get('unauthrized', function () {
@@ -195,8 +197,6 @@ Route::group(['middleware' => ['auth']], function () {
 
 Route::group(['middleware' => ['auth', 'isReseller'], 'prefix' => 'api-partner'], function () {
     Route::get('/dashboard', [HomeController::class, 'apiPartner'])->name('api.dashboard');
-    Route::get('reports/{type}', [ReportController::class, 'index'])->name('reseller.reports'); //
-    Route::get('services', [ServiceRequestController::class, 'enabledServices'])->name('enabled_services');
     Route::get('ledger-reports', [LadgerController::class, 'reports'])->name('reseller_reports');
 });
 
