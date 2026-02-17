@@ -985,24 +985,24 @@ $rechargePlanTypes = [
     });
 
 
-    $('#backBtn').on('click', function() {
+    $('#backBtn').off('click').on('click', function () {
+
+   
         if (__plansAbortController) {
-            try {
-                __plansAbortController.abort();
-            } catch (e) {}
+            try { __plansAbortController.abort(); } catch (e) {}
         }
         __plansAbortController = null;
 
-        __fetchingPlans = false;
-        __plansReqId++;
+       __fetchingPlans = false;
+       __plansReqId++;
 
-
-        __payLock = false;
-        $('#nextBtn').prop('disabled', false);
-
-        stepIndex--;
+   
+       __payLock = false;
+       $('#nextBtn').prop('disabled', false);
+       if (stepIndex > 0) stepIndex--;
         loadStep();
     });
+
 
     function loader(text) {
         return `
