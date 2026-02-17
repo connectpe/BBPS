@@ -130,7 +130,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
             <div class="card-body">
                 <i class="bi bi-check-circle-fill fs-4 text-success mb-2"></i>
                 <h6 class="card-title mb-1">Completed Transaction</h6>
-                <p class="card-text fs-6 fw-bold">{{ number_format(2345) }}</p>
+                <p class="card-text fs-6 fw-bold">{{ number_format($completedTxn) }}</p>
             </div>
         </div>
     </div>
@@ -139,9 +139,9 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
     <div class="col-md-3">
         <div class="card shadow-lg text-center p-3 card-hover">
             <div class="card-body">
-                <i class="bi bi-currency-dollar fs-4 text-primary mb-2"></i>
+                <i class="bi bi-currency-rupee fs-4 text-primary mb-2"></i>
                 <h6 class="card-title mb-1">Total Spent</h6>
-                <p class="card-text fs-6 fw-bold">{{ number_format(1245) }}</p>
+                <p class="card-text fs-6 fw-bold">{{ number_format($totalSpent,2) }}</p>
             </div>
         </div>
     </div>
@@ -152,7 +152,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
             <div class="card-body">
                 <i class="bi bi-wallet2 fs-4 text-warning mb-2"></i>
                 <h6 class="card-title mb-1">Wallet Balance</h6>
-                <p class="card-text fs-6 fw-bold">{{ number_format(4567) }}</p>
+                <p class="card-text fs-6 fw-bold">{{ number_format($businessWallet,2) }}</p>
 
             </div>
         </div>
@@ -165,7 +165,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
             <div class="card-body">
                 <i class="bi bi-calendar-check fs-4 text-info mb-2"></i>
                 <h6 class="card-title mb-1">Member Since</h6>
-                <p class="card-text fs-6 fw-bold">{{ 2012 }}</p>
+                <p class="card-text fs-6 fw-bold">{{ $userdata->created_at ? \Carbon\Carbon::parse($userdata->created_at)->format('Y')  : ''}}</p>
             </div>
         </div>
     </div>
@@ -419,7 +419,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
     <div class="col-md-3">
         <div class="card shadow-lg text-center p-3 card-hover">
             <div class="card-body">
-                <i class="bi bi-currency-dollar fs-4 text-primary mb-2"></i>
+                <i class="bi bi-currency-rupee fs-4 text-primary mb-2"></i>
                 <h6 class="card-title mb-1">Total Spent</h6>
                 <p class="card-text fs-6 fw-bold">₹ {{ number_format($totalSpent, 2) }}</p>
             </div>
@@ -524,20 +524,20 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                     <div class="col-md-8">{{ $user->mobile }}</div>
                 </div>
                 <div class="row mb-2">
-                    <div class="col-md-4 fw-semibold">Date of Birth:</div>
-                    <div class="col-md-8">01-Jan-1990</div>
+                    <div class="col-md-4 fw-semibold">Organization Name</div>
+                    <div class="col-md-8">{{ $user->business?->business_name ?? '----' }}</div>
                 </div>
-                <div class="row mb-2">
+                {{-- <div class="row mb-2">
                     <div class="col-md-4 fw-semibold">Gender:</div>
                     <div class="col-md-8">Male</div>
-                </div>
+                </div> --}}
                 <div class="row mb-2">
                     <div class="col-md-4 fw-semibold">City:</div>
-                    <div class="col-md-8">New York, USA</div>
+                    <div class="col-md-8">{{ $user->business?->city ?? '----' }}</div>
                 </div>
                 <div class="row mb-2">
                     <div class="col-md-4 fw-semibold">Address:</div>
-                    <div class="col-md-8">123 Main Street, NY 10001</div>
+                    <div class="col-md-8">{{ $user->business?->address ?? '----' }}</div>
                 </div>
             </div>
 
