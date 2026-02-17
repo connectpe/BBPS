@@ -7,13 +7,46 @@
 <div class="row align-items-center mb-2">
     <div class="col-auto ms-auto">
         <button type="button" class="btn buttonColor text-nowrap" data-bs-toggle="modal" data-bs-target="#providerModal">
-            <i class="bi bi-plus fs-6 me-1"></i> Provider
+            <i class="fa fa-plus"></i> Provider
         </button>
     </div>
 </div>
 @endsection
 
 @section('content')
+
+<div class="accordion mb-3" id="filterAccordion">
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapseFilter">
+                Filter
+            </button>
+        </h2>
+
+        <div id="collapseFilter" class="accordion-collapse collapse">
+            <div class="accordion-body">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label for="filterService" class="form-label">Service</label>
+                        <select name="filterService" id="filterService" class="form-control form-select2">
+                            <option value="">--Select Service--</option>
+                            @foreach($globalServices as $value)
+                            <option value="{{$value->id}}">{{$value->service_name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-md-3 d-flex gap-2">
+                        <button type="button" class="btn buttonColor" id="applyFilter">Filter</button>
+                        <button type="button" class="btn btn-secondary" id="resetFilter">Reset</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="col-12 col-md-10 col-lg-12">
     <div class="card shadow-sm">
 
@@ -89,6 +122,7 @@
                 type: 'POST',
                 data: function(d) {
                     d._token = $('meta[name="csrf-token"]').attr('content');
+                    d.service_id = $("#filterService").val()
                 }
             },
             pageLength: 10,
@@ -158,16 +192,14 @@
             ]
         });
 
-        // $('#applyFilterproviderTable').on('click', function() {
-        //     table.ajax.reload();
-        // });
+        $('#applyFilter').on('click', function() {
+            table.ajax.reload();
+        });
 
-        // $('#resetFilterproviderTable').on('click', function() {
-        //     $('#filterName').val('');
-        //     $('#filterEmail').val('');
-        //     $('#filterStatus').val('');
-        //     table.ajax.reload();
-        // });
+        $('#resetFilter').on('click', function() {
+            $('#filterService').val('').trigger('change');
+            table.ajax.reload();
+        });
     });
 
 

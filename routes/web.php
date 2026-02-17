@@ -54,7 +54,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/add-s-member', [AdminController::class, 'addSupportMember'])->name('add.support.member');
         Route::get('/get-s-member/{id}', [AdminController::class, 'getSupportMember'])->name('get.support.member');
         Route::post('/edit-s-member/{user_id}', [AdminController::class, 'editSupportMember'])->name('edit.support.member');
-
+        Route::get('support-based-user-list/{id}',[AdminController::class,'supportBasedUserList'])->name('support_based_user_list');
 
         // category routes
         Route::get('/categories', [AdminController::class, 'category'])->name('categories.index');

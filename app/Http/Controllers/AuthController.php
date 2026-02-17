@@ -202,6 +202,15 @@ class AuthController extends Controller
             ], 404);
         }
 
+
+        if ($user->status != '1') {
+            $message =   $this->checkUserStatus($user->status);
+            return response()->json([
+                'status' => false,
+                'message' => $message
+            ]);
+        }
+
         if (empty($user->email_verified_at)) {
 
             $otp = rand(1000, 9999);
@@ -213,7 +222,7 @@ class AuthController extends Controller
                     'otp' => $otp,
                     'subject' => 'Email Verification'
                 ]);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 return response()->json([
                     'status' => false,
                     'message' => $e->getMessage()
@@ -282,7 +291,7 @@ class AuthController extends Controller
                     'message' => 'Your Account is temporary Terminated by the admin'
                 ]);
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => 'some error occur',
@@ -304,7 +313,7 @@ class AuthController extends Controller
 
     public function passwordReset(Request $request)
     {
-      
+
         try {
             $request->validate([
                 'current_password' => ['required'],
@@ -339,5 +348,20 @@ class AuthController extends Controller
                 'message' => 'Something went wrong.' . $e->getMessage(),
             ], 500);
         }
+    }
+
+
+    protected function checkUserStatus($status)
+    {
+
+        $message = match ($status) {
+            '0' => 'Your account has been Initiated.',
+            '2' => 'Your account is Inactive.',
+            '3' => 'Your account is Pending approval.',
+            '4' => 'Your account has been Suspended.',
+            default => 'Unauthorized Access.',
+        };
+
+        return $message;
     }
 }

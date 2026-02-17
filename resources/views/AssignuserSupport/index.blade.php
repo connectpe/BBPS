@@ -2,9 +2,17 @@
 
 @section('title', 'Support Assignment')
 @section('page-title', 'Support')
+@section('page-button')
+<div class="row align-items-center mb-2">
+    <div class="col-auto ms-auto">
+        <button class="btn buttonColor btn-sm px-4 shadow-sm" id="btnAddNew">
+            <i class="fas fa-plus me-1"></i> Assign Support
+        </button>
+    </div>
+</div>
+@endsection
 
 @section('content')
-<div class="container-fluid py-4">
     <div class="row">
         <div class="col-12">
             <div class="accordion mb-3" id="filterAccordion">
@@ -54,9 +62,6 @@
     <div class="card shadow-sm mb-5">
         <div class="card-header d-flex justify-content-between align-items-center bg-white py-3">
             <h5 class="mb-0 text-dark font-weight-bold">User Assigned to Support</h5>
-            <button class="btn buttonColor btn-sm px-4 shadow-sm" id="btnAddNew">
-                <i class="fas fa-plus me-1"></i> Assign Support
-            </button>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -75,7 +80,6 @@
             </div>
         </div>
     </div>
-</div>
 
 <div class="modal fade" id="assignSupportModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-md">
@@ -309,7 +313,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-                        url: "{{ route('delete_support_assignment',['id' => ':id']) }}".replace(':id',id) ,
+                        url: "{{ route('delete_support_assignment',['id' => ':id']) }}".replace(':id', id),
                         type: "DELETE",
                         data: {
                             _token: "{{ csrf_token() }}"

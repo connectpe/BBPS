@@ -46,7 +46,7 @@ class AdminController extends Controller
             //     ->select('id', 'slug', 'service_name')
             //     ->get();
 
-            $data['userdata'] = User::where('id', $userId)->select('name', 'email', 'mobile', 'status', 'role_id', 'profile_image', 'transaction_amount','created_at')->first();
+            $data['userdata'] = User::where('id', $userId)->select('name', 'email', 'mobile', 'status', 'role_id', 'profile_image', 'transaction_amount', 'created_at')->first();
             $data['businessInfo'] = BusinessInfo::where('user_id', $userId)->first();
             $data['businessCategory'] = BusinessCategory::where('status', 1)->orderBy('id', 'desc')->get();
             $data['supportRepresentative'] = UserAssignedToSupport::where('user_id', $userId)->with('assigned_support')->first();
@@ -55,11 +55,19 @@ class AdminController extends Controller
             $data['UserServices'] = UserService::where('user_id', $userId)->where('status', 'approved')->where('is_active', '1')->get();
             $data['webhookUrl'] = WebHookUrl::where('user_id', $userId)->first();
             $data['txnStats'] = Transaction::where('user_id', $userId)->where('status', 'processed')
-            ->selectRaw('COUNT(id) as total_count, SUM(amount) as total_amount, MIN(created_at) as first_txn_date')
-            ->first();
+                ->selectRaw('COUNT(id) as total_count, SUM(amount) as total_amount, MIN(created_at) as first_txn_date')
+                ->first();
+
+            if (in_array($role, [1])) {
+                $data['txnStats'] = Transaction::where('status', 'processed')
+                    ->selectRaw('COUNT(id) as total_count, SUM(amount) as total_amount, MIN(created_at) as first_txn_date')
+                    ->first();
+            }
+           
             $data['walletBalance'] = $data['userdata']->transaction_amount ?? 0;
             $data['completedTxn']  = $data['txnStats']->total_count ?? 0;
             $data['totalSpent']    = $data['txnStats']->total_amount ?? 0;
+
 
             return view('Admin.profile')->with($data);
         } catch (\Exception $e) {
@@ -95,11 +103,16 @@ class AdminController extends Controller
     {
         $role = Auth::user()->role_id;
         switch ($role) {
-        case 1: return redirect()->route('admin.dashboard');
-        case 2: return redirect()->route('user.dashboard');
-        case 3: return redirect()->route('api.dashboard');
-        case 4: return redirect()->route('support.dashboard');
-        default: return redirect()->route('unauthrized.page');
+            case 1:
+                return redirect()->route('admin.dashboard');
+            case 2:
+                return redirect()->route('user.dashboard');
+            case 3:
+                return redirect()->route('api.dashboard');
+            case 4:
+                return redirect()->route('support.dashboard');
+            default:
+                return redirect()->route('unauthrized.page');
         }
     }
 
@@ -1524,5 +1537,17 @@ class AdminController extends Controller
         $users = User::where('role_id', '!=', '1')->whereHas('nsdlPayments')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
         $globalServices = GlobalService::where('is_active', '1')->orderBy('id', 'desc')->get();
         return view('Transaction.nsdl-payment', compact('users', 'globalServices'));
+    }
+
+    public function supportBasedUserList($Id)
+    {
+        $support = User::find($Id);
+        if (!$support) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Support User not found'
+            ]);
+        }
+        return view('AssignuserSupport.support-based-user-list', compact('support'));
     }
 }
