@@ -13,7 +13,7 @@ class ViewServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
-        View::composer('layouts.header', function ($view) {
+        View::composer(['layouts.header', 'Admin.profile'], function ($view) {
 
             $services = GlobalService::where('is_active', '1')->get();
 
@@ -44,7 +44,6 @@ class ViewServiceProvider extends ServiceProvider
                             ->value('transaction_amount') ?? 0;
                     }
                 }
-
             }
 
             $view->with(compact('services', 'requestedServices', 'businessWallet'));
