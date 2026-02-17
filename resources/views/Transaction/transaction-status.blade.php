@@ -140,9 +140,7 @@
                     if (response.success && response.data.length > 0) {
 
                         let rows = "";
-                        alert('hello');
                         response.data.forEach(txn => {
-                            alert(txn.status);
                             let statusClass = "text-warning";
                             if (txn.status?.toLowerCase() === "processed") {
                                 statusClass = "text-success";

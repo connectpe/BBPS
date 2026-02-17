@@ -242,20 +242,24 @@
             data: formData,
             processData: false,
             contentType: false,
+
             success: function(res) {
-                form.reset();
+
                 Swal.fire({
                     icon: 'success',
                     title: 'Success',
                     text: res.message || 'Complaint registered successfully!',
-                    timer: 2000,
-                    showConfirmButton: false
+                    confirmButtonText: 'OK',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.reset();
+                        location.reload();
+                    }
                 });
-
-                setTimeout(() => {
-                    location.reload();
-                }, 2000);
             },
+
             error: function(xhr) {
                 let title = 'Error';
                 let message = 'Something went wrong!';
@@ -275,17 +279,19 @@
                     icon: 'error',
                     title: title,
                     html: message,
-                    timer: 2000,
-                    showConfirmButton: true
+                    confirmButtonText: 'OK',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        location.reload();
+                    }
                 });
-
-                setTimeout(() => {
-                    location.reload();
-                }, 3000);
             }
         });
     });
 </script>
+
 
 
 <!-- DataTable  -->
@@ -397,15 +403,18 @@
                 {
                     data: 'attachment_file',
                     render: function(data, type) {
+
                         if (type !== 'display' || !data) {
                             return '----';
                         }
-                        const src = "{{ asset('storage/') }}/" + data;
+
+                        const src = "{{ url('/') }}/storage/" + data;
+
                         return `
-                            <i class="fas fa-eye cursor-pointer"
-                            onclick="showImage('${src}', 'Attachment File')">
-                            </i>
-                        `;
+                        <i class="fas fa-eye cursor-pointer"
+                        onclick="showImage('${src}', 'Attachment File')">
+                        </i>
+                `;
                     }
                 },
                 {
