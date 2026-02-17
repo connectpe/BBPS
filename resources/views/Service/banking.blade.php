@@ -44,14 +44,10 @@
 
     <div class="col-md-12">
         <div class="card shadow-sm h-100">
-            <div class="card-body position-relative">
+            <img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}" alt="" class="position-absolute top-0 end-0 m-2" style="width: 70px;">
+            <div class="card-body position-relativev mt-lg-1 mt-5">
 
                 <!-- Top-right image -->
-                <img
-                    src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}"
-                    alt=""
-                    class="position-absolute top-0 end-0 m-3"
-                    style="width: 70px;">
 
                 <div class="row g-3">
                     @foreach($services as $service)

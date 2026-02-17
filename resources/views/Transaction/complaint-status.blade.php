@@ -9,10 +9,10 @@
     <div class="row g-4">
 
         <!-- Search Form -->
-        <div class="col-12">
+        <div class="col-12 px-0">
             <div class="card border shadow-sm">
                 <div class="card-header position-relative">
-                    <h5 class="mb-0">Check Complaint Status</h5>
+                    <h5 class="mb-0">Check Status</h5>
                     <img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}" alt="logo" style="position:absolute; top:3px; right:10px; width:60px; height:auto;">
                 </div>
 
@@ -23,7 +23,7 @@
                         <div class="row g-3 align-items-end">
 
                             {{-- ONLY Reference No --}}
-                            <div class="col-6 col-md-6">
+                            <div class="col-lg-6 col-md-6 col-sm-12">
                                 <label class="form-label">Complaint Ticket No</label>
                                 <input type="text"
                                     id="ticket_number"
