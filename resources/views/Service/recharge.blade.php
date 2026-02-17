@@ -466,7 +466,7 @@ $rechargePlanTypes = [
     document.getElementById("confirmRechargeBtn").addEventListener("click", function (event) {
         clickCount++;
 
-        if (clickCount >= 3) {
+        if (clickCount >= 4) {
             this.disabled = true;
             this.innerText = "Limit Exceeded";
             Swal.fire({
