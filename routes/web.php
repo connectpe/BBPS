@@ -205,7 +205,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'api-partner'], function () 
 
 //     Route::get('reports/{type}', [ReportController::class, 'index'])->name('reseller.reports');
 
-    Route::get('ledger-reports', [LadgerController::class, 'reports'])->name('reseller_reports');
+    // Route::get('ledger-reports', [LadgerController::class, 'reports'])->name('reseller_reports');
 
 });
 
