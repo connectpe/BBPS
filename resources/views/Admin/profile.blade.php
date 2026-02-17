@@ -524,20 +524,20 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                     <div class="col-md-8">{{ $user->mobile }}</div>
                 </div>
                 <div class="row mb-2">
-                    <div class="col-md-4 fw-semibold">Date of Birth:</div>
-                    <div class="col-md-8">01-Jan-1990</div>
+                    <div class="col-md-4 fw-semibold">Organization Name</div>
+                    <div class="col-md-8">{{ $user->business?->business_name ?? '----' }}</div>
                 </div>
-                <div class="row mb-2">
+                {{-- <div class="row mb-2">
                     <div class="col-md-4 fw-semibold">Gender:</div>
                     <div class="col-md-8">Male</div>
-                </div>
+                </div> --}}
                 <div class="row mb-2">
                     <div class="col-md-4 fw-semibold">City:</div>
-                    <div class="col-md-8">New York, USA</div>
+                    <div class="col-md-8">{{ $user->business?->city ?? '----' }}</div>
                 </div>
                 <div class="row mb-2">
                     <div class="col-md-4 fw-semibold">Address:</div>
-                    <div class="col-md-8">123 Main Street, NY 10001</div>
+                    <div class="col-md-8">{{ $user->business?->address ?? '----' }}</div>
                 </div>
             </div>
 
