@@ -8,7 +8,7 @@ class DefaultProvider extends Model
 {
     protected $fillable = ['service_id', 'provider_id', 'provider_slug', 'updated_by'];
 
-
+    protected $table = 'default_providers';
     public function service()
     {
         return $this->belongsTo(GlobalService::class, 'service_id');

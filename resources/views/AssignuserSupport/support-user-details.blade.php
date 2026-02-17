@@ -137,7 +137,7 @@
                 {
                     data: null,
                     render: function(data, type, row) {
-                        let url = "{{ route('support_based_user_list', ['id' => 'id']) }}".replace('id', row.id);
+                        let url = "{{ route('support_based_user_list', ['id' => ':id']) }}".replace(':id', row.id);
                         const userName = row?.name;
                         return `
                                 <a href="${url}" class="text-primary fw-semibold text-decoration-none">
