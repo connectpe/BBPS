@@ -308,7 +308,7 @@
 
             <img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}" alt="logo" style="position:absolute; top:10px; right:10px; width:70px; height:auto;">
 
-            <div class="card-body">
+            <div class="card-body mt-lg-1 mt-5">
                 <div class="row g-3">
                     @foreach ($services as $service)
                     @php $randColor = $colors[array_rand($colors)]; @endphp
@@ -359,7 +359,7 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary d-none" id="backBtn">Back</button>
 
-                        {{-- ✅ keep as button (no form submit auto) --}}
+                        {{-- keep as button (no form submit auto) --}}
                         <button type="button" class="btn btn-primary" id="nextBtn">View Plans</button>
                     </div>
                 </form>
@@ -398,7 +398,8 @@
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" onclick="var e=this;setTimeout(function(){e.disabled=true;},0);return true;" class="btn btn-primary">Confirm Recharge</button>
+                    {{-- <button type="submit" onclick="var e=this;setTimeout(function(){e.disabled=true;},0);return true;" class="btn btn-primary">Confirm Recharge</button> --}}
+                    <button type="submit" id="confirmRechargeBtn" class="btn btn-primary">Confirm Recharge</button>
                 </div>
             </form>
         </div>
@@ -454,6 +455,32 @@ $rechargePlanTypes = [
 ['name' => 'Roaming', 'code' => 'ROAMING', 'plan_id' => 6],
 ];
 @endphp
+
+
+
+
+
+<script>
+    let clickCount = 0;
+
+    document.getElementById("confirmRechargeBtn").addEventListener("click", function (event) {
+        clickCount++;
+
+        if (clickCount >= 4) {
+            this.disabled = true;
+            this.innerText = "Limit Exceeded";
+            Swal.fire({
+                icon: 'error',
+                title: 'Limit Exceeded',
+                text: 'You have attempted too many times. Please try again later.',
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'OK'
+            });
+            // event.preventDefault(); 
+        }
+    });
+</script>
+
 
 <script>
     function buildOperatorDropdown() {

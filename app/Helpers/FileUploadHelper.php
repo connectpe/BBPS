@@ -69,11 +69,14 @@ class FileUploadHelper
        
         if (is_array($files)) {
             return array_map(function ($file) {
-                return asset('storage/app/public' . ltrim($file, '/'));
+
+                return asset('storage/app/public/' . ltrim($file, '/'));
+
             }, $files);
         }
 
        
-        return asset('storage/app/public' . ltrim($files, '/'));
+        return asset('storage/app/public/' . ltrim($files, '/'));
+
     }
 }

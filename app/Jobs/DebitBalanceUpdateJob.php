@@ -71,7 +71,7 @@ class DebitBalanceUpdateJob implements ShouldQueue
                 return;
             }
 
-            $userService = UserService::where(['user_id', $this->payload['userid'],'service_id'=>$this->payload['serviceId']])->first();
+            $userService = UserService::where(['user_id', $this->payload['userid'],'service_id'=>$this->payload['serviceId'],'is_active'=>'1'])->first();
             if (!$userService) {
                 throw new \Exception('User service is not enable right now');
             }
@@ -82,7 +82,7 @@ class DebitBalanceUpdateJob implements ShouldQueue
                 [
                     $this->payload['userid'],
                     $this->payload['amt'],
-                    $userService->service_id,
+                    $this->payload['serviceId'],
                     false
                 ]
             );

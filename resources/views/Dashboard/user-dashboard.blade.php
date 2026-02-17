@@ -77,7 +77,7 @@
                 <div></div>
 
                 <!-- Heading -->
-                <h5 class="fw-bold mb-4 text-center">Welcome <strong class="text-success">{{$user->name}}</strong></h5>
+                <h5 class="fw-bold mb-4 text-center">Welcome <strong style="color:rgb(124 255 241)">{{$user->name}}</strong></h5>
 
                 <!-- User Profile Image -->
                 <img src="{{asset('assets\image\user.jpg')}}" alt="User Profile"

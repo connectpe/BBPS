@@ -57,9 +57,17 @@ class AdminController extends Controller
             $data['txnStats'] = Transaction::where('user_id', $userId)->where('status', 'processed')
                 ->selectRaw('COUNT(id) as total_count, SUM(amount) as total_amount, MIN(created_at) as first_txn_date')
                 ->first();
+
+            if (in_array($role, [1])) {
+                $data['txnStats'] = Transaction::where('status', 'processed')
+                    ->selectRaw('COUNT(id) as total_count, SUM(amount) as total_amount, MIN(created_at) as first_txn_date')
+                    ->first();
+            }
+           
             $data['walletBalance'] = $data['userdata']->transaction_amount ?? 0;
             $data['completedTxn']  = $data['txnStats']->total_count ?? 0;
             $data['totalSpent']    = $data['txnStats']->total_amount ?? 0;
+
 
             return view('Admin.profile')->with($data);
         } catch (\Exception $e) {

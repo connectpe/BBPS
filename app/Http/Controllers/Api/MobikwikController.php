@@ -12,6 +12,8 @@ use App\Models\Transaction;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use App\Models\UserRooting;
+use App\Models\DefaultProvider;
 
 class MobikwikController extends Controller
 {
@@ -477,6 +479,12 @@ class MobikwikController extends Controller
             case 'mobikwik-payment':
                 try {
                     $connectPeId = CommonHelper::generateConnectPeTransactionId();
+                    $defaultSlugData = DefaultProvider::select('provider_slug')->where('service_id',$serviceId)->first();
+                    if(empty($defaultSlugData)){
+                        $defaultSlugData = UserRooting::select('provider_slug')->where(['user_id'=>$userId,'service_id'=> $serviceId])->first();
+                    }
+
+                    $slug = $defaultSlugData->provider_slug;
                     $payload = [
                         "cn" => $request->customerNUmber,
                         "op" => $request->operator,
@@ -493,9 +501,9 @@ class MobikwikController extends Controller
                         "call"               => 'balance_debit',
                         'user_id'            => $userId,
                         "serviceId"         => $serviceId,
+                        'slug'              => $slug,
                     ];
 
-                    
 
                     Transaction::create([
                         'user_id'               => $userId,
