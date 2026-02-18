@@ -99,7 +99,7 @@
 
 
 
-                    <div class="col-md-3 d-flex gap-2">
+                    <div class="col-md-12 d-flex gap-2 justify-content-center">
                         <button class="btn buttonColor " id="applyFilterServicesTable"> Filter</button>
                         <button class="btn btn-secondary" id="resetFilterServicesTable">Reset</button>
                     </div>

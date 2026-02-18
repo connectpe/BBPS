@@ -43,7 +43,7 @@
                         <label for="filterDateTo" class="form-label">To Date</label>
                         <input type="date" class="form-control" id="filterDateTo">
                     </div>
-                    <div class="col-md-3 d-flex gap-2">
+                    <div class="col-12 d-flex gap-2 justify-content-center">
                         <!-- Buttons aligned with input fields -->
                         <button class="btn buttonColor " id="applyFilter"> Filter</button>
 
