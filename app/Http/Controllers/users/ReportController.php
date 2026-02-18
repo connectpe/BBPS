@@ -32,7 +32,7 @@ class ReportController extends Controller
                 abort(404);
         }
 
-        $users = User::where('role_id', '!=', '1')->where('role_id', '!=', '4')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
+        $users = User::select('id', 'name', 'email')->where('role_id', '!=', '1')->where('role_id', '!=', '4')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
 
         return view($view, [
             'page_title' => $pageTitle,

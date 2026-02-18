@@ -10,10 +10,10 @@
     <div class="row g-4">
 
         <!-- Search Form -->
-        <div class="col-12">
+        <div class="col-12 px-0">
             <div class="card border shadow-sm">
                 <div class="card-header position-relative">
-                    <h5 class="mb-0">Check Transactions Status</h5>
+                    <h5 class="mb-0 t-status">Check Status</h5>
                     <img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}" alt="logo" style="position:absolute; top:3px; right:10px; width:60px; height:auto;">
                 </div>
 
@@ -140,9 +140,7 @@
                     if (response.success && response.data.length > 0) {
 
                         let rows = "";
-                        alert('hello');
                         response.data.forEach(txn => {
-                            alert(txn.status);
                             let statusClass = "text-warning";
                             if (txn.status?.toLowerCase() === "processed") {
                                 statusClass = "text-success";

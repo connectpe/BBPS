@@ -28,12 +28,13 @@ class UserController extends Controller
 {
     public function bbpsUsers()
     {
-        $users = User::where('role_id', '!=', '1')->where('role_id', '!=', '4')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
+        $users = User::select('id', 'name', 'email')->where('role_id', '!=', '1')->where('role_id', '!=', '4')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
 
         return view('Users.users', compact('users'));
     }
 
-    public function dashboard(){
+    public function dashboard()
+    {
         return view('Dashboard.user-dashboard');
     }
 
@@ -448,7 +449,7 @@ class UserController extends Controller
     public function viewSingleUsers($Id)
     {
         try {
-            
+
             if (!auth()->check() || (!in_array(auth()->user()->role_id, [1, 4]))) {
                 return response()->json([
                     'status' => false,
@@ -459,7 +460,7 @@ class UserController extends Controller
             CommonHelper::checkAuthUser();
             $userId = $Id;
 
-          
+
 
             $data['userData'] = User::where('id', $userId)
                 ->select('id', 'name', 'email', 'mobile', 'status', 'role_id')
@@ -583,7 +584,7 @@ class UserController extends Controller
     public function ApiLog()
     {
 
-        $users = User::where('role_id', '!=', '1')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
+        $users = User::select('id', 'name', 'email')->where('role_id', '!=', '1')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
 
         return view('Users.api-log', compact('users'));
     }

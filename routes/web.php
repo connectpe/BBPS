@@ -54,7 +54,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/add-s-member', [AdminController::class, 'addSupportMember'])->name('add.support.member');
         Route::get('/get-s-member/{id}', [AdminController::class, 'getSupportMember'])->name('get.support.member');
         Route::post('/edit-s-member/{user_id}', [AdminController::class, 'editSupportMember'])->name('edit.support.member');
-        Route::get('support-based-user-list/{id}',[AdminController::class,'supportBasedUserList'])->name('support_based_user_list');
+        Route::get('support-based-user-list/{id}', [AdminController::class, 'supportBasedUserList'])->name('support_based_user_list');
 
         // category routes
         Route::get('/categories', [AdminController::class, 'category'])->name('categories.index');
@@ -156,9 +156,10 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
     Route::post('/transaction-status-check', [TransactionController::class, 'transactionStatusCheck'])->name('transaction_status_check');
 
 
+
     // reseller routes
-    Route::get('reports', [LadgerController::class, 'reports'])->name('reseller_reports');
-    Route::get('services', [ServiceRequestController::class, 'enabledServices'])->name('enabled_services');
+    // Route::get('reports', [LadgerController::class, 'reports'])->name('reseller_reports');
+    // Route::get('services', [ServiceRequestController::class, 'enabledServices'])->name('enabled_services');
 
     Route::post('generate/client-credentials', [UserController::class, 'generateClientCredentials'])->name('generate_client_credentials');
 });
@@ -185,18 +186,25 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/transaction-report', [TransactionController::class, 'transaction_Report'])->name('transaction.report');
     Route::get('recharge/invoice/{id}', [TransactionController::class, 'downloadInvoice'])
         ->name('recharge.invoice.download');
+    Route::get('reports/{type}', [ReportController::class, 'index'])->name('reseller.reports'); //
+    Route::get('services', [ServiceRequestController::class, 'enabledServices'])->name('enabled_services');
 
 
     Route::get('unauthrized', function () {
         return view('errors.401');
     })->name('unauthrized.page');
+
+    // reseller routes
+    Route::get('reports', [LadgerController::class, 'reports'])->name('reseller_reports');
+    Route::get('services', [ServiceRequestController::class, 'enabledServices'])->name('enabled_services');
 });
 
 
-Route::group(['middleware' => ['auth', 'isReseller'], 'prefix' => 'api-partner'], function () {
+Route::group(['middleware' => ['auth'], 'prefix' => 'api-partner'], function () {
     Route::get('/dashboard', [HomeController::class, 'apiPartner'])->name('api.dashboard');
-    Route::get('reports/{type}', [ReportController::class, 'index'])->name('reseller.reports'); //
-    Route::get('services', [ServiceRequestController::class, 'enabledServices'])->name('enabled_services');
+
+    //     Route::get('reports/{type}', [ReportController::class, 'index'])->name('reseller.reports');
+
     Route::get('ledger-reports', [LadgerController::class, 'reports'])->name('reseller_reports');
 });
 
@@ -204,7 +212,6 @@ Route::group(['middleware' => ['auth', 'isReseller'], 'prefix' => 'api-partner']
 Route::group(['middleware' => ['auth', 'isSupport'], 'prefix' => 'support'], function () {
     Route::get('/dashboard', [HomeController::class, 'supportdashboard'])->name('support.dashboard');
 });
-
 
 
 Route::prefix('admin', function () {

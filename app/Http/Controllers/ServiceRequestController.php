@@ -26,8 +26,8 @@ class ServiceRequestController extends Controller
         //     ->latest()
         //     ->get();
 
-        $users = User::where('role_id', '!=', '1')->where('role_id', '!=', '4')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
-        $globalServices = GlobalService::where('is_active', '1')->orderBy('id', 'desc')->get();
+        $users = User::select('id','name','email')->where('role_id', '!=', '1')->where('role_id', '!=', '4')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
+        $globalServices = GlobalService::select('id','service_name')->where('is_active', '1')->orderBy('id', 'desc')->get();
 
         return view('Service.request-services', compact('users', 'globalServices'));
     }
