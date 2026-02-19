@@ -25,7 +25,7 @@
                         <th>Email</th>
                         <th>Mobile</th>
                         <th>Created At</th>
-                        <th>ACtion</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody></tbody>

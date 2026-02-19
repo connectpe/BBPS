@@ -186,7 +186,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/transaction-report', [TransactionController::class, 'transaction_Report'])->name('transaction.report');
     Route::get('recharge/invoice/{id}', [TransactionController::class, 'downloadInvoice'])
         ->name('recharge.invoice.download');
-         Route::get('reports/{type}', [ReportController::class, 'index'])->name('reseller.reports'); //
     Route::get('services', [ServiceRequestController::class, 'enabledServices'])->name('enabled_services');
 
 
