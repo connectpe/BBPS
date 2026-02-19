@@ -107,6 +107,11 @@ class DebitBalanceUpdateJob implements ShouldQueue
                 'remark'           => 'Recharge debit',
             ]);
 
+            $transaction->cron_status = '1';
+            $transation->status = 'processing';
+
+            $transaction->save();
+
             dispatch(
                 new MobikwikPaymentApiCallJob(
                     $this->endpoint,
@@ -131,6 +136,7 @@ class DebitBalanceUpdateJob implements ShouldQueue
                 'user_id'    => $this->payload['userid'],
                 'request_id' => $this->payload['reqid'],
                 'status'     => 'processing',
+                'cron_status' => '1'
             ])->lockForUpdate()->first();
 
             if (!$transaction) {

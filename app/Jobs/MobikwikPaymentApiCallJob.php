@@ -81,6 +81,8 @@ class MobikwikPaymentApiCallJob implements ShouldQueue
            
             $transaction = Transaction::where('user_id', $this->payload['userid'])
                 ->where('request_id', $this->payload['reqid'])
+                ->where('status','processing')
+                ->where('cron_status','1')
                 ->lockForUpdate()
                 ->first();
 
