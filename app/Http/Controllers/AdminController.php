@@ -64,6 +64,7 @@ class AdminController extends Controller
                     ->first();
             }
 
+
             $data['walletBalance'] = $data['userdata']->transaction_amount ?? 0;
             $data['completedTxn'] = $data['txnStats']->total_count ?? 0;
             $data['totalSpent'] = $data['txnStats']->total_amount ?? 0;
@@ -345,8 +346,14 @@ class AdminController extends Controller
 
     public function providers()
     {
-        $globalServices = GlobalService::where('is_active', '1')->select('id', 'service_name')->orderBy('id', 'desc')->get();
-
+        try {
+            $globalServices = GlobalService::select('id', 'service_name')->where('is_active', '1')->select('id', 'service_name')->orderBy('id', 'desc')->get();
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Error : ' . $e->getMessage()
+            ]);
+        }
         return view('Provider.providers', compact('globalServices'));
     }
 

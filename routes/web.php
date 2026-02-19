@@ -195,7 +195,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     // reseller routes
     Route::get('reports', [LadgerController::class, 'reports'])->name('reseller_reports');
-    Route::get('services', [ServiceRequestController::class, 'enabledServices'])->name('enabled_services');
+    
 });
 
 

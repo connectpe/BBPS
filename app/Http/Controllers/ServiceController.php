@@ -31,11 +31,19 @@ class ServiceController extends Controller
 
     public function ourService()
     {
-        $globalServices = GlobalService::where('is_active', '1')->orderBy('id', 'desc')->get();
-        $users = User::whereNotIN('role_id', ['1', '4'])->where('status', '!=', '0')->orderBy('id', 'desc')->get();
-        return view('Service.our-service', compact('users', 'globalServices'));
+        DB::beginTransaction();
+        try {
+            $globalServices = GlobalService::select('id', 'service_name')->where('is_active', '1')->orderBy('id', 'desc')->get();
+            $users = User::select('id', 'name', 'email')->whereNotIN('role_id', ['1', '4'])->where('status', '!=', '0')->orderBy('id', 'desc')->get();
+            DB::commit();
+            return view('Service.our-service', compact('users', 'globalServices'));
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Error : ' . $e->getMessage()
+            ]);
+        }
     }
-
 
     public function activeUserService(Request $request)
     {
