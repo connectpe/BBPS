@@ -91,7 +91,7 @@ class AuthController extends Controller
                     'name' => $request->name,
                     'email' => $request->email,
                     'otp' => $otp,
-                    'subject' => 'Email Verification'
+                    'subject' => 'Email Verification for Dashboard Login '
                 ]);
             } catch (Exception $e) {
                 return response()->json([
@@ -220,7 +220,7 @@ class AuthController extends Controller
                     'name' => $user->name,
                     'email' => $user->email,
                     'otp' => $otp,
-                    'subject' => 'Email Verification'
+                    'subject' => 'Email Verification for Dashboard Login'
                 ]);
             } catch (\Exception $e) {
                 return response()->json([
