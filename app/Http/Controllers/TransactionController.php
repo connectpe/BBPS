@@ -28,63 +28,83 @@ class TransactionController extends Controller
             'to_date' => 'nullable|date',
         ]);
 
-        $query = Transaction::query();
+        DB::beginTransaction();
+        try {
 
-        // If txn_id provided → exact match
-        if ($request->txn_id) {
-            $query->where('payment_ref_id', $request->txn_id);
-        }
+            $query = Transaction::query();
 
-        // If mobile provided
-        if ($request->mobile) {
-            $query->where('mobile_number', $request->mobile);
-        }
+            // If txn_id provided → exact match
+            if ($request->txn_id) {
+                $query->where('payment_ref_id', $request->txn_id);
+            }
 
-        // Date range filter
-        if ($request->from_date && $request->to_date) {
-            $query->whereBetween('created_at', [
-                $request->from_date . ' 00:00:00',
-                $request->to_date . ' 23:59:59'
-            ]);
-        }
+            // If mobile provided
+            if ($request->mobile) {
+                $query->where('mobile_number', $request->mobile);
+            }
 
-        $transactions = $query->get();
+            // Date range filter
+            if ($request->from_date && $request->to_date) {
+                $query->whereBetween('created_at', [
+                    $request->from_date . ' 00:00:00',
+                    $request->to_date . ' 23:59:59'
+                ]);
+            }
 
-        if ($transactions->isEmpty()) {
+            $transactions = $query->get();
+
+            if ($transactions->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No record found'
+                ]);
+            }
+            DB::commit();
             return response()->json([
-                'success' => false,
-                'message' => 'No record found'
+                'success' => true,
+                'data' => $transactions->map(function ($txn) {
+                    return [
+                        'amount' => $txn->amount,
+                        'status' => $txn->status,
+                        'reference_number' => $txn->reference_number,
+                        'request_id' => $txn->request_id,
+                        'mobile_number' => $txn->mobile_number,
+                        'payment_ref_id' => $txn->payment_ref_id,
+                        'connectpe_id' => $txn->connectpe_id,
+                        'created_at' => $txn->created_at,
+                    ];
+                })
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'message' => 'Error' . $e->getMessage()
             ]);
         }
-
-        return response()->json([
-            'success' => true,
-            'data' => $transactions->map(function ($txn) {
-                return [
-                    'amount' => $txn->amount,
-                    'status' => $txn->status,
-                    'reference_number' => $txn->reference_number,
-                    'request_id' => $txn->request_id,
-                    'mobile_number' => $txn->mobile_number,
-                    'payment_ref_id' => $txn->payment_ref_id,
-                    'connectpe_id' => $txn->connectpe_id,
-                    'created_at' => $txn->created_at,
-                ];
-            })
-        ]);
     }
 
 
 
     public function transactionComplaint()
     {
-        $priorities = ['Low', 'Medium', 'High'];
-        // $services = GlobalService::where('is_active', '1')->orderBy('id', 'desc')->get();
 
-        $services = UserService::with('service')->where('user_id', Auth::user()->id)->where('status', 'approved')->where('is_active', '1')->orderBy('id', 'desc')->get();
-        $categories = ComplaintsCategory::where('status', '1')->orderBy('id', 'desc')->get();
+        DB::beginTransaction();
+        try {
 
-        return view('Transaction.transaction-complaint', compact('services', 'priorities', 'categories'));
+            $priorities = ['Low', 'Medium', 'High'];
+
+            $services = UserService::with('service:id,service_name')->select('service_id')->where('user_id', Auth::user()->id)->where('status', 'approved')->where('is_active', '1')->orderBy('id', 'desc')->get();
+            $categories = ComplaintsCategory::select('id','category_name')->where('status', '1')->orderBy('id', 'desc')->get();
+            DB::commit();
+            return view('Transaction.transaction-complaint', compact('services', 'priorities', 'categories'));
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'message' => 'Error' . $e->getMessage()
+            ]);
+        }
     }
 
     public function store(Request $request)
@@ -182,9 +202,20 @@ class TransactionController extends Controller
 
     public function complaintStatus()
     {
-        $categories = ['transaction', 'refund', 'service', 'other'];
 
-        return view('Transaction.complaint-status', compact('categories'));
+        DB::beginTransaction();
+        try {
+
+            $categories = ['transaction', 'refund', 'service', 'other'];
+            DB::commit();
+            return view('Transaction.complaint-status', compact('categories'));
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'message' => 'Error' . $e->getMessage()
+            ]);
+        }
     }
 
     public function checkComplaintStatus(Request $request)
@@ -193,26 +224,36 @@ class TransactionController extends Controller
             'ticket_number' => 'required|string',
         ]);
 
-        $complaint = Complaint::where('ticket_number', $request->ticket_number)
-            ->where('user_id', auth()->id()) // user sirf apni complaint check kare
-            ->first();
+        DB::beginTransaction();
+        try {
 
-        if (! $complaint) {
+            $complaint = Complaint::where('ticket_number', $request->ticket_number)
+                ->where('user_id', auth()->id()) // user sirf apni complaint check kare
+                ->first();
+
+            if (! $complaint) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Complaint not found for given Ticket Number.',
+                ], 404);
+            }
+            DB::commit();
+            return response()->json([
+                'status' => true,
+                'data' => [
+                    'ticket_number' => $complaint->ticket_number,
+                    'service_name' => $complaint->service?->service_name,
+                    'resolved_at' => $complaint->resolved_at ? $complaint->resolved_at->format('M-d-Y h:i:s a') : '-',
+                    'complaint_status' => $complaint->status,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'status' => false,
-                'message' => 'Complaint not found for given Ticket Number.',
-            ], 404);
+                'message' => 'Error' . $e->getMessage()
+            ]);
         }
-
-        return response()->json([
-            'status' => true,
-            'data' => [
-                'ticket_number' => $complaint->ticket_number,
-                'service_name' => $complaint->service?->service_name,
-                'resolved_at' => $complaint->resolved_at ? $complaint->resolved_at->format('M-d-Y h:i:s a') : '-',
-                'complaint_status' => $complaint->status,
-            ],
-        ]);
     }
 
     public function transaction_Report()
@@ -222,15 +263,24 @@ class TransactionController extends Controller
 
     public function downloadInvoice($id)
     {
-        $txn = Transaction::with(['user', 'user.business'])
-            ->where('id', $id)
-            ->where('status', 'processed')
-            ->firstOrFail();
+        DB::beginTransaction();
+        try {
 
-        $pdf = Pdf::loadView('Users.reports.recharge-transaction-invoice', compact('txn'));
+            $txn = Transaction::with(['user', 'user.business'])
+                ->where('id', $id)
+                ->where('status', 'processed')
+                ->firstOrFail();
 
-        $fileRef = $txn->payment_ref_id ?? $txn->connectpe_id ?? $txn->request_id ?? $txn->id;
-
-        return $pdf->download('Invoice_' . $fileRef . '.pdf');
+            $pdf = Pdf::loadView('Users.reports.recharge-transaction-invoice', compact('txn'));
+            $fileRef = $txn->payment_ref_id ?? $txn->connectpe_id ?? $txn->request_id ?? $txn->id;
+            DB::commit();
+            return $pdf->download('Invoice_' . $fileRef . '.pdf');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'message' => 'Error' . $e->getMessage()
+            ]);
+        }
     }
 }
