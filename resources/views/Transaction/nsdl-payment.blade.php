@@ -78,7 +78,7 @@
                         <input type="date" class="form-control" id="filterDateTo">
                     </div>
 
-                    <div class="col-12 d-flex gap-2 justify-content-center">
+                    <div class="col-md-3 d-flex gap-2">
                         <button class="btn buttonColor " id="applyFilter"> Filter</button>
                         <button class="btn btn-secondary" id="resetFilter">Reset</button>
                     </div>

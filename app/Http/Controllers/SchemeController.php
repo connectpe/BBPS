@@ -15,8 +15,8 @@ class SchemeController extends Controller
         $schemes = Scheme::orderBy('id', 'desc')->get();
         $users = User::with('business')->get();
         $relations = UserConfig::with(['user', 'scheme'])->orderBy('id', 'desc')->get();
-        $assignedUsers = $relations->pluck('user')->unique('id')->filter(); 
+        $assignedUsers = $relations->pluck('user')->unique('id')->filter();
         $assignedSchemes = $relations->pluck('scheme')->unique('id')->filter();
-        return view('scheme.index', compact('globalServices','schemes', 'users', 'relations','assignedUsers','assignedSchemes'));
+        return view('scheme.index', compact('globalServices', 'schemes', 'users', 'relations', 'assignedUsers', 'assignedSchemes'));
     }
 }
