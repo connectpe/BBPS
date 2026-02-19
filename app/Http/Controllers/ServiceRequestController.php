@@ -26,8 +26,8 @@ class ServiceRequestController extends Controller
         //     ->latest()
         //     ->get();
 
-        $users = User::select('id','name','email')->where('role_id', '!=', '1')->where('role_id', '!=', '4')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
-        $globalServices = GlobalService::select('id','service_name')->where('is_active', '1')->orderBy('id', 'desc')->get();
+        $users = User::select('id', 'name', 'email')->where('role_id', '!=', '1')->where('role_id', '!=', '4')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
+        $globalServices = GlobalService::select('id', 'service_name')->where('is_active', '1')->orderBy('id', 'desc')->get();
 
         return view('Service.request-services', compact('users', 'globalServices'));
     }
@@ -37,6 +37,7 @@ class ServiceRequestController extends Controller
      */
     public function store(Request $request)
     {
+        DB::beginTransaction();
         try {
 
             $request->validate([
@@ -99,6 +100,7 @@ class ServiceRequestController extends Controller
                 'is_active' => '1',
             ]);
 
+            DB::commit();
             if ($request->ajax()) {
                 return response()->json([
                     'success' => true,
@@ -108,7 +110,7 @@ class ServiceRequestController extends Controller
 
             return back()->with('success', 'Service request sent successfully');
         } catch (\Exception $e) {
-
+            DB::rollback();
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -159,8 +161,19 @@ class ServiceRequestController extends Controller
 
     public function enabledServices()
     {
-        $userId = Auth::user()->id;
-        $services = UserService::with('service')->where('user_id', $userId)->where('is_active', '1')->orderBy('id', 'desc')->get();
-        return view('Service.enabled-services', compact('services'));
+
+        DB::beginTransaction();
+        try {
+            $userId = Auth::user()->id;
+            $services = UserService::select('id', 'service_id')->with('service:id,service_name')->where('user_id', $userId)->where('is_active', '1')->orderBy('id', 'desc')->get();
+            DB::commit();
+            return view('Service.enabled-services', compact('services'));
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json([
+                'status' => false,
+                'message' => 'Error : ' . $e->getMessage(),
+            ]);
+        }
     }
 }

@@ -216,7 +216,7 @@
                         return `
                             <div class="form-check form-switch">
                                 <input class="form-check-input cursor-pointer" type="checkbox" ${checked}
-                                    onchange="changeService('${row.id}', 'is_api_allowed','This Record')">
+                                    onchange="changeService(this,'${row.id}', 'is_api_allowed','This Record')">
                             </div>
                         `;
                     },
@@ -230,7 +230,7 @@
                         return `
                             <div class="form-check form-switch">
                                 <input class="form-check-input cursor-pointer" type="checkbox" ${checked}
-                                    onchange="changeService('${row.id}', 'is_active','Service')">
+                                    onchange="changeService(this,'${row.id}', 'is_active','Service')">
                             </div>
                         `;
                     },
@@ -333,7 +333,7 @@
                         return `
                             <div class="form-check form-switch">
                                 <input class="form-check-input cursor-pointer" type="checkbox" ${checked}
-                                    onchange="changeServiceStatus('${row.id}', 'is_api_enable','This Record')">
+                                    onchange="changeServiceStatus(this,'${row.id}', 'is_api_enable','This Record')">
                             </div>
                         `;
                     }
@@ -345,7 +345,7 @@
                         return `
                             <div class="form-check form-switch">
                                 <input class="form-check-input cursor-pointer" type="checkbox" ${checked}
-                                    onchange="changeServiceStatus('${row.id}', 'is_active','Service')">
+                                    onchange="changeServiceStatus(this,'${row.id}', 'is_active','Service')">
                             </div>
                         `;
                     }
@@ -388,7 +388,8 @@
         });
     });
 
-    function changeServiceStatus(id, type, text = 'This Record') {
+    function changeServiceStatus(checkbox,id, type, text = 'This Record') {
+        checkbox.checked = !checkbox.checked;
         Swal.fire({
             title: 'Are you sure to change status of ' + text + '?',
             icon: 'warning',
@@ -399,6 +400,7 @@
             cancelButtonText: 'No'
         }).then((result) => {
             if (result.isConfirmed) {
+                 checkbox.checked = !checkbox.checked;
                 $.ajax({
                     url: "{{ route('active_user_service_status') }}",
                     type: 'POST',
@@ -454,7 +456,8 @@
     }
 
 
-    function changeService(id, type, text = 'This Record') {
+    function changeService(checkbox,id, type, text = 'This Record') {
+        checkbox.checked = !checkbox.checked;
         Swal.fire({
             title: 'Are you sure to change status of ' + text + '?',
             // text: "You will be logged out from your account!",
@@ -466,6 +469,7 @@
             cancelButtonText: 'No'
         }).then((result) => {
             if (result.isConfirmed) {
+                checkbox.checked = !checkbox.checked;
                 $.ajax({
                     url: "{{route('admin.service_toggle')}}",
                     type: 'POST',

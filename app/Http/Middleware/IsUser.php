@@ -26,10 +26,10 @@ class IsUser
         //     return redirect()->route('unauthrized.page');
         // }
 
-        if (Auth::check() && Auth::user()->role_id == '2') {
+        if (Auth::check() &&   in_array(Auth::user()->role_id, [2, 3])) {
             return $next($request);
         }
 
-         return redirect()->route('unauthrized.page');
+        return redirect()->route('unauthrized.page');
     }
 }

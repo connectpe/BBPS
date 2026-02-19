@@ -41,7 +41,6 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/dashboard', function () {
             return view('Dashboard.dashboard');
         })->name('admin.dashboard');
-        Route::post('servicetoggle', [AdminController::class, 'disableUserService'])->name('admin.service_toggle.user');
         Route::post('user-status-change', [AdminController::class, 'changeUserStatus'])->name('admin.user_status.change');
         Route::post('add-service', [AdminController::class, 'addService'])->name('admin.add_service');
         Route::put('edit-service/{service_id}', [AdminController::class, 'editService'])->name('admin.edit_service');
@@ -126,7 +125,6 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
     Route::get('/dashboard', [UserController::class, 'dashboard'])->name('user.dashboard');
 
 
-    Route::post('completeProfile/{user_id}', [UserController::class, 'completeProfile'])->name('admin.complete_profile');
     // Service Related Route
     Route::group(['middleware' => ['isUserAccessPage']], function () {
         Route::get('/utility-service', [ServiceController::class, 'utilityService'])->name('utility_service');
@@ -149,18 +147,10 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
     Route::post('nsdl-initiated-payment', [UserController::class, 'initiateNsdlPayment'])->name('nsdl-initiatePayment');
     Route::post('/service-request', [ServiceRequestController::class, 'store'])
         ->name('service.request');
-    // Route::post('/users/{id}/routing/save', [UserController::class, 'saveUserRouting'])
-    //     ->name('admin.users.routing.save');
+    
     Route::post('completeProfile/{user_id}', [UserController::class, 'completeProfile'])->name('admin.complete_profile');
     Route::post('generate-mpin', [UserController::class, 'generateMpin'])->name('generate_mpin');
     Route::post('/transaction-status-check', [TransactionController::class, 'transactionStatusCheck'])->name('transaction_status_check');
-
-
-
-    // reseller routes
-    // Route::get('reports', [LadgerController::class, 'reports'])->name('reseller_reports');
-    // Route::get('services', [ServiceRequestController::class, 'enabledServices'])->name('enabled_services');
-
     Route::post('generate/client-credentials', [UserController::class, 'generateClientCredentials'])->name('generate_client_credentials');
 });
 
@@ -168,9 +158,6 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
 Route::group(['middleware' => ['auth']], function () {
     // Support User Route
     Route::prefix('support')->group(function () {
-
-        // Route::get('/complaints-report', [SupportDashboardController::class, 'userComplaints'])->name('complaints_report');
-        //         Route::get('/support-userlist', [SupportDashboardController::class, 'supportUserList'])->name('support_userlist');
         Route::get('complaints-report', [SupportDashboardController::class, 'userComplaints'])->name('complaints_report')->middleware('isSupport');
         Route::get('/support-userlist', [SupportDashboardController::class, 'supportUserList'])->name('support_userlist')->middleware('isSupport');
     });
@@ -186,7 +173,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/transaction-report', [TransactionController::class, 'transaction_Report'])->name('transaction.report');
     Route::get('recharge/invoice/{id}', [TransactionController::class, 'downloadInvoice'])
         ->name('recharge.invoice.download');
-    Route::get('reports/{type}', [ReportController::class, 'index'])->name('reseller.reports'); //
     Route::get('services', [ServiceRequestController::class, 'enabledServices'])->name('enabled_services');
 
 
@@ -196,20 +182,12 @@ Route::group(['middleware' => ['auth']], function () {
 
     // reseller routes
     Route::get('reports', [LadgerController::class, 'reports'])->name('reseller_reports');
-    Route::get('services', [ServiceRequestController::class, 'enabledServices'])->name('enabled_services');
 });
 
 
 Route::group(['middleware' => ['auth'], 'prefix' => 'api-partner'], function () {
     Route::get('/dashboard', [HomeController::class, 'apiPartner'])->name('api.dashboard');
-
-    //     Route::get('reports/{type}', [ReportController::class, 'index'])->name('reseller.reports');
-
-
-    // Route::get('ledger-reports', [LadgerController::class, 'reports'])->name('reseller_reports');
-
     Route::get('ledger-reports', [LadgerController::class, 'reports'])->name('reseller_reports');
-
 });
 
 

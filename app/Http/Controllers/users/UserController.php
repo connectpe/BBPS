@@ -812,6 +812,8 @@ class UserController extends Controller
 
     public function generateMpin(Request $request)
     {
+        DB::beginTransaction();
+
         try {
             if (Auth::user()->role_id != '2') {
                 return response()->json([
@@ -840,12 +842,13 @@ class UserController extends Controller
             User::where('id', $user->id)->update([
                 'mpin' => Hash::make($request->new_mpin),
             ]);
-
+            DB::commit();
             return response()->json([
                 'status' => true,
                 'message' => 'MPIN updated successfully',
             ]);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
