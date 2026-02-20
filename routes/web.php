@@ -187,7 +187,7 @@ Route::group(['middleware' => ['auth']], function () {
 
 Route::group(['middleware' => ['auth'], 'prefix' => 'api-partner'], function () {
     Route::get('/dashboard', [HomeController::class, 'apiPartner'])->name('api.dashboard');
-   
+
 });
 
 
