@@ -14,7 +14,7 @@ class GlobalService extends Model
         'slug',
         'is_active',
     ];
-    
+
     /**
      * Relationship: A service has many user rootings
      */
@@ -28,4 +28,3 @@ class GlobalService extends Model
         return $this->hasMany(Provider::class, 'service_id');
     }
 }
-

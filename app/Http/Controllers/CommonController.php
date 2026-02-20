@@ -594,7 +594,7 @@ class CommonController extends Controller
                 $request['whereIn'] = 'is_deleted';
                 if (Auth::user()->role_id == '1') {
                     $request['parentData'] = 'all';
-                } elseif (Auth::user()->role_id == '2') {
+                } elseif (Auth::user()->role_id == '2' || Auth::user()->role_id == '3') {
 
                     $request['whereIn'] = 'user_id';
                     // $request['whereIn'] = 'is_deleted';
