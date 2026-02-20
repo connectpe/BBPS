@@ -84,7 +84,9 @@ class AuthController extends Controller
                     'name' => $request->name,
                     'email' => $request->email,
                     'otp' => $otp,
-                    'subject' => 'Email Verification',
+
+                    'subject' => 'Email Verification for Dashboard Login '
+
                 ]);
             } catch (Exception $e) {
                 return response()->json([
@@ -253,6 +255,12 @@ class AuthController extends Controller
                     'status' => true,
                     'isOtpSend' => true,
                     'email' => $user->email,
+
+                    'otp' => $otp,
+                    'subject' => 'Email Verification for Dashboard Login'
+                ]);
+            } catch (\Exception $e) {
+
                     'message' => 'OTP sent to your email. Please verify to login.',
                 ], 200);
             }
@@ -261,6 +269,7 @@ class AuthController extends Controller
                 $request->only('email', 'password'),
                 $request->boolean('remember')
             )) {
+
                 return response()->json([
                     'status' => false,
                     'message' => 'Invalid credentials',
