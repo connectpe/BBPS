@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use App\Models\GlobalService;
+use App\Models\IpWhitelist;
 use App\Models\OauthUser;
 use App\Models\MobikwikToken;
 use App\Models\UserRooting;
@@ -113,5 +114,30 @@ class CommonHelper
             $data['status'] = true;
         }
         return $data;
+    }
+
+    public static function checkIpWhiteList($userId, $serviceId, $ip)
+    {
+        try {
+            if (empty($userId) && empty($serviceId) && empty($ip)) {
+                return false;
+            }
+
+            $status = false;
+
+            $data = IpWhitelist::where(['user_id' => $userId, 'service_id' => $serviceId, 'ip_address' => $ip])->count();
+
+
+            if ($data > 0) {
+                $status = true;
+            }
+
+            return $status;
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
     }
 }
