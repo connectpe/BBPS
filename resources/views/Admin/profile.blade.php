@@ -83,13 +83,6 @@
         width: 75px;
         border-radius: 50%;
     }
-
-    /* COMPLETED */
-    /* .step-item.completed .step-circle {
-                                                                                                                                                                                                                    border-color: #198754;
-                                                                                                                                                                                                                    background: #198754;
-                                                                                                                                                                                                                    color: #fff;
-                                                                                                                                                                                                                } */
 </style>
 
 @php
@@ -118,7 +111,6 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
         <h4 class="mb-1">{{ $user->name }}</h4>
         <p class="mb-0 text-muted">{{ $user->email }}</p>
     </div>
-
 </div>
 
 <div class="row mt-3 g-3">
@@ -165,7 +157,8 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
             <div class="card-body">
                 <i class="bi bi-calendar-check fs-4 text-info mb-2"></i>
                 <h6 class="card-title mb-1">Member Since</h6>
-                <p class="card-text fs-6 fw-bold">{{ $userdata->created_at ? \Carbon\Carbon::parse($userdata->created_at)->format('Y')  : ''}}</p>
+                <p class="card-text fs-6 fw-bold">{{ $userdata->created_at ?
+                    \Carbon\Carbon::parse($userdata->created_at)->format('Y') : ''}}</p>
             </div>
         </div>
     </div>
@@ -261,8 +254,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             New Password:<span class="text-danger">*</span>
                         </label>
                         <div class="col-md-8">
-                            <input type="password" class="form-control" name="new_password"
-                                placeholder="New Password">
+                            <input type="password" class="form-control" name="new_password" placeholder="New Password">
                             <small class="text-danger error-new_password"></small>
                         </div>
                     </div>
@@ -344,8 +336,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
         <img id="userImage" src="{{ FileUpload::getFilePath($user?->profile_image) }}" alt="User Image"
             class="rounded-circle border border-1 border-primary cursor-pointer"
-            onclick="showImage(this.src,'Profile Image')" width="100" height="100"
-            onerror="showInitials(this)">
+            onclick="showImage(this.src,'Profile Image')" width="100" height="100" onerror="showInitials(this)">
     </div>
 
     <!-- User Info -->
@@ -390,7 +381,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
     </div>
 
     <!-- Edit Profile Button -->
-    @if ($role == 2)
+    @if ($role == 2 || $role == 3)
     <div class="col-auto">
         <button type="button" class="btn buttonColor mt-lg-0 mt-2" data-bs-toggle="modal"
             data-bs-target="#completeProfileModal">
@@ -443,7 +434,8 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
             <div class="card-body">
                 <i class="bi bi-calendar-check fs-4 text-info mb-2"></i>
                 <h6 class="card-title mb-1">Member Since</h6>
-                <p class="card-text fs-6 fw-bold">{{ $userdata->created_at ? \Carbon\Carbon::parse($userdata->created_at)->format('Y')  : ''}}</p>
+                <p class="card-text fs-6 fw-bold">{{ $userdata->created_at ?
+                    \Carbon\Carbon::parse($userdata->created_at)->format('Y') : ''}}</p>
             </div>
         </div>
     </div>
@@ -467,15 +459,14 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
             </li>
             @if ($role != 4)
             <li class="nav-item" role="presentation">
-                <button class="nav-link fw-bold text-dark" id="kyc-tab" data-bs-toggle="tab"
-                    data-bs-target="#kyc" type="button" role="tab" aria-controls="kyc"
-                    aria-selected="false">KYC Details</button>
+                <button class="nav-link fw-bold text-dark" id="kyc-tab" data-bs-toggle="tab" data-bs-target="#kyc"
+                    type="button" role="tab" aria-controls="kyc" aria-selected="false">KYC Details</button>
             </li>
             {{-- <li class="nav-item" role="presentation">
-                        <button class="nav-link fw-bold text-dark" id="activity-tab" data-bs-toggle="tab"
-                            data-bs-target="#activity" type="button" role="tab" aria-controls="activity"
-                            aria-selected="false">Activity Log</button>
-                    </li> --}}
+                <button class="nav-link fw-bold text-dark" id="activity-tab" data-bs-toggle="tab"
+                    data-bs-target="#activity" type="button" role="tab" aria-controls="activity"
+                    aria-selected="false">Activity Log</button>
+            </li> --}}
 
 
             <li class="nav-item" role="presentation">
@@ -543,58 +534,57 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
             <!-- Security Setting -->
             {{-- <div class="tab-pane fade" id="security" role="tabpanel" aria-labelledby="security-tab">
-                    <!-- Last Login Info -->
-                    <div class="row mb-3">
-                        <div class="col-md-4 fw-semibold">Last Login:</div>
-                        <div class="col-md-8">15-Jan-2026 10:45 AM</div>
+                <!-- Last Login Info -->
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-semibold">Last Login:</div>
+                    <div class="col-md-8">15-Jan-2026 10:45 AM</div>
+                </div>
+
+                <!-- Change Password Form -->
+                <form id="changePasswordForm">
+                    @csrf
+
+                    <div class="mb-3 row">
+                        <label class="col-md-4 col-form-label fw-semibold">
+                            Old Password:<span class="text-danger">*</span>
+                        </label>
+                        <div class="col-md-8">
+                            <input type="password" class="form-control" name="current_password"
+                                placeholder="Current Password">
+                            <small class="text-danger error-current_password"></small>
+                        </div>
                     </div>
 
-                    <!-- Change Password Form -->
-                    <form id="changePasswordForm">
-                        @csrf
-
-                        <div class="mb-3 row">
-                            <label class="col-md-4 col-form-label fw-semibold">
-                                Old Password:<span class="text-danger">*</span>
-                            </label>
-                            <div class="col-md-8">
-                                <input type="password" class="form-control" name="current_password"
-                                    placeholder="Current Password">
-                                <small class="text-danger error-current_password"></small>
-                            </div>
+                    <div class="mb-3 row">
+                        <label class="col-md-4 col-form-label fw-semibold">
+                            New Password:<span class="text-danger">*</span>
+                        </label>
+                        <div class="col-md-8">
+                            <input type="password" class="form-control" name="new_password" placeholder="New Password">
+                            <small class="text-danger error-new_password"></small>
                         </div>
+                    </div>
 
-                        <div class="mb-3 row">
-                            <label class="col-md-4 col-form-label fw-semibold">
-                                New Password:<span class="text-danger">*</span>
-                            </label>
-                            <div class="col-md-8">
-                                <input type="password" class="form-control" name="new_password"
-                                    placeholder="New Password">
-                                <small class="text-danger error-new_password"></small>
-                            </div>
+                    <div class="mb-3 row">
+                        <label class="col-md-4 col-form-label fw-semibold">
+                            Confirm Password:<span class="text-danger">*</span>
+                        </label>
+                        <div class="col-md-8">
+                            <input type="password" class="form-control" name="new_password_confirmation"
+                                placeholder="Confirm Password">
+                            <small class="text-danger error-new_password_confirmation"></small>
                         </div>
+                    </div>
 
-                        <div class="mb-3 row">
-                            <label class="col-md-4 col-form-label fw-semibold">
-                                Confirm Password:<span class="text-danger">*</span>
-                            </label>
-                            <div class="col-md-8">
-                                <input type="password" class="form-control" name="new_password_confirmation"
-                                    placeholder="Confirm Password">
-                                <small class="text-danger error-new_password_confirmation"></small>
-                            </div>
+                    <div class="row">
+                        <div class="col-md-8 offset-md-4">
+                            <button type="submit" class="btn buttonColor">
+                                Change Password
+                            </button>
                         </div>
-
-                        <div class="row">
-                            <div class="col-md-8 offset-md-4">
-                                <button type="submit" class="btn buttonColor">
-                                    Change Password
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div> --}}
+                    </div>
+                </form>
+            </div> --}}
 
 
             <div class="tab-pane fade" id="security" role="tabpanel" aria-labelledby="security-tab">
@@ -653,18 +643,18 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                     <div class="mb-3">
                                         <label class="form-label fw-semibold">Current MPIN <span
                                                 class="text-danger">*</span></label>
-                                        <input type="password" class="form-control" name="current_mpin"
-                                            maxlength="6" pattern="\d*" inputmode="numeric"
-                                            placeholder="Enter 4-digit current MPIN" required>
+                                        <input type="password" class="form-control" name="current_mpin" maxlength="6"
+                                            pattern="\d*" inputmode="numeric" placeholder="Enter 4-digit current MPIN"
+                                            required>
                                         <small class="text-danger error-current_mpin"></small>
                                     </div>
 
                                     <div class="mb-3">
                                         <label class="form-label fw-semibold">New MPIN <span
                                                 class="text-danger">*</span></label>
-                                        <input type="password" class="form-control" name="new_mpin"
-                                            maxlength="6" pattern="\d*" inputmode="numeric"
-                                            placeholder="Set 4-digit new MPIN" required>
+                                        <input type="password" class="form-control" name="new_mpin" maxlength="6"
+                                            pattern="\d*" inputmode="numeric" placeholder="Set 4-digit new MPIN"
+                                            required>
                                         <small class="text-danger error-new_mpin"></small>
                                     </div>
 
@@ -887,20 +877,20 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
                                 <div class="d-flex justify-content-between mb-2">
                                     <span class="fw-semibold">Name:</span>
-                                    <span
-                                        class="text-muted">{{ $supportRepresentative?->assigned_support?->name ?? '----' }}</span>
+                                    <span class="text-muted">{{ $supportRepresentative?->assigned_support?->name ??
+                                        '----' }}</span>
                                 </div>
 
                                 <div class="d-flex justify-content-between mb-2">
                                     <span class="fw-semibold">Email:</span>
-                                    <span
-                                        class="text-muted">{{ $supportRepresentative?->assigned_support?->email ?? '----' }}</span>
+                                    <span class="text-muted">{{ $supportRepresentative?->assigned_support?->email ??
+                                        '----' }}</span>
                                 </div>
 
                                 <div class="d-flex justify-content-between mb-2">
                                     <span class="fw-semibold">Mobile:</span>
-                                    <span
-                                        class="text-muted">{{ $supportRepresentative?->assigned_support?->mobile ?? '----' }}</span>
+                                    <span class="text-muted">{{ $supportRepresentative?->assigned_support?->mobile ??
+                                        '----' }}</span>
                                 </div>
 
                             </div>
@@ -988,8 +978,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             <h5 class="modal-title" id="webhookModalTitle">
                                 {{ !empty($webhookUrl?->url) ? 'Update Callback URL' : 'Set Callback URL' }}
                             </h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                aria-label="Close"></button>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
 
                         <form id="webhookForm">
@@ -1003,8 +992,8 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                     <div class="input-group">
                                         <span class="input-group-text bg-light"><i class="bi bi-globe"></i></span>
 
-                                        <input type="url" class="form-control" name="url"
-                                            id="modal_webhook_url" placeholder="https://yourdomain.com/api/callback"
+                                        <input type="url" class="form-control" name="url" id="modal_webhook_url"
+                                            placeholder="https://yourdomain.com/api/callback"
                                             value="{{ $webhookUrl?->url ?? '' }}" required>
                                     </div>
 
@@ -1013,8 +1002,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             </div>
 
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary"
-                                    data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                 <button type="submit" id="saveWebhookBtn" class="btn buttonColor">Save
                                     Changes</button>
                             </div>
@@ -1095,19 +1083,19 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
                         <div class="col-md-6">
                             <label class="form-label">Full Name</label>
-                            <input type="text" class="form-control" placeholder="Enter full name"
+                            <input type="text" class="form-control skip-draft" placeholder="Enter full name"
                                 value="{{ $user->name }}" disabled>
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">Email</label>
-                            <input type="email" class="form-control" placeholder="Enter email"
+                            <input type="email" class="form-control skip-draft" placeholder="Enter email"
                                 value="{{ $user->email }}" disabled>
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">Mobile Number</label>
-                            <input type="text" class="form-control" name="mobile"
+                            <input type="text" class="form-control skip-draft" name="mobile"
                                 placeholder="Enter mobile number" value="{{ $user->mobile ?? '' }}" disabled>
                         </div>
 
@@ -1115,13 +1103,13 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             <label class="form-label">
                                 Profile Pic
                             </label>
-                            <input type="file" class="form-control" accept=".jpg,.jpeg,.png"
+                            <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
                                 name="profile_image">
                             @if (!empty($userdata->profile_image))
                             <div class="mt-2">
-                                <img src="{{ FileUpload::getFilePath($userdata->profile_image) }}"
-                                    alt="Profile Image" class="img-thumbnail cursor-pointer profile-image"
-                                    style="max-height: 120px;" onclick="showImage(this.src,'Profile Image')">
+                                <img src="{{ FileUpload::getFilePath($userdata->profile_image) }}" alt="Profile Image"
+                                    class="img-thumbnail cursor-pointer profile-image" style="max-height: 120px;"
+                                    onclick="showImage(this.src,'Profile Image')">
                             </div>
                             @endif
                         </div>
@@ -1146,8 +1134,8 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                 id="business_category">
                                 <option value="">--Select Business Category--</option>
                                 @foreach ($businessCategory as $category)
-                                <option value="{{ $category->id }}"
-                                    {{ $businessInfo?->business_category_id == $category->id ? 'selected' : '' }}>
+                                <option value="{{ $category->id }}" {{ $businessInfo?->business_category_id ==
+                                    $category->id ? 'selected' : '' }}>
                                     {{ $category->name }}
                                 </option>
                                 @endforeach
@@ -1164,9 +1152,8 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             <label class="form-label">CIN No</label>
                             <input type="text" class="form-control validate" name="cin_number"
                                 placeholder="e.g. L12345MH2010PLC123456"
-                                pattern="^[LU][0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$"
-                                title="Enter valid CIN number" maxlength="21"
-                                value="{{ $businessInfo->cin_no ?? '' }}">
+                                pattern="^[LU][0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$" title="Enter valid CIN number"
+                                maxlength="21" value="{{ $businessInfo->cin_no ?? '' }}">
                             <span class="error-text">Invalid CIN number</span>
                         </div>
 
@@ -1212,7 +1199,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                 Business Documents
                                 <small class="text-muted">(You can upload multiple files)</small>
                             </label>
-                            <input type="file" class="form-control" multiple accept=".pdf,.jpg,.jpeg,.png"
+                            <input type="file" class="form-control skip-draft" multiple accept=".pdf,.jpg,.jpeg,.png"
                                 name="business_docs[]">
                         </div>
 
@@ -1220,8 +1207,8 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             <label class="form-label">State</label>
                             <select class="form-select form-select2" name="state">
                                 <option value="">--Select State--</option>
-                                <option value="Uttar Pradesh" value="{{ $businessInfo->state ?? '' }}"
-                                    {{ $businessInfo?->state == 'Uttar Pradesh' ? 'selected' : '' }}>Uttar Pradesh
+                                <option value="Uttar Pradesh" value="{{ $businessInfo->state ?? '' }}" {{
+                                    $businessInfo?->state == 'Uttar Pradesh' ? 'selected' : '' }}>Uttar Pradesh
                                 </option>
                                 <option value="Bihar">Bihar</option>
                             </select>
@@ -1231,8 +1218,8 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             <label class="form-label">City</label>
                             <select class="form-select form-select2" name="city">
                                 <option value="">--Select City--</option>
-                                <option value="Lucknow" value="{{ $businessInfo->city ?? '' }}"
-                                    {{ $businessInfo?->city == 'Lucknow' ? 'selected' : '' }}>Lucknow</option>
+                                <option value="Lucknow" value="{{ $businessInfo->city ?? '' }}" {{ $businessInfo?->city
+                                    == 'Lucknow' ? 'selected' : '' }}>Lucknow</option>
                                 <option value="Kanpur">Kanpur</option>
                             </select>
                         </div>
@@ -1249,7 +1236,8 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
                         <div class="col-12">
                             <label class="form-label">Business Address</label>
-                            <textarea class="form-control" rows="2" placeholder="Enter business address" name="business_address">{{ $businessInfo->address ?? '' }}</textarea>
+                            <textarea class="form-control" rows="2" placeholder="Enter business address"
+                                name="business_address">{{ $businessInfo->address ?? '' }}</textarea>
                         </div>
                         @if (!empty($businessInfo->business_document))
                         @php
@@ -1259,9 +1247,8 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                         <div class="col-12 border p-1">
                             <h6>Business Document</h6>
                             @foreach ($docImage as $image)
-                            <img src="{{ FileUpload::getFilePath($image) }}"
-                                class="img m-1 shadow cursor-pointer" alt="Busineee Document"
-                                style="max-height:200px; width:200px;"
+                            <img src="{{ FileUpload::getFilePath($image) }}" class="img m-1 shadow cursor-pointer"
+                                alt="Business Document" style="max-height:200px; width:200px;"
                                 onclick="showImage(this.src,'Business Document')">
                             @endforeach
                         </div>
@@ -1301,7 +1288,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
                             <div class="col-md-4">
                                 <label class="form-label">Aadhaar Front</label>
-                                <input type="file" class="form-control" accept=".jpg,.jpeg,.png"
+                                <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
                                     name="adhar_front_image">
                                 @if (!empty($businessInfo->aadhar_front_image))
                                 <div class="mt-2">
@@ -1314,7 +1301,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
                             <div class="col-md-4">
                                 <label class="form-label">Aadhaar Back</label>
-                                <input type="file" class="form-control" accept=".jpg,.jpeg,.png"
+                                <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
                                     name="adhar_back_image">
                                 @if (!empty($businessInfo->aadhar_back_image))
                                 <div class="mt-2">
@@ -1327,13 +1314,13 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
                             <div class="col-md-4">
                                 <label class="form-label">PAN Card</label>
-                                <input type="file" class="form-control" accept=".jpg,.jpeg,.png"
+                                <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
                                     name="pan_card_image">
                                 @if (!empty($businessInfo->pancard_image))
                                 <div class="mt-2">
                                     <img src="{{ FileUpload::getFilePath($businessInfo->pancard_image) }}"
-                                        alt="PAN Card" class="img-thumbnail cursor-pointer"
-                                        style="max-height: 120px;" onclick="showImage(this.src,'PAN Card')">
+                                        alt="PAN Card" class="img-thumbnail cursor-pointer" style="max-height: 120px;"
+                                        onclick="showImage(this.src,'PAN Card')">
                                 </div>
                                 @endif
                             </div>
@@ -1377,21 +1364,21 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
                         <div class="col-md-6">
                             <label class="form-label">Branch Name</label>
-                            <input type="text" class="form-control" placeholder="Enter branch name"
-                                name="branch_name" value="{{ $usersBank->branch_name ?? '' }}">
+                            <input type="text" class="form-control" placeholder="Enter branch name" name="branch_name"
+                                value="{{ $usersBank->branch_name ?? '' }}">
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">Bank Documents</label>
-                            <input type="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png"
+                            <input type="file" class="form-control skip-draft" accept=".pdf,.jpg,.jpeg,.png"
                                 name="bank_docs">
                             <small class="text-muted">Upload cheque / passbook copy (Max 2MB each)</small>
 
                             @if (!empty($usersBank->bank_docs))
                             <div class="mt-2">
-                                <img src="{{ FileUpload::getFilePath($usersBank->bank_docs) }}"
-                                    alt="Bank Document" class="img-thumbnail cursor-pointer"
-                                    style="max-height: 120px;" onclick="showImage(this.src,'Bank Document')">
+                                <img src="{{ FileUpload::getFilePath($usersBank->bank_docs) }}" alt="Bank Document"
+                                    class="img-thumbnail cursor-pointer" style="max-height: 120px;"
+                                    onclick="showImage(this.src,'Bank Document')">
                             </div>
                             @endif
                         </div>
@@ -1400,40 +1387,39 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
 
                 {{-- <div class="step step-5 d-none">
-                        <h6 class="mb-3">Transaction Details</h6>
+                    <h6 class="mb-3">Transaction Details</h6>
 
-                        <form id="nsdlPayForm">
-                            @csrf
+                    <form id="nsdlPayForm">
+                        @csrf
 
-                            <div class="row g-2 align-items-end">
-                                <div class="col-md-8">
-                                    <label class="form-label">Amount</label>
-                                    <input type="number" class="form-control" name="amount" placeholder="Enter amount"
-                                        min="1" required>
-                                </div>
-
-                                <div class="col-md-4 d-grid">
-                                    <button type="submit" class="btn buttonColor" id="payNowBtn">
-                                        Pay Now
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-
-                        <div class="mt-3 d-none" id="qrBox">
-                            <div class="alert alert-info mb-2">
-                                <div><b>Txn ID:</b> <span id="txnIdText">-</span></div>
-                                <div><b>Order ID:</b> <span id="orderIdText">-</span></div>
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-8">
+                                <label class="form-label">Amount</label>
+                                <input type="number" class="form-control" name="amount" placeholder="Enter amount"
+                                    min="1" required>
                             </div>
 
-                            <div class="text-center border rounded p-3">
-                                <img id="qrImg" src="" alt="QR Code"
-                                    style="max-width:220px; display:none;">
-                                <div id="qrCanvasWrap"></div>
-                                <div class="small text-muted mt-2">Scan this QR to pay</div>
+                            <div class="col-md-4 d-grid">
+                                <button type="submit" class="btn buttonColor" id="payNowBtn">
+                                    Pay Now
+                                </button>
                             </div>
                         </div>
-                    </div> --}}
+                    </form>
+
+                    <div class="mt-3 d-none" id="qrBox">
+                        <div class="alert alert-info mb-2">
+                            <div><b>Txn ID:</b> <span id="txnIdText">-</span></div>
+                            <div><b>Order ID:</b> <span id="orderIdText">-</span></div>
+                        </div>
+
+                        <div class="text-center border rounded p-3">
+                            <img id="qrImg" src="" alt="QR Code" style="max-width:220px; display:none;">
+                            <div id="qrCanvasWrap"></div>
+                            <div class="small text-muted mt-2">Scan this QR to pay</div>
+                        </div>
+                    </div>
+                </div> --}}
                 <div class="step step-5 d-none">
                     <div class="row justify-content-center">
                         <div class="col-lg-7">
@@ -1441,10 +1427,11 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                 <div class="p-4 text-center"
                                     style="background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%); border-bottom: 1px solid #e2e8f0;">
 
-                                    {{-- <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-2 shadow-sm"
-                                            style="width:54px; height:54px;">
-                                            <i class="bi bi-shield-lock-fill fs-4"></i>
-                                        </div> --}}
+                                    {{-- <div
+                                        class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-2 shadow-sm"
+                                        style="width:54px; height:54px;">
+                                        <i class="bi bi-shield-lock-fill fs-4"></i>
+                                    </div> --}}
 
                                     <h5 class="fw-bold mb-1" style="color: #1e293b;">Secure Transaction</h5>
 
@@ -1483,7 +1470,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
                                     <form id="nsdlPayForm">
                                         @csrf
-                                        <input type="hidden" name="amount" id="finalAmount">
+                                        <input type="hidden" name="amount" id="finalAmount" class="skip-draft">
 
                                         <button type="submit"
                                             class="btn btn-primary btn-lg w-100 py-3 shadow fw-bold border-0"
@@ -1556,10 +1543,10 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
                 <div class="modal-body">
                     {{-- <select class="form-select" name="service" id="service" required>
-                            <option value="">-- Select Service --</option>
-                            @foreach ($UserServices as $userService)
-                                <option value="{{ $userService->slug }}">{{ $userService->service_name }}</option>
-                    @endforeach
+                        <option value="">-- Select Service --</option>
+                        @foreach ($UserServices as $userService)
+                        <option value="{{ $userService->slug }}">{{ $userService->service_name }}</option>
+                        @endforeach
                     </select> --}}
                     <select class="form-select form-select2" name="service" id="service" required>
                         <option value="">-- Select Service --</option>
@@ -1603,8 +1590,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             placeholder="e.g. 123.45.67.89" required pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Select Service <span
-                                class="text-danger">*</span></label>
+                        <label class="form-label fw-semibold">Select Service <span class="text-danger">*</span></label>
                         <select class="form-select form-select2" name="service_id" id="modal_service_id" required>
                             <option value="">-- Choose Service --</option>
                             @foreach ($UserServices as $userService)
@@ -1659,7 +1645,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
 
 <script>
-    document.getElementById('nextStep').addEventListener('click', function(e) {
+    document.getElementById('nextStep').addEventListener('click', function (e) {
 
         const currentStep = document.querySelector('.step:not(.d-none)');
         const inputs = currentStep.querySelectorAll('.validate');
@@ -1699,7 +1685,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
             // progress bar
             const stepNo = next.classList.contains('step-2') ? 2 :
                 next.classList.contains('step-3') ? 3 :
-                next.classList.contains('step-4') ? 4 : 5;
+                    next.classList.contains('step-4') ? 4 : 5;
 
 
             document.querySelectorAll('.step-item').forEach(item => {
@@ -1731,7 +1717,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
         $('.step-item').removeClass('active completed');
 
-        $('.step-item').each(function() {
+        $('.step-item').each(function () {
             let itemStep = $(this).data('step');
             if (itemStep < step) {
                 $(this).addClass('completed');
@@ -1746,7 +1732,8 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
         updateNextButton(step, 5);
     }
 
-    $('#nextStep').click(function() {
+    $('#nextStep').click(function () {
+        saveDraft();
         if (currentStep < totalSteps) {
             currentStep++;
             showStep(currentStep);
@@ -1757,22 +1744,46 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
         }
     });
 
-    $('#prevStep').click(function() {
+    $('#prevStep').click(function () {
         if (currentStep > 1) {
             currentStep--;
             showStep(currentStep);
         }
     });
 
-    $('#completeProfileModal').on('shown.bs.modal', function() {
+    $('#completeProfileModal').on('shown.bs.modal', function () {
+
         currentStep = 1;
         showStep(currentStep);
-        $('#nextStep').removeClass('submitProfileButton')
+
+        const userId = $('#user_id').val();
+        const draft = JSON.parse(localStorage.getItem('profileDraft'));
+
+        if (draft && draft.user_id !== userId) {
+            localStorage.removeItem('profileDraft');
+        }
+
+        if (!profileExists) {
+
+            const draft = JSON.parse(localStorage.getItem('profileDraft'));
+
+            if (draft) {
+                Object.keys(draft).forEach(function (key) {
+                    const field = document.querySelector('[name="' + key + '"]');
+                    if (field && !field.disabled) {
+                        field.value = draft[key];
+                    }
+                });
+            }
+        } else {
+            localStorage.removeItem('profileDraft');
+        }
     });
+
 </script>
 
 <script>
-    $(document).on('submit', '#nsdlPayForm', function(e) {
+    $(document).on('submit', '#nsdlPayForm', function (e) {
         e.preventDefault();
 
         let btn = $('#payNowBtn');
@@ -1787,7 +1798,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
             url: "{{ route('nsdl-initiatePayment') }}",
             type: "POST",
             data: $(this).serialize(),
-            success: function(res) {
+            success: function (res) {
                 if (!res.status) {
                     Swal.fire('Error', res.message || 'Failed', 'error');
                     return;
@@ -1815,10 +1826,10 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
                 Swal.fire('Warning', 'QR data not found in API response', 'warning');
             },
-            error: function(xhr) {
+            error: function (xhr) {
                 Swal.fire('Error', xhr.responseJSON?.message || 'Server Error', 'error');
             },
-            complete: function() {
+            complete: function () {
                 btn.prop('disabled', false).text('Pay Now');
             }
         });
@@ -1828,9 +1839,9 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
 
-        $('#serviceForm').on('submit', function(e) {
+        $('#serviceForm').on('submit', function (e) {
             e.preventDefault();
 
             const service = $('#service').val();
@@ -1868,13 +1879,13 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                 service: service,
                 _token: $('meta[name="csrf-token"]').attr('content'),
             }),
-            success: function(response) {
+            success: function (response) {
 
                 const client_id = response.data.client_id;
                 const client_key = response.data.client_secret;
 
-                console.log(client_id);
-                console.log(client_key);
+                // console.log(client_id);
+                // console.log(client_key);
 
                 const result = {
                     success: true,
@@ -1882,13 +1893,13 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                     client_key: client_key
                 };
 
-                console.log(result);
+                // console.log(result);
 
                 if (result.success) {
                     showCredentials(result.client_id, result.client_key);
                 }
             },
-            error: function(xhr) {
+            error: function (xhr) {
                 console.error(xhr.responseText);
             }
         });
@@ -1962,7 +1973,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
 
 <script>
-    $('#changePasswordForm').on('submit', function(e) {
+    $('#changePasswordForm').on('submit', function (e) {
         e.preventDefault();
 
         $('.text-danger').text('');
@@ -1971,7 +1982,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
             url: "{{ route('admin.change_password') }}",
             type: "POST",
             data: $(this).serialize(),
-            success: function(response) {
+            success: function (response) {
                 Swal.fire({
                     icon: 'success',
                     title: 'Success',
@@ -1981,13 +1992,13 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
                 $('#changePasswordForm')[0].reset();
             },
-            error: function(xhr) {
+            error: function (xhr) {
 
                 if (xhr.status === 422) {
                     let errors = xhr.responseJSON.errors;
 
                     if (errors) {
-                        $.each(errors, function(key, value) {
+                        $.each(errors, function (key, value) {
                             $('.error-' + key).text(value[0]);
                         });
                     } else {
@@ -2007,11 +2018,11 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
     function submitProfileForm() {
         // alert('Submitting profile form...');
         const formData = new FormData();
-        console.log(formData);
+        // console.log(formData);
         const userId = document.getElementById('user_id').value;
-        console.log('User ID:', userId);
+        // console.log('User ID:', userId);
         // Automatically append all input, select, textarea values
-        $('#completeProfileModal input, #completeProfileModal select, #completeProfileModal textarea').each(function() {
+        $('#completeProfileModal input, #completeProfileModal select, #completeProfileModal textarea').each(function () {
             const name = $(this).attr('name');
             if (!name) return;
 
@@ -2040,9 +2051,9 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
         formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
 
         // Debug: Check what's being sent
-        console.log('FormData contents:');
+        // console.log('FormData contents:');
         for (let pair of formData.entries()) {
-            console.log(pair[0], pair[1]);
+            // console.log(pair[0], pair[1]);
         }
 
         // Show loading state
@@ -2057,7 +2068,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
             data: formData,
             processData: false,
             contentType: false,
-            success: function(response) {
+            success: function (response) {
                 // Handle success
                 $('#completeProfileModal').modal('hide');
                 Swal.fire({
@@ -2073,16 +2084,30 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                     location.reload();
                 }, 2000);
             },
-            error: function(xhr) {
+            error: function (xhr) {
                 // Handle errors
                 let errorMessage = 'Something went wrong!';
 
                 if (xhr.status === 422) {
-                    // Validation errors
                     const errors = xhr.responseJSON.errors;
 
-                    // Loop through each field's errors and show them one by one
-                    Object.values(errors).forEach(fieldErrors => {
+                    // First, remove previous error highlights
+                    Object.keys(errors).forEach(field => {
+                        const input = document.querySelector(`[name="${field}"]`);
+                        if (input) {
+                            input.classList.remove('is-invalid');
+                        }
+                    });
+
+                    // Loop through each field's errors
+                    Object.entries(errors).forEach(([field, fieldErrors]) => {
+                        const input = document.querySelector(`[name="${field}"]`);
+                        if (input) {
+                            // Highlight the input field
+                            input.classList.add('is-invalid');
+                        }
+
+                        // Optional: show SweetAlert for each error
                         fieldErrors.forEach(error => {
                             Swal.fire({
                                 icon: 'error',
@@ -2091,7 +2116,8 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             });
                         });
                     });
-                } else {
+                }
+                else {
                     // Other errors (like 500, 403, etc.)
                     let message = xhr.responseJSON?.message || 'Something went wrong';
                     Swal.fire({
@@ -2110,7 +2136,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
     // Live validation: typing ke sath error remove ho
     document.querySelectorAll('.validate').forEach(input => {
 
-        input.addEventListener('input', function() {
+        input.addEventListener('input', function () {
             const pattern = this.getAttribute('pattern');
             const error = this.nextElementSibling;
 
@@ -2129,7 +2155,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         var table = $('#ipWhitelistTable').DataTable({
             processing: true,
             serverSide: true,
@@ -2144,31 +2170,31 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                 }
             },
             columns: [{
-                    data: 'id',
-                    render: (data, type, row, meta) => meta.row + meta.settings._iDisplayStart + 1
-                },
-                {
-                    data: 'service.service_name',
-                    defaultContent: '<span class="text-muted">N/A</span>'
-                },
-                {
-                    data: 'ip_address'
-                },
-                {
-                    data: 'is_active',
-                    render: (data, type, row) => `
+                data: 'id',
+                render: (data, type, row, meta) => meta.row + meta.settings._iDisplayStart + 1
+            },
+            {
+                data: 'service.service_name',
+                defaultContent: '<span class="text-muted">N/A</span>'
+            },
+            {
+                data: 'ip_address'
+            },
+            {
+                data: 'is_active',
+                render: (data, type, row) => `
                     <div class="form-check form-switch">
                         <input class="form-check-input status-toggle" type="checkbox" data-id="${row.id}" ${data == "1" ? 'checked' : ''}>
                     </div>`
-                },
-                {
-                    data: 'created_at',
-                    render: (data) => typeof moment !== 'undefined' ? moment(data).format(
-                        'DD-MMM-YYYY hh:mm A') : data
-                },
-                {
-                    data: null,
-                    render: (data, type, row) => `
+            },
+            {
+                data: 'created_at',
+                render: (data) => typeof moment !== 'undefined' ? moment(data).format(
+                    'DD-MMM-YYYY hh:mm A') : data
+            },
+            {
+                data: null,
+                render: (data, type, row) => `
                     <div class="btn-group">
                         <button class="btn btn-outline-primary btn-sm edit-btn me-1 edit-ip" 
                             data-id="${row.id}" data-ip="${row.ip_address}" data-service="${row.service_id}">
@@ -2178,12 +2204,12 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             <i class="bi bi-trash"></i>
                         </button>
                     </div>`
-                }
+            }
             ]
         });
 
 
-        $('.btn[data-bs-target="#addIpModal"]').on('click', function() {
+        $('.btn[data-bs-target="#addIpModal"]').on('click', function () {
             $('#ipForm')[0].reset();
             $('#ip_id').val('');
             $('#modalTitle').text('Add IP to Whitelist');
@@ -2193,7 +2219,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
         });
 
 
-        $(document).on('click', '.edit-ip', function() {
+        $(document).on('click', '.edit-ip', function () {
             const id = $(this).data('id');
             const ip = $(this).data('ip');
             const serviceId = $(this).data('service');
@@ -2208,7 +2234,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
         });
 
 
-        $('#ipForm').on('submit', function(e) {
+        $('#ipForm').on('submit', function (e) {
             e.preventDefault();
             const id = $('#ip_id').val();
             const submitBtn = $('#modalSubmitBtn');
@@ -2221,7 +2247,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                 url: targetUrl,
                 type: "POST",
                 data: $(this).serialize(),
-                success: function(res) {
+                success: function (res) {
                     if (res.status) {
                         $('#ipModal').modal('hide');
                         table.ajax.reload(null, false);
@@ -2230,7 +2256,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                         Swal.fire('Warning', res.message, 'warning');
                     }
                 },
-                error: function(xhr) {
+                error: function (xhr) {
                     let errorMsg = xhr.status === 422 ? Object.values(xhr.responseJSON
                         .errors).flat().join('<br>') : 'Internal Server Error';
                     Swal.fire('Error', errorMsg, 'error');
@@ -2241,7 +2267,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
         });
 
 
-        $(document).on('change', '.status-toggle', function() {
+        $(document).on('change', '.status-toggle', function () {
             let checkbox = $(this);
             let id = checkbox.data('id');
             let isChecked = checkbox.is(':checked') ? 1 : 0;
@@ -2261,7 +2287,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                     $.ajax({
                         url: "{{ route('status_ip_address',['id' => ':id']) }}".replace(':id', id),
                         type: "GET",
-                        success: function(res) {
+                        success: function (res) {
                             if (res.status) {
                                 Swal.fire({
                                     icon: 'success',
@@ -2278,7 +2304,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                     ':checked'));
                             }
                         },
-                        error: function() {
+                        error: function () {
                             Swal.fire('Error', 'Server side error occurred',
                                 'error');
                             checkbox.prop('checked', !checkbox.is(
@@ -2294,7 +2320,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
 
 
-        $(document).on('click', '.delete-ip', function(e) {
+        $(document).on('click', '.delete-ip', function (e) {
             e.preventDefault();
             let id = $(this).data('id');
             let deleteUrl = "{{ route('delete_ip_address',['id'=> ':id']) }}".replace(':id', id);
@@ -2315,7 +2341,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                     $.ajax({
                         url: deleteUrl,
                         type: "GET",
-                        success: function(res) {
+                        success: function (res) {
                             if (res.status) {
                                 Swal.fire({
                                     icon: 'success',
@@ -2329,7 +2355,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                 Swal.fire('Error', res.message, 'error');
                             }
                         },
-                        error: function(xhr) {
+                        error: function (xhr) {
                             console.error(xhr.responseText);
                             Swal.fire('Error',
                                 'Server error: Could not delete the IP.',
@@ -2345,10 +2371,10 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
 
         if ($('#changeMpinForm').length > 0) {
-            $('#changeMpinForm').on('submit', function(e) {
+            $('#changeMpinForm').on('submit', function (e) {
                 e.preventDefault();
                 e.stopPropagation();
 
@@ -2364,7 +2390,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     data: $(this).serialize(),
-                    success: function(response) {
+                    success: function (response) {
                         if (response.status) {
                             Swal.fire('Success', response.message, 'success');
                             $('#changeMpinForm')[0].reset();
@@ -2372,10 +2398,10 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             Swal.fire('Error', response.message, 'error');
                         }
                     },
-                    error: function(xhr) {
+                    error: function (xhr) {
                         if (xhr.status === 422) {
                             let errors = xhr.responseJSON.errors;
-                            $.each(errors, function(key, value) {
+                            $.each(errors, function (key, value) {
                                 $('.error-' + key).text(value[0]);
                             });
                         } else {
@@ -2384,7 +2410,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             Swal.fire('Error', errorMsg, 'error');
                         }
                     },
-                    complete: function() {
+                    complete: function () {
                         submitBtn.prop('disabled', false).text('Update MPIN');
                     }
                 });
@@ -2394,9 +2420,9 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 </script>
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
 
-        $('#webhookForm').on('submit', function(e) {
+        $('#webhookForm').on('submit', function (e) {
             e.preventDefault();
 
             let btn = $('#saveWebhookBtn');
@@ -2408,7 +2434,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                 url: "{{ route('web_hook_url') }}",
                 type: "POST",
                 data: $(this).serialize(),
-                success: function(res) {
+                success: function (res) {
                     if (res.status) {
                         $('#display_webhook_url').text(res.data.url);
                         $('#webhookBtnText').text('Update URL');
@@ -2427,7 +2453,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                         Swal.fire('Error', res.message || 'Something went wrong', 'error');
                     }
                 },
-                error: function(xhr) {
+                error: function (xhr) {
                     if (xhr.status === 422) {
                         let errors = xhr.responseJSON.errors;
                         if (errors && errors.url) {
@@ -2438,7 +2464,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             'error');
                     }
                 },
-                complete: function() {
+                complete: function () {
                     btn.prop('disabled', false).text('Save Changes');
                 }
             });
@@ -2447,7 +2473,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
     });
 </script>
 <script>
-    $(function() {
+    $(function () {
         const kyc = @json(request('is_kyc') === 'Yes');
 
         if (kyc == true || kyc == 1) {
@@ -2455,4 +2481,32 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
         }
     });
 </script>
+
+
+
+<!-- For the Save data in local  -->
+<script>
+    const profileExists = @json(!empty($businessInfo));
+
+    function saveDraft() {
+
+        if (profileExists) return;
+        const userId = $('#user_id').val();  // Get the current logged-in user ID
+        const draftData = { user_id: userId };
+
+        $('#completeProfileModal input, #completeProfileModal select, #completeProfileModal textarea').each(function () {
+
+            const name = $(this).attr('name');
+            if (name === '_token') return;
+            if (!name) return;
+            if ($(this).is(':file')) return;
+            if ($(this).is(':disabled')) return;
+            if ($(this).hasClass('skip-draft')) return;
+            draftData[name] = $(this).val();
+        });
+
+        localStorage.setItem('profileDraft', JSON.stringify(draftData));
+    }
+</script>
+
 @endsection

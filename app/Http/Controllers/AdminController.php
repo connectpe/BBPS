@@ -12,12 +12,12 @@ use App\Models\OauthUser;
 use App\Models\Provider;
 use App\Models\Scheme;
 use App\Models\SchemeRule;
+use App\Models\Transaction;
 use App\Models\User;
 use App\Models\UserAssignedToSupport;
 use App\Models\UserConfig;
 use App\Models\UsersBank;
 use App\Models\UserService;
-use App\Models\Transaction;
 use App\Models\WebHookUrl;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -47,27 +47,36 @@ class AdminController extends Controller
             //     ->get();
 
             $data['userdata'] = User::where('id', $userId)->select('name', 'email', 'mobile', 'status', 'role_id', 'profile_image', 'transaction_amount', 'created_at')->first();
-            $data['businessInfo'] = BusinessInfo::where('user_id', $userId)->first();
-            $data['businessCategory'] = BusinessCategory::where('status', 1)->orderBy('id', 'desc')->get();
-            $data['supportRepresentative'] = UserAssignedToSupport::where('user_id', $userId)->with('assigned_support')->first();
+            $data['businessInfo'] = BusinessInfo::select('user_id', 'business_category_id', 'business_name', 'gst_number', 'business_pan_number', 'business_email', 'business_phone', 'business_document', 'address', 'city', 'state', 'pincode', 'business_pan_name', 'pan_number', 'pan_owner_name', 'aadhar_number', 'aadhar_name', 'bank_id', 'pancard_image', 'aadhar_front_image', 'aadhar_back_image', 'business_type', 'cin_no', 'is_kyc')
+                ->where('user_id', $userId)->first();
+            $data['businessCategory'] = BusinessCategory::select('id', 'name')->where('status', 1)->orderBy('id', 'desc')->get();
+            $data['supportRepresentative'] = UserAssignedToSupport::where('user_id', $userId)->with('assigned_support:id,name,email,mobile')->first();
 
-            $data['usersBank'] = UsersBank::where('user_id', $userId)->first();
-            $data['UserServices'] = UserService::where('user_id', $userId)->where('status', 'approved')->where('is_active', '1')->get();
-            $data['webhookUrl'] = WebHookUrl::where('user_id', $userId)->first();
+            $data['usersBank'] = UsersBank::select(
+                'account_number',
+                'ifsc_code',
+                'branch_name',
+                'bank_docs',
+                'benificiary_name',
+                'ifsc_code',
+                'branch_name',
+                'bank_docs'
+            )->where('user_id', $userId)->first();
+            $data['UserServices'] = UserService::with('service:id,slug,service_name')->where('user_id', $userId)->where('status', 'approved')->where('is_active', '1')->get();
+            $data['webhookUrl'] = WebHookUrl::select('url')->where('user_id', $userId)->first();
             $data['txnStats'] = Transaction::where('user_id', $userId)->where('status', 'processed')
                 ->selectRaw('COUNT(id) as total_count, SUM(amount) as total_amount, MIN(created_at) as first_txn_date')
                 ->first();
-
             if (in_array($role, [1])) {
                 $data['txnStats'] = Transaction::where('status', 'processed')
                     ->selectRaw('COUNT(id) as total_count, SUM(amount) as total_amount, MIN(created_at) as first_txn_date')
                     ->first();
             }
-           
-            $data['walletBalance'] = $data['userdata']->transaction_amount ?? 0;
-            $data['completedTxn']  = $data['txnStats']->total_count ?? 0;
-            $data['totalSpent']    = $data['txnStats']->total_amount ?? 0;
 
+
+            $data['walletBalance'] = $data['userdata']->transaction_amount ?? 0;
+            $data['completedTxn'] = $data['txnStats']->total_count ?? 0;
+            $data['totalSpent'] = $data['txnStats']->total_amount ?? 0;
 
             return view('Admin.profile')->with($data);
         } catch (\Exception $e) {
@@ -102,101 +111,114 @@ class AdminController extends Controller
     public function dashboard()
     {
         $role = Auth::user()->role_id;
-        switch ($role) {
-            case 1:
-                return redirect()->route('admin.dashboard');
-            case 2:
-                return redirect()->route('user.dashboard');
-            case 3:
-                return redirect()->route('api.dashboard');
-            case 4:
-                return redirect()->route('support.dashboard');
-            default:
-                return redirect()->route('unauthrized.page');
-        }
-    }
-
-    public function disableUserService(Request $request)
-    {
 
         try {
-
-            if (! auth()->check() && auth::user()->role_id != '1') {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Unauthorized',
-                ], 401);
-            }
-
-            $validator = Validator::make($request->all(), [
-                'service_id' => 'required|string|max:50',
-                'type' => 'required|string|in:is_api_allowed,is_active',
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'message' => 'Validation failed',
-                    'errors' => $validator->errors(),
-                ], 422);
-            }
-
-            $data = GlobalService::find($request->service_id);
-
-            if (! $data) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Service not found.',
-                ]);
-            }
-
-            switch ($request->type) {
-                case 'is_api_allowed':
-                    $data->is_activation_allowed = $data->is_activation_allowed == '1' ? '0' : '1';
-                    $data->save();
-
-                    return response()->json([
-                        'status' => true,
-                        'message' => 'API Activation Updated  Successfully',
-                    ]);
-                    break;
-                case 'is_active':
-                    $data->is_active = $data->is_active == '1' ? '0' : '1';
-                    $data->save();
-
-                    return response()->json([
-                        'status' => true,
-                        'message' => 'Service Status Updated  Successfully',
-                    ]);
-                    break;
+            switch ($role) {
+                case 1:
+                    return redirect()->route('admin.dashboard');
+                case 2:
+                    return redirect()->route('user.dashboard');
+                case 3:
+                    return redirect()->route('api.dashboard');
+                case 4:
+                    return redirect()->route('support.dashboard');
                 default:
-                    return response()->json([
-                        'status' => false,
-                        'message' => 'Invalid type provided',
-                    ]);
+                    return redirect()->route('unauthrized.page');
             }
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => $e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
 
+
+    public function disableUserService(Request $request)
+    {
+        // Authorization check
+        if (!auth()->check() || auth()->user()->role_id != '1') {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthorized',
+            ], 401);
+        }
+
+        // Validation
+        $validator = Validator::make($request->all(), [
+            'service_id' => 'required|string|max:50',
+            'type'       => 'required|string|in:is_api_allowed,is_active',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Validation failed',
+                'errors'  => $validator->errors(),
+            ], 422);
+        }
+
+        // Wrap DB operations in a transaction
+        try {
+            DB::transaction(function () use ($request) {
+
+                $data = GlobalService::find($request->service_id);
+
+                if (! $data) {
+                    throw new \Exception('Service not found.');
+                }
+
+                switch ($request->type) {
+                    case 'is_api_allowed':
+                        $data->is_activation_allowed = $data->is_activation_allowed == '1' ? '0' : '1';
+                        $data->save();
+                        break;
+
+                    case 'is_active':
+                        $data->is_active = $data->is_active == '1' ? '0' : '1';
+                        $data->save();
+                        break;
+
+                    default:
+                        throw new \Exception('Invalid type provided');
+                }
+            });
+
+            // If we reach here, transaction was successful
+            $message = $request->type === 'is_api_allowed'
+                ? 'API Activation Updated Successfully'
+                : 'Service Status Updated Successfully';
+
+            return response()->json([
+                'status'  => true,
+                'message' => $message,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Error : ' . $e->getMessage(),
+            ]);
+        }
+    }
+
+
     public function addService(Request $request)
     {
+
+        if (! auth()->check() || auth()->user()->role_id != '1') {
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthorized',
+            ], 401);
+        }
+
+        $request->validate([
+            'service_name' => 'required|string|max:50|unique:global_services,service_name',
+        ]);
+
+        DB::beginTransaction();
         try {
-
-            if (! auth()->check() || auth()->user()->role_id != '1') {
-
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Unauthorized',
-                ], 401);
-            }
-
-            $request->validate([
-                'service_name' => 'required|string|max:50|unique:global_services,service_name',
-            ]);
 
             $data = [
                 'service_name' => $request->service_name,
@@ -204,13 +226,14 @@ class AdminController extends Controller
             ];
 
             $service = GlobalService::create($data);
-
+            DB::commit();
             return response()->json([
                 'status' => true,
                 'message' => 'Service added successfully',
                 'data' => $service,
             ], 201);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -277,6 +300,7 @@ class AdminController extends Controller
     public function UserStatusChange(Request $request, $userId)
     {
 
+        DB::beginTransaction();
         try {
 
             $this->validateUser();
@@ -299,13 +323,14 @@ class AdminController extends Controller
             $user->status = $request->status;
             $user->updated_at = now();
             $user->save();
-
+            DB::commit();
             return response()->json([
                 'status' => true,
                 'message' => 'User status updated  successfully',
 
             ], 200);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -346,8 +371,14 @@ class AdminController extends Controller
 
     public function providers()
     {
-        $globalServices = GlobalService::where('is_active', '1')->select('id', 'service_name')->orderBy('id', 'desc')->get();
-
+        try {
+            $globalServices = GlobalService::select('id', 'service_name')->where('is_active', '1')->select('id', 'service_name')->orderBy('id', 'desc')->get();
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Error : ' . $e->getMessage()
+            ]);
+        }
         return view('Provider.providers', compact('globalServices'));
     }
 
@@ -589,17 +620,29 @@ class AdminController extends Controller
 
     public function editScheme($id)
     {
+        try {
 
-        $scheme = Scheme::with('rules')->find($id);
+            $scheme = Scheme::with('rules')->find($id);
 
-        if (! $scheme) {
-            return response()->json(['status' => false, 'message' => 'Scheme not found'], 404);
+            if (! $scheme) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Scheme not found',
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => true,
+                'scheme' => $scheme,
+            ]);
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-
-        return response()->json([
-            'status' => true,
-            'scheme' => $scheme,
-        ]);
     }
 
     public function updateSchemeAndRule(Request $request, $schemeId)
@@ -673,36 +716,35 @@ class AdminController extends Controller
             $updatedBy = Auth::user()->id;
             $scheme = Scheme::findOrFail($schemeId);
 
-
-            if (!$scheme) {
+            if (! $scheme) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Scheme not found'
+                    'message' => 'Scheme not found',
                 ]);
             }
 
             $scheme->update([
                 'scheme_name' => $request->scheme_name,
 
-                'updated_by'  => $updatedBy,
+                'updated_by' => $updatedBy,
             ]);
 
             $existingRuleIds = [];
 
             foreach ($request->rules as $ruleData) {
 
-                if (!empty($ruleData['rule_id'])) {
+                if (! empty($ruleData['rule_id'])) {
                     // Update existing rule
                     $rule = SchemeRule::findOrFail($ruleData['rule_id']);
                     $rule->update([
-                        'service_id'  => $ruleData['service_id'],
+                        'service_id' => $ruleData['service_id'],
                         'start_value' => (float) $ruleData['start_value'],
-                        'end_value'   => (float) $ruleData['end_value'],
-                        'type'        => $ruleData['type'],
-                        'fee'         => (float) $ruleData['fee'],
-                        'min_fee'     => (float) $ruleData['min_fee'],
-                        'max_fee'     => (float) $ruleData['max_fee'],
-                        'updated_by'  => $updatedBy,
+                        'end_value' => (float) $ruleData['end_value'],
+                        'type' => $ruleData['type'],
+                        'fee' => (float) $ruleData['fee'],
+                        'min_fee' => (float) $ruleData['min_fee'],
+                        'max_fee' => (float) $ruleData['max_fee'],
+                        'updated_by' => $updatedBy,
                     ]);
 
                     $existingRuleIds[] = $rule->id;
@@ -741,7 +783,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error: ' . $e->getMessage()
+                'message' => 'Error: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -799,12 +841,29 @@ class AdminController extends Controller
 
     public function editAssignedScheme($id)
     {
-        $config = UserConfig::find($id);
-        if (! $config) {
-            return response()->json(['status' => false, 'message' => 'Not found'], 404);
-        }
+        try {
 
-        return response()->json(['status' => true, 'data' => $config]);
+            $config = UserConfig::find($id);
+
+            if (! $config) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Not found',
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => true,
+                'data' => $config,
+            ]);
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function updateAssignedSchemetoUser(Request $request, $configId)
@@ -890,6 +949,7 @@ class AdminController extends Controller
 
     public function deleteAssignedScheme($id)
     {
+        DB::beginTransaction();
         try {
             $config = UserConfig::find($id);
             if (! $config) {
@@ -897,25 +957,39 @@ class AdminController extends Controller
             }
 
             $config->delete();
+            DB::commit();
 
             return response()->json([
                 'status' => true,
                 'message' => 'Relation deleted successfully!',
             ]);
         } catch (\Exception $e) {
-            return response()->json(['status' => false, 'message' => $e->getMessage()]);
+            DB::rollBack();
+            return response()->json(['status' => false, 'message' => 'Error : ' . $e->getMessage()]);
         }
     }
 
     public function UserassigntoSupport()
     {
-        $data['users'] = User::whereNotIn('role_id', [1, 4])->where('status', '1')->get();
-        $data['supportStaffs'] = User::where('role_id', 4)->where('status', '1')->get();
-        $data['alreadyAssignedIds'] = UserAssignedToSupport::pluck('user_id')->toArray();
-        $data['assignedUsers'] = User::whereIn('id', UserAssignedToSupport::query()->distinct()->pluck('user_id'))->orderBy('name')->get();
-        $data['assignedSupports'] = User::whereIn('id', UserAssignedToSupport::query()->distinct()->pluck('assined_to'))->orderBy('name')->get();
 
-        return view('AssignuserSupport.index', $data);
+
+        DB::beginTransaction();
+        try {
+            $data['users'] = User::select('id', 'name')->whereNotIn('role_id', [1, 4])->where('status', '1')->get();
+            $data['supportStaffs'] = User::select('id', 'name')->where('role_id', 4)->where('status', '1')->get();
+            $data['alreadyAssignedIds'] = UserAssignedToSupport::pluck('user_id')->toArray();
+            $data['assignedUsers'] = User::whereIn('id', UserAssignedToSupport::query()->distinct()->pluck('user_id'))->orderBy('name')->get();
+            $data['assignedSupports'] = User::whereIn('id', UserAssignedToSupport::query()->distinct()->pluck('assined_to'))->orderBy('name')->get();
+
+            DB::commit();
+            return view('AssignuserSupport.index', $data);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json([
+                'status' => false,
+                'message' => 'Error : ' . $e->getMessage(),
+            ]);
+        }
     }
 
     public function UserAssignedtoSupportuser(Request $request)
@@ -953,23 +1027,29 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-
             return response()->json(['status' => false, 'message' => 'Error: ' . $e->getMessage()], 500);
         }
     }
 
     public function editSupportAssignment($id)
     {
-        $data = UserAssignedToSupport::find($id);
-        if ($data) {
+        try {
+            $data = UserAssignedToSupport::find($id);
+            if (!$data) {
+                return response()->json(['status' => false, 'message' => 'Not Found']);
+            }
             return response()->json(['status' => true, 'data' => $data]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Error : ' . $e->getMessage(),
+            ]);
         }
-
-        return response()->json(['status' => false, 'message' => 'Not Found']);
     }
 
     public function deleteSupportAssignment($id)
     {
+        DB::beginTransaction();
         try {
             $assignment = UserAssignedToSupport::find($id);
 
@@ -981,12 +1061,13 @@ class AdminController extends Controller
             }
 
             $assignment->delete();
-
+            DB::commit();
             return response()->json([
                 'status' => true,
                 'message' => 'Assignment removed successfully!',
             ]);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'status' => false,
                 'message' => 'Error: ' . $e->getMessage(),
@@ -1001,6 +1082,7 @@ class AdminController extends Controller
 
     public function addSupportMember(Request $request)
     {
+        DB::beginTransaction();
         try {
             if (! Auth::user()->role_id == 1) {
                 return response()->json([
@@ -1027,12 +1109,13 @@ class AdminController extends Controller
             ];
 
             $member = User::create($payload);
-
+            DB::commit();
             return response()->json([
                 'status' => true,
                 'message' => 'Member created Successfully',
             ]);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -1042,13 +1125,21 @@ class AdminController extends Controller
 
     public function getSupportMember($id)
     {
-        $user = User::find($id);
 
-        return $user ? response()->json(['status' => true, 'data' => $user]) : response()->json(['status' => false]);
+        try {
+            $user = User::find($id);
+            return $user ? response()->json(['status' => true, 'data' => $user]) : response()->json(['status' => false]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Error : ' . $e->getMessage(),
+            ]);
+        }
     }
 
     public function editSupportMember(Request $request, $user_id)
     {
+        DB::beginTransaction();
         try {
             if (Auth::user()->role_id != 1) {
                 return response()->json(['status' => false, 'message' => 'unauthorized access']);
@@ -1070,17 +1161,19 @@ class AdminController extends Controller
             $member->email = $request->email;
             $member->mobile = $request->mobile;
             $member->save();
-
+            DB::commit();
             return response()->json([
                 'status' => true,
                 'message' => 'Member updated Successfully',
             ]);
         } catch (ValidationException $e) {
+            DB::rollBack();
             return response()->json([
                 'status' => false,
                 'errors' => $e->errors(),
             ], 422);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -1275,14 +1368,12 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-
             return response()->json([
                 'status' => false,
                 'message' => 'Something went wrong: ' . $e->getMessage(),
             ], 500);
         }
     }
-
 
     public function addDefaultProvider(Request $request)
     {
@@ -1291,7 +1382,6 @@ class AdminController extends Controller
             'provider_id' => 'required|exists:providers,id',
         ]);
 
-
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
@@ -1299,9 +1389,7 @@ class AdminController extends Controller
             ], 422);
         }
 
-
         DB::beginTransaction();
-
 
         try {
 
@@ -1309,7 +1397,7 @@ class AdminController extends Controller
             $provider = Provider::find($request->provider_id);
             $duplicateProvider = DefaultProvider::where('service_id', $request->service_id)->where('provider_id', $request->provider_id)->first();
 
-            if (!$provider) {
+            if (! $provider) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Provider not found',
@@ -1329,8 +1417,6 @@ class AdminController extends Controller
                 'provider_slug' => 'default_' . $provider->provider_slug,
                 'updated_by' => $updatedBy,
             ];
-
-
 
             $provider = DefaultProvider::create($data);
 
@@ -1351,7 +1437,6 @@ class AdminController extends Controller
         }
     }
 
-
     public function editDefaultProvider(Request $request, $Id)
     {
         $validator = Validator::make($request->all(), [
@@ -1359,14 +1444,12 @@ class AdminController extends Controller
             'provider_id' => 'required|exists:providers,id',
         ]);
 
-
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
                 'errors' => $validator->errors(),
             ], 422);
         }
-
 
         DB::beginTransaction();
 
@@ -1380,14 +1463,14 @@ class AdminController extends Controller
                 ->where('id', '!=', $Id)
                 ->first();
 
-            if (!$provider) {
+            if (! $provider) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Provider not found',
                 ]);
             }
 
-            if (!$defaultProvider) {
+            if (! $defaultProvider) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Default Provider not found',
@@ -1407,7 +1490,6 @@ class AdminController extends Controller
                 'provider_slug' => 'default_' . $provider->provider_slug,
                 'updated_by' => $updatedBy,
             ];
-
 
             $defaultProvider->update($data);
 
@@ -1429,28 +1511,39 @@ class AdminController extends Controller
         }
     }
 
-
     public function defalutSlug()
     {
-        $services = GlobalService::where('is_active', '1')->select('id', 'service_name')->orderBy('service_name')->get();
-        return view('Provider.defaultslug', compact('services'));
+        try {
+            $services = GlobalService::where('is_active', '1')->select('id', 'service_name')->orderBy('service_name')->get();
+            return view('Provider.defaultslug', compact('services'));
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Error : ' . $e->getMessage(),
+            ]);
+        }
     }
 
     public function getProvidersByService($serviceId)
     {
-        $providers = Provider::where('service_id', (int)$serviceId)
-            ->where('is_active', '1')
-            ->select('id', 'provider_name')
-            ->orderBy('provider_name')
-            ->get();
+        try {
+            $providers = Provider::where('service_id', (int) $serviceId)
+                ->where('is_active', '1')
+                ->select('id', 'provider_name')
+                ->orderBy('provider_name')
+                ->get();
 
-        return response()->json([
-            'status' => true,
-            'data' => $providers,
-        ]);
+            return response()->json([
+                'status' => true,
+                'data' => $providers,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Error : ' . $e->getMessage(),
+            ]);
+        }
     }
-
-
 
     // public function editDefaultProvider(Request $request, $Id)
     // {
@@ -1459,14 +1552,12 @@ class AdminController extends Controller
     //         'provider_id' => 'required|exists:providers,id',
     //     ]);
 
-
     //     if ($validator->fails()) {
     //         return response()->json([
     //             'status' => false,
     //             'errors' => $validator->errors(),
     //         ], 422);
     //     }
-
 
     //     DB::beginTransaction();
 
@@ -1508,7 +1599,6 @@ class AdminController extends Controller
     //             'updated_by' => $updatedBy,
     //         ];
 
-
     //         $defaultProvider->update($data);
 
     //         DB::commit();
@@ -1528,26 +1618,44 @@ class AdminController extends Controller
     //     }
     // }
 
-
-
-
-
     public function nsdlPayment()
     {
-        $users = User::where('role_id', '!=', '1')->whereHas('nsdlPayments')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
-        $globalServices = GlobalService::where('is_active', '1')->orderBy('id', 'desc')->get();
-        return view('Transaction.nsdl-payment', compact('users', 'globalServices'));
+
+        DB::beginTransaction();
+        try {
+            $users = User::select('id', 'name', 'email')->where('role_id', '!=', '1')->whereHas('nsdlPayments')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
+            $globalServices = GlobalService::select('id', 'service_name')->where('is_active', '1')->orderBy('id', 'desc')->get();
+            DB::commit();
+            return view('Transaction.nsdl-payment', compact('users', 'globalServices'));
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json([
+                'status' => false,
+                'message' => 'Error : ' . $e->getMessage(),
+            ]);
+        }
     }
 
     public function supportBasedUserList($Id)
     {
-        $support = User::find($Id);
-        if (!$support) {
+
+        DB::beginTransaction();
+        try {
+            $support = User::find($Id);
+            if (! $support) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Support User not found',
+                ]);
+            }
+            DB::commit();
+            return view('AssignuserSupport.support-based-user-list', compact('support'));
+        } catch (\Exception $e) {
+            DB::rollback();
             return response()->json([
                 'status' => false,
-                'message' => 'Support User not found'
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
-        return view('AssignuserSupport.support-based-user-list', compact('support'));
     }
 }

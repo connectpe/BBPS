@@ -171,7 +171,7 @@
                         return `
                             <div class="form-check form-switch">
                                 <input class="form-check-input cursor-pointer" type="checkbox" ${checked}
-                                    onchange="changeStatus('${row.id}')">
+                                    onchange="changeStatus(this,'${row.id}')">
                             </div>
                         `;
                     },
@@ -203,8 +203,8 @@
     });
 
 
-    function changeStatus(id) {
-
+    function changeStatus(checkbox,id) {
+ checkbox.checked = !checkbox.checked;
         let url = "{{ route('status_provider', ['id' => ':id']) }}";
         url = url.replace(':id', id);
         Swal.fire({
@@ -217,6 +217,7 @@
             cancelButtonText: 'No'
         }).then((result) => {
             if (result.isConfirmed) {
+                 checkbox.checked = !checkbox.checked;
                 $.ajax({
                     url: url,
                     type: 'GET',

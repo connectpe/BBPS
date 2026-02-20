@@ -534,7 +534,7 @@
                         <ul class="nav flex-column">
 
                             <li class="nav-item">
-                                <a href="{{ route('reseller.reports',['type' => 'recharge']) }}"
+                                <a href="{{ route('reports',['type' => 'recharge']) }}"
                                     class="nav-link text-white {{ request()->is('reports/recharge') ? 'sidebar-active' : '' }}">
                                     <i class="bi bi-phone me-2"></i>
                                     Recharge
