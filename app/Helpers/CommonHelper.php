@@ -65,17 +65,17 @@ class CommonHelper
 
     public static function generateTransactionId()
     {
-        return 'TXN' . time() . rand(100000, 999999);
+        return 'TXN' . time() . rand(100, 999);
     }
 
     public static function generatePaymentRefId()
     {
-        return 'PAY' . time() . rand(100000, 999999);
+        return 'PAY' . time() . rand(100, 999);
     }
 
     public static function generateConnectPeTransactionId()
     {
-        return "CPE" . time() . rand(100000, 999999);
+        return "CPE" . time() . rand(100, 999);
     }
 
     public static function isTokenPresent()
