@@ -35,7 +35,7 @@ class FileUploadHelper
         // Nothing to upload
         if (!$files) return null;
 
-        // Handle multiple files
+      
         if (is_array($files)) {
             $paths = [];
             foreach ($files as $file) {
