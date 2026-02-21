@@ -108,7 +108,7 @@ class MobikwikController extends Controller
             if (!$userData) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'you are passing the invalied credentials'
+                    'message' => 'you are passing the invalid credentials'
 
                 ], 403);
             }
@@ -141,18 +141,31 @@ class MobikwikController extends Controller
                 'service' => $serviceId,
             ];
             return $data;
-        } catch (Exception $e) {
-            return respponse()->json([
+        } catch (\Exception $e) {
+            return response()->json([
                 'status' => false,
                 'message' => $e->getMessage()
             ]);
         }
     }
+
     public function getPlans(Request $request, $provider, $circle_id, $operator_id, $plan_type = null)
     {
         try {
 
-            $this->ValidateUsers($request);
+            $data = $this->ValidateUsers($request);
+            $userId = $data['user_id'];
+            $serviceId = $data['service'];
+            $ip = $request->ip();
+
+            $ipWhitelist = CommonHelper::checkIpWhiteList($userId, $serviceId, $ip);
+            if (!$ipWhitelist) {
+                return response()->json([
+                    'status' => false,
+                    'mesage' => 'Ip not whitelisted'
+                ]);
+            }
+
             $opId = $operator_id;
             $cirId = $circle_id;
             $planType = $plan_type;
@@ -271,7 +284,7 @@ class MobikwikController extends Controller
                         "message" => "provider slug not found",
                     ]);
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -282,7 +295,19 @@ class MobikwikController extends Controller
     public function getBalance(Request $request, $type)
     {
 
-        $this->ValidateUsers($request);
+        // $this->ValidateUsers($request);
+        $data = $this->ValidateUsers($request);
+        $userId = $data['user_id'];
+        $serviceId = $data['service'];
+        $ip = $request->ip();
+
+        $ipWhitelist = CommonHelper::checkIpWhiteList($userId, $serviceId, $ip);
+        if (!$ipWhitelist) {
+            return response()->json([
+                'status' => false,
+                'mesage' => 'Ip not whitelisted'
+            ]);
+        }
 
         switch ($type) {
 
@@ -397,7 +422,19 @@ class MobikwikController extends Controller
     }
     public function validateRecharge(Request $request, $type)
     {
-        $this->ValidateUsers($request);
+        // $this->ValidateUsers($request);
+        $data = $this->ValidateUsers($request);
+        $userId = $data['user_id'];
+        $serviceId = $data['service'];
+        $ip = $request->ip();
+
+        $ipWhitelist = CommonHelper::checkIpWhiteList($userId, $serviceId, $ip);
+        if (!$ipWhitelist) {
+            return response()->json([
+                'status' => false,
+                'mesage' => 'Ip not whitelisted'
+            ]);
+        }
 
         $request->validate([
             'amount' => 'required|string',
@@ -460,6 +497,16 @@ class MobikwikController extends Controller
         $data = $this->ValidateUsers($request);
         $userId = $data['user_id'];
         $serviceId = $data['service'];
+        $ip = $request->ip();
+
+        $ipWhitelist = CommonHelper::checkIpWhiteList($userId, $serviceId, $ip);
+        if (!$ipWhitelist) {
+            return response()->json([
+                'status' => false,
+                'mesage' => 'Ip not whitelisted'
+            ]);
+        }
+
         $request->validate([
             'customerNUmber' => 'required',
             'operator' => 'required',
@@ -479,9 +526,9 @@ class MobikwikController extends Controller
             case 'mobikwik-payment':
                 try {
                     $connectPeId = CommonHelper::generateConnectPeTransactionId();
-                    $defaultSlugData = DefaultProvider::select('provider_slug')->where('service_id',$serviceId)->first();
-                    if(empty($defaultSlugData)){
-                        $defaultSlugData = UserRooting::select('provider_slug')->where(['user_id'=>$userId,'service_id'=> $serviceId])->first();
+                    $defaultSlugData = DefaultProvider::select('provider_slug')->where('service_id', $serviceId)->first();
+                    if (empty($defaultSlugData)) {
+                        $defaultSlugData = UserRooting::select('provider_slug')->where(['user_id' => $userId, 'service_id' => $serviceId])->first();
                     }
 
                     $slug = $defaultSlugData->provider_slug;
@@ -495,7 +542,7 @@ class MobikwikController extends Controller
                         "remitterName" => $request->remitterName,
                         "paymentRefID" => $request->paymentRefID,
                         "paymentMode" => 'Wallet',
-                        "connectpeId"=> $connectPeId,
+                        "connectpeId" => $connectPeId,
                         "paymentAccountInfo" => '9999999999',
                         'status'                => 'queued',
                         "call"               => 'balance_debit',
@@ -524,7 +571,7 @@ class MobikwikController extends Controller
                     $token = $this->isTokenPresent();
                     $endpoint = '/recharge/v3/retailerPayment';
 
-                   dispatch(
+                    dispatch(
                         new DebitBalanceUpdateJob(
                             $endpoint,
                             $payload,
@@ -581,7 +628,19 @@ class MobikwikController extends Controller
 
     public function fetchPostpaidBill(Request $request, $type)
     {
-        $this->ValidateUsers($request);
+        // $this->ValidateUsers($request);
+        $data = $this->ValidateUsers($request);
+        $userId = $data['user_id'];
+        $serviceId = $data['service'];
+        $ip = $request->ip();
+
+        $ipWhitelist = CommonHelper::checkIpWhiteList($userId, $serviceId, $ip);
+        if (!$ipWhitelist) {
+            return response()->json([
+                'status' => false,
+                'mesage' => 'Ip not whitelisted'
+            ]);
+        }
 
         $request->validate([
             'connectionNumber' => 'required|string',
@@ -624,7 +683,20 @@ class MobikwikController extends Controller
 
     public function mobikwikStatus(Request $request, $type)
     {
-        $this->ValidateUsers($request);
+        // $this->ValidateUsers($request);
+        $data = $this->ValidateUsers($request);
+        $userId = $data['user_id'];
+        $serviceId = $data['service'];
+        $ip = $request->ip();
+
+        $ipWhitelist = CommonHelper::checkIpWhiteList($userId, $serviceId, $ip);
+        if (!$ipWhitelist) {
+            return response()->json([
+                'status' => false,
+                'mesage' => 'Ip not whitelisted'
+            ]);
+        }
+
         $request->validate([
             'txnId' => 'required|string',
         ]);
