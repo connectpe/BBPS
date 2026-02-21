@@ -3,9 +3,11 @@
 namespace App\Helpers;
 
 use App\Models\GlobalService;
+use App\Models\IpWhitelist;
 use App\Models\OauthUser;
 use App\Models\MobikwikToken;
 use App\Models\UserRooting;
+use App\Models\IpWhitelist;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
@@ -114,4 +116,63 @@ class CommonHelper
         }
         return $data;
     }
+
+
+
+//     public static function isIpWhitelisted($userId, $serviceId, $ipAddress): array{
+//         try{
+//             $exists = IpWhitelist::where('user_id', $userId)->where('service_id', $serviceId)
+//             ->where('ip_address', $ipAddress) ->where('is_active', 1)->where('is_deleted', 0)
+//             ->exists();
+//             if ($exists) {
+//                 return [
+//                     'status' => true,
+//                     'message' => 'IP is whitelisted.'
+//                 ];
+//             } else {
+//                 return [
+//                     'status' => false,
+//                     'message' => 'IP is not whitelisted.'
+//                 ];
+//             }
+
+//         } catch (\Throwable $e) {
+//             Log::error('IP Whitelist Check Error', [
+//                 'error' => $e->getMessage(),
+//                 'file'  => $e->getFile(),
+//                 'line'  => $e->getLine(),
+//             ]);
+//             return [
+//                 'status'  => false,
+//                 'message' => 'Unable to verify IP whitelist.'
+//             ];
+//         }
+//     }
+
+
+    public static function checkIpWhiteList($userId, $serviceId, $ip)
+    {
+        try {
+            if (empty($userId) && empty($serviceId) && empty($ip)) {
+                return false;
+            }
+
+            $status = false;
+
+            $data = IpWhitelist::where(['user_id' => $userId, 'service_id' => $serviceId, 'ip_address' => $ip])->count();
+
+
+            if ($data > 0) {
+                $status = true;
+            }
+
+            return $status;
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
+
 }
