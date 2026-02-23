@@ -457,9 +457,6 @@ $rechargePlanTypes = [
 @endphp
 
 
-
-
-
 <script>
     let clickCount = 0;
 
