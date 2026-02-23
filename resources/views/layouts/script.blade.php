@@ -253,11 +253,11 @@
 
     // Format daeTime like  formatDateTime(dateValue) => Jan-27 2026 03:14 pm
     function formatDateTime(dateValue) {
-        if (!dateValue) return '';
+        if (!dateValue) return '----';
 
         const date = new Date(dateValue);
 
-        if (isNaN(date)) return '';
+        if (isNaN(date)) return '----';
 
         const month = date.toLocaleString('en-US', {
             month: 'short'
@@ -277,11 +277,11 @@
     }
 
     function formatDate(dateValue) {
-        if (!dateValue) return '-';
+        if (!dateValue) return '----';
 
         const date = new Date(dateValue);
 
-        if (isNaN(date)) return '';
+        if (isNaN(date)) return '----';
 
         const month = date.toLocaleString('en-US', {
             month: 'short'

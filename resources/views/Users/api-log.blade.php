@@ -8,11 +8,13 @@
 <div class="accordion mb-3" id="filterAccordion">
     <div class="accordion-item">
         <h2 class="accordion-header" id="headingFilter">
-            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
+            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
                 Filter
             </button>
         </h2>
-        <div id="collapseFilter" class="accordion-collapse collapse" aria-labelledby="headingFilter" data-bs-parent="#filterAccordion">
+        <div id="collapseFilter" class="accordion-collapse collapse" aria-labelledby="headingFilter"
+            data-bs-parent="#filterAccordion">
             <div class="accordion-body">
                 <div class="row g-3 align-items-end">
 
@@ -85,7 +87,8 @@
                 <h5 class="modal-title" id="apiResponseModalLabel">Content</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" style="white-space: pre-wrap; font-family: monospace; max-height: 70vh; overflow-y: auto;">
+            <div class="modal-body"
+                style="white-space: pre-wrap; font-family: monospace; max-height: 70vh; overflow-y: auto;">
                 <!-- API response will appear here -->
             </div>
         </div>
@@ -94,7 +97,7 @@
 
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
 
         var table = $('#logTable').DataTable({
             processing: true,
@@ -104,7 +107,7 @@
             ajax: {
                 url: "{{url('fetch')}}/api-logs/0",
                 type: 'POST',
-                data: function(d) {
+                data: function (d) {
                     d._token = $('meta[name="csrf-token"]').attr('content');
                     d.user_id = $('#filterName').val();
                     d.date_from = $('#date_from').val();
@@ -118,116 +121,131 @@
                 "<'row'<'col-12'tr>>" +
                 "<'row mt-2'<'col-sm-6'i><'col-sm-6'p>>",
             buttons: [{
-                    extend: 'excelHtml5',
-                    text: 'Excel',
-                    className: 'btn buttonColor btn-sm'
+                extend: 'excelHtml5',
+                text: 'Excel',
+                className: 'btn buttonColor btn-sm'
 
-                },
-                {
-                    extend: 'pdfHtml5',
-                    text: 'PDF',
-                    className: 'btn buttonColor btn-sm'
-                }
+            },
+            {
+                extend: 'pdfHtml5',
+                text: 'PDF',
+                className: 'btn buttonColor btn-sm'
+            }
             ],
             language: {
                 searchPlaceholder: "Search Activity..."
             },
 
             columns: [{
-                    data: null,
-                    orderable: false,
-                    searchable: false,
-                    render: function(data, type, row, meta) {
-                        return meta.settings._iDisplayStart + meta.row + 1;
-                    }
-                },
-                {
-                    data: function(row) {
-                        const userName = row.user?.name || '----';
-                        const businessName = row.user?.business?.business_name || '----';
-                        const url = "{{ route('view_user', ['id' => 'id']) }}".replace('id', row.user_id);
-                        return `
+                data: null,
+                orderable: false,
+                searchable: false,
+                render: function (data, type, row, meta) {
+                    return meta.settings._iDisplayStart + meta.row + 1;
+                }
+            },
+            {
+                data: function (row) {
+                    const userName = row.user?.name || '----';
+                    const businessName = row.user?.business?.business_name || '----';
+                    const url = "{{ route('view_user', ['id' => 'id']) }}".replace('id', row.user_id);
+                    return `
                                 <a href="${url}" class="text-primary fw-semibold text-decoration-none">
                                     ${userName ?? '----'} <br/>
                                     [${businessName ?? '----'}]
                                 </a>
                             `;
-                    }
-                },
-                {
-                    data: 'method'
-                },
-                {
-                    data: 'endpoint'
-                },
-                {
-                    data: function(row) {
-                        const content = typeof row.request_body === 'object' ? JSON.stringify(row.request_body, null, 4) : row.request_body;
-                        return `<i class="fas fa-eye cursor-pointer viewContent"
+                }
+            },
+            {
+                data: 'method',
+                render: function (data) {
+                    return data || '----'
+                }
+            },
+            {
+                data: 'endpoint',
+                render: function (data) {
+                    return data || '----'
+                }
+            },
+            {
+                data: function (row) {
+                    const content = typeof row.request_body === 'object' ? JSON.stringify(row.request_body, null, 4) : row.request_body;
+                    return `<i class="fas fa-eye cursor-pointer viewContent"
                                     data-title="API Response Body"
                                     data-content='${content.replace(/'/g, "&#39;")}'>
                                 </i>`;
-                    }
-                },
-                {
-                    data: function(row) {
-                        const content = typeof row.response_body === 'object' ? JSON.stringify(row.response_body, null, 4) : row.response_body;
-                        return `<i class="fas fa-eye cursor-pointer viewContent"
+                }
+            },
+            {
+                data: function (row) {
+                    const content = typeof row.response_body === 'object' ? JSON.stringify(row.response_body, null, 4) : row.response_body;
+                    return `<i class="fas fa-eye cursor-pointer viewContent"
                                     data-title="API Response Body"
                                     data-content='${content.replace(/'/g, "&#39;")}'>
                                 </i>`;
-                    }
-                },
-                {
-                    data: 'status_code'
-                },
-                {
-                    data: 'ip_address'
-                },
-                {
-                    data: function(row) {
-                        const content = typeof row.user_agent === 'object' ? JSON.stringify(row.user_agent, null, 4) : row.user_agent;
-                        return `<i class="fas fa-eye cursor-pointer viewContent"
+                }
+            },
+            {
+                data: 'status_code',
+                render: function (data) {
+                    return data || '----'
+                }
+            },
+            {
+                data: 'ip_address',
+                render: function (data) {
+                    return data || '----'
+                }
+            },
+            {
+                data: function (row) {
+                    const content = typeof row.user_agent === 'object' ? JSON.stringify(row.user_agent, null, 4) : row.user_agent;
+                    return `<i class="fas fa-eye cursor-pointer viewContent"
                                     data-title=""
                                     data-content='${content.replace(/'/g, "&#39;")}'>
                                 </i>`;
-                    }
-                },
-                {
-                    data: 'execution_time'
-                },
-                {
-                    data: function(row) {
-                        return formatDateTime(row.created_at)
-                    }
-                },
-                {
-                    data: function(row) {
-                        const content = typeof row.location_details === 'object' ? JSON.stringify(row.location_details, null, 4) : row.location_details;
-                        return `<i class="fas fa-eye cursor-pointer viewContent"
+                }
+            },
+            {
+                data: 'execution_time',
+                render: function (data) {
+                    return data || '----'
+                }
+            },
+            {
+                data: function (row) {
+                    return formatDateTime(row.created_at)
+                }
+            },
+            {
+                data: function (row) {
+                    const content = typeof row.location_details === 'object' ? JSON.stringify(row.location_details, null, 4) : row.location_details;
+                    return `<i class="fas fa-eye cursor-pointer viewContent"
                                     data-title="API Response Body"
                                     data-content='${content.replace(/'/g, "&#39;")}'>
                                 </i>`;
-                    }
-                },
+                }
+            },
             ]
         });
         $('#date_from').on('change', function () {
             let from = $(this).val();
             $('#date_to').attr('min', from);
             if ($('#date_to').val() && $('#date_to').val() < from) {
-            $('#date_to').val('');
+                $('#date_to').val('');
             }
         });
 
 
         // Apply filter
-        $('#applyFilter').on('click', function() {
+        $('#applyFilter').on('click', function () {
             table.ajax.reload();
         });
 
         // Reset filter
-        $('#resetFilter').on('click', function() {
+        $('#resetFilter').on('click', function () {
             $('#filterName').val('').trigger('change');
             $('#date_from').val('');
             $('#date_to').val('');
@@ -265,7 +283,7 @@
                     status: newStatus,
                     id: id
                 },
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         Swal.fire({
                             icon: 'success',
@@ -278,7 +296,7 @@
                     // update previous value after success
                     selectElement.setAttribute('data-prev', newStatus);
                 },
-                error: function(xhr) {
+                error: function (xhr) {
                     // rollback on error
                     selectElement.value = prevStatus;
 
@@ -318,7 +336,7 @@
         $modal.modal('show');
     }
 
-    $(document).on('click', '.viewContent', function() {
+    $(document).on('click', '.viewContent', function () {
         const content = $(this).data('content');
         showApiResponse(content);
     });

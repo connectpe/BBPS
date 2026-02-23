@@ -158,7 +158,7 @@
 </div>
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
 
         var table = $('#servicesTable').DataTable({
             processing: true,
@@ -166,7 +166,7 @@
             ajax: {
                 url: "{{ url('fetch') }}/global-service/0",
                 type: 'POST',
-                data: function(d) {
+                data: function (d) {
                     d._token = $('meta[name="csrf-token"]').attr('content');
                 }
             },
@@ -177,79 +177,88 @@
                 "<'row'<'col-12'tr>>" +
                 "<'row mt-2'<'col-sm-6'i><'col-sm-6'p>>",
             buttons: [{
-                    extend: 'excelHtml5',
-                    text: 'Excel',
-                    className: 'btn buttonColor btn-sm'
+                extend: 'excelHtml5',
+                text: 'Excel',
+                className: 'btn buttonColor btn-sm'
 
-                },
-                {
-                    extend: 'pdfHtml5',
-                    text: 'PDF',
-                    className: 'btn buttonColor btn-sm'
-                }
+            },
+            {
+                extend: 'pdfHtml5',
+                text: 'PDF',
+                className: 'btn buttonColor btn-sm'
+            }
             ],
             language: {
                 searchPlaceholder: "Search services..."
             },
 
             columns: [{
-                    data: null,
-                    orderable: false,
-                    searchable: false,
-                    render: function(data, type, row, meta) {
-                        return meta.settings._iDisplayStart + meta.row + 1;
-                    }
-                },
-                {
-                    data: 'service_name'
-                },
-                {
-                    data: 'slug',
-                },
-                {
-                    data: 'service_type'
-                },
-                {
-                    data: 'is_activation_allowed',
-                    render: function(data, type, row) {
-                        let checked = data == '1' ? 'checked' : ''; // toggle state
-                        return `
+                data: null,
+                orderable: false,
+                searchable: false,
+                render: function (data, type, row, meta) {
+                    return meta.settings._iDisplayStart + meta.row + 1;
+                }
+            },
+            {
+                data: 'service_name',
+                render: function (data) {
+                    return data || '----'
+                }
+            },
+            {
+                data: 'slug',
+                render: function (data) {
+                    return data || '----'
+                }
+            },
+            {
+                data: 'service_type',
+                render: function (data) {
+                    return data || '----'
+                }
+            },
+            {
+                data: 'is_activation_allowed',
+                render: function (data, type, row) {
+                    let checked = data == '1' ? 'checked' : ''; // toggle state
+                    return `
                             <div class="form-check form-switch">
                                 <input class="form-check-input cursor-pointer" type="checkbox" ${checked}
                                     onchange="changeService(this,'${row.id}', 'is_api_allowed','This Record')">
                             </div>
                         `;
-                    },
-                    orderable: false,
-                    searchable: false
                 },
-                {
-                    data: 'is_active',
-                    render: function(data, type, row) {
-                        let checked = data == '1' ? 'checked' : ''; // toggle state
-                        return `
+                orderable: false,
+                searchable: false
+            },
+            {
+                data: 'is_active',
+                render: function (data, type, row) {
+                    let checked = data == '1' ? 'checked' : ''; // toggle state
+                    return `
                             <div class="form-check form-switch">
                                 <input class="form-check-input cursor-pointer" type="checkbox" ${checked}
                                     onchange="changeService(this,'${row.id}', 'is_active','Service')">
                             </div>
                         `;
-                    },
-                    orderable: false,
-                    searchable: false
                 },
-                {
-                    data: null,
-                    render: function(data, type, row) {
-                        return `
+                orderable: false,
+                searchable: false
+            },
+            {
+                data: null,
+                render: function (data, type, row) {
+                    return `
                         <button class="btn btn-sm btn-primary"
                             onclick="openEditService(${row.id}, '${row.service_name}')">
                             <i class="fa fa-edit"></i>
                         </button>
                     `;
-                    },
-                    orderable: false,
-                    searchable: false
-                }
+                },
+                orderable: false,
+                searchable: false
+            }
 
             ]
         });
@@ -261,7 +270,7 @@
             ajax: {
                 url: "{{ url('fetch') }}/enabled-services/0",
                 type: 'POST',
-                data: function(d) {
+                data: function (d) {
                     d._token = $('meta[name="csrf-token"]').attr('content');
                     d.user_id = $("#userId").val();
                     d.service_id = $("#globalService").val();
@@ -276,96 +285,96 @@
                 "<'row'<'col-12'tr>>" +
                 "<'row mt-2'<'col-sm-6'i><'col-sm-6'p>>",
             buttons: [{
-                    extend: 'excelHtml5',
-                    text: 'Excel',
-                    className: 'btn buttonColor btn-sm'
+                extend: 'excelHtml5',
+                text: 'Excel',
+                className: 'btn buttonColor btn-sm'
 
-                },
-                {
-                    extend: 'pdfHtml5',
-                    text: 'PDF',
-                    className: 'btn buttonColor btn-sm'
-                }
+            },
+            {
+                extend: 'pdfHtml5',
+                text: 'PDF',
+                className: 'btn buttonColor btn-sm'
+            }
             ],
             language: {
                 searchPlaceholder: "Search services..."
             },
 
             columns: [{
-                    data: null,
-                    orderable: false,
-                    searchable: false,
-                    render: function(data, type, row, meta) {
-                        return meta.settings._iDisplayStart + meta.row + 1;
-                    }
-                },
-                {
-                    data: function(row) {
-                        const url = "{{ route('view_user', ['id' => 'id']) }}".replace('id', row.user_id);
-                        const userName = row.user?.name || '----';
-                        const businessName = row.user?.business?.business_name || '----';
-                        return `
+                data: null,
+                orderable: false,
+                searchable: false,
+                render: function (data, type, row, meta) {
+                    return meta.settings._iDisplayStart + meta.row + 1;
+                }
+            },
+            {
+                data: function (row) {
+                    const url = "{{ route('view_user', ['id' => 'id']) }}".replace('id', row.user_id);
+                    const userName = row.user?.name || '----';
+                    const businessName = row.user?.business?.business_name || '----';
+                    return `
                                 <a href="${url}" class="text-primary fw-semibold text-decoration-none">
                                     ${userName ?? '----'} <br/>
                                     [${businessName ?? '----'}]
                                 </a>
                             `;
-                    }
-                },
-                {
-                    data: function(row) {
-                        return row?.service?.service_name || '----'
-                    }
-                },
-                // {
-                //     data: function(row) {
-                //         const amount = row.transaction_amount ?? 0;
-                //         return '₹ ' + amount.toLocaleString('en-IN', {
-                //             minimumFractionDigits: 2,
-                //             maximumFractionDigits: 2
-                //         });
-                //     }
-                // },
-                {
-                    data: 'is_api_enable',
-                    render: function(data, type, row) {
-                        let checked = data == '1' ? 'checked' : ''; // toggle state
-                        return `
+                }
+            },
+            {
+                data: function (row) {
+                    return row?.service?.service_name || '----'
+                }
+            },
+            // {
+            //     data: function(row) {
+            //         const amount = row.transaction_amount ?? 0;
+            //         return '₹ ' + amount.toLocaleString('en-IN', {
+            //             minimumFractionDigits: 2,
+            //             maximumFractionDigits: 2
+            //         });
+            //     }
+            // },
+            {
+                data: 'is_api_enable',
+                render: function (data, type, row) {
+                    let checked = data == '1' ? 'checked' : ''; // toggle state
+                    return `
                             <div class="form-check form-switch">
                                 <input class="form-check-input cursor-pointer" type="checkbox" ${checked}
                                     onchange="changeServiceStatus(this,'${row.id}', 'is_api_enable','This Record')">
                             </div>
                         `;
-                    }
-                },
-                {
-                    data: 'is_active',
-                    render: function(data, type, row) {
-                        let checked = data == '1' ? 'checked' : ''; // toggle state
-                        return `
+                }
+            },
+            {
+                data: 'is_active',
+                render: function (data, type, row) {
+                    let checked = data == '1' ? 'checked' : ''; // toggle state
+                    return `
                             <div class="form-check form-switch">
                                 <input class="form-check-input cursor-pointer" type="checkbox" ${checked}
                                     onchange="changeServiceStatus(this,'${row.id}', 'is_active','Service')">
                             </div>
                         `;
-                    }
-                },
-                {
-                    data: 'status',
-                    render: function(data) {
-                        return `<span class="text-success fw-bold">${formatStatus(data)}</span>`
-                    }
-                },
-                {
-                    data: 'created_at',
-                    render: function(data) {
-                        return formatDateTime(data)
-                    }
                 }
+            },
+            {
+                data: 'status',
+                render: function (data) {
+                    return `<span class="text-success fw-bold">${formatStatus(data)}</span>`
+                }
+            },
+            {
+                data: 'created_at',
+                render: function (data) {
+                    return formatDateTime(data)
+                }
+            }
 
             ]
         });
-    
+
         $('#date_from').on('change', function () {
             let from = $(this).val();
             $('#date_to').attr('min', from);
@@ -374,11 +383,11 @@
             }
         });
 
-        $('#applyFilterServicesTable').on('click', function() {
+        $('#applyFilterServicesTable').on('click', function () {
             table.ajax.reload();
         });
 
-        $('#resetFilterServicesTable').on('click', function() {
+        $('#resetFilterServicesTable').on('click', function () {
             $('#userId').val('').trigger('change');
             $('#globalService').val('').trigger('change');
             $('#date_from').val('');
@@ -388,7 +397,7 @@
         });
     });
 
-    function changeServiceStatus(checkbox,id, type, text = 'This Record') {
+    function changeServiceStatus(checkbox, id, type, text = 'This Record') {
         checkbox.checked = !checkbox.checked;
         Swal.fire({
             title: 'Are you sure to change status of ' + text + '?',
@@ -400,7 +409,7 @@
             cancelButtonText: 'No'
         }).then((result) => {
             if (result.isConfirmed) {
-                 checkbox.checked = !checkbox.checked;
+                checkbox.checked = !checkbox.checked;
                 $.ajax({
                     url: "{{ route('active_user_service_status') }}",
                     type: 'POST',
@@ -409,7 +418,7 @@
                         service_id: id,
                         type: type
                     },
-                    success: function(response) {
+                    success: function (response) {
                         Swal.fire({
                             icon: 'success',
                             title: 'Success!',
@@ -422,7 +431,7 @@
                             location.reload();
                         }, 2000);
                     },
-                    error: function(xhr) {
+                    error: function (xhr) {
                         let title = 'Error';
                         let message = 'Something went wrong!';
 
@@ -456,7 +465,7 @@
     }
 
 
-    function changeService(checkbox,id, type, text = 'This Record') {
+    function changeService(checkbox, id, type, text = 'This Record') {
         checkbox.checked = !checkbox.checked;
         Swal.fire({
             title: 'Are you sure to change status of ' + text + '?',
@@ -478,7 +487,7 @@
                         service_id: id,
                         type: type
                     },
-                    success: function(response) {
+                    success: function (response) {
                         Swal.fire({
                             icon: 'success',
                             title: 'Success!',
@@ -487,7 +496,7 @@
                             showConfirmButton: true
                         });
                     },
-                    error: function(xhr) {
+                    error: function (xhr) {
                         let title = 'Error';
                         let message = 'Something went wrong!';
 
@@ -519,9 +528,9 @@
 
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
 
-        $('#serviceForm').on('submit', function(e) {
+        $('#serviceForm').on('submit', function (e) {
             e.preventDefault();
 
             let serviceName = $('#service_name').val();
@@ -547,7 +556,7 @@
                     _token: $('meta[name="csrf-token"]').attr('content'),
                     service_name: serviceName
                 },
-                success: function(response) {
+                success: function (response) {
                     if (response.status) {
 
                         Swal.fire({
@@ -564,7 +573,7 @@
                         $('#servicesTable').DataTable().ajax.reload(null, false);
                     }
                 },
-                error: function(xhr) {
+                error: function (xhr) {
                     let message = 'Something went wrong';
                     if (xhr.status === 422 && xhr.responseJSON?.errors?.service_name) {
                         message = xhr.responseJSON.errors.service_name[0];
@@ -587,7 +596,7 @@
     }
 </script>
 <script>
-    $('#serviceModal').on('hidden.bs.modal', function() {
+    $('#serviceModal').on('hidden.bs.modal', function () {
         $('#serviceForm')[0].reset();
         $('#form_type').val('add');
         $('#edit_service_id').val('');

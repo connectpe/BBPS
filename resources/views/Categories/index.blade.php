@@ -92,7 +92,7 @@
                 },
                 {
                     data: 'category_name',
-                    defaultContent: '-'
+                    defaultContent: '----'
                 },
 
                 {

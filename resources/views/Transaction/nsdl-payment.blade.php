@@ -164,25 +164,25 @@
                 {
                     data: null,
                     render: function(row, type) {
-                        const serviceName = row?.service?.service_name ?? '-';
+                        const serviceName = row?.service?.service_name ?? '----';
                         return `<span>${serviceName}</span>`
                     },
                 },
                 {
                     data: "amount",
-                    defaultContent: "-"
+                    defaultContent: "----"
                 },
                 {
                     data: "transaction_id",
-                    defaultContent: "-"
+                    defaultContent: "----"
                 },
                 {
                     data: "mobile_no",
-                    defaultContent: "-"
+                    defaultContent: "----"
                 },
                 {
                     data: "utr",
-                    defaultContent: "-"
+                    defaultContent: "----"
                 },
                 {
                     data: "status",
@@ -206,7 +206,7 @@
                 },
                 {
                     data: "order_id",
-                    defaultContent: "-"
+                    defaultContent: "----"
                 },
                 {
                     data: "created_at",

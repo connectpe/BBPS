@@ -213,7 +213,7 @@
                 {
                     data: 'assigned_support.name',
                     name: 'assigned_support.name',
-                    defaultContent: 'N/A'
+                    defaultContent: '----'
                 },
                 {
                     data: 'created_at',
