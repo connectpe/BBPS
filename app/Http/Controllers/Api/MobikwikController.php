@@ -427,7 +427,7 @@ class MobikwikController extends Controller
         $userId = $data['user_id'];
         $serviceId = $data['service'];
         $ip = $request->ip();
-
+        // dd($ip);    
         $ipWhitelist = CommonHelper::checkIpWhiteList($userId, $serviceId, $ip);
         if (!$ipWhitelist) {
             return response()->json([
@@ -459,7 +459,7 @@ class MobikwikController extends Controller
 
                     $mobikwikHelper = new MobiKwikHelper();
                     $token = $this->isTokenPresent();
-
+                    // dd($token);
                     $response = $mobikwikHelper->sendRequest(
                         '/recharge/v3/retailerValidation',
                         $payload,
