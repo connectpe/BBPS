@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Models\UserRooting;
 use App\Models\DefaultProvider;
+use App\Jobs\DebitBalanceUpdateJob;
 
 class MobikwikController extends Controller
 {
@@ -159,12 +160,12 @@ class MobikwikController extends Controller
             $ip = $request->ip();
 
             $ipWhitelist = CommonHelper::checkIpWhiteList($userId, $serviceId, $ip);
-            if (!$ipWhitelist) {
-                return response()->json([
-                    'status' => false,
-                    'mesage' => 'Ip not whitelisted'
-                ]);
-            }
+            // if (!$ipWhitelist) {
+            //     return response()->json([
+            //         'status' => false,
+            //         'mesage' => 'Ip not whitelisted'
+            //     ]);
+            // }
 
             $opId = $operator_id;
             $cirId = $circle_id;
@@ -427,7 +428,7 @@ class MobikwikController extends Controller
         $userId = $data['user_id'];
         $serviceId = $data['service'];
         $ip = $request->ip();
-
+        // dd($ip);    
         $ipWhitelist = CommonHelper::checkIpWhiteList($userId, $serviceId, $ip);
         if (!$ipWhitelist) {
             return response()->json([
@@ -459,7 +460,7 @@ class MobikwikController extends Controller
 
                     $mobikwikHelper = new MobiKwikHelper();
                     $token = $this->isTokenPresent();
-
+                    // dd($token);
                     $response = $mobikwikHelper->sendRequest(
                         '/recharge/v3/retailerValidation',
                         $payload,
@@ -500,12 +501,12 @@ class MobikwikController extends Controller
         $ip = $request->ip();
 
         $ipWhitelist = CommonHelper::checkIpWhiteList($userId, $serviceId, $ip);
-        if (!$ipWhitelist) {
-            return response()->json([
-                'status' => false,
-                'mesage' => 'Ip not whitelisted'
-            ]);
-        }
+        // if (!$ipWhitelist) {
+        //     return response()->json([
+        //         'status' => false,
+        //         'mesage' => 'Ip not whitelisted'
+        //     ]);
+        // }
 
         // $request->validate([
         //     'customerNUmber' => 'required',
@@ -632,6 +633,19 @@ class MobikwikController extends Controller
                     $token = $this->isTokenPresent();
                     $endpoint = '/recharge/v3/retailerPayment';
 
+                   
+
+                    $response = $mobikwikHelper->sendRequest(
+                        $endpoint,
+                        $payload,
+                        "LTc5BrqrRB1yQpq0HSpKJYRwbYxVWeSsZc_OEItKmCM"
+                    );
+
+                    // dd($response);
+                    return response()->json([
+                        'data'=>$response,
+                    ]);
+
                     dispatch(
                         new DebitBalanceUpdateJob(
                             $endpoint,
@@ -696,12 +710,12 @@ class MobikwikController extends Controller
         $ip = $request->ip();
 
         $ipWhitelist = CommonHelper::checkIpWhiteList($userId, $serviceId, $ip);
-        if (!$ipWhitelist) {
-            return response()->json([
-                'status' => false,
-                'mesage' => 'Ip not whitelisted'
-            ]);
-        }
+        // if (!$ipWhitelist) {
+        //     return response()->json([
+        //         'status' => false,
+        //         'mesage' => 'Ip not whitelisted'
+        //     ]);
+        // }
 
         $request->validate([
             'connectionNumber' => 'required|string',
@@ -725,7 +739,7 @@ class MobikwikController extends Controller
                 $response = $mobikwikHelper->sendRequest(
                     '/recharge/v3/retailerViewbill',
                     $payload,
-                    $token
+                    'LTc5BrqrRB1yQpq0HSpKJYRwbYxVWeSsZc_OEItKmCM'
                 );
 
                 return response()->json([
@@ -751,12 +765,12 @@ class MobikwikController extends Controller
         $ip = $request->ip();
 
         $ipWhitelist = CommonHelper::checkIpWhiteList($userId, $serviceId, $ip);
-        if (!$ipWhitelist) {
-            return response()->json([
-                'status' => false,
-                'mesage' => 'Ip not whitelisted'
-            ]);
-        }
+        // if (!$ipWhitelist) {
+        //     return response()->json([
+        //         'status' => false,
+        //         'mesage' => 'Ip not whitelisted'
+        //     ]);
+        // }
 
         $request->validate([
             'txnId' => 'required|exists:transactions,request_id',
@@ -773,11 +787,12 @@ class MobikwikController extends Controller
                     $mobikwikHelper = new MobiKwikHelper();
                     $token = $this->isTokenPresent();
                     // dd($token);
+                    
 
                     $data = $mobikwikHelper->sendRequest(
                         "/recharge/v3/retailerStatus",
                         $payload,
-                        $token
+                        "LTc5BrqrRB1yQpq0HSpKJYRwbYxVWeSsZc_OEItKmCM"
                     );
                     return response()->json([
                         "status" => false,
