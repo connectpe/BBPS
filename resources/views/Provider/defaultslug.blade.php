@@ -93,12 +93,12 @@
                 {
                     data: 'service.service_name',
                     name: 'service.service_name',
-                    defaultContent: 'N/A'
+                    defaultContent: '----'
                 },
                 {
                     data: 'provider.provider_name',
                     name: 'provider.provider_name',
-                    defaultContent: 'N/A'
+                    defaultContent: '----'
                 },
                 {
                     data: 'created_at',

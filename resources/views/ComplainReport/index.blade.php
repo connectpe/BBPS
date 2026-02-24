@@ -291,7 +291,7 @@
                 {
                     data: 'payment_ref_id',
                     render: function(data, type, row) {
-                        return data ? data : '-';
+                        return data ? data : '----';
                     }
                 },
                 {
@@ -303,7 +303,7 @@
                 {
                     data: 'mobile_number',
                     render: function(data, type, row) {
-                        return data ? data : '-';
+                        return data ? data : '----';
                     }
                 },
                 {
