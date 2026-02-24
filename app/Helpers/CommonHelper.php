@@ -117,7 +117,6 @@ class CommonHelper
     }
 
 
-
 //     public static function isIpWhitelisted($userId, $serviceId, $ipAddress): array{
 //         try{
 //             $exists = IpWhitelist::where('user_id', $userId)->where('service_id', $serviceId)
@@ -173,5 +172,6 @@ class CommonHelper
             ]);
         }
     }
+
 
 }

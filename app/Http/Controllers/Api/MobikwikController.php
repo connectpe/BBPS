@@ -96,7 +96,7 @@ class MobikwikController extends Controller
             );
         }
     }
-
+    
     protected function ValidateUsers(Request $request)
     {
         try {
