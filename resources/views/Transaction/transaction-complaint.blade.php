@@ -18,11 +18,13 @@
 <div class="accordion mb-3" id="filterAccordion">
     <div class="accordion-item">
         <h2 class="accordion-header" id="headingFilter">
-            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
+            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
                 Filter
             </button>
         </h2>
-        <div id="collapseFilter" class="accordion-collapse collapse" aria-labelledby="headingFilter" data-bs-parent="#filterAccordion">
+        <div id="collapseFilter" class="accordion-collapse collapse" aria-labelledby="headingFilter"
+            data-bs-parent="#filterAccordion">
             <div class="accordion-body">
                 <div class="row g-3 align-items-end">
 
@@ -111,14 +113,10 @@
                     Register Complaint
                 </h5>
 
-                <img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}"
-                    alt=""
-                    class="position-absolute"
+                <img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}" alt="" class="position-absolute"
                     style="top: 10px; right: 50px; width: 70px; z-index: 1060;">
 
-                <button type="button"
-                    class="btn-close position-absolute bg-light"
-                    data-bs-dismiss="modal"
+                <button type="button" class="btn-close position-absolute bg-light" data-bs-dismiss="modal"
                     style="top: -15px; right: -15px; z-index: 1061;">
                 </button>
             </div>
@@ -132,7 +130,8 @@
 
                         <div class="col-md-5">
                             <label class="form-label">TXN Reference Id.</label>
-                            <input type="text" name="reference_id" id="reference_id" class="form-control" placeholder="TXN Reference Id">
+                            <input type="text" name="reference_id" id="reference_id" class="form-control"
+                                placeholder="TXN Reference Id">
                             <small class="text-danger d-none" id="err_reference_id"></small>
                         </div>
 
@@ -143,7 +142,8 @@
 
                         <div class="col-md-5">
                             <label class="form-label">Mobile</label>
-                            <input type="number" name="mobile" id="mobile" class="form-control" placeholder="Enter Mobile">
+                            <input type="number" name="mobile" id="mobile" class="form-control"
+                                placeholder="Enter Mobile">
                             <small class="text-danger d-none" id="err_mobile"></small>
                         </div>
 
@@ -170,7 +170,7 @@
                             <label class="form-label">Priority</label>
                             <select name="priority" class="form-select form-select2" required>
                                 @foreach ($priorities as $p)
-                                <option value="{{ $p }}" {{ $p == 'normal' ? 'selected' : '' }}>
+                                <option value="{{ $p }}" {{ $p=='normal' ? 'selected' : '' }}>
                                     {{ ucfirst($p) }}
                                 </option>
                                 @endforeach
@@ -191,15 +191,14 @@
 
                         <div class="col-md-6">
                             <label class="form-label">Attachment </label>
-                            <input type="file" name="attachment" class="form-control"
-                                accept=".jpg,.jpeg,.png,.pdf">
+                            <input type="file" name="attachment" class="form-control" accept=".jpg,.jpeg,.png,.pdf">
                             <small class="text-danger d-none" id="err_attachment"></small>
                         </div>
 
                         <div class="col-12">
                             <label class="form-label">Description<span class="text-danger">*</span></label>
-                            <textarea name="description" class="form-control" rows="3"
-                                placeholder="Write complaint..." required min="20"></textarea>
+                            <textarea name="description" class="form-control" rows="3" placeholder="Write complaint..."
+                                required min="20"></textarea>
                             <small class="text-danger d-none" id="err_description"></small>
                         </div>
 
@@ -229,7 +228,7 @@
         $('small[id^="err_"]').addClass('d-none').text('');
     }
 
-    $('#complaintForm').on('submit', function(e) {
+    $('#complaintForm').on('submit', function (e) {
         e.preventDefault();
         resetErrors();
 
@@ -243,7 +242,7 @@
             processData: false,
             contentType: false,
 
-            success: function(res) {
+            success: function (res) {
 
                 Swal.fire({
                     icon: 'success',
@@ -260,7 +259,7 @@
                 });
             },
 
-            error: function(xhr) {
+            error: function (xhr) {
                 let title = 'Error';
                 let message = 'Something went wrong!';
 
@@ -297,7 +296,7 @@
 <!-- DataTable  -->
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
 
         var table = $('#complaintTable').DataTable({
             processing: true,
@@ -307,7 +306,7 @@
                 url: "{{url('fetch')}}/transaction-complaint/0",
                 type: 'POST',
 
-                data: function(d) {
+                data: function (d) {
                     d._token = $('meta[name="csrf-token"]').attr('content');
                     d.ticket_number = $('#ticketId').val();
                     d.mobile_number = $('#mobile').val();
@@ -323,146 +322,149 @@
                 "<'row'<'col-12'tr>>" +
                 "<'row mt-2'<'col-sm-6'i><'col-sm-6'p>>",
             buttons: [{
-                    extend: 'excelHtml5',
-                    text: 'Excel',
-                    className: 'btn buttonColor btn-sm'
-                },
-                {
-                    extend: 'pdfHtml5',
-                    text: 'PDF',
-                    className: 'btn buttonColor btn-sm'
-                }
+                extend: 'excelHtml5',
+                text: 'Excel',
+                className: 'btn buttonColor btn-sm'
+            },
+            {
+                extend: 'pdfHtml5',
+                text: 'PDF',
+                className: 'btn buttonColor btn-sm'
+            }
             ],
             language: {
                 searchPlaceholder: "Search Complaints..."
             },
             columns: [{
-                    data: null,
-                    orderable: false,
-                    searchable: false,
-                    render: function(data, type, row, meta) {
-                        return meta.settings._iDisplayStart + meta.row + 1;
-                    }
-                },
-                {
-                    data: 'ticket_number'
-                },
-                {
-                    data: null,
-                    render: function(data, type, row) {
-                        return row?.service?.service_name || '----';
-                    }
-                },
-                {
-                    data: null,
-                    render: function(data, type, row) {
-                        return row?.category?.category_name || '----';
-                    }
-                },
-                {
-                    data: 'payment_ref_id',
-                    render: function(data, type, row) {
-                        return data ? data : '-';
-                    }
-                },
-                {
-                    data: 'transaction_date',
-                    render: function(data) {
-                        return formatDate(data)
-                    }
-                },
-                {
-                    data: 'mobile_number',
-                    render: function(data, type, row) {
-                        return data ? data : '-';
-                    }
-                },
-                {
-                    data: 'priority',
-                    render: function(data, row, type) {
-                        const status = data == 'Low' ? 'success' : (data == 'High' ? 'danger' : 'warning');
-                        return `<span class="text-${status} fw-bold">${data}</span>`
-                    }
-                },
-                {
-                    data: 'remark',
-                    render: function(data) {
-                        const safeText = data || '';
-                        return `<i class="fas fa-eye cursor-pointer viewModalBtn"
+                data: null,
+                orderable: false,
+                searchable: false,
+                render: function (data, type, row, meta) {
+                    return meta.settings._iDisplayStart + meta.row + 1;
+                }
+            },
+            {
+                data: 'ticket_number',
+                render: function (data) {
+                    return data || '----'
+                }
+            },
+            {
+                data: null,
+                render: function (data, type, row) {
+                    return row?.service?.service_name || '----';
+                }
+            },
+            {
+                data: null,
+                render: function (data, type, row) {
+                    return row?.category?.category_name || '----';
+                }
+            },
+            {
+                data: 'payment_ref_id',
+                render: function (data, type, row) {
+                    return data ? data : '----';
+                }
+            },
+            {
+                data: 'transaction_date',
+                render: function (data) {
+                    return formatDate(data)
+                }
+            },
+            {
+                data: 'mobile_number',
+                render: function (data, type, row) {
+                    return data ? data : '----';
+                }
+            },
+            {
+                data: 'priority',
+                render: function (data, row, type) {
+                    const status = data == 'Low' ? 'success' : (data == 'High' ? 'danger' : 'warning');
+                    return `<span class="text-${status} fw-bold">${data}</span>`
+                }
+            },
+            {
+                data: 'remark',
+                render: function (data) {
+                    const safeText = data || '';
+                    return `<i class="fas fa-eye cursor-pointer viewModalBtn"
                                     data-title="Remark"
                                     data-content="${safeText.replace(/"/g, '&quot;')}">
                                 </i>`;
+                }
+            },
+            {
+                data: 'resolved_at',
+                render: function (data) {
+                    return formatDateTime(data)
+                }
+            },
+            {
+                data: 'attachment_file',
+                render: function (data, type) {
+
+                    if (type !== 'display' || !data) {
+                        return '----';
                     }
-                },
-                {
-                    data: 'resolved_at',
-                    render: function(data) {
-                        return formatDateTime(data)
-                    }
-                },
-                {
-                    data: 'attachment_file',
-                    render: function(data, type) {
 
-                        if (type !== 'display' || !data) {
-                            return '----';
-                        }
+                    const src = "{{ url('/') }}/storage/" + data;
 
-                        const src = "{{ url('/') }}/storage/" + data;
-
-                        return `
+                    return `
                         <i class="fas fa-eye cursor-pointer"
                         onclick="showImage('${src}', 'Attachment File')">
                         </i>
                 `;
+                }
+            },
+            {
+                data: 'status',
+                render: function (data, type) {
+                    if (type !== 'display') {
+                        return data;
                     }
-                },
-                {
-                    data: 'status',
-                    render: function(data, type) {
-                        if (type !== 'display') {
-                            return data;
-                        }
 
-                        let colorClass = 'secondary';
+                    let colorClass = 'secondary';
 
-                        switch (data) {
-                            case 'Open':
-                                colorClass = 'success';
-                                break;
-                            case 'Closed':
-                                colorClass = 'danger';
-                                break;
-                            case 'In Progress':
-                                colorClass = 'warning';
-                                break;
-                        }
-
-                        return `<span class="badge bg-${colorClass}">${data}</span>`;
+                    switch (data) {
+                        case 'Open':
+                            colorClass = 'success';
+                            break;
+                        case 'Closed':
+                            colorClass = 'danger';
+                            break;
+                        case 'In Progress':
+                            colorClass = 'warning';
+                            break;
                     }
-                },
-                {
-                    data: 'description',
-                    render: function(data) {
-                        const safeText = data || '';
-                        return `<i class="fas fa-eye cursor-pointer viewModalBtn"
+
+                    return `<span class="badge bg-${colorClass}">${data}</span>`;
+                }
+            },
+            {
+                data: 'description',
+                render: function (data) {
+                    const safeText = data || '';
+                    return `<i class="fas fa-eye cursor-pointer viewModalBtn"
                                     data-title="Description"
                                     data-content="${safeText.replace(/"/g, '&quot;')}">
                                 </i>`;
-                    }
-                },
-                {
-                    data: 'created_at',
-                    render: function(data) {
-                        return formatDateTime(data);
-                    }
                 }
+            },
+            {
+                data: 'created_at',
+                render: function (data) {
+                    return formatDateTime(data);
+                }
+            }
 
 
             ]
         });
 
-        $('#filterDateFrom').on('change', function() {
+        $('#filterDateFrom').on('change', function () {
             let from = $(this).val();
             $('#filterDateTo').attr('min', from);
             if ($('#filterDateTo').val() && $('#filterDateTo').val() < from) {
@@ -472,12 +474,12 @@
 
 
         // Apply filter
-        $('#applyFilter').on('click', function() {
+        $('#applyFilter').on('click', function () {
             table.ajax.reload();
         });
 
         // Reset filter
-        $('#resetFilter').on('click', function() {
+        $('#resetFilter').on('click', function () {
             $('#ticketId').val('');
             $('#mobile').val('');
             $('#filterStatus').val('').trigger('change');

@@ -284,7 +284,7 @@
                     {
                         data: 'scheme.scheme_name',
                         name: 'scheme.scheme_name',
-                        defaultContent: 'N/A'
+                        defaultContent: '----'
                     },
                     {
                         data: 'id',
