@@ -4,52 +4,74 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Auth;
 
 
 class DocumentVerificationController extends Controller
 {
-    private $clientID ;
+    private $clientID;
     private $clientSecret;
     private $apiVersion;
 
-    public function __construct(){
+    public function __construct()
+    {
         $this->clientID = 'CF397795D6E21N84UCVC73BRNP00';
         $this->clientSecret = 'cfsk_ma_prod_459c9e17775fbc453852a947d9e79d7c_897e28f8';
         $this->apiVersion = 'V2';
-
     }
 
+    public function getDocumentData()
+    {
+        $user = Auth::user();
 
-    
+        $businessInfo = $user->businessInfo;
+        $usersBank = $user->bankDetail;
 
-    protected function getAuthToken(Request $request){
-        try{
+        return response()->json([
+            'status' => true,
+            'pan_number' => $businessInfo->pan_number ?? '-',
+            'pan_verified' => $businessInfo->pan_verified ?? 0,
+
+            'gst_number' => $businessInfo->gst_number ?? '-',
+            'gst_verified' => $businessInfo->gst_verified ?? 0,
+
+            'cin_no' => $businessInfo->cin_no ?? '-',
+            'cin_verified' => $businessInfo->cin_verified ?? 0,
+
+            'account_number' => $usersBank->account_number ?? '-',
+            'bank_verified' => $usersBank->bank_verified ?? 0,
+        ]);
+    }
+
+    protected function getAuthToken(Request $request)
+    {
+        try {
 
             $response = Http::withHeaders([
-                'x-api-version' => '',
+                'x-api-version' => $this->apiVersion,
                 'x-partner-api-key' => $this->clientID,
                 'x-partner-merchantid' => '',
 
-            ])->get('https://sandbox.cashfree.com/gc/authorize', [
-                
-            ]);
+            ])->get('https://sandbox.cashfree.com/gc/authorize', []);
 
             return $response['data']->token;
-        }catch(Exception $e){
+        } catch (Exception $e) {
             return response()->json([
-                'status'=> false,
-                'message'=> $e->getMessage()
+                'status' => false,
+                'message' => $e->getMessage()
             ]);
         }
     }
-    public function VerifyAccountDetails(Request $request){
-        try{
+
+    public function VerifyAccountDetails(Request $request)
+    {
+        try {
             $request->validate([
-                'name'=> 'required|string',
-                'bankAccount'=> 'required|string',
-                'ifsc'=> 'required|string',
-                'phone'=> 'required|string',
-                'remarks'=> 'required|string'
+                'name' => 'required|string',
+                'bankAccount' => 'required|string',
+                'ifsc' => 'required|string',
+                'phone' => 'required|string',
+                'remarks' => 'required|string'
 
             ]);
             $token = $this->getAuthToken();
@@ -63,80 +85,75 @@ class DocumentVerificationController extends Controller
             ]);
 
             return $response->json();
-
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return response()->json([
-                'status'=> false,
-                'messgae'=> $e->getMessage()
+                'status' => false,
+                'messgae' => $e->getMessage()
             ]);
         }
     }
 
-    public function verifyCinNumber(Request $request){
-        try{
+    public function verifyCinNumber(Request $request)
+    {
+        try {
             $request->validate([
-                'cin'=> 'required|string'
+                'cin' => 'required|string'
             ]);
 
-            $verificationId = 'CIN'.time();
+            $verificationId = 'CIN' . time();
 
             $response = Http::withHeaders([
-               
+
                 'Content-Type' => 'application/json',
                 'x-client-id' => '',
-                'x-client-secret'=> ''
+                'x-client-secret' => ''
             ])->get('https://sandbox.cashfree.com/verification/cin', [
                 'verification_id' => $verificationId,
                 'cin' => $request->cin,
-                
+
             ]);
 
 
             return response()->json([
-                'status'=> true,
-                'data'=> $response
+                'status' => true,
+                'data' => $response
             ]);
-
-
-
-        }catch(Exception $e){
-             return response()->json([
-                'status'=> false,
-                'messgae'=> $e->getMessage()
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'messgae' => $e->getMessage()
             ]);
         }
     }
 
-    public function verifyGstinNumber(Request $request){
-        try{
+    public function verifyGstinNumber(Request $request)
+    {
+        try {
             $request->validate([
-                'GSTIN'=> 'required|string'
+                'GSTIN' => 'required|string'
             ]);
 
-            $verificationId = 'CIN'.time();
+            $verificationId = 'CIN' . time();
 
             $response = Http::withHeaders([
-               
+
                 'Content-Type' => 'application/json',
                 'x-client-id' => $this->clientID,
-                'x-client-secret'=> $this->clientSecret
+                'x-client-secret' => $this->clientSecret
             ])->post('https://sandbox.cashfree.com/verification/gstin', [
-                "GSTIN"=> $request->GSTIN,
-                
+                "GSTIN" => $request->GSTIN,
+
             ]);
 
 
             return response()->json([
-                'status'=> true,
-                'data'=> $response
+                'status' => true,
+                'data' => $response
             ]);
-
-
-
-        }catch(Exception $e){
-             return response()->json([
-                'status'=> false,
-                'messgae'=> $e->getMessage()
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'messgae' => $e->getMessage()
             ]);
         }
     }
@@ -173,5 +190,4 @@ class DocumentVerificationController extends Controller
             ], 500);
         }
     }
-
 }

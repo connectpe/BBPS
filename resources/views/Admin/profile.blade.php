@@ -1601,7 +1601,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                 <p class="mb-1"><strong>PAN Number:</strong> {{ $businessInfo->pan_number ?? '-' }}</p>
 
                                 @php
-                                    $panVerified = $businessInfo->pan_verified ?? 0;
+                                $panVerified = $businessInfo->pan_verified ?? 0;
                                 @endphp
 
                                 <span class="badge bg-{{ $panVerified ? 'success' : 'danger' }}">
@@ -1619,13 +1619,13 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
                         <div class="mt-3" id="panMessage">
                             @if($panVerified)
-                                <div class="alert alert-success mb-0">
-                                    PAN verified successfully.
-                                </div>
+                            <div class="alert alert-success mb-0">
+                                PAN verified successfully.
+                            </div>
                             @else
-                                <div class="alert alert-danger mb-0">
-                                    PAN not verified. Please check details.
-                                </div>
+                            <div class="alert alert-danger mb-0">
+                                PAN not verified. Please check details.
+                            </div>
                             @endif
                         </div>
                     </div>
@@ -1636,7 +1636,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                     <h6 class="mb-3">GSTIN Verification</h6>
 
                     @php
-                        $gstVerified = $businessInfo->gst_verified ?? 0;
+                    $gstVerified = $businessInfo->gst_verified ?? 0;
                     @endphp
 
                     <div class="card border shadow-sm p-3">
@@ -1658,13 +1658,13 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
                         <div class="mt-3" id="gstMessage">
                             @if($gstVerified)
-                                <div class="alert alert-success mb-0">
-                                    GST verified successfully.
-                                </div>
+                            <div class="alert alert-success mb-0">
+                                GST verified successfully.
+                            </div>
                             @else
-                                <div class="alert alert-danger mb-0">
-                                    GST not verified. Please check details.
-                                </div>
+                            <div class="alert alert-danger mb-0">
+                                GST not verified. Please check details.
+                            </div>
                             @endif
                         </div>
                     </div>
@@ -1675,7 +1675,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                     <h6 class="mb-3">CIN Verification</h6>
 
                     @php
-                        $cinVerified = $businessInfo->cin_verified ?? 0;
+                    $cinVerified = $businessInfo->cin_verified ?? 0;
                     @endphp
 
                     <div class="card border shadow-sm p-3">
@@ -1697,13 +1697,13 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
                         <div class="mt-3" id="cinMessage">
                             @if($cinVerified)
-                                <div class="alert alert-success mb-0">
-                                    CIN verified successfully.
-                                </div>
+                            <div class="alert alert-success mb-0">
+                                CIN verified successfully.
+                            </div>
                             @else
-                                <div class="alert alert-danger mb-0">
-                                    CIN not verified. Please check details.
-                                </div>
+                            <div class="alert alert-danger mb-0">
+                                CIN not verified. Please check details.
+                            </div>
                             @endif
                         </div>
                     </div>
@@ -1714,7 +1714,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                     <h6 class="mb-3">Bank Account Verification</h6>
 
                     @php
-                        $bankVerified = $usersBank->bank_verified ?? 0;
+                    $bankVerified = $usersBank->bank_verified ?? 0;
                     @endphp
 
                     <div class="card border shadow-sm p-3">
@@ -1736,13 +1736,13 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
                         <div class="mt-3" id="bankMessage">
                             @if($bankVerified)
-                                <div class="alert alert-success mb-0">
-                                    Bank verified successfully.
-                                </div>
+                            <div class="alert alert-success mb-0">
+                                Bank verified successfully.
+                            </div>
                             @else
-                                <div class="alert alert-danger mb-0">
-                                    Bank account not verified.
-                                </div>
+                            <div class="alert alert-danger mb-0">
+                                Bank account not verified.
+                            </div>
                             @endif
                         </div>
                     </div>
@@ -2736,6 +2736,78 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
         });
 
         localStorage.setItem('profileDraft', JSON.stringify(draftData));
+    }
+</script>
+
+<script>
+    document.getElementById('documentVerificationModal')
+        .addEventListener('show.bs.modal', function() {
+
+            fetch("{{ route('document.verification.data') }}")
+                .then(response => response.json())
+                .then(data => {
+
+                    if (data.status) {
+
+                        // PAN
+                        document.querySelector('.step-1 strong')
+                            .innerText = "PAN Number: " + data.pan_number;
+
+                        updateStatus('pan', data.pan_verified);
+
+                        // GST
+                        document.querySelector('.step-2 strong')
+                            .innerText = "GST Number: " + data.gst_number;
+
+                        updateStatus('gst', data.gst_verified);
+
+                        // CIN
+                        document.querySelector('.step-3 strong')
+                            .innerText = "CIN: " + data.cin_no;
+
+                        updateStatus('cin', data.cin_verified);
+
+                        // BANK
+                        document.querySelector('.step-4 strong')
+                            .innerText = "Account Number: " + data.account_number;
+
+                        updateStatus('bank', data.bank_verified);
+                    }
+                });
+        });
+
+
+    function updateStatus(type, verified) {
+        let badge = document.querySelector(`.step-${getStep(type)} .badge`);
+        let button = document.querySelector(`.step-${getStep(type)} button`);
+        let messageDiv = document.getElementById(type + "Message");
+
+        if (verified == 1) {
+            badge.className = "badge bg-success";
+            badge.innerText = "Verified";
+
+            button.className = "btn btn-success";
+            button.innerText = "Verified";
+
+            messageDiv.innerHTML =
+                `<div class="alert alert-success mb-0">${type.toUpperCase()} verified successfully.</div>`;
+        } else {
+            badge.className = "badge bg-danger";
+            badge.innerText = "Not Verified";
+
+            button.className = "btn btn-danger";
+            button.innerText = "Verify";
+
+            messageDiv.innerHTML =
+                `<div class="alert alert-danger mb-0">${type.toUpperCase()} not verified.</div>`;
+        }
+    }
+
+    function getStep(type) {
+        if (type === 'pan') return 1;
+        if (type === 'gst') return 2;
+        if (type === 'cin') return 3;
+        if (type === 'bank') return 4;
     }
 </script>
 
