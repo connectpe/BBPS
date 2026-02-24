@@ -149,6 +149,13 @@
                                         Utility
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('payout_transaction') }}"
+                                        class="nav-link text-white {{ Route::currentRouteName() == 'payout_transaction' ? 'sidebar-active' : '' }}">
+                                        <i class="bi bi-arrow-left-right me-2"></i>
+                                        Payout Transaction
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     </li>

@@ -104,7 +104,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/assign-user-to-support', [AdminController::class, 'UserAssignedtoSupportuser'])->name('save_support_assignment');
         Route::get('/edit-support-assignment/{id}', [AdminController::class, 'editSupportAssignment'])->name('edit_support_assignment');
         Route::delete('delete-support-assignment/{id}', [AdminController::class, 'deleteSupportAssignment'])->name('delete_support_assignment');
-
+        
+        Route::get('/payout-transaction', [TransactionController::class, 'payouttransaction'])->name('payout_transaction');
         // Complain Report Route
 
     });
@@ -183,6 +184,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('unauthrized', function () {
         return view('errors.401');
     })->name('unauthrized.page');
+    
+
+    
 
     // reseller routes
     Route::get('reports', [LadgerController::class, 'reports'])->name('reseller_reports');
