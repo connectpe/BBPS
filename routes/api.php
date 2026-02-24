@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\MobikwikController;
 use App\Http\Controllers\Api\CallbackController;
+use App\Http\Controllers\DocumentVerificationController;
 
 
 Route::get('/user', function (Request $request) {
@@ -32,5 +33,6 @@ Route::group(['middleware' => ['logs']], function () {
     Route::post('callback/{type}', [CallbackController::class, 'handle'])->name('api.callback');
 });
 
+Route::post('verify-pan',[DocumentVerificationController::class,'panVerify']);
 
 // Route::post('validateRecharge', [BbpsRechargeController::class, 'validateRecharge'])->name('bbps.validateRecharge');
