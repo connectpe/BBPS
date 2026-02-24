@@ -149,6 +149,7 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
         ->name('service.request');
 
 
+
     // Route::post('/service-request', [ServiceRequestController::class, 'store'])
     //     ->name('service.request');
     
@@ -190,9 +191,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('reports', [LadgerController::class, 'reports'])->name('reseller_reports');
 });
 
-
 Route::group(['middleware' => ['auth'], 'prefix' => 'api-partner'], function () {
     Route::get('/dashboard', [HomeController::class, 'apiPartner'])->name('api.dashboard');
+
     Route::get('ledger-reports', [LadgerController::class, 'reports'])->name('reseller_reports');
 
     Route::get('all-services', [ServiceController::class, 'apipartnerservices'])->name('api_partner_services');
