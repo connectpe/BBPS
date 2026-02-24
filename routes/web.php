@@ -148,6 +148,11 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
     Route::post('/service-request', [ServiceRequestController::class, 'store'])
         ->name('service.request');
 
+
+    // Route::post('/service-request', [ServiceRequestController::class, 'store'])
+    //     ->name('service.request');
+    
+
     Route::post('completeProfile/{user_id}', [UserController::class, 'completeProfile'])->name('admin.complete_profile');
     Route::post('generate-mpin', [UserController::class, 'generateMpin'])->name('generate_mpin');
     Route::post('/transaction-status-check', [TransactionController::class, 'transactionStatusCheck'])->name('transaction_status_check');
@@ -175,7 +180,8 @@ Route::group(['middleware' => ['auth']], function () {
         ->name('recharge.invoice.download');
     Route::get('services', [ServiceRequestController::class, 'enabledServices'])->name('enabled_services');
 
-
+    Route::post('/service-request', [ServiceRequestController::class, 'store'])
+        ->name('service.request');
     Route::get('unauthrized', function () {
         return view('errors.401');
     })->name('unauthrized.page');
@@ -188,6 +194,9 @@ Route::group(['middleware' => ['auth']], function () {
 Route::group(['middleware' => ['auth'], 'prefix' => 'api-partner'], function () {
     Route::get('/dashboard', [HomeController::class, 'apiPartner'])->name('api.dashboard');
     Route::get('ledger-reports', [LadgerController::class, 'reports'])->name('reseller_reports');
+
+    Route::get('all-services', [ServiceController::class, 'apipartnerservices'])->name('api_partner_services');
+
 });
 
 
