@@ -33,6 +33,13 @@ Route::group(['middleware' => ['logs']], function () {
     Route::post('callback/{type}', [CallbackController::class, 'handle'])->name('api.callback');
 });
 
-Route::post('verify-pan',[DocumentVerificationController::class,'panVerify']);
+Route::group(['middleware'=> ['logs'],'prefix'=>'document'],function(){
+    Route::post('verify-pan',[DocumentVerificationController::class,'panVerify']);
+    Route::post('verify-account',[DocumentVerificationController::class,'VerifyAccountDetails']);
+    Route::post('verify-cin',[DocumentVerificationController::class,'verifyCinNumber']);
+    Route::post('verify-gstin',[DocumentVerificationController::class,'verifyGstinNumber']);
+});
+
+
 
 // Route::post('validateRecharge', [BbpsRechargeController::class, 'validateRecharge'])->name('bbps.validateRecharge');

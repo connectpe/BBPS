@@ -13,10 +13,12 @@ class DocumentVerificationController extends Controller
     private $clientSecret;
     private $apiVersion;
 
-    public function __construct()
-    {
-        $this->clientID = 'CF397795D6E21N84UCVC73BRNP00';
-        $this->clientSecret = 'cfsk_ma_prod_459c9e17775fbc453852a947d9e79d7c_897e28f8';
+
+   
+
+    public function __construct(){
+        $this->clientID = env('CASHFREE_CLIENT_ID');
+        $this->clientSecret = env('CASHFREE_CLIENT_SECRET');
         $this->apiVersion = 'V2';
     }
 
@@ -52,7 +54,11 @@ class DocumentVerificationController extends Controller
                 'x-partner-api-key' => $this->clientID,
                 'x-partner-merchantid' => '',
 
-            ])->get('https://sandbox.cashfree.com/gc/authorize', []);
+
+            ])->get('https://api.cashfree.com/gc/authorize', [
+                
+            ]);
+
 
             return $response['data']->token;
         } catch (Exception $e) {
@@ -78,7 +84,7 @@ class DocumentVerificationController extends Controller
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $token,
                 'Content-Type' => 'application/json',
-            ])->get('https://payout-api.cashfree.com/payout/v1.2/validation/bankDetails', [
+            ])->get('https://api.cashfree.com/payout/v1.2/validation/bankDetails', [
                 'bankAccount' => $request->bankAccount,
                 'ifsc' => $request->ifsc,
                 'name' => $request->name,
@@ -105,23 +111,26 @@ class DocumentVerificationController extends Controller
             $response = Http::withHeaders([
 
                 'Content-Type' => 'application/json',
-                'x-client-id' => '',
-                'x-client-secret' => ''
-            ])->get('https://sandbox.cashfree.com/verification/cin', [
+
+                'x-client-id' => $this->clientID,
+                'x-client-secret'=> $this->clientSecret
+            ])->post('https://api.cashfree.com/verification/cin', [
                 'verification_id' => $verificationId,
                 'cin' => $request->cin,
 
             ]);
+            // dd($response->json());
 
 
             return response()->json([
-                'status' => true,
-                'data' => $response
+
+                'status'=> true,
+                'data'=> $response->json()
             ]);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'messgae' => $e->getMessage()
+                'message' => $e->getMessage()
             ]);
         }
     }
@@ -132,28 +141,28 @@ class DocumentVerificationController extends Controller
             $request->validate([
                 'GSTIN' => 'required|string'
             ]);
-
-            $verificationId = 'CIN' . time();
-
+           
             $response = Http::withHeaders([
 
                 'Content-Type' => 'application/json',
                 'x-client-id' => $this->clientID,
-                'x-client-secret' => $this->clientSecret
-            ])->post('https://sandbox.cashfree.com/verification/gstin', [
-                "GSTIN" => $request->GSTIN,
-
+                'x-client-secret' => $this->clientSecret,
+               
+            ])->post('https://api.cashfree.com/verification/gstin', [
+                "GSTIN"=> $request->GSTIN,
             ]);
-
+          
+            
 
             return response()->json([
-                'status' => true,
-                'data' => $response
+
+                'status'=> true,
+                'data'=> $response->json()
             ]);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'messgae' => $e->getMessage()
+                'message' => $e->getMessage()
             ]);
         }
     }
@@ -171,12 +180,12 @@ class DocumentVerificationController extends Controller
                 'name' => $request->name,
             ];
 
-            $endpoint = "https://sandbox.cashfree.com/verification/pan";
+            $endpoint = "https://api.cashfree.com/verification/pan";
 
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
-                'x-client-id' => "3336833f056e54e01f0f45142b386333",
-                'x-client-secret' => "2dbf0e7e63bc1f6b084faddf33ce0b5dff4a5cd3",
+                'x-client-id' => $this->clientID,
+                'x-client-secret' => $this->clientSecret,
             ])->post($endpoint, $payload);
             // dd($response);
             return response()->json([
