@@ -8,11 +8,13 @@
 <div class="accordion mb-3" id="filterAccordion">
     <div class="accordion-item">
         <h2 class="accordion-header" id="headingFilter">
-            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
+            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
                 Filter Users
             </button>
         </h2>
-        <div id="collapseFilter" class="accordion-collapse collapse" aria-labelledby="headingFilter" data-bs-parent="#filterAccordion">
+        <div id="collapseFilter" class="accordion-collapse collapse" aria-labelledby="headingFilter"
+            data-bs-parent="#filterAccordion">
             <div class="accordion-body">
                 <div class="row g-3 align-items-end">
                     <div class="col-md-3">
@@ -20,7 +22,7 @@
                         <select name="filterName" id="filterName" class="form-control form-select2">
                             <option value="">--Select User--</option>
                             @foreach($users as $value)
-                            <option value="{{$value->id}}">{{$value->name}}  ({{ $value->email }})</option>
+                            <option value="{{$value->id}}">{{$value->name}} ({{ $value->email }})</option>
                             @endforeach
                         </select>
                     </div>
@@ -84,7 +86,7 @@
 </div>
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
 
         var table = $('#usersTable').DataTable({
             processing: true,
@@ -94,7 +96,7 @@
                 url: "{{url('fetch')}}/users/0",
                 type: 'POST',
 
-                data: function(d) {
+                data: function (d) {
                     d._token = $('meta[name="csrf-token"]').attr('content');
                     d.id = $('#filterName').val();
                     d.email = $('#filterEmail').val();
@@ -110,88 +112,105 @@
                 "<'row'<'col-12'tr>>" +
                 "<'row mt-2'<'col-sm-6'i><'col-sm-6'p>>",
             buttons: [{
-                    extend: 'excelHtml5',
-                    text: 'Excel',
-                    className: 'btn buttonColor btn-sm'
+                extend: 'excelHtml5',
+                text: 'Excel',
+                className: 'btn buttonColor btn-sm'
 
-                },
-                {
-                    extend: 'pdfHtml5',
-                    text: 'PDF',
-                    className: 'btn buttonColor btn-sm'
-                }
+            },
+            {
+                extend: 'pdfHtml5',
+                text: 'PDF',
+                className: 'btn buttonColor btn-sm'
+            }
             ],
             language: {
                 searchPlaceholder: "Search users..."
             },
 
             columns: [{
-                    data: null,
-                    orderable: false,
-                    searchable: false,
-                    render: function(data, type, row, meta) {
-                        return meta.settings._iDisplayStart + meta.row + 1;
-                    }
-                },
-                {
-                    data: null,
-                    render: function(data, type, row) {
-                        let url = "{{ route('view_user', ['id' => 'id']) }}".replace('id', row.id);
-                        const userName = row?.name;
-                        const businessName = row?.business?.business_name;
+                data: null,
+                orderable: false,
+                searchable: false,
+                render: function (data, type, row, meta) {
+                    return meta.settings._iDisplayStart + meta.row + 1;
+                }
+            },
+            {
+                data: null,
+                render: function (data, type, row) {
+                    let url = "{{ route('view_user', ['id' => 'id']) }}".replace('id', row.id);
+                    const userName = row?.name;
+                    const businessName = row?.business?.business_name;
 
-                        return `
+                    return `
                                 <a href="${url}" class="text-primary fw-semibold text-decoration-none">
                                     ${userName ?? '----'} <br/>
                                     [${businessName ?? '----'}]
                                 </a>
                             `;
+                }
+            },
+            {
+                data: 'email',
+                render: function (data) {
+                    return data || '----'
+                }
+            },
+            {
+                data: 'business.pan_number',
+                render: function (data) {
+                    return data || '----'
+                }
+            },
+            {
+                data: 'business.aadhar_number',
+                render: function (data) {
+                    return data || '----'
+                }
+            },
+            {
+                data: 'transaction_amount',
+                render: function (data) {
+                    const amount = new Intl.NumberFormat('en-IN', {
+                        style: 'currency',
+                        currency: 'INR',
+                    }).format(data || 0);
+
+                    return amount;
+                }
+            },
+            {
+                data: 'created_at',
+                render: function (data) {
+                    return formatDateTime(data)
+                }
+            },
+            {
+                data: 'status',
+                render: function (data, type, row) {
+
+                    const statusOptions = {
+                        0: 'INITIATED',
+                        1: 'ACTIVE',
+                        2: 'INACTIVE',
+                        3: 'PENDING',
+                        4: 'SUSPENDED'
+                    };
+
+                    let dropdown = `<select class="form-select form-select2" onchange="changeStatusDropdown(this, ${row.id})" onfocus="this.setAttribute('data-prev', this.value)">`;
+
+                    for (const [value, label] of Object.entries(statusOptions)) {
+                        let selected = data == value ? 'selected' : '';
+                        dropdown += `<option value="${value}" ${selected}>${label}</option>`;
                     }
-                },
-                {
-                    data: 'email'
-                },
-                {
-                    data: 'business.pan_number'
-                },
-                {
-                    data: 'business.aadhar_number'
-                },
-                {
-                    data: 'transaction_amount'
-                },
-                {
-                    data: 'created_at',
-                    render: function(data) {
-                        return formatDateTime(data)
-                    }
-                },
-                {
-                    data: 'status',
-                    render: function(data, type, row) {
 
-                        const statusOptions = {
-                            0: 'INITIATED',
-                            1: 'ACTIVE',
-                            2: 'INACTIVE',
-                            3: 'PENDING',
-                            4: 'SUSPENDED'
-                        };
-
-                        let dropdown = `<select class="form-select form-select2" onchange="changeStatusDropdown(this, ${row.id})" onfocus="this.setAttribute('data-prev', this.value)">`;
-
-                        for (const [value, label] of Object.entries(statusOptions)) {
-                            let selected = data == value ? 'selected' : '';
-                            dropdown += `<option value="${value}" ${selected}>${label}</option>`;
-                        }
-
-                        dropdown += `</select>`;
-                        return dropdown;
-                    },
-                    orderable: false,
-                    searchable: false
-
+                    dropdown += `</select>`;
+                    return dropdown;
                 },
+                orderable: false,
+                searchable: false
+
+            },
                 // {
                 //     data: null,
                 //     render: function(data, type, row) {
@@ -218,23 +237,23 @@
 
                 // }
             ]
-            
+
         });
-        $('#filterDateFrom').on('change', function() {
+        $('#filterDateFrom').on('change', function () {
             let from = $(this).val();
             $('#filterDateTo').attr('min', from);
             if ($('#filterDateTo').val() && $('#filterDateTo').val() < from) {
-            $('#filterDateTo').val('');
+                $('#filterDateTo').val('');
             }
         });
 
         // Apply filter
-        $('#applyFilter').on('click', function() {
+        $('#applyFilter').on('click', function () {
             table.ajax.reload();
         });
 
         // Reset filter
-        $('#resetFilter').on('click', function() {
+        $('#resetFilter').on('click', function () {
             $('#filterName').val('').trigger('change');
             $('#filterEmail').val('');
             $('#filterStatus').val('').trigger('change');
@@ -272,7 +291,7 @@
                     status: newStatus,
                     id: id
                 },
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         Swal.fire({
                             icon: 'success',
@@ -285,7 +304,7 @@
                     // update previous value after success
                     selectElement.setAttribute('data-prev', newStatus);
                 },
-                error: function(xhr) {
+                error: function (xhr) {
                     // rollback on error
                     selectElement.value = prevStatus;
 

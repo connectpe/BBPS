@@ -12,11 +12,13 @@ $role = Auth::user()->role_id;
 <div class="accordion mb-3" id="filterAccordion">
     <div class="accordion-item">
         <h2 class="accordion-header" id="headingFilter">
-            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
+            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
                 Filter
             </button>
         </h2>
-        <div id="collapseFilter" class="accordion-collapse collapse" aria-labelledby="headingFilter" data-bs-parent="#filterAccordion">
+        <div id="collapseFilter" class="accordion-collapse collapse" aria-labelledby="headingFilter"
+            data-bs-parent="#filterAccordion">
             <div class="accordion-body">
                 <div class="row g-2 align-items-end">
                     @if($role == 1)
@@ -102,19 +104,19 @@ $role = Auth::user()->role_id;
 </div>
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         let role = "{{$role}}";
         var table = $('#usersTable').DataTable({
             processing: true,
             serverSide: true,
             columnDefs: [{
-                targets: 1, 
-                visible: role == 1 
+                targets: 1,
+                visible: role == 1
             }],
             ajax: {
                 url: "{{url('fetch')}}/ledger/0",
                 type: 'POST',
-                data: function(d) {
+                data: function (d) {
                     d._token = $('meta[name="csrf-token"]').attr('content');
                     d.user_id = $('#filterUser').val();
                     d.reference_no = $('#referenceNo').val();
@@ -132,89 +134,132 @@ $role = Auth::user()->role_id;
                 "<'row'<'col-12'tr>>" +
                 "<'row mt-2'<'col-sm-6'i><'col-sm-6'p>>",
             buttons: [{
-                    extend: 'excelHtml5',
-                    text: 'Excel',
-                    className: 'btn buttonColor btn-sm'
+                extend: 'excelHtml5',
+                text: 'Excel',
+                className: 'btn buttonColor btn-sm'
 
-                },
-                {
-                    extend: 'pdfHtml5',
-                    text: 'PDF',
-                    className: 'btn buttonColor btn-sm'
-                }
+            },
+            {
+                extend: 'pdfHtml5',
+                text: 'PDF',
+                className: 'btn buttonColor btn-sm'
+            }
             ],
             language: {
                 searchPlaceholder: "Search ledgers..."
             },
 
             columns: [{
-                    data: null,
-                    orderable: false,
-                    searchable: false,
-                    render: function(data, type, row, meta) {
-                        return meta.settings._iDisplayStart + meta.row + 1;
-                    }
-                },
-                {
-                    data: null,
-                    render: function(data, type, row) {
-                        let url = "{{ route('view_user', ['id' => 'id']) }}".replace('id', row.user_id);
-                        const userName = row?.user?.name;
-                        const businessName = row?.user?.business?.business_name;
+                data: null,
+                orderable: false,
+                searchable: false,
+                render: function (data, type, row, meta) {
+                    return meta.settings._iDisplayStart + meta.row + 1;
+                }
+            },
+            {
+                data: null,
+                render: function (data, type, row) {
+                    let url = "{{ route('view_user', ['id' => 'id']) }}".replace('id', row.user_id);
+                    const userName = row?.user?.name;
+                    const businessName = row?.user?.business?.business_name;
 
-                        return `
+                    return `
                                 <a href="${url}" class="text-primary fw-semibold text-decoration-none">
                                     ${userName ?? '----'} <br/>
                                     [${businessName ?? '----'}]
                                 </a>
                             `;
-                    }
-                },
+                }
+            },
 
-                {
-                    data: 'service.service_name'
-                },
-                {
-                    data: 'reference_no'
-                },
-                {
-                    data: 'request_id'
-                },
-                {
-                    data: 'connectpe_id'
-                },
-                {
-                    data: 'txn_amount',
-                    render: data => `₹ ${data}`
-                },
+            {
+                data: 'service.service_name',
+                render: function (data) {
+                    return data || '----'
+                }
+            },
+            {
+                data: 'reference_no',
+                render: function (data) {
+                    return data || '----'
+                }
+            },
+            {
+                data: 'request_id',
+                render: function (data) {
+                    return data || '----'
+                }
+            },
+            {
+                data: 'connectpe_id',
+                render: function (data) {
+                    return data || '----'
+                }
+            },
+            {
+                data: 'txn_amount',
+                render: function (data) {
+                    const amount = new Intl.NumberFormat('en-IN', {
+                        style: 'currency',
+                        currency: 'INR',
+                    }).format(data || 0);
 
-                {
-                    data: 'total_txn_amount',
-                    render: data => `₹ ${data ?? 0}`
-                },
-                {
-                    data: 'txn_type'
-                },
-                {
-                    data: 'opening_balance',
-                    render: data => `₹ ${data ?? 0}`
-                },
-                {
-                    data: 'closing_balanace',
-                    render: data => `₹ ${data ?? 0}`
-                },
-                {
-                    data: 'txn_date',
-                    render: function(data) {
-                        return formatDateTime(data)
-                    }
-                },
-                {
-                    data: 'remarks',
-                    render: function(data) {
-                        return `<i class="fas fa-eye cursor-pointer viewModalBtn"  data-title="Remark" data-content='${data}'></i>`;
-                    }
-                },
+                    return amount;
+                }
+            },
+
+            {
+                data: 'total_txn_amount',
+                render: function (data) {
+                    const amount = new Intl.NumberFormat('en-IN', {
+                        style: 'currency',
+                        currency: 'INR',
+                    }).format(data || 0);
+
+                    return amount;
+                }
+            },
+            {
+                data: 'txn_type',
+                render: function (data) {
+                    return data || '----'
+                }
+            },
+            {
+                data: 'opening_balance',
+                render: function (data) {
+                    const amount = new Intl.NumberFormat('en-IN', {
+                        style: 'currency',
+                        currency: 'INR',
+                    }).format(data || 0);
+
+                    return amount;
+                }
+            },
+            {
+                data: 'closing_balanace',
+                render: function (data) {
+                    const amount = new Intl.NumberFormat('en-IN', {
+                        style: 'currency',
+                        currency: 'INR',
+                    }).format(data || 0);
+
+                    return amount;
+                }
+            },
+            {
+                data: 'txn_date',
+                render: function (data) {
+                    return formatDateTime(data)
+                }
+            },
+            {
+                data: 'remarks',
+                render: function (data) {
+                    return `<i class="fas fa-eye cursor-pointer viewModalBtn"  data-title="Remark" data-content='${data}'></i>`;
+                }
+            },
             ]
         });
         $('#filterDateFrom').on('change', function () {
@@ -227,12 +272,12 @@ $role = Auth::user()->role_id;
 
 
         // Apply filter
-        $('#applyFilter').on('click', function() {
+        $('#applyFilter').on('click', function () {
             table.ajax.reload();
         });
 
         // Reset filter
-        $('#resetFilter').on('click', function() {
+        $('#resetFilter').on('click', function () {
             $('#filterUser').val('').trigger('change');
             $('#filterDateFrom').val('');
             $('#filterDateTo').val('');
@@ -273,7 +318,7 @@ $role = Auth::user()->role_id;
                     status: newStatus,
                     id: id
                 },
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         Swal.fire({
                             icon: 'success',
@@ -286,7 +331,7 @@ $role = Auth::user()->role_id;
                     // update previous value after success
                     selectElement.setAttribute('data-prev', newStatus);
                 },
-                error: function(xhr) {
+                error: function (xhr) {
                     // rollback on error
                     selectElement.value = prevStatus;
 
