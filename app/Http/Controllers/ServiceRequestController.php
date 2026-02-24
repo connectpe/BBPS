@@ -9,7 +9,6 @@ use App\Models\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
 
 class ServiceRequestController extends Controller
 {
@@ -18,18 +17,15 @@ class ServiceRequestController extends Controller
      */
     public function index()
     {
-        // $requests = UserService::with(['user', 'service'])
-        //     ->latest()
-        //     ->get();
+        try {
+            $users = User::select('id', 'name', 'email')->where('role_id', '!=', '1')->where('role_id', '!=', '4')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
+            $globalServices = GlobalService::select('id', 'service_name')->where('is_active', '1')->orderBy('id', 'desc')->get();
+            return view('Service.request-services', compact('users', 'globalServices'));
 
-        // $requests = UserService::with(['user', 'service'])
-        //     ->latest()
-        //     ->get();
-
-        $users = User::select('id', 'name', 'email')->where('role_id', '!=', '1')->where('role_id', '!=', '4')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
-        $globalServices = GlobalService::select('id', 'service_name')->where('is_active', '1')->orderBy('id', 'desc')->get();
-
-        return view('Service.request-services', compact('users', 'globalServices'));
+        } catch (\Throwable $e) {
+            \Log::error('Service Request Index Error: '.$e->getMessage());
+            return redirect()->back()->with('error', 'Something went wrong. Please try again.');
+        }
     }
 
     /**
@@ -43,7 +39,6 @@ class ServiceRequestController extends Controller
             $request->validate([
                 'service_id' => 'required|exists:global_services,id',
             ]);
-
 
             $alreadyRequested = UserService::where('user_id', auth()->id())
                 ->where('service_id', $request->service_id)
@@ -74,8 +69,6 @@ class ServiceRequestController extends Controller
                 return back()->with('error', 'Service already requested');
             }
 
-
-            // 🔹 Check already requested in ServiceRequest
             $alreadyRequestedRequest = ServiceRequest::where('user_id', auth()->id())
                 ->where('service_id', $request->service_id)
                 ->exists();
@@ -90,7 +83,6 @@ class ServiceRequestController extends Controller
 
                 return back()->with('error', 'Service already requested');
             }
-
 
             UserService::create([
                 'user_id' => auth()->id(),
@@ -111,6 +103,7 @@ class ServiceRequestController extends Controller
             return back()->with('success', 'Service request sent successfully');
         } catch (\Exception $e) {
             DB::rollback();
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -128,15 +121,14 @@ class ServiceRequestController extends Controller
             'serviceId' => 'required|exists:user_services,id',
         ]);
 
-
         DB::beginTransaction();
         try {
             $service = UserService::findOrFail($request->serviceId);
 
-            if (!$service) {
+            if (! $service) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Request Service not found'
+                    'message' => 'Request Service not found',
                 ]);
             }
 
@@ -144,20 +136,21 @@ class ServiceRequestController extends Controller
             $service->save();
 
             DB::commit();
+
             return response()->json([
                 'status' => true,
-                'message' => "Service Request Approved Successfully"
+                'message' => 'Service Request Approved Successfully',
             ]);
         } catch (\Exception $e) {
 
             DB::rollback();
+
             return response()->json([
                 'status' => false,
-                'message' => 'Error : ' . $e->getMessage()
+                'message' => 'Error : '.$e->getMessage(),
             ]);
         }
     }
-
 
     public function enabledServices()
     {
@@ -167,12 +160,14 @@ class ServiceRequestController extends Controller
             $userId = Auth::user()->id;
             $services = UserService::select('id', 'service_id')->with('service:id,service_name')->where('user_id', $userId)->where('is_active', '1')->orderBy('id', 'desc')->get();
             DB::commit();
+
             return view('Service.enabled-services', compact('services'));
         } catch (\Exception $e) {
             DB::rollback();
+
             return response()->json([
                 'status' => false,
-                'message' => 'Error : ' . $e->getMessage(),
+                'message' => 'Error : '.$e->getMessage(),
             ]);
         }
     }

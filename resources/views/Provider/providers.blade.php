@@ -6,7 +6,8 @@
 @section('page-button')
 <div class="row align-items-center mb-2">
     <div class="col-auto ms-auto">
-        <button type="button" class="btn buttonColor text-nowrap" data-bs-toggle="modal" data-bs-target="#providerModal">
+        <button type="button" class="btn buttonColor text-nowrap" data-bs-toggle="modal"
+            data-bs-target="#providerModal">
             <i class="fa fa-plus"></i> Provider
         </button>
     </div>
@@ -87,7 +88,8 @@
                             <select name="service_id" id="service_id" class="form-control form-select2">
                                 <option value="">--Select Service--</option>
                                 @foreach($globalServices as $service)
-                                <option value="{{$service->id}}" {{$service->id == old('service_id') ? 'selected' : ''}}>{{$service->service_name}}</option>
+                                <option value="{{$service->id}}" {{$service->id == old('service_id') ? 'selected' :
+                                    ''}}>{{$service->service_name}}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -112,7 +114,7 @@
 </div>
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
 
         var table = $('#providerTable').DataTable({
             processing: true,
@@ -120,7 +122,7 @@
             ajax: {
                 url: "{{ url('fetch') }}/providers/0",
                 type: 'POST',
-                data: function(d) {
+                data: function (d) {
                     d._token = $('meta[name="csrf-token"]').attr('content');
                     d.service_id = $("#filterService").val()
                 }
@@ -132,79 +134,88 @@
                 "<'row'<'col-12'tr>>" +
                 "<'row mt-2'<'col-sm-6'i><'col-sm-6'p>>",
             buttons: [{
-                    extend: 'excelHtml5',
-                    text: 'Excel',
-                    className: 'btn buttonColor btn-sm'
+                extend: 'excelHtml5',
+                text: 'Excel',
+                className: 'btn buttonColor btn-sm'
 
-                },
-                {
-                    extend: 'pdfHtml5',
-                    text: 'PDF',
-                    className: 'btn buttonColor btn-sm'
-                }
+            },
+            {
+                extend: 'pdfHtml5',
+                text: 'PDF',
+                className: 'btn buttonColor btn-sm'
+            }
             ],
             language: {
                 searchPlaceholder: "Search Providers..."
             },
 
             columns: [{
-                    data: null,
-                    orderable: false,
-                    searchable: false,
-                    render: function(data, type, row, meta) {
-                        return meta.settings._iDisplayStart + meta.row + 1;
-                    }
-                },
-                {
-                    data: 'service.service_name'
-                },
-                {
-                    data: 'provider_name',
-                },
-                {
-                    data: 'provider_slug'
-                },
-                {
-                    data: 'is_active',
-                    render: function(data, type, row) {
-                        let checked = data == '1' ? 'checked' : ''; // toggle state
-                        return `
+                data: null,
+                orderable: false,
+                searchable: false,
+                render: function (data, type, row, meta) {
+                    return meta.settings._iDisplayStart + meta.row + 1;
+                }
+            },
+            {
+                data: 'service.service_name',
+                render: function (data) {
+                    return data || '----'
+                }
+            },
+            {
+                data: 'provider_name',
+                render: function (data) {
+                    return data || '----'
+                }
+            },
+            {
+                data: 'provider_slug',
+                render: function (data) {
+                    return data || '----'
+                }
+            },
+            {
+                data: 'is_active',
+                render: function (data, type, row) {
+                    let checked = data == '1' ? 'checked' : ''; // toggle state
+                    return `
                             <div class="form-check form-switch">
                                 <input class="form-check-input cursor-pointer" type="checkbox" ${checked}
                                     onchange="changeStatus(this,'${row.id}')">
                             </div>
                         `;
-                    },
-                    orderable: false,
-                    searchable: false
                 },
-                {
-                    data: null,
-                    render: function(data, type, row) {
-                        return `
+                orderable: false,
+                searchable: false
+            },
+            {
+                data: null,
+                render: function (data, type, row) {
+                    return `
                             <button class="btn btn-sm btn-primary"
-                                onclick="openEditService(${row.id}, '${row.provider_name}','${row.service_id }')">
+                                onclick="openEditService(${row.id}, '${row.provider_name}','${row.service_id}')">
                                 <i class="fa fa-edit"></i>
                             </button>
                         `;
-                    }
                 }
+            }
             ]
         });
 
-        $('#applyFilter').on('click', function() {
+        $('#applyFilter').on('click', function () {
             table.ajax.reload();
         });
 
-        $('#resetFilter').on('click', function() {
+        $('#resetFilter').on('click', function () {
             $('#filterService').val('').trigger('change');
             table.ajax.reload();
         });
     });
 
 
-    function changeStatus(checkbox,id) {
- checkbox.checked = !checkbox.checked;
+    function changeStatus(checkbox, id) {
+        checkbox.checked = !checkbox.checked;
         let url = "{{ route('status_provider', ['id' => ':id']) }}";
         url = url.replace(':id', id);
         Swal.fire({
@@ -217,11 +228,11 @@
             cancelButtonText: 'No'
         }).then((result) => {
             if (result.isConfirmed) {
-                 checkbox.checked = !checkbox.checked;
+                checkbox.checked = !checkbox.checked;
                 $.ajax({
                     url: url,
                     type: 'GET',
-                    success: function(response) {
+                    success: function (response) {
                         Swal.fire({
                             icon: 'success',
                             title: 'Success!',
@@ -230,7 +241,7 @@
                             showConfirmButton: true
                         });
                     },
-                    error: function(xhr) {
+                    error: function (xhr) {
                         let title = 'Error';
                         let message = 'Something went wrong!';
 
@@ -253,9 +264,9 @@
 
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
 
-        $('#providerForm').on('submit', function(e) {
+        $('#providerForm').on('submit', function (e) {
             e.preventDefault();
 
             let serviceId = $('#service_id').val();
@@ -277,7 +288,7 @@
                     serviceId: serviceId,
                     providerName: providerName
                 },
-                success: function(response) {
+                success: function (response) {
                     if (response.status) {
                         Swal.fire({
                             icon: 'success',
@@ -293,7 +304,7 @@
                         $('#providerTable').DataTable().ajax.reload(null, false);
                     }
                 },
-                error: function(xhr) {
+                error: function (xhr) {
                     let message = 'Something went wrong';
 
                     // Validation errors (Laravel 422)
@@ -327,7 +338,7 @@
     }
 </script>
 <script>
-    $('#providerModal').on('hidden.bs.modal', function() {
+    $('#providerModal').on('hidden.bs.modal', function () {
         $('#providerForm')[0].reset();
         $('#form_type').val('add');
         $('#edit_provider_id').val('');

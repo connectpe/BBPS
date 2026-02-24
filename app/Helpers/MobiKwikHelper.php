@@ -109,7 +109,7 @@ class MobiKwikHelper
             'iv'                  => base64_encode($iv),
         ];
 
-
+        // dd($requestData);
         $response = Http::withHeaders([
             'Authorization' => $bearerToken,
             'Content-Type'  => 'application/json',
@@ -243,5 +243,4 @@ class MobiKwikHelper
             ]);
         }
     }
-    
 }

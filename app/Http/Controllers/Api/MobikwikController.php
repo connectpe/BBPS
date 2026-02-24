@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Models\UserRooting;
 use App\Models\DefaultProvider;
+use App\Jobs\DebitBalanceUpdateJob;
 
 class MobikwikController extends Controller
 {
@@ -96,7 +97,7 @@ class MobikwikController extends Controller
             );
         }
     }
-
+    
     protected function ValidateUsers(Request $request)
     {
         try {
@@ -159,12 +160,12 @@ class MobikwikController extends Controller
             $ip = $request->ip();
 
             $ipWhitelist = CommonHelper::checkIpWhiteList($userId, $serviceId, $ip);
-            if (!$ipWhitelist) {
-                return response()->json([
-                    'status' => false,
-                    'mesage' => 'Ip not whitelisted'
-                ]);
-            }
+            // if (!$ipWhitelist) {
+            //     return response()->json([
+            //         'status' => false,
+            //         'mesage' => 'Ip not whitelisted'
+            //     ]);
+            // }
 
             $opId = $operator_id;
             $cirId = $circle_id;
@@ -427,7 +428,7 @@ class MobikwikController extends Controller
         $userId = $data['user_id'];
         $serviceId = $data['service'];
         $ip = $request->ip();
-
+        // dd($ip);    
         $ipWhitelist = CommonHelper::checkIpWhiteList($userId, $serviceId, $ip);
         if (!$ipWhitelist) {
             return response()->json([
@@ -459,7 +460,7 @@ class MobikwikController extends Controller
 
                     $mobikwikHelper = new MobiKwikHelper();
                     $token = $this->isTokenPresent();
-
+                    // dd($token);
                     $response = $mobikwikHelper->sendRequest(
                         '/recharge/v3/retailerValidation',
                         $payload,
@@ -500,27 +501,88 @@ class MobikwikController extends Controller
         $ip = $request->ip();
 
         $ipWhitelist = CommonHelper::checkIpWhiteList($userId, $serviceId, $ip);
-        if (!$ipWhitelist) {
-            return response()->json([
-                'status' => false,
-                'mesage' => 'Ip not whitelisted'
-            ]);
-        }
+        // if (!$ipWhitelist) {
+        //     return response()->json([
+        //         'status' => false,
+        //         'mesage' => 'Ip not whitelisted'
+        //     ]);
+        // }
+
+        // $request->validate([
+        //     'customerNUmber' => 'required',
+        //     'operator' => 'required',
+        //     'circle' => 'required',
+        //     'amount' => 'required',
+        //     'requestId' => 'required',
+        //     'customerMobile' => 'required',
+        //     'remitterName' => 'required',
+        //     'paymentRefID' => 'required',
+        //     'paymentMode' => 'required',
+        //     'paymentAccountInfo' => 'required',
+        //     'additionalPrm1' => 'nullable',
+        //     'additionalPrm2' => 'nullable'
+        // ]);
+
+
+        $messages = [
+            'customerNUmber.required' => 'Customer number is required.',
+            'customerNUmber.string' => 'Customer number must be a valid string.',
+            'customerNUmber.regex' => 'Customer number must be a 10-digit number.',
+
+            'operator.required' => 'Operator is required.',
+            'operator.exists' => 'Selected operator is invalid.',
+
+            'circle.required' => 'Circle is required.',
+            'circle.exists' => 'Selected circle is invalid.',
+
+            'amount.required' => 'Amount is required.',
+            'amount.numeric' => 'Amount must be a number.',
+            'amount.min' => 'Amount must be at least 1.',
+
+            'requestId.required' => 'Request ID is required.',
+            'requestId.string' => 'Request ID must be a valid string.',
+            'requestId.unique' => 'This Request ID has already been used.',
+
+            'customerMobile.required' => 'Customer mobile number is required.',
+            'customerMobile.string' => 'Customer mobile number must be a valid string.',
+            'customerMobile.regex' => 'Customer mobile number must be a 10-digit number.',
+
+            'remitterName.required' => 'Remitter name is required.',
+            'remitterName.string' => 'Remitter name must be a valid string.',
+            'remitterName.max' => 'Remitter name cannot exceed 100 characters.',
+
+            'paymentRefID.required' => 'Payment reference ID is required.',
+            'paymentRefID.string' => 'Payment reference ID must be a valid string.',
+            'paymentRefID.unique' => 'This Payment Reference ID has already been used.',
+
+            'paymentMode.required' => 'Payment mode is required.',
+            'paymentMode.in' => 'Payment mode must be Wallet.',
+
+            'paymentAccountInfo.required' => 'Payment account information is required.',
+            'paymentAccountInfo.string' => 'Payment account information must be a valid string.',
+            'paymentAccountInfo.max' => 'Payment account information cannot exceed 100 characters.',
+
+            'additionalPrm1.string' => 'Additional parameter 1 must be a valid string.',
+            'additionalPrm1.max' => 'Additional parameter 1 cannot exceed 255 characters.',
+
+            'additionalPrm2.string' => 'Additional parameter 2 must be a valid string.',
+            'additionalPrm2.max' => 'Additional parameter 2 cannot exceed 255 characters.',
+        ];
 
         $request->validate([
-            'customerNUmber' => 'required',
-            'operator' => 'required',
-            'circle' => 'required',
-            'amount' => 'required',
-            'requestId' => 'required',
-            'customerMobile' => 'required',
-            'remitterName' => 'required',
-            'paymentRefID' => 'required',
-            'paymentMode' => 'required',
-            'paymentAccountInfo' => 'required',
-            'additionalPrm1' => 'nullable',
-            'additionalPrm2' => 'nullable'
-        ]);
+            'customerNUmber' => 'required|string|regex:/^[0-9]{10}$/',
+            'operator' => 'required|exists:operators,id',
+            'circle' => 'required|exists:circles,id',
+            'amount' => 'required|numeric|min:1',
+            'requestId' => 'required|string|unique:transactions,request_id',
+            'customerMobile' => 'required|string|regex:/^[0-9]{10}$/',
+            'remitterName' => 'required|string|max:100',
+            'paymentRefID' => 'required|string|unique:transactions,payment_ref_id',
+            'paymentMode' => 'required|in:Wallet',
+            'paymentAccountInfo' => 'required|string|max:100',
+            'additionalPrm1' => 'nullable|string|max:255',
+            'additionalPrm2' => 'nullable|string|max:255'
+        ], $messages);
 
         switch ($type) {
             case 'mobikwik-payment':
@@ -570,6 +632,19 @@ class MobikwikController extends Controller
                     $mobikwikHelper = new MobiKwikHelper();
                     $token = $this->isTokenPresent();
                     $endpoint = '/recharge/v3/retailerPayment';
+
+                   
+
+                    $response = $mobikwikHelper->sendRequest(
+                        $endpoint,
+                        $payload,
+                        "LTc5BrqrRB1yQpq0HSpKJYRwbYxVWeSsZc_OEItKmCM"
+                    );
+
+                    // dd($response);
+                    return response()->json([
+                        'data'=>$response,
+                    ]);
 
                     dispatch(
                         new DebitBalanceUpdateJob(
@@ -635,12 +710,12 @@ class MobikwikController extends Controller
         $ip = $request->ip();
 
         $ipWhitelist = CommonHelper::checkIpWhiteList($userId, $serviceId, $ip);
-        if (!$ipWhitelist) {
-            return response()->json([
-                'status' => false,
-                'mesage' => 'Ip not whitelisted'
-            ]);
-        }
+        // if (!$ipWhitelist) {
+        //     return response()->json([
+        //         'status' => false,
+        //         'mesage' => 'Ip not whitelisted'
+        //     ]);
+        // }
 
         $request->validate([
             'connectionNumber' => 'required|string',
@@ -664,7 +739,7 @@ class MobikwikController extends Controller
                 $response = $mobikwikHelper->sendRequest(
                     '/recharge/v3/retailerViewbill',
                     $payload,
-                    $token
+                    'LTc5BrqrRB1yQpq0HSpKJYRwbYxVWeSsZc_OEItKmCM'
                 );
 
                 return response()->json([
@@ -690,15 +765,15 @@ class MobikwikController extends Controller
         $ip = $request->ip();
 
         $ipWhitelist = CommonHelper::checkIpWhiteList($userId, $serviceId, $ip);
-        if (!$ipWhitelist) {
-            return response()->json([
-                'status' => false,
-                'mesage' => 'Ip not whitelisted'
-            ]);
-        }
+        // if (!$ipWhitelist) {
+        //     return response()->json([
+        //         'status' => false,
+        //         'mesage' => 'Ip not whitelisted'
+        //     ]);
+        // }
 
         $request->validate([
-            'txnId' => 'required|string',
+            'txnId' => 'required|exists:transactions,request_id',
         ]);
 
         switch ($type) {
@@ -712,11 +787,12 @@ class MobikwikController extends Controller
                     $mobikwikHelper = new MobiKwikHelper();
                     $token = $this->isTokenPresent();
                     // dd($token);
+                    
 
                     $data = $mobikwikHelper->sendRequest(
                         "/recharge/v3/retailerStatus",
                         $payload,
-                        $token
+                        "LTc5BrqrRB1yQpq0HSpKJYRwbYxVWeSsZc_OEItKmCM"
                     );
                     return response()->json([
                         "status" => false,
