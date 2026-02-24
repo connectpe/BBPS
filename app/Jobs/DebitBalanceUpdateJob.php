@@ -23,7 +23,6 @@ class DebitBalanceUpdateJob implements ShouldQueue
     public $tries = 5;
     public $timeout = 300;
     public $failOnTimeout = true;
-
     private string $endpoint;
     private array $payload;
     private string $token;
@@ -71,7 +70,7 @@ class DebitBalanceUpdateJob implements ShouldQueue
                 return;
             }
 
-            $userService = UserService::where(['user_id', $this->payload['userid'],'service_id'=>$this->payload['serviceId'],'is_active'=>'1'])->first();
+            $userService = UserService::where(['user_id', $this->payload['userid'], 'service_id' => $this->payload['serviceId'], 'is_active' => '1'])->first();
             if (!$userService) {
                 throw new \Exception('User service is not enable right now');
             }

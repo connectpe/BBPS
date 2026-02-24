@@ -4,8 +4,7 @@
 @section('page-title', 'Recharge Report')
 
 @section('page-button')
-<img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}"
-    alt="" style="width: 84px; z-index: 1060;">
+<img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}" alt="" style="width: 84px; z-index: 1060;">
 @endsection
 @section('content')
 
@@ -45,8 +44,7 @@ $role = Auth::user()->role_id;
 
                     <div class="col-md-3">
                         <label for="filterreferenceId" class="form-label">ReferenceId</label>
-                        <input type="text" class="form-control" id="filterreferenceId"
-                            placeholder="Enter ReferenceId">
+                        <input type="text" class="form-control" id="filterreferenceId" placeholder="Enter ReferenceId">
                     </div>
 
                     <div class="col-md-3">
@@ -63,11 +61,13 @@ $role = Auth::user()->role_id;
                     </div>
                     <div class="col-md-3">
                         <label for="filterCommonId" class="form-label">Search Id</label>
-                        <input type="text" class="form-control" id="filterCommonId" placeholder="Payment / ConnectPe / Request ID">
+                        <input type="text" class="form-control" id="filterCommonId"
+                            placeholder="Payment / ConnectPe / Request ID">
                     </div>
                     <div class="col-md-3">
                         <label for="filterMobile" class="form-label">Mobile No</label>
-                        <input type="text" class="form-control" id="filterMobile" placeholder="Enter Mobile Number" maxlength="10">
+                        <input type="text" class="form-control" id="filterMobile" placeholder="Enter Mobile Number"
+                            maxlength="10">
                     </div>
 
 
@@ -130,7 +130,7 @@ $role = Auth::user()->role_id;
 </div>
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
 
         let role = "{{$role}}";
         var table = $('#rechargeTable').DataTable({
@@ -143,7 +143,7 @@ $role = Auth::user()->role_id;
             ajax: {
                 url: "{{ url('fetch') }}/transactions/0",
                 type: "POST",
-                data: function(d) {
+                data: function (d) {
                     d._token = $('meta[name="csrf-token"]').attr('content');
                     d.user_id = $('#filterUser').val();
                     d.reference_number = $('#filterreferenceId').val();
@@ -163,138 +163,159 @@ $role = Auth::user()->role_id;
                 "<'row'<'col-12'tr>>" +
                 "<'row mt-2'<'col-sm-6'i><'col-sm-6'p>>",
             buttons: [{
-                    extend: 'excelHtml5',
-                    text: 'Excel',
-                    className: 'btn buttonColor btn-sm'
-                },
-                {
-                    extend: 'pdfHtml5',
-                    text: 'PDF',
-                    className: 'btn buttonColor btn-sm'
-                }
+                extend: 'excelHtml5',
+                text: 'Excel',
+                className: 'btn buttonColor btn-sm'
+            },
+            {
+                extend: 'pdfHtml5',
+                text: 'PDF',
+                className: 'btn buttonColor btn-sm'
+            }
             ],
             language: {
                 searchPlaceholder: "Search Transactions..."
             },
             columns: [{
-                    data: null,
-                    orderable: false,
-                    searchable: false,
-                    render: function(data, type, row, meta) {
-                        return meta.settings._iDisplayStart + meta.row + 1;
-                    }
-                },
-                {
-                    data: null,
-                    render: function(data, type, row) {
-                        let url = "{{ route('view_user', ['id' => 'id']) }}".replace('id', row.user_id);
-                        const userName = row?.user?.name;
-                        const businessName = row?.user?.business?.business_name;
+                data: null,
+                orderable: false,
+                searchable: false,
+                render: function (data, type, row, meta) {
+                    return meta.settings._iDisplayStart + meta.row + 1;
+                }
+            },
+            {
+                data: null,
+                render: function (data, type, row) {
+                    let url = "{{ route('view_user', ['id' => 'id']) }}".replace('id', row.user_id);
+                    const userName = row?.user?.name;
+                    const businessName = row?.user?.business?.business_name;
 
-                        return `
+                    return `
                                 <a href="${url}" class="text-primary fw-semibold text-decoration-none">
                                     ${userName ?? '----'} <br/>
                                     [${businessName ?? '----'}]
                                 </a>
                             `;
+                }
+            },
+
+            {
+                data: null,
+                render: function (data, type, row) {
+                    let operatorName = row.operator ? row.operator.name : '';
+                    let circleName = row.circle ? row.circle.name : '';
+                    if (!operatorName) return '----';
+                    if (circleName) {
+                        return circleName + ' ' + '[' + operatorName + ']';;
                     }
-                },
+                    return operatorName;
+                }
+            },
 
-                {
-                    data: null,
-                    render: function(data, type, row) {
-                        let operatorName = row.operator ? row.operator.name : '';
-                        let circleName = row.circle ? row.circle.name : '';
-                        if (!operatorName) return '----';
-                        if (circleName) {
-                            return circleName + ' ' + '[' + operatorName + ']';;
-                        }
-                        return operatorName;
-                    }
-                },
+            // {
+            //     data: 'operator',
+            //     render: function(data) {
+            //         if (!data) return '----';
+            //         return `${data.name} [${data.code}]`;
+            //     }
+            // },
+            // {
+            //     data: 'circle',
+            //     render: function(data, type, row) {
+            //         const circle = `${data.name} [${data.code}]`;
+            //         return `${circle} `;
+            //     }
+            // },
+            {
+                data: 'amount',
+                render: function (data) {
+                    return data || '----'
+                }
+            },
+            {
+                data: 'mobile_number',
+                render: function (data) {
+                    return data || '----'
+                }
+            },
+            {
+                data: 'transaction_type',
+                render: function (data) {
+                    return data || '----'
+                }
+            },
+            {
+                data: 'reference_number',
+                render: function (data) {
+                    return data || '----'
+                }
+            },
+            {
+                data: 'payment_ref_id',
+                render: function (data) {
+                    return data || '----'
+                }
+            },
+            {
+                data: 'connectpe_id',
+                render: function (data) {
+                    return data || '----'
+                }
+            },
+            {
+                data: 'request_id',
+                render: function (data) {
+                    return data || '----'
+                }
+            },
+            {
+                data: 'created_at',
+                render: function (data) {
+                    return formatDateTime(data);
+                }
+            },
+            {
+                data: 'status',
+                render: function (data) {
+                    const colors = {
+                        queued: 'primary', // blue – in queue
+                        pending: 'secondary', // gray – waiting
+                        processing: 'warning', // yellow – in progress
+                        processed: 'success', // green – done
+                        failed: 'danger', // red – error
+                        reversed: 'info', // blue – rolled back
+                    };
+                    const color = colors[data] || 'secondary';
+                    return `<span class="badge bg-${color}">${formatStatus(data)}</span>`;
+                }
+            },
+            {
+                data: null,
+                orderable: false,
+                searchable: false,
+                render: function (data, type, row) {
 
-                // {
-                //     data: 'operator',
-                //     render: function(data) {
-                //         if (!data) return '----';
-                //         return `${data.name} [${data.code}]`;
-                //     }
-                // },
-                // {
-                //     data: 'circle',
-                //     render: function(data, type, row) {
-                //         const circle = `${data.name} [${data.code}]`;
-                //         return `${circle} `;
-                //     }
-                // },
-                {
-                    data: 'amount'
-                },
-                {
-                    data: 'mobile_number'
-                },
-                {
-                    data: 'transaction_type'
-                },
-                {
-                    data: 'reference_number'
-                },
-                {
-                    data: 'payment_ref_id'
-                },
-                {
-                    data: 'connectpe_id'
-                },
-                {
-                    data: 'request_id'
-                },
-                {
-                    data: 'created_at',
-                    render: function(data) {
-                        return formatDateTime(data);
-                    }
-                },
-                {
-                    data: 'status',
-                    render: function(data) {
-                        const colors = {
-                            queued: 'primary', // blue – in queue
-                            pending: 'secondary', // gray – waiting
-                            processing: 'warning', // yellow – in progress
-                            processed: 'success', // green – done
-                            failed: 'danger', // red – error
-                            reversed: 'info', // blue – rolled back
-                        };
-                        const color = colors[data] || 'secondary';
-                        return `<span class="badge bg-${color}">${formatStatus(data)}</span>`;
-                    }
-                },
-                {
-                    data: null,
-                    orderable: false,
-                    searchable: false,
-                    render: function(data, type, row) {
 
+                    if (row.status === 'processed') {
+                        let url = "{{ route('recharge.invoice.download', ':id') }}"
+                            .replace(':id', row.id);
 
-                        if (row.status === 'processed') {
-                            let url = "{{ route('recharge.invoice.download', ':id') }}"
-                                .replace(':id', row.id);
-
-                            return `
+                        return `
                 <a href="${url}" 
                    class="btn btn-sm btn-success">
                     <i class="bi bi-download"></i> Invoice
                 </a>
             `;
-                        }
-
-                        return `<span class="text-muted">----</span>`;
                     }
+
+                    return `<span class="text-muted">----</span>`;
                 }
+            }
 
             ]
         });
-        $('#filterDateFrom').on('change', function() {
+        $('#filterDateFrom').on('change', function () {
             let from = $(this).val();
             $('#filterDateTo').attr('min', from);
             if ($('#filterDateTo').val() && $('#filterDateTo').val() < from) {
@@ -302,11 +323,11 @@ $role = Auth::user()->role_id;
             }
         });
 
-        $('#applyFilter').on('click', function() {
+        $('#applyFilter').on('click', function () {
             table.ajax.reload();
         });
 
-        $('#resetFilter').on('click', function() {
+        $('#resetFilter').on('click', function () {
             $('#filterUser').val('').trigger('change');;
             $('#filterreferenceId').val('');
             $('#filterStatus').val('').trigger('change');;

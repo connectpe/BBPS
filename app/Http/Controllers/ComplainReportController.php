@@ -13,21 +13,22 @@ class ComplainReportController extends Controller
 {
     public function complainReport()
     {
-        $users = [];
-        $role = Auth::user()->role_id;
-        $priorities = ['low', 'normal', 'high', 'urgent'];
-
-        if ($role == 1) {
-            $users = User::select('id', 'name', 'email')->where('role_id', '!=', '1')->whereHas('complaints')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
-        } elseif ($role == 4) {
-            $assignedUser =  UserAssignedToSupport::where('assined_to', Auth::user()->id)->pluck('user_id')->toArray();
-            $users = User::select('id', 'name', 'email')->whereNotIn('role_id',  [1, 3, 4])->whereHas('complaints')->whereIn('id', $assignedUser)->where('status', '!=', '0')->orderBy('id', 'desc')->get();
+        try {
+            $users = [];
+            $role = Auth::user()->role_id;
+            $priorities = ['low', 'normal', 'high', 'urgent'];
+            if ($role == 1) {
+                $users = User::select('id', 'name', 'email')->where('role_id', '!=', '1')->whereHas('complaints')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
+            } elseif ($role == 4) {
+                $assignedUser = UserAssignedToSupport::where('assined_to', Auth::user()->id)->pluck('user_id')->toArray();
+                $users = User::select('id', 'name', 'email')->whereNotIn('role_id', [1, 3, 4])->whereHas('complaints')->whereIn('id', $assignedUser)->where('status', '!=', '0')->orderBy('id', 'desc')->get();
+            }
+            return view('ComplainReport.index', compact('priorities', 'users'));
+        } catch (\Throwable $e) {
+            \Log::error('Complain Report Error: '.$e->getMessage());
+            return redirect()->back()->with('error', 'Something went wrong. Please try again.');
         }
-
-        return view('ComplainReport.index', compact('priorities', 'users'));
     }
-
-
 
     public function updateComplaint(Request $request, $id)
     {
@@ -42,10 +43,10 @@ class ComplainReportController extends Controller
 
             $complaint = Complaint::findOrFail($id);
 
-            if (!$complaint) {
+            if (! $complaint) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Complaint not Found'
+                    'message' => 'Complaint not Found',
                 ]);
             }
 
@@ -53,23 +54,24 @@ class ComplainReportController extends Controller
             $complaint->remark = $request->remark;
             $complaint->updated_by = Auth::user()->id;
 
-
             if ($request->status === 'Closed') {
                 $complaint->resolved_at = now();
             }
 
             $complaint->save();
             DB::commit();
+
             return response()->json([
                 'status' => true,
-                'message' => 'Complaint Updated Successfully'
+                'message' => 'Complaint Updated Successfully',
             ]);
         } catch (\Exception $e) {
 
             DB::rollback();
+
             return response()->json([
                 'status' => false,
-                'message' => 'Error : ' . $e->getMessage()
+                'message' => 'Error : '.$e->getMessage(),
             ]);
         }
     }
