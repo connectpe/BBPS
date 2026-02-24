@@ -180,9 +180,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('recharge/invoice/{id}', [TransactionController::class, 'downloadInvoice'])
         ->name('recharge.invoice.download');
     Route::get('services', [ServiceRequestController::class, 'enabledServices'])->name('enabled_services');
-
-    Route::post('/service-request', [ServiceRequestController::class, 'store'])
-        ->name('service.request');
     Route::get('unauthrized', function () {
         return view('errors.401');
     })->name('unauthrized.page');
@@ -193,13 +190,6 @@ Route::group(['middleware' => ['auth']], function () {
 
 Route::group(['middleware' => ['auth'], 'prefix' => 'api-partner'], function () {
     Route::get('/dashboard', [HomeController::class, 'apiPartner'])->name('api.dashboard');
-
-    // Route::get('ledger-reports', [LadgerController::class, 'reports'])->name('reseller_reports');
-
-
-    Route::get('ledger-reports', [LadgerController::class, 'reports'])->name('reseller_reports');
-
-
     Route::get('all-services', [ServiceController::class, 'apipartnerservices'])->name('api_partner_services');
 
 });
