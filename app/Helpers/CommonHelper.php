@@ -7,7 +7,6 @@ use App\Models\IpWhitelist;
 use App\Models\OauthUser;
 use App\Models\MobikwikToken;
 use App\Models\UserRooting;
-use App\Models\IpWhitelist;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
