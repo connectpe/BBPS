@@ -145,8 +145,8 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
     Route::get('/complaint-status', [TransactionController::class, 'complaintStatus'])->name('complaint_status');
     Route::post('/complaint-status/check', [TransactionController::class, 'checkComplaintStatus'])->name('complaint.status.check');
     Route::post('nsdl-initiated-payment', [UserController::class, 'initiateNsdlPayment'])->name('nsdl-initiatePayment');
-    Route::post('/service-request', [ServiceRequestController::class, 'store'])
-        ->name('service.request');
+    // Route::post('/service-request', [ServiceRequestController::class, 'store'])
+    //     ->name('service.request');
 
 
 
@@ -197,7 +197,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'api-partner'], function () 
     // Route::get('ledger-reports', [LadgerController::class, 'reports'])->name('reseller_reports');
 
 
-    Route::get('ledger-reports', [LadgerController::class, 'reports'])->name('reseller_reports');
+    // Route::get('ledger-reports', [LadgerController::class, 'reports'])->name('reseller_reports');
 
 
     Route::get('all-services', [ServiceController::class, 'apipartnerservices'])->name('api_partner_services');
