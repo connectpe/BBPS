@@ -114,8 +114,6 @@ class DocumentVerificationController extends Controller
                 'GSTIN'=> 'required|string'
             ]);
 
-            $verificationId = 'CIN'.time();
-            
             $response = Http::withHeaders([
                
                 'Content-Type' => 'application/json',
