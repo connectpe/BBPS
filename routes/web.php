@@ -192,6 +192,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('reports', [LadgerController::class, 'reports'])->name('reseller_reports');
 
     Route::get('document-verification', [DocumentVerificationController::class, 'getDocumentData'])->name('document.verification.data');
+    // Route::post('gstin-verify', [DocumentVerificationController::class, 'verifyGstinNumber'])->name('gstin.verify');
+    // Route::post('cin-verify', [DocumentVerificationController::class, 'verifyCinNumber'])->name('cin.verify');
+    // Route::post('bank-account-verify', [DocumentVerificationController::class, 'VerifyAccountDetails'])->name('bank.account.verify');
 });
 
 Route::group(['middleware' => ['auth'], 'prefix' => 'api-partner'], function () {

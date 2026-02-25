@@ -66,6 +66,11 @@ class User extends Authenticatable
         return $this->hasOne(BusinessInfo::class, 'user_id', 'id');
     }
 
+    public function bankDetails()
+    {
+        return $this->hasOne(UsersBank::class, 'user_id', 'id');
+    }
+
     public function transactions()
     {
         return $this->hasMany(Transaction::class);
