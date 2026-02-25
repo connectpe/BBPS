@@ -283,4 +283,10 @@ class TransactionController extends Controller
             ]);
         }
     }
+
+
+
+    public function payouttransaction(){
+        return view('Transaction.payout-transaction');
+    }
 }

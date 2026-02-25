@@ -94,7 +94,7 @@ $role = Auth::user()->role_id;
 </div>
 
 
-<div class="col-12 col-md-10 col-lg-12">
+<div class="col-12">
     <div class="card shadow-sm">
 
         <div class="card-body pt-4">
