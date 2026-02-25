@@ -99,17 +99,18 @@
                                 placeholder="Enter Client Txn ID">
                         </div> --}}
 
-                        <div class="col-md-3">
-                            <label class="form-label">User</label>
-                            <select class="form-select form-select2" id="filterUserId">
-                                <option value="">--Select User--</option>
-                                @foreach ($users as $u)
-                                    <option value="{{ $u->id }}">
-                                        {{ $u->name }} ({{ $u->email }})
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+                        @if (auth()->user()->role_id == 1)
+                            <div class="col-md-3">
+                                <label class="form-label">User</label>
+                                <select class="form-select form-select2" id="filterUserId">
+                                    <option value="">--Select User--</option>
+                                    @foreach ($users as $u)
+                                        <option value="{{ $u->id }}">{{ $u->name }} ({{ $u->email }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @endif
                         <div class="col-md-3">
                             <label class="form-label">Any Key</label>
                             <input type="text" class="form-control" id="filterAnyKey"
@@ -121,10 +122,10 @@
                             <input type="text" class="form-control" id="filterUtrNo" placeholder="Enter UTR No">
                         </div>
 
-                        <div class="col-md-3">
+                        {{-- <div class="col-md-3">
                             <label class="form-label">Mode</label>
                             <input type="text" class="form-control" id="filterMode" placeholder="Enter Mode">
-                        </div>
+                        </div> --}}
 
                         <div class="col-md-3">
                             <label class="form-label">Status</label>
@@ -168,13 +169,17 @@
                     <thead>
                         <tr>
                             <th style="width:55px;">#</th>
-                            <th>User Name</th>
+                            @if (auth()->user()->role_id == 1)
+                                <th>User Name</th>
+                            @endif
                             <th>ConnectPe ID</th>
                             <th>Transaction No</th>
                             <th>Client Txn Id</th>
                             <th>UTR No</th>
                             <th>Mode</th>
-                            <th>Provider Name</th>
+                            @if (auth()->user()->role_id == 1)
+                                <th>Provider Name</th>
+                            @endif
                             <th>Amount</th>
                             <th>Status</th>
                             <th>Created At</th>
@@ -188,6 +193,8 @@
 
     <script>
         $(document).ready(function() {
+
+            const isAdmin = {{ auth()->user()->role_id == 1 ? 'true' : 'false' }};
 
             function safe(v) {
                 return (v === null || v === undefined || v === '') ? '----' : v;
@@ -212,41 +219,6 @@
                 html += '<div class="child-wrap">';
                 html += '<table class="child-table"><tbody>';
 
-                // html += '<tr>';
-                // html += '<th>User Name</th><td>' + safe(d.user ? d.user.name : "") + '</td>';
-                // html += '<th>Service Name</th><td>' + safe(d.service ? d.service.service_name : "") + '</td>';
-                // html += '</tr>';
-
-                // html += '<tr>';
-                // html += '<th>Provider Name</th><td>' + safe(d.provider ? d.provider.provider_name : "") + '</td>';
-                // html += '<th>Updated By</th><td>' + safe(d.updatedBy ? d.updatedBy.name : "") + '</td>';
-                // html += '</tr>';
-
-                // html += '<tr>';
-                // html += '<th>ConnectPe ID</th><td>' + safe(d.connectpe_id) + '</td>';
-                // html += '<th>Transaction No</th><td>' + safe(d.transaction_no) + '</td>';
-                // html += '</tr>';
-
-                // html += '<tr>';
-                // html += '<th>Client Txn ID</th><td>' + safe(d.client_txn_id) + '</td>';
-                // html += '<th>UTR No</th><td>' + safe(d.utr_no) + '</td>';
-                // html += '</tr>';
-
-                html += '<tr>';
-                html += '<th>Total Amount</th><td>' + safe(d.total_amount) + '</td>';
-
-                html += '</tr>';
-
-                html += '<tr>';
-                html += '<th>Fee</th><td>' + safe(d.fee) + '</td>';
-                html += '<th>Tax</th><td>' + safe(d.tax) + '</td>';
-                html += '</tr>';
-
-                // html += '<tr>';
-                // html += '<th>Status</th><td>' + statusBadge(d.status) + '</td>';
-                // html += '<th>Status Code</th><td>' + safe(d.status_code) + '</td>';
-                // html += '</tr>';
-
                 html += '<tr>';
                 html += '<th>Account No</th><td>' + safe(d.account_no) + '</td>';
                 html += '<th>IFSC Code</th><td>' + safe(d.ifsc_code) + '</td>';
@@ -256,27 +228,110 @@
                 html += '<th>Bank Name</th><td>' + safe(d.bank_name) + '</td>';
                 html += '<th>Beneficiary Name</th><td>' + safe(d.beneficiary_name) + '</td>';
                 html += '</tr>';
+                // if (isAdmin) {
+                //     html += '<tr>';
+                //     html += '<th>Provider Name</th><td>' + safe(d.provider ? d.provider.provider_name : '') +
+                //         '</td>';
+                //     html += '<th>Updated By</th><td>' + safe(d.updatedBy ? d.updatedBy.name : '') + '</td>';
+                //     html += '</tr>';
+
+                //     html += '<tr>';
+                //     html += '<th>API Call</th><td>' + yesNo(d.is_api_call) + '</td>';
+                //     html += '<th>Cron</th><td>' + yesNo(d.is_cron) + '</td>';
+                //     html += '</tr>';
+
+                //     html += '<tr>';
+                //     html += '<th>Cron Date</th><td>' + safe(d.cron_date) + '</td>';
+                //     html += '<th>Fee Type</th><td>' + safe(d.fee_type) + '</td>';
+                //     html += '</tr>';
+                // }
 
                 // html += '<tr>';
-                // html += '<th>Cron Date</th><td>' + safe(d.cron_date) + '</td>';
-                // html += '<th>Fee Type</th><td>' + safe(d.fee_type) + '</td>';
+                // html += '<th>Purpose</th><td colspan="3">' + safe(d.purpose) + '</td>';
                 // html += '</tr>';
 
                 html += '<tr>';
-                html += '<th>Purpose</th><td colspan="3">' + safe(d.purpose) + '</td>';
+                html += '<th>Total Amount</th><td>' + safe(d.total_amount) + '</td>';
+                html += '<th>Remark</th><td>' + safe(d.remark) + '</td>';
+                html += '</tr>';
+                html += '<tr>';
+                html += '<th>Fee</th><td>' + safe(d.fee) + '</td>';
+                html += '<th>Tax</th><td>' + safe(d.tax) + '</td>';
                 html += '</tr>';
 
                 html += '<tr>';
-                html += '<th>Remark</th><td colspan="3">' + safe(d.remark) + '</td>';
-                html += '</tr>';
-
-                html += '<tr>';
-                html += '<th>Failed Message</th><td colspan="3">' + safe(d.failed_msg) + '</td>';
+                html += '<th>Purpose</th><td style="word-break: break-word;">' + safe(d.purpose) + '</td>';
+                html += '<th>Failed Message</th><td style="word-break: break-word;">' + safe(d.failed_msg) +
+                '</td>';
                 html += '</tr>';
 
                 html += '</tbody></table></div>';
                 return html;
             }
+            var columns = [];
+            columns.push({
+                className: 'dt-control',
+                orderable: false,
+                searchable: false,
+                data: null,
+                render: function() {
+                    return '<span class="dt-plus-btn buttonColor">+</span>';
+                }
+            });
+            if (isAdmin) {
+                columns.push({
+                    data: null,
+                    render: function(row) {
+                        let url = "{{ route('view_user', ':id') }}".replace(':id', row.user_id);
+                        const userName = row?.user?.name || '----';
+                        const email = row?.user?.email || '----';
+                        return `
+                    <a href="${url}" class="text-primary fw-semibold text-decoration-none">
+                        ${userName}<br/>[${email}]
+                    </a>
+                `;
+                    }
+                });
+            }
+            columns.push({
+                data: 'connectpe_id'
+            });
+            columns.push({
+                data: 'transaction_no'
+            });
+            columns.push({
+                data: 'client_txn_id'
+            });
+            columns.push({
+                data: 'utr_no'
+            });
+            columns.push({
+                data: 'mode'
+            });
+            if (isAdmin) {
+                columns.push({
+                    data: 'provider',
+                    render: function(data) {
+                        return data ? data.provider_name : '----';
+                    }
+                });
+            }
+
+            columns.push({
+                data: 'amount'
+            });
+            columns.push({
+                data: 'status',
+                render: function(d) {
+                    return statusBadge(d);
+                }
+            });
+            columns.push({
+                data: 'created_at',
+                render: function(data) {
+                    return formatDateTime(data);
+                }
+            });
 
             var table = $('#payoutTable').DataTable({
                 processing: true,
@@ -289,84 +344,21 @@
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     data: function(d) {
-                        // d.connectpe_id = $('#filterConnectpeId').val();
-                        // d.transaction_no = $('#filterTransactionNo').val();
-                        // d.client_txn_id = $('#filterClientTxnId').val();
                         d.utr_no = $('#filterUtrNo').val();
-                        d.mode = $('#filterMode').val();
+                        // d.mode = $('#filterMode').val();
                         d.status = $('#filterStatus').val();
                         d.date_from = $('#filterCreatedFrom').val();
                         d.date_to = $('#filterCreatedTo').val();
                         d.any_key = $('#filterAnyKey').val();
-                        d.user_id = $('#filterUserId').val();
+                        if (isAdmin) {
+                            d.user_id = $('#filterUserId').val();
+                        }
                     }
                 },
-                columns: [{
-                        className: 'dt-control',
-                        orderable: false,
-                        searchable: false,
-                        data: null,
-                        render: function() {
-                            return '<span class="dt-plus-btn buttonColor">+</span>';
-                        }
-                    },
-                    {
-                        data: null,
-                        render: function(row, type) {
-
-                            let url = "{{ route('view_user', ':id') }}";
-                            url = url.replace(':id', row.user_id);
-
-                            const userName = row?.user?.name || '----';
-                            const email = row?.user?.email || '----';
-
-                            return `
-            <a href="${url}" class="text-primary fw-semibold text-decoration-none">
-                ${userName} <br/>
-                [${email}]
-            </a>
-            `;
-                        }
-                    },
-                    {
-                        data: 'connectpe_id'
-                    },
-                    {
-                        data: 'transaction_no'
-                    },
-                    {
-                        data: 'client_txn_id'
-                    },
-                    {
-                        data: 'utr_no'
-                    },
-                    {
-                        data: 'mode'
-                    },
-                    {
-                        data: 'provider',
-                        render: function(data) {
-                            return data ? data.provider_name : '----';
-                        }
-                    },
-                    {
-                        data: 'amount'
-                    },
-                    {
-                        data: 'status',
-                        render: function(d) {
-                            return statusBadge(d);
-                        }
-                    },
-                    {
-                        data: "created_at",
-                        render: function(data) {
-                            return formatDateTime(data);
-                        }
-                    }
-                ]
+                columns: columns
             });
 
+            // Child row toggle
             $('#payoutTable tbody').on('click', 'td.dt-control', function() {
                 var tr = $(this).closest('tr');
                 var row = table.row(tr);
@@ -382,6 +374,7 @@
                 }
             });
 
+            // Filters
             $('#applyFilter').on('click', function(e) {
                 e.preventDefault();
                 table.ajax.reload();
@@ -389,16 +382,18 @@
 
             $('#resetFilter').on('click', function(e) {
                 e.preventDefault();
-                // $('#filterConnectpeId').val('');
-                // $('#filterTransactionNo').val('');
-                // $('#filterClientTxnId').val('');
+
                 $('#filterAnyKey').val('');
                 $('#filterUtrNo').val('');
-                $('#filterMode').val('');
+                // $('#filterMode').val('');
                 $('#filterStatus').val('').trigger('change');
                 $('#filterCreatedFrom').val('');
                 $('#filterCreatedTo').val('');
-                $('#filterUserId').val('').trigger('change');
+
+                if (isAdmin) {
+                    $('#filterUserId').val('').trigger('change');
+                }
+
                 table.ajax.reload();
             });
 
