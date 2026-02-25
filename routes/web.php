@@ -152,8 +152,8 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
 
 
 
-    // Route::post('/service-request', [ServiceRequestController::class, 'store'])
-    //     ->name('service.request');
+    Route::post('/service-request', [ServiceRequestController::class, 'store'])
+        ->name('service.request');
 
 
     Route::post('completeProfile/{user_id}', [UserController::class, 'completeProfile'])->name('admin.complete_profile');
