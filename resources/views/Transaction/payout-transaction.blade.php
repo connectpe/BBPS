@@ -238,76 +238,113 @@
                 html += '<tr>';
                 html += '<th>Purpose</th><td style="word-break: break-word;">' + safe(d.purpose) + '</td>';
                 html += '<th>Failed Message</th><td style="word-break: break-word;">' + safe(d.failed_msg) +
-                '</td>';
+                    '</td>';
                 html += '</tr>';
 
                 html += '</tbody></table></div>';
                 return html;
             }
-            var columns = [];
-            columns.push({
-                className: 'dt-control',
-                orderable: false,
-                searchable: false,
-                data: null,
-                render: function() {
-                    return '<span class="dt-plus-btn buttonColor">+</span>';
-                }
-            });
-            if (isAdmin) {
-                columns.push({
+
+
+            var columns = isAdmin ? [{
+                    className: 'dt-control',
+                    orderable: false,
+                    searchable: false,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<span class="dt-plus-btn buttonColor">+</span>';
+                    }
+                },
+                {
                     data: null,
                     render: function(row) {
                         let url = "{{ route('view_user', ':id') }}".replace(':id', row.user_id);
                         const userName = row?.user?.name || '----';
                         const email = row?.user?.email || '----';
-                        return `
-                    <a href="${url}" class="text-primary fw-semibold text-decoration-none">
-                        ${userName}<br/>[${email}]
-                    </a>
-                `;
+
+                        return '<a href="' + url +
+                            '" class="text-primary fw-semibold text-decoration-none">' +
+                            userName + '<br/>[' + email + ']' +
+                            '</a>';
                     }
-                });
-            }
-            columns.push({
-                data: 'connectpe_id'
-            });
-            columns.push({
-                data: 'transaction_no'
-            });
-            columns.push({
-                data: 'client_txn_id'
-            });
-            columns.push({
-                data: 'utr_no'
-            });
-            columns.push({
-                data: 'mode'
-            });
-            if (isAdmin) {
-                columns.push({
+                },
+                {
+                    data: 'connectpe_id'
+                },
+                {
+                    data: 'transaction_no'
+                },
+                {
+                    data: 'client_txn_id'
+                },
+                {
+                    data: 'utr_no'
+                },
+                {
+                    data: 'mode'
+                },
+                {
                     data: 'provider',
                     render: function(data) {
                         return data ? data.provider_name : '----';
                     }
-                });
-            }
+                },
+                {
+                    data: 'amount'
+                },
+                {
+                    data: 'status',
+                    render: function(d) {
+                        return statusBadge(d);
+                    }
+                },
+                {
+                    data: 'created_at',
+                    render: function(data) {
+                        return formatDateTime(data);
+                    }
+                }
 
-            columns.push({
-                data: 'amount'
-            });
-            columns.push({
-                data: 'status',
-                render: function(d) {
-                    return statusBadge(d);
+            ] : [{
+                    className: 'dt-control',
+                    orderable: false,
+                    searchable: false,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return '<span class="dt-plus-btn buttonColor">+</span>';
+                    }
+                },
+                {
+                    data: 'connectpe_id'
+                },
+                {
+                    data: 'transaction_no'
+                },
+                {
+                    data: 'client_txn_id'
+                },
+                {
+                    data: 'utr_no'
+                },
+                {
+                    data: 'mode'
+                },
+                {
+                    data: 'amount'
+                },
+                {
+                    data: 'status',
+                    render: function(d) {
+                        return statusBadge(d);
+                    }
+                },
+                {
+                    data: 'created_at',
+                    render: function(data) {
+                        return formatDateTime(data);
+                    }
                 }
-            });
-            columns.push({
-                data: 'created_at',
-                render: function(data) {
-                    return formatDateTime(data);
-                }
-            });
+            ];
 
             var table = $('#payoutTable').DataTable({
                 processing: true,
