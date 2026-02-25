@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BbpsRechargeController;
 use App\Http\Controllers\CommonController;
 use App\Http\Controllers\ComplainReportController;
+use App\Http\Controllers\DocumentVerificationController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LadgerController;
 use App\Http\Controllers\SchemeController;
@@ -190,6 +191,11 @@ Route::group(['middleware' => ['auth']], function () {
 
     // reseller routes
     Route::get('reports', [LadgerController::class, 'reports'])->name('reseller_reports');
+
+    Route::get('document-verification', [DocumentVerificationController::class, 'getDocumentData'])->name('document.verification.data');
+    // Route::post('gstin-verify', [DocumentVerificationController::class, 'verifyGstinNumber'])->name('gstin.verify');
+    // Route::post('cin-verify', [DocumentVerificationController::class, 'verifyCinNumber'])->name('cin.verify');
+    // Route::post('bank-account-verify', [DocumentVerificationController::class, 'VerifyAccountDetails'])->name('bank.account.verify');
 });
 
 Route::group(['middleware' => ['auth'], 'prefix' => 'api-partner'], function () {
