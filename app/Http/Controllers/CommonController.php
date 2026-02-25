@@ -834,10 +834,10 @@ class CommonController extends Controller
         if (isset($request->userId)) {
             $request->adminUserIdArray = $request->userId;
         }
-        if (isset($request->searchText) && ! empty($request->searchText) && $type == 'orders') {
-            $getOrderRefId = self::getOrderRefId($request->searchText);
-            $request->orderIdArray = $getOrderRefId;
-        }
+        // if (isset($request->searchText) && ! empty($request->searchText) && $type == 'orders') {
+        //     $getOrderRefId = self::getOrderRefId($request->searchText);
+        //     $request->orderIdArray = $getOrderRefId;
+        // }
 
         // if (isset($request->searchText) && !empty($request->searchText) && $type == 'serviceRequest') {
         // 	$getServiceId = self::getServiceId($request->searchText);

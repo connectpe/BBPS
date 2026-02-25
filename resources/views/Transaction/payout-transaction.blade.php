@@ -350,6 +350,15 @@
                 processing: true,
                 serverSide: true,
                 responsive: false,
+                 dom: "<'row mb-2'<'col-sm-4'l><'col-sm-4'f><'col-sm-4 text-end'B>>" +
+                "<'row'<'col-12'tr>>" +
+                "<'row mt-2'<'col-sm-6'i><'col-sm-6'p>>",
+            buttons: [{
+                extend: 'excelHtml5',
+                text: 'Excel',
+                className: 'btn buttonColor btn-sm'
+
+            },],
                 ajax: {
                     url: "{{ url('fetch/orders/0/all') }}",
                     type: "POST",
