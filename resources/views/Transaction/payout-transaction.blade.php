@@ -80,25 +80,6 @@
                 data-bs-parent="#filterAccordion">
                 <div class="accordion-body">
                     <div class="row g-3 align-items-end">
-
-                        {{-- <div class="col-md-3">
-                            <label class="form-label">ConnectPe ID</label>
-                            <input type="text" class="form-control" id="filterConnectpeId"
-                                placeholder="Enter ConnectPe ID">
-                        </div>
-
-                        <div class="col-md-3">
-                            <label class="form-label">Transaction No</label>
-                            <input type="text" class="form-control" id="filterTransactionNo"
-                                placeholder="Enter Transaction No">
-                        </div>
-
-                        <div class="col-md-3">
-                            <label class="form-label">Client Txn ID</label>
-                            <input type="text" class="form-control" id="filterClientTxnId"
-                                placeholder="Enter Client Txn ID">
-                        </div> --}}
-
                         @if (auth()->user()->role_id == 1)
                             <div class="col-md-3">
                                 <label class="form-label">User</label>
@@ -121,11 +102,6 @@
                             <label class="form-label">UTR No</label>
                             <input type="text" class="form-control" id="filterUtrNo" placeholder="Enter UTR No">
                         </div>
-
-                        {{-- <div class="col-md-3">
-                            <label class="form-label">Mode</label>
-                            <input type="text" class="form-control" id="filterMode" placeholder="Enter Mode">
-                        </div> --}}
 
                         <div class="col-md-3">
                             <label class="form-label">Status</label>
@@ -345,7 +321,6 @@
                     },
                     data: function(d) {
                         d.utr_no = $('#filterUtrNo').val();
-                        // d.mode = $('#filterMode').val();
                         d.status = $('#filterStatus').val();
                         d.date_from = $('#filterCreatedFrom').val();
                         d.date_to = $('#filterCreatedTo').val();
@@ -385,7 +360,6 @@
 
                 $('#filterAnyKey').val('');
                 $('#filterUtrNo').val('');
-                // $('#filterMode').val('');
                 $('#filterStatus').val('').trigger('change');
                 $('#filterCreatedFrom').val('');
                 $('#filterCreatedTo').val('');
