@@ -30,12 +30,12 @@ class AdminController extends Controller
     public function adminProfile($userId)
     {
         try {
-            CommonHelper::checkAuthUser();
+            // CommonHelper::checkAuthUser();
             $userId = auth()->id();
             $role = Auth::user()->role_id;
 
             if (in_array($role, [2, 3, 4])) {
-                $data['saltKeys'] = OauthUser::where('user_id', auth()->id())
+                $data['saltKeys'] = OauthUser::where('user_id', $userId)
                     ->where('is_active', '1')
                     ->select('client_id', 'client_secret', 'created_at')
                     ->get();
@@ -52,23 +52,16 @@ class AdminController extends Controller
             $data['businessCategory'] = BusinessCategory::select('id', 'name')->where('status', 1)->orderBy('id', 'desc')->get();
             $data['supportRepresentative'] = UserAssignedToSupport::where('user_id', $userId)->with('assigned_support:id,name,email,mobile')->first();
 
-            $data['usersBank'] = UsersBank::select(
-                'account_number',
-                'ifsc_code',
-                'branch_name',
-                'bank_docs',
-                'benificiary_name',
-                'ifsc_code',
-                'branch_name',
-                'bank_docs'
-            )->where('user_id', $userId)->first();
+            $data['usersBank'] = UsersBank::select('account_number', 'ifsc_code', 'branch_name', 'bank_docs', 'benificiary_name',)->where('user_id', $userId)->first();
             $data['UserServices'] = UserService::with('service:id,slug,service_name')->where('user_id', $userId)->where('status', 'approved')->where('is_active', '1')->get();
             $data['webhookUrl'] = WebHookUrl::select('url')->where('user_id', $userId)->first();
-            $data['txnStats'] = Transaction::where('user_id', $userId)->where('status', 'processed')
-                ->selectRaw('COUNT(id) as total_count, SUM(amount) as total_amount, MIN(created_at) as first_txn_date')
-                ->first();
-            if (in_array($role, [1])) {
+
+            if ($role == 1) {
                 $data['txnStats'] = Transaction::where('status', 'processed')
+                    ->selectRaw('COUNT(id) as total_count, SUM(amount) as total_amount, MIN(created_at) as first_txn_date')
+                    ->first();
+            } else {
+                $data['txnStats'] = Transaction::where('user_id', $userId)->where('status', 'processed')
                     ->selectRaw('COUNT(id) as total_count, SUM(amount) as total_amount, MIN(created_at) as first_txn_date')
                     ->first();
             }
@@ -85,12 +78,12 @@ class AdminController extends Controller
                 'message' => $e->getMessage(),
             ]);
         }
-        $data['activeService'] = GlobalService::where(['is_active' => '1'])
-            ->select('id', 'slug', 'service_name')
-            ->get();
+        // $data['activeService'] = GlobalService::where(['is_active' => '1'])
+        //     ->select('id', 'slug', 'service_name')
+        //     ->get();
 
         // dd($data);
-        return view('Admin.profile')->with($data);
+        // return view('Admin.profile')->with($data);
     }
 
     // public function dashboard()
