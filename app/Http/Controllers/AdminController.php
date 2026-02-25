@@ -21,51 +21,160 @@ use App\Models\UserService;
 use App\Models\WebHookUrl;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 class AdminController extends Controller
 {
+    // public function adminProfile($userId)
+    // {
+    //     try {
+    //         // CommonHelper::checkAuthUser();
+    //         $userId = auth()->id();
+    //         $role = Auth::user()->role_id;
+
+    //         if (in_array($role, [2, 3, 4])) {
+    //             $data['saltKeys'] = OauthUser::where('user_id', $userId)
+    //                 ->where('is_active', '1')
+    //                 ->select('client_id', 'client_secret', 'created_at')
+    //                 ->get();
+    //         }
+
+    //         // $data['activeService'] = GlobalService::where(['is_active' => '1'])
+
+    //         //     ->select('id', 'slug', 'service_name')
+    //         //     ->get();
+
+    //         $data['userdata'] = User::where('id', $userId)->select('name', 'email', 'mobile', 'status', 'role_id', 'profile_image', 'transaction_amount', 'created_at')->first();
+    //         $data['businessInfo'] = BusinessInfo::select('user_id', 'business_category_id', 'business_name', 'gst_number', 'business_pan_number', 'business_email', 'business_phone', 'business_document', 'address', 'city', 'state', 'pincode', 'business_pan_name', 'pan_number', 'pan_owner_name', 'aadhar_number', 'aadhar_name', 'bank_id', 'pancard_image', 'aadhar_front_image', 'aadhar_back_image', 'business_type', 'cin_no', 'is_kyc')
+    //             ->where('user_id', $userId)->first();
+    //         $data['businessCategory'] = BusinessCategory::select('id', 'name')->where('status', 1)->orderBy('id', 'desc')->get();
+    //         $data['supportRepresentative'] = UserAssignedToSupport::where('user_id', $userId)->with('assigned_support:id,name,email,mobile')->first();
+
+    //         $data['usersBank'] = UsersBank::select('account_number', 'ifsc_code', 'branch_name', 'bank_docs', 'benificiary_name',)->where('user_id', $userId)->first();
+    //         $data['UserServices'] = UserService::with('service:id,slug,service_name')->where('user_id', $userId)->where('status', 'approved')->where('is_active', '1')->get();
+    //         $data['webhookUrl'] = WebHookUrl::select('url')->where('user_id', $userId)->first();
+
+    //         if ($role == 1) {
+    //             $data['txnStats'] = Transaction::where('status', 'processed')
+    //                 ->selectRaw('COUNT(id) as total_count, SUM(amount) as total_amount, MIN(created_at) as first_txn_date')
+    //                 ->first();
+    //         } else {
+    //             $data['txnStats'] = Transaction::where('user_id', $userId)->where('status', 'processed')
+    //                 ->selectRaw('COUNT(id) as total_count, SUM(amount) as total_amount, MIN(created_at) as first_txn_date')
+    //                 ->first();
+    //         }
+
+
+    //         $data['walletBalance'] = $data['userdata']->transaction_amount ?? 0;
+    //         $data['completedTxn'] = $data['txnStats']->total_count ?? 0;
+    //         $data['totalSpent'] = $data['txnStats']->total_amount ?? 0;
+
+    //         return view('Admin.profile')->with($data);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'status' => false,
+    //             'message' => $e->getMessage(),
+    //         ]);
+    //     }
+    //     // $data['activeService'] = GlobalService::where(['is_active' => '1'])
+    //     //     ->select('id', 'slug', 'service_name')
+    //     //     ->get();
+
+    //     // dd($data);
+    //     // return view('Admin.profile')->with($data);
+    // }
+
     public function adminProfile($userId)
     {
         try {
-            // CommonHelper::checkAuthUser();
             $userId = auth()->id();
             $role = Auth::user()->role_id;
 
+            $cachePrefix = "profile:{$userId}:";
+
             if (in_array($role, [2, 3, 4])) {
-                $data['saltKeys'] = OauthUser::where('user_id', $userId)
+                $data['saltKeys'] = Cache::remember("{$cachePrefix}saltKeys", 600, function () use ($userId) {
+                    return OauthUser::where('user_id', $userId)
+                        ->where('is_active', '1')
+                        ->select('client_id', 'client_secret', 'created_at')
+                        ->get();
+                });
+            }
+
+            $data['userdata'] = Cache::remember("{$cachePrefix}userdata", 600, function () use ($userId) {
+                return User::where('id', $userId)
+                    ->select('name', 'email', 'mobile', 'status', 'role_id', 'profile_image', 'transaction_amount', 'created_at')
+                    ->first();
+            });
+
+            $data['businessInfo'] = Cache::remember("{$cachePrefix}businessInfo", 600, function () use ($userId) {
+                return BusinessInfo::select(
+                    'user_id',
+                    'business_category_id',
+                    'business_name',
+                    'gst_number',
+                    'business_pan_number',
+                    'business_email',
+                    'business_phone',
+                    'business_document',
+                    'address',
+                    'city',
+                    'state',
+                    'pincode',
+                    'business_pan_name',
+                    'pan_number',
+                    'pan_owner_name',
+                    'aadhar_number',
+                    'aadhar_name',
+                    'bank_id',
+                    'pancard_image',
+                    'aadhar_front_image',
+                    'aadhar_back_image',
+                    'business_type',
+                    'cin_no',
+                    'is_kyc'
+                )->where('user_id', $userId)->first();
+            });
+
+            $data['businessCategory'] = Cache::remember("{$cachePrefix}businessCategory", 600, function () {
+                return BusinessCategory::select('id', 'name')->where('status', 1)->orderBy('id', 'desc')->get();
+            });
+
+            $data['supportRepresentative'] = Cache::remember("{$cachePrefix}supportRepresentative", 600, function () use ($userId) {
+                return UserAssignedToSupport::where('user_id', $userId)
+                    ->with('assigned_support:id,name,email,mobile')
+                    ->first();
+            });
+
+            $data['usersBank'] = Cache::remember("{$cachePrefix}usersBank", 600, function () use ($userId) {
+                return UsersBank::select('account_number', 'ifsc_code', 'branch_name', 'bank_docs', 'benificiary_name')
+                    ->where('user_id', $userId)
+                    ->first();
+            });
+
+            $data['UserServices'] = Cache::remember("{$cachePrefix}UserServices", 600, function () use ($userId) {
+                return UserService::with('service:id,slug,service_name')
+                    ->where('user_id', $userId)
+                    ->where('status', 'approved')
                     ->where('is_active', '1')
-                    ->select('client_id', 'client_secret', 'created_at')
                     ->get();
-            }
+            });
 
-            // $data['activeService'] = GlobalService::where(['is_active' => '1'])
+            $data['webhookUrl'] = Cache::remember("{$cachePrefix}webhookUrl", 600, function () use ($userId) {
+                return WebHookUrl::select('url')->where('user_id', $userId)->first();
+            });
 
-            //     ->select('id', 'slug', 'service_name')
-            //     ->get();
-
-            $data['userdata'] = User::where('id', $userId)->select('name', 'email', 'mobile', 'status', 'role_id', 'profile_image', 'transaction_amount', 'created_at')->first();
-            $data['businessInfo'] = BusinessInfo::select('user_id', 'business_category_id', 'business_name', 'gst_number', 'business_pan_number', 'business_email', 'business_phone', 'business_document', 'address', 'city', 'state', 'pincode', 'business_pan_name', 'pan_number', 'pan_owner_name', 'aadhar_number', 'aadhar_name', 'bank_id', 'pancard_image', 'aadhar_front_image', 'aadhar_back_image', 'business_type', 'cin_no', 'is_kyc')
-                ->where('user_id', $userId)->first();
-            $data['businessCategory'] = BusinessCategory::select('id', 'name')->where('status', 1)->orderBy('id', 'desc')->get();
-            $data['supportRepresentative'] = UserAssignedToSupport::where('user_id', $userId)->with('assigned_support:id,name,email,mobile')->first();
-
-            $data['usersBank'] = UsersBank::select('account_number', 'ifsc_code', 'branch_name', 'bank_docs', 'benificiary_name',)->where('user_id', $userId)->first();
-            $data['UserServices'] = UserService::with('service:id,slug,service_name')->where('user_id', $userId)->where('status', 'approved')->where('is_active', '1')->get();
-            $data['webhookUrl'] = WebHookUrl::select('url')->where('user_id', $userId)->first();
-
-            if ($role == 1) {
-                $data['txnStats'] = Transaction::where('status', 'processed')
-                    ->selectRaw('COUNT(id) as total_count, SUM(amount) as total_amount, MIN(created_at) as first_txn_date')
-                    ->first();
-            } else {
-                $data['txnStats'] = Transaction::where('user_id', $userId)->where('status', 'processed')
-                    ->selectRaw('COUNT(id) as total_count, SUM(amount) as total_amount, MIN(created_at) as first_txn_date')
-                    ->first();
-            }
-
+            $data['txnStats'] = Cache::remember("{$cachePrefix}txnStats", 60, function () use ($userId, $role) {
+                $query = Transaction::where('status', 'processed');
+                if ($role != 1) {
+                    $query->where('user_id', $userId);
+                }
+                return $query->selectRaw('COUNT(id) as total_count, SUM(amount) as total_amount, MIN(created_at) as first_txn_date')->first();
+            });
 
             $data['walletBalance'] = $data['userdata']->transaction_amount ?? 0;
             $data['completedTxn'] = $data['txnStats']->total_count ?? 0;
@@ -78,12 +187,6 @@ class AdminController extends Controller
                 'message' => $e->getMessage(),
             ]);
         }
-        // $data['activeService'] = GlobalService::where(['is_active' => '1'])
-        //     ->select('id', 'slug', 'service_name')
-        //     ->get();
-
-        // dd($data);
-        // return view('Admin.profile')->with($data);
     }
 
     // public function dashboard()
@@ -1013,6 +1116,7 @@ class AdminController extends Controller
                     'assined_to' => $assignedTo,
                     'updated_by' => $updatedBy,
                 ]);
+                Cache::store('redis')->forget("profile:{$userId}:supportRepresentative");
             }
             DB::commit();
 
@@ -1052,6 +1156,9 @@ class AdminController extends Controller
                     'message' => 'Record not found or already deleted.',
                 ], 404);
             }
+
+            $userId = $assignment->user_id;
+            Cache::store('redis')->forget("profile:{$userId}:supportRepresentative");
 
             $assignment->delete();
             DB::commit();
