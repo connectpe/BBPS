@@ -1588,112 +1588,72 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
             <hr class="mt-2">
 
-            <div class="modal-body">
+            <div class="modal-body" id="docVerifyModalBody">
 
                 <!-- STEP 1 -->
-                <div class="doc-step step-1">
+                <div class="doc-step" data-doc-step="1">
                     <h6 class="mb-3">PAN Verification</h6>
-
                     <div class="card border shadow-sm p-3">
                         <div class="d-flex justify-content-between align-items-center">
-
                             <div>
                                 <p class="mb-1"><strong>PAN Number:</strong>
                                     <span id="panNumber">-</span>
                                 </p>
-
                                 <span class="badge" id="panBadge">Checking...</span>
                             </div>
-
-                            <button type="button"
-                                class="btn"
-                                id="panButton"
-                                onclick="verifyDocument('pan')">
-                                Verify
-                            </button>
+                            <button type="button" class="btn" id="panButton" onclick="verifyDocument('pan')">Verify</button>
                         </div>
-
                         <div class="mt-3" id="panMessage"></div>
                     </div>
                 </div>
 
                 <!-- STEP 2 -->
-                <div class="doc-step step-2 d-none">
+                <div class="doc-step d-none" data-doc-step="2">
                     <h6 class="mb-3">GSTIN Verification</h6>
-
                     <div class="card border shadow-sm p-3">
                         <div class="d-flex justify-content-between align-items-center">
-
                             <div>
                                 <p class="mb-1"><strong>GST Number:</strong>
                                     <span id="gstNumber">-</span>
                                 </p>
-
                                 <span class="badge" id="gstBadge">Checking...</span>
                             </div>
-
-                            <button type="button"
-                                class="btn"
-                                id="gstButton"
-                                onclick="verifyDocument('gst')">
-                                Verify
-                            </button>
+                            <button type="button" class="btn" id="gstButton" onclick="verifyDocument('gst')">Verify</button>
                         </div>
-
                         <div class="mt-3" id="gstMessage"></div>
                     </div>
                 </div>
 
                 <!-- STEP 3 -->
-                <div class="doc-step step-3 d-none">
+                <div class="doc-step d-none" data-doc-step="3">
                     <h6 class="mb-3">CIN Verification</h6>
-
                     <div class="card border shadow-sm p-3">
                         <div class="d-flex justify-content-between align-items-center">
-
                             <div>
                                 <p class="mb-1"><strong>CIN:</strong>
                                     <span id="cinNumber">-</span>
                                 </p>
-
                                 <span class="badge" id="cinBadge">Checking...</span>
                             </div>
-
-                            <button type="button"
-                                class="btn"
-                                id="cinButton"
-                                onclick="verifyDocument('cin')">
-                                Verify
-                            </button>
+                            <button type="button" class="btn" id="cinButton" onclick="verifyDocument('cin')">Verify</button>
                         </div>
-
                         <div class="mt-3" id="cinMessage"></div>
                     </div>
                 </div>
 
                 <!-- STEP 4 -->
-                <div class="doc-step step-4 d-none">
+                <div class="doc-step d-none" data-doc-step="4">
                     <h6 class="mb-3">Bank Verification</h6>
-
                     <div class="card border shadow-sm p-3">
                         <div class="d-flex justify-content-between align-items-center">
-
                             <div>
                                 <p class="mb-1"><strong>Account Number:</strong>
                                     <span id="bankNumber">-</span>
                                 </p>
-
                                 <span class="badge" id="bankBadge">Checking...</span>
                             </div>
-
-                            <button type="button"
-                                class="btn"
-                                id="bankButton"
-                                onclick="verifyDocument('bank')">
-                                Verify
-                            </button>
+                            <button type="button" class="btn" id="bankButton" onclick="verifyDocument('bank')">Verify</button>
                         </div>
-
                         <div class="mt-3" id="bankMessage"></div>
                     </div>
                 </div>
@@ -2689,10 +2649,21 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 </script>
 
 <script>
+    let docVerifyStep = 1;
     let documentData = {};
+
+    function getDocStepEl(step) {
+        return document.querySelector('#docVerifyModalBody .doc-step[data-doc-step="' + step + '"]');
+    }
 
     document.getElementById('documentVerificationModal')
         .addEventListener('show.bs.modal', function() {
+
+            // Reset to step 1
+            docVerifyStep = 1;
+            document.querySelectorAll('#docVerifyModalBody .doc-step').forEach(el => el.classList.add("d-none"));
+            getDocStepEl(1).classList.remove("d-none");
+            updateDocSteps();
 
             fetch("{{ route('document.verification.data') }}")
                 .then(res => res.json())
@@ -2701,7 +2672,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                     if (!data.status) return;
 
                     documentData = data;
-                    console.log(document.getElementById("panNumber"));
+                    console.log(data);
 
                     // Fill Numbers
                     document.getElementById("panNumber").innerText = data.business_pan_number ?? '-';
@@ -2709,15 +2680,15 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                     document.getElementById("cinNumber").innerText = data.cin_no ?? '-';
                     document.getElementById("bankNumber").innerText = data.account_number ?? '-';
 
-                    setStatus("pan", data.pan_verified);
-                    setStatus("gst", data.gst_verified);
-                    setStatus("cin", data.cin_verified);
-                    setStatus("bank", data.bank_verified);
+                    setDocStatus("pan", data.pan_verified);
+                    setDocStatus("gst", data.is_gstin_verify);
+                    setDocStatus("cin", data.is_cin_verify);
+                    setDocStatus("bank", data.bank_verified);
                 });
         });
 
 
-    function setStatus(type, verified) {
+    function setDocStatus(type, verified) {
         let badge = document.getElementById(type + "Badge");
         let button = document.getElementById(type + "Button");
         let message = document.getElementById(type + "Message");
@@ -2725,59 +2696,49 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
         if (verified == 1) {
             badge.className = "badge bg-success";
             badge.innerText = "Verified";
-
             button.className = "btn btn-success";
             button.innerText = "Verified";
-
-            message.innerHTML =
-                `<div class="alert alert-success mb-0">
-                ${type.toUpperCase()} verified successfully.
-            </div>`;
+            message.innerHTML = `<div class="alert alert-success mb-0">${type.toUpperCase()} verified successfully.</div>`;
         } else {
             badge.className = "badge bg-danger";
             badge.innerText = "Not Verified";
-
             button.className = "btn btn-danger";
             button.innerText = "Verify";
-
-            message.innerHTML =
-                `<div class="alert alert-danger mb-0">
-                ${type.toUpperCase()} not verified.
-            </div>`;
+            message.innerHTML = `<div class="alert alert-danger mb-0">${type.toUpperCase()} not verified.</div>`;
         }
     }
 
 
-    // STEP NAVIGATION
+    // Step navigation
     document.getElementById("nextDocStep").addEventListener("click", function() {
-        if (currentStep < 4) {
-            document.querySelector(".step-" + currentStep).classList.add("d-none");
-            currentStep++;
-            document.querySelector(".step-" + currentStep).classList.remove("d-none");
-            updateSteps();
+        if (docVerifyStep < 4) {
+            getDocStepEl(docVerifyStep).classList.add("d-none");
+            docVerifyStep++;
+            getDocStepEl(docVerifyStep).classList.remove("d-none");
+            updateDocSteps();
         }
     });
 
     document.getElementById("prevDocStep").addEventListener("click", function() {
-        if (currentStep > 1) {
-            document.querySelector(".step-" + currentStep).classList.add("d-none");
-            currentStep--;
-            document.querySelector(".step-" + currentStep).classList.remove("d-none");
-            updateSteps();
+        if (docVerifyStep > 1) {
+            getDocStepEl(docVerifyStep).classList.add("d-none");
+            docVerifyStep--;
+            getDocStepEl(docVerifyStep).classList.remove("d-none");
+            updateDocSteps();
         }
     });
 
-    function updateSteps() {
-        document.querySelectorAll(".step-item").forEach(item => {
+    function updateDocSteps() {
+        document.querySelectorAll("#documentVerificationModal .step-item").forEach(item => {
             item.classList.remove("active");
-            if (item.dataset.step == currentStep) {
+            if (item.dataset.step == docVerifyStep) {
                 item.classList.add("active");
             }
         });
     }
 
 
-    // api intregation for document verification
+    // API integration
     function verifyDocument(type) {
         let url = "";
         let payload = {};
@@ -2805,11 +2766,11 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
         }
 
         if (type === "bank") {
-            url = "{{ route('bank.account.verify') }}";
+            url = "{{ route('ifsc.verify') }}";
             payload = {
-                account_number: documentData.account_number,
-                beneficiary_name: documentData.beneficiary_name,
-                phone: documentData.phone,
+                // account_number: documentData.account_number,
+                // beneficiary_name: documentData.benificiary_name,
+                // phone: documentData.phone,
                 ifsc: documentData.ifsc_code
             };
         }
@@ -2824,15 +2785,12 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
             })
             .then(res => res.json())
             .then(response => {
-
                 console.log("Response:", response);
-
                 if (response.status) {
-                    setStatus(type, 1);
+                    setDocStatus(type, 1);
                 } else {
-                    setStatus(type, 0);
+                    setDocStatus(type, 0);
                 }
-
             })
             .catch(err => console.log(err));
     }

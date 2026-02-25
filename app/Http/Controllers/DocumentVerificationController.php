@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Auth;
 
-
 class DocumentVerificationController extends Controller
 {
     private $clientID;
@@ -131,7 +130,7 @@ class DocumentVerificationController extends Controller
     {
         try {
             $request->validate([
-                'cin' => 'required|string'
+                'cin_no' => 'required|string'
             ]);
 
             $verificationId = 'CIN' . time();
@@ -144,13 +143,15 @@ class DocumentVerificationController extends Controller
                 'x-client-secret' => $this->clientSecret
             ])->post('https://api.cashfree.com/verification/cin', [
                 'verification_id' => $verificationId,
-                'cin' => $request->cin,
+                'cin' => $request->cin_no,
 
             ]);
 
+            dd($response->json());
+
             if ($response['status'] == true && $response['data']['status'] == 'VALID' && $response['data']['cin_status'] == 'ACTIVE') {
                 BusinessInfo::where('user_id', $this->userId)->update([
-                    'is_cin_verify' => 1,
+                    'is_cin_verify' => '1',
                 ]);
             }
 
@@ -170,7 +171,7 @@ class DocumentVerificationController extends Controller
     {
         try {
             $request->validate([
-                'GSTIN' => 'required|string'
+                'gst_number' => 'required|string'
             ]);
 
             $response = Http::withHeaders([
@@ -180,12 +181,14 @@ class DocumentVerificationController extends Controller
                 'x-client-secret' => $this->clientSecret,
 
             ])->post('https://api.cashfree.com/verification/gstin', [
-                "GSTIN" => $request->GSTIN,
+                "GSTIN" => $request->gst_number,
             ]);
+
+            dd($response->json());
 
             if ($response['status'] == true && $response['data']['valid'] == true) {
                 BusinessInfo::where('user_id', $this->userId)->update([
-                    'is_gstin_verify' => 1,
+                    'is_gstin_verify' => '1',
                 ]);
             }
 
@@ -222,13 +225,14 @@ class DocumentVerificationController extends Controller
                 'x-client-secret' => $this->clientSecret,
             ])->post($endpoint, $payload);
 
+            dd($response->json());
+
             if ($response['status'] == true && $response['data']['valid'] == true) {
                 BusinessInfo::where('user_id', $this->userId)->update([
-                    'is_pan_verify' => 1,
+                    'is_pan_verify' => '1',
                 ]);
             }
 
-            dd($response->json());
 
             return response()->json([
                 'status' => true,
@@ -238,6 +242,53 @@ class DocumentVerificationController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function verifyIfsc(Request $request)
+    {
+        try {
+            $request->validate([
+
+                'ifsc' => 'required|string',
+            ]);
+
+            $verificationId = 'IFSC' . time();
+
+            $payload = [
+                'ifsc'  => $request->ifsc,
+                'verification_id' => $verificationId,
+            ];
+            // dd($payload);
+            $endpoint = "https://api.cashfree.com/verification/ifsc";
+
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'x-client-id' => $this->clientID,
+                'x-client-secret' => $this->clientSecret,
+            ])->post($endpoint, $payload);
+
+            // dd($response['status']);
+
+            if ($response['status'] == "VALID") {
+                BusinessInfo::where('user_id', $this->userId)->update([
+                    'is_bank_details_verify' => '1',
+                ]);
+            }
+            // $record = BusinessInfo::where('user_id', $this->userId)->first();
+            // dd($record->is_bank_details_verify);
+            // dd($response->json());
+
+            return response()->json([
+                'status' => true,
+                'data' => $response->json(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+
             ], 500);
         }
     }

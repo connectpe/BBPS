@@ -1347,17 +1347,33 @@ class AdminController extends Controller
                     'message' => 'Business Not Found',
                 ], 404);
             }
-            $data = [
-                'is_kyc' => $business->is_kyc == '0' ? '1' : '0',
-            ];
 
-            $business->update($data);
-            DB::commit();
+            if (
+                (int)$business->is_pan_verify === 1 &&
+                (int)$business->is_gstin_verify === 1 &&
+                (int)$business->is_cin_verify === 1 &&
+                (int)$business->is_bank_details_verify === 1
+            ) {
 
-            return response()->json([
-                'status' => true,
-                'message' => 'Kyc Updated Successfully',
-            ]);
+                $business->update([
+                    'is_kyc' => 1
+                ]);
+
+                DB::commit();
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'KYC Updated Successfully',
+                ]);
+            } else {
+
+                DB::rollBack();
+
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Your documents are not fully verified. Please complete document verification to proceed with KYC.',
+                ]);
+            }
         } catch (\Exception $e) {
             DB::rollBack();
 
