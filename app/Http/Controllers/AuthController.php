@@ -9,6 +9,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -173,16 +174,14 @@ class AuthController extends Controller
                 'status' => true,
                 'message' => 'OTP verified successfully',
             ]);
-
         } catch (\Throwable $e) {
 
-            \Log::error('Verify OTP Error: '.$e->getMessage());
+            \Log::error('Verify OTP Error: ' . $e->getMessage());
 
             return response()->json([
                 'status' => false,
                 'message' => 'Something went wrong. Please try again later.',
             ], 500);
-
         }
     }
 
@@ -234,7 +233,7 @@ class AuthController extends Controller
                     ]);
                 } catch (\Exception $e) {
 
-                    Log::error('Mail sending failed: '.$e->getMessage());
+                    Log::error('Mail sending failed: ' . $e->getMessage());
 
                     return response()->json([
                         'status' => false,
@@ -279,10 +278,9 @@ class AuthController extends Controller
                 'message' => 'Login successful',
                 'redirect' => route('dashboard'),
             ]);
-
         } catch (\Throwable $e) {
 
-            Log::error('Login Error: '.$e->getMessage());
+            \Log::error('Login Error: ' . $e->getMessage());
 
             return response()->json([
                 'status' => false,
@@ -327,16 +325,25 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         try {
-
+            $userId = auth()->id();
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
-            return redirect('/');
+            Cache::store('redis')->forget("profile:{$userId}:saltKeys");
+            Cache::store('redis')->forget("profile:{$userId}:userdata");
+            Cache::store('redis')->forget("profile:{$userId}:businessInfo");
+            Cache::store('redis')->forget("profile:{$userId}:usersBank");
+            Cache::store('redis')->forget("profile:{$userId}:txnStats");
+            Cache::store('redis')->forget("profile:{$userId}:businessCategory");
+            Cache::store('redis')->forget("profile:{$userId}:supportRepresentative");
+            Cache::store('redis')->forget("profile:{$userId}:UserServices");
+            Cache::store('redis')->forget("profile:{$userId}:webhookUrl");
 
+            return redirect('/');
         } catch (\Exception $e) {
 
-            \Log::error('Logout Error: '.$e->getMessage());
+            \Log::error('Logout Error: ' . $e->getMessage());
 
             return redirect('/')->with('error', 'Something went wrong while logging out.');
         }
@@ -376,7 +383,7 @@ class AuthController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Something went wrong.'.$e->getMessage(),
+                'message' => 'Something went wrong.' . $e->getMessage(),
             ], 500);
         }
     }
@@ -394,10 +401,9 @@ class AuthController extends Controller
             };
 
             return $message;
-
         } catch (\Throwable $e) {
 
-            \Log::error('checkUserStatus Error: '.$e->getMessage());
+            \Log::error('checkUserStatus Error: ' . $e->getMessage());
 
             return 'Unauthorized Access.';
         }

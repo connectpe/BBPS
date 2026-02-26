@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class ServiceRequestController extends Controller
@@ -21,9 +22,8 @@ class ServiceRequestController extends Controller
             $users = User::select('id', 'name', 'email')->where('role_id', '!=', '1')->where('role_id', '!=', '4')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
             $globalServices = GlobalService::select('id', 'service_name')->where('is_active', '1')->orderBy('id', 'desc')->get();
             return view('Service.request-services', compact('users', 'globalServices'));
-
         } catch (\Throwable $e) {
-            \Log::error('Service Request Index Error: '.$e->getMessage());
+            \Log::error('Service Request Index Error: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Something went wrong. Please try again.');
         }
     }
@@ -40,6 +40,7 @@ class ServiceRequestController extends Controller
                 'service_id' => 'required|exists:global_services,id',
             ]);
 
+            $userId = auth()->id();
             $alreadyRequested = UserService::where('user_id', auth()->id())
                 ->where('service_id', $request->service_id)
                 ->exists();
@@ -92,6 +93,7 @@ class ServiceRequestController extends Controller
                 'is_active' => '1',
             ]);
 
+            Cache::store('redis')->forget("profile:{$userId}:UserServices");
             DB::commit();
             if ($request->ajax()) {
                 return response()->json([
@@ -124,6 +126,7 @@ class ServiceRequestController extends Controller
         DB::beginTransaction();
         try {
             $service = UserService::findOrFail($request->serviceId);
+            $userId = $service->user_id;
 
             if (! $service) {
                 return response()->json([
@@ -134,6 +137,8 @@ class ServiceRequestController extends Controller
 
             $service->status = 'approved';
             $service->save();
+            Cache::store('redis')->forget("profile:{$userId}:UserServices");
+
 
             DB::commit();
 
@@ -147,7 +152,7 @@ class ServiceRequestController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
@@ -167,7 +172,7 @@ class ServiceRequestController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }

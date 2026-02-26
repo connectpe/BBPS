@@ -66,6 +66,11 @@ class User extends Authenticatable
         return $this->hasOne(BusinessInfo::class, 'user_id', 'id');
     }
 
+    public function bankDetails()
+    {
+        return $this->hasOne(UsersBank::class, 'user_id', 'id');
+    }
+
     public function transactions()
     {
         return $this->hasMany(Transaction::class);
@@ -89,5 +94,10 @@ class User extends Authenticatable
     public function nsdlPayments()
     {
         return $this->hasMany(NsdlPayment::class, 'user_id');
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'user_id');
     }
 }

@@ -732,7 +732,6 @@ class CommonController extends Controller
                 } else {
                     $request['order'] = ['id', 'DESC'];
                 }
-
                 $request['whereIn'] = 'id';
                 $request['parentData'] = [$request->id];
                 if (Auth::user()->role_id == '1') {
@@ -742,6 +741,48 @@ class CommonController extends Controller
                     $request['whereIn'] = 'assined_to';
                     $request['parentData'] = [Auth::user()->id];
                 }
+                break;
+            case 'orders':
+                $request['table'] = '\App\Models\Order';
+                $request['searchData'] = ['id','connectpe_id','transaction_no','client_txn_id','utr_no','mode','amount','total_amount','status','status_code','created_at',];
+                $request['select'] = 'all';
+                $request['with'] = ['user', 'service', 'provider', 'updatedBy'];
+                $orderIndex = $request->get('order');
+                if (isset($orderIndex) && count($orderIndex)) {
+
+                    $columnsIndex = $request->get('columns');
+                    $columnIndex = $orderIndex[0]['column'] ?? 0;
+                    $columnName = $columnsIndex[$columnIndex]['data'] ?? 'id';
+                    $columnSortOrder = $orderIndex[0]['dir'] ?? 'DESC';
+                    if ($columnName == 'new_created_at') {
+                        $columnName = 'created_at';
+                    }
+                    if ($columnName == '0' || $columnName == '' || $columnName == null) {
+                        $columnName = 'id';
+                        $columnSortOrder = 'DESC';
+                    }
+                    $allowedOrderColumns = [
+                        'id', 'connectpe_id', 'transaction_no', 'client_txn_id', 'utr_no',
+                        'mode', 'amount', 'total_amount', 'status', 'status_code', 'created_at',
+                    ];
+                    if (! in_array($columnName, $allowedOrderColumns)) {
+                        $columnName = 'id';
+                        $columnSortOrder = 'DESC';
+                    }
+                    $request['order'] = [$columnName, strtoupper($columnSortOrder)];
+                } else {
+                    $request['order'] = ['id', 'DESC'];
+                }
+                $request['whereIn'] = 'id';
+                $request['parentData'] = 'all';
+
+                if (Auth::user()->role_id == '1') {
+                    $request['parentData'] = 'all';
+                } else {
+                    $request['whereIn'] = 'user_id';
+                    $request['parentData'] = [Auth::user()->id];
+                }
+
                 break;
         }
 
@@ -762,6 +803,7 @@ class CommonController extends Controller
             'nsdl-payment' => ['user_id',  'service_id',  'mobile_no', 'transaction_id', 'utr',  'order_id',  'status'],
             'ip-whitelist' => ['is_deleted'],
             'support-based-user-list' => ['assined_to'],
+            'orders' => ['connectpe_id', 'transaction_no', 'client_txn_id', 'utr_no', 'mode', 'status', 'user_id'],
             // add more types and columns here
         ];
 
@@ -776,6 +818,10 @@ class CommonController extends Controller
         }
 
         $request->merge(['filters' => $filters]);
+        if ($request->has('any_key') && $request->any_key !== '') {
+            $filters['any_key'] = $request->any_key;
+            $request->merge(['filters' => $filters]);
+        }
 
         try {
             $totalData = $this->getData($request, 'count');
@@ -788,10 +834,10 @@ class CommonController extends Controller
         if (isset($request->userId)) {
             $request->adminUserIdArray = $request->userId;
         }
-        if (isset($request->searchText) && ! empty($request->searchText) && $type == 'orders') {
-            $getOrderRefId = self::getOrderRefId($request->searchText);
-            $request->orderIdArray = $getOrderRefId;
-        }
+        // if (isset($request->searchText) && ! empty($request->searchText) && $type == 'orders') {
+        //     $getOrderRefId = self::getOrderRefId($request->searchText);
+        //     $request->orderIdArray = $getOrderRefId;
+        // }
 
         // if (isset($request->searchText) && !empty($request->searchText) && $type == 'serviceRequest') {
         // 	$getServiceId = self::getServiceId($request->searchText);
@@ -869,70 +915,89 @@ class CommonController extends Controller
         }
 
         if ($request->has('filters') && ! empty($request->filters)) {
+
             foreach ($request->filters as $column => $value) {
 
-                if ($value === null || $value === '') {
+                $value = trim((string) $value);
+                if ($value === '') {
+                    continue;
+                }
+                if ($column === 'any_key') {
+                    $query->where(function ($q) use ($value) {
+                        $q->where('connectpe_id', 'LIKE', "%{$value}%")
+                            ->orWhere('transaction_no', 'LIKE', "%{$value}%")
+                            ->orWhere('client_txn_id', 'LIKE', "%{$value}%");
+                        // optional:
+                        // ->orWhere('utr_no','LIKE', "%{$value}%");
+                    });
+
                     continue;
                 }
 
-                if (is_numeric($value)) {
-                    $query->where($column, $value);
-                } else {
-                    $query->where($column, 'LIKE', '%' . $value . '%');
+                if ($column === 'user_id') {
+                    $query->where('user_id', $value);
+
+                    continue;
                 }
+                if ($column === 'status') {
+                    $query->where('status', $value);
+
+                    continue;
+                }
+                $query->where($column, 'LIKE', "%{$value}%");
             }
         }
 
         if (isset($request['where']) && $request['where'] == 1 && isset($request->searchText) && ! empty($request->searchText)) {
             $query->where(function ($q) use ($request) {
                 foreach ($request['searchData'] as $column) {
-                    $q->orWhere($column, 'LIKE', '%' . $request->searchText . '%');
+                    $q->orWhere($column, 'LIKE', '%'.$request->searchText.'%');
                 }
                 if ($request['type'] == 'enabled-services') {
                     $q->orWhereHas('user', function ($u) use ($request) {
-                        $u->where('name', 'LIKE', '%' . $request->searchText . '%');
+                        $u->where('name', 'LIKE', '%'.$request->searchText.'%');
                     })->orWhereHas('service', function ($s) use ($request) {
-                        $s->where('service_name', 'LIKE', '%' . $request->searchText . '%');
+                        $s->where('service_name', 'LIKE', '%'.$request->searchText.'%');
                     });
                 }
                 if ($request['type'] == 'default-slug') {
                     $q->orWhereHas('service', function ($s) use ($request) {
-                        $s->where('service_name', 'LIKE', '%' . $request->searchText . '%');
+                        $s->where('service_name', 'LIKE', '%'.$request->searchText.'%');
                     })->orWhereHas('provider', function ($p) use ($request) {
-                        $p->where('provider_name', 'LIKE', '%' . $request->searchText . '%');
+                        $p->where('provider_name', 'LIKE', '%'.$request->searchText.'%');
                     });
                 }
                 if ($request['type'] == 'ledger') {
                     $q->orWhereHas('user', function ($u) use ($request) {
-                        $u->where('name', 'LIKE', '%' . $request->searchText . '%');
+                        $u->where('name', 'LIKE', '%'.$request->searchText.'%');
                     })->orWhereHas('service', function ($s) use ($request) {
-                        $s->where('service_name', 'LIKE', '%' . $request->searchText . '%');
+                        $s->where('service_name', 'LIKE', '%'.$request->searchText.'%');
                     });
                 }
                 if ($request['type'] == 'support-user-list') {
                     $q->orWhereHas('user', function ($u) use ($request) {
-                        $u->where('name', 'LIKE', '%' . $request->searchText . '%')
-                            ->orWhere('email', 'LIKE', '%' . $request->searchText . '%')
-                            ->orWhere('mobile', 'LIKE', '%' . $request->searchText . '%')
+                        $u->where('name', 'LIKE', '%'.$request->searchText.'%')
+                            ->orWhere('email', 'LIKE', '%'.$request->searchText.'%')
+                            ->orWhere('mobile', 'LIKE', '%'.$request->searchText.'%')
                             ->orWhereHas('business', function ($b) use ($request) {
-                                $b->where('business_name', 'LIKE', '%' . $request->searchText . '%');
+                                $b->where('business_name', 'LIKE', '%'.$request->searchText.'%');
                             });
                     });
                 }
 
                 if ($request['type'] == 'support-assignments') {
                     $q->orWhereHas('user', function ($u) use ($request) {
-                        $u->where('name', 'LIKE', '%' . $request->searchText . '%');
+                        $u->where('name', 'LIKE', '%'.$request->searchText.'%');
                     })->orWhereHas('assigned_support', function ($s) use ($request) {
-                        $s->where('name', 'LIKE', '%' . $request->searchText . '%');
+                        $s->where('name', 'LIKE', '%'.$request->searchText.'%');
                     });
                 }
 
                 if ($request['type'] == 'serviceRequest') {
                     $q->orWhereHas('user', function ($u) use ($request) {
-                        $u->where('name', 'LIKE', '%' . $request->searchText . '%');
+                        $u->where('name', 'LIKE', '%'.$request->searchText.'%');
                     })->orWhereHas('service', function ($s) use ($request) {
-                        $s->where('service_name', 'LIKE', '%' . $request->searchText . '%');
+                        $s->where('service_name', 'LIKE', '%'.$request->searchText.'%');
                     });
                 }
             });

@@ -9,6 +9,7 @@ use App\Models\UserService;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class MobiKwikHelper
@@ -232,6 +233,7 @@ class MobiKwikHelper
             $token = CommonHelper::isTokenPresent();
 
             $response = $this->sendRequest($endpoint, $payload, $token);
+            Cache::store('redis')->forget("profile:{$user->id}:txnStats");
             return response()->json([
                 'status' => true,
                 'data' => $response,

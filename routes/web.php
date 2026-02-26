@@ -1,5 +1,5 @@
 <?php
-
+use Illuminate\Support\Facades\Redis;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BbpsRechargeController;
@@ -17,6 +17,11 @@ use App\Http\Controllers\SupportDashboardController;
 use App\Http\Middleware\IsAdmin;
 use Illuminate\Support\Facades\Route;
 
+
+Route::get('test-redis', function () {
+    Redis::set('test_key', 'Ramanand');
+    return Redis::get('test_key');
+});
 Route::get('/', [HomeController::class, 'loginRedirect'])->name('home');
 Route::get('/dashboard', [AdminController::class, 'dashboard'])->middleware('auth')->name('dashboard');
 
@@ -105,6 +110,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/edit-support-assignment/{id}', [AdminController::class, 'editSupportAssignment'])->name('edit_support_assignment');
         Route::delete('delete-support-assignment/{id}', [AdminController::class, 'deleteSupportAssignment'])->name('delete_support_assignment');
 
+
         // Complain Report Route
 
     });
@@ -145,8 +151,8 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
     Route::get('/complaint-status', [TransactionController::class, 'complaintStatus'])->name('complaint_status');
     Route::post('/complaint-status/check', [TransactionController::class, 'checkComplaintStatus'])->name('complaint.status.check');
     Route::post('nsdl-initiated-payment', [UserController::class, 'initiateNsdlPayment'])->name('nsdl-initiatePayment');
-    // Route::post('/service-request', [ServiceRequestController::class, 'store'])
-    //     ->name('service.request');
+    Route::post('/service-request', [ServiceRequestController::class, 'store'])
+        ->name('service.request');
 
 
 
@@ -167,6 +173,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('complaints-report', [SupportDashboardController::class, 'userComplaints'])->name('complaints_report')->middleware('isSupport');
         Route::get('/support-userlist', [SupportDashboardController::class, 'supportUserList'])->name('support_userlist')->middleware('isSupport');
     });
+    Route::get('/payout-transaction', [TransactionController::class, 'payouttransaction'])->name('payout_transaction');
+
     Route::post('/update-complaint-report/{id}', [ComplainReportController::class, 'updateComplaint'])->name('update_complaint_report');
     // Admin/User Common Routes 
     Route::post('change-password', [AuthController::class, 'passwordReset'])->name('admin.change_password');
@@ -180,25 +188,39 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('recharge/invoice/{id}', [TransactionController::class, 'downloadInvoice'])
         ->name('recharge.invoice.download');
     Route::get('services', [ServiceRequestController::class, 'enabledServices'])->name('enabled_services');
-
-    Route::post('/service-request', [ServiceRequestController::class, 'store'])
-        ->name('service.request');
     Route::get('unauthrized', function () {
         return view('errors.401');
     })->name('unauthrized.page');
+
+
+
+//      Route::get('/payout-transaction', [TransactionController::class, 'payouttransaction'])->name('payout_transaction');
+    
+
+
+
 
     // reseller routes
     Route::get('reports', [LadgerController::class, 'reports'])->name('reseller_reports');
 });
 
+Route::group(['middleware' => ['logs', 'auth'], 'prefix' => 'document'], function () {
+    Route::post('verify-pan', [DocumentVerificationController::class, 'panVerify'])->name('pan.verify');
+    Route::post('verify-account', [DocumentVerificationController::class, 'VerifyAccountDetails'])->name('bank.account.verify');
+    Route::post('verify-cin', [DocumentVerificationController::class, 'verifyCinNumber'])->name('cin.verify');
+    Route::post('verify-gstin', [DocumentVerificationController::class, 'verifyGstinNumber'])->name('gstin.verify');
+    Route::post('verify-ifsc', [DocumentVerificationController::class, 'verifyIfsc'])->name('ifsc.verify');
+});
+
 Route::group(['middleware' => ['auth'], 'prefix' => 'api-partner'], function () {
     Route::get('/dashboard', [HomeController::class, 'apiPartner'])->name('api.dashboard');
 
+
+
+
+
+
     // Route::get('ledger-reports', [LadgerController::class, 'reports'])->name('reseller_reports');
-
-
-    // Route::get('ledger-reports', [LadgerController::class, 'reports'])->name('reseller_reports');
-
 
     Route::get('all-services', [ServiceController::class, 'apipartnerservices'])->name('api_partner_services');
 

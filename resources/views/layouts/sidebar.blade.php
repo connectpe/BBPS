@@ -149,6 +149,13 @@
                                         Utility
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('payout_transaction') }}"
+                                        class="nav-link text-white {{ Route::currentRouteName() == 'payout_transaction' ? 'sidebar-active' : '' }}">
+                                        <i class="bi bi-arrow-left-right me-2"></i>
+                                        Payout Transaction
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     </li>
@@ -448,6 +455,14 @@
         </li> --}}
 
             <li class="nav-item">
+                <a href="{{ route('payout_transaction') }}"
+                    class="nav-link text-white {{ Route::currentRouteName() == 'payout_transaction' ? 'sidebar-active' : '' }}">
+                    <i class="bi bi-arrow-left-right me-2"></i>
+                    Payout Transaction
+                </a>
+            </li>
+
+            <li class="nav-item">
                 <a href="{{ route('ladger.index') }}"
                     class="nav-link text-white {{ Route::currentRouteName() == 'ladger.index' ? 'sidebar-active' : '' }}">
                     <i class="bi bi-journal-text me-2"></i>
@@ -517,6 +532,14 @@
                         </div>
                     </li>
                 </ul>
+            </li>
+
+            <li class="nav-item">
+                <a href="{{ route('payout_transaction') }}"
+                    class="nav-link text-white {{ Route::currentRouteName() == 'payout_transaction' ? 'sidebar-active' : '' }}">
+                    <i class="bi bi-arrow-left-right me-2"></i>
+                    Payout Transaction
+                </a>
             </li>
 
             <!-- Transaction -->
@@ -610,6 +633,14 @@
                 <a href="{{ route('complain.report') }}"
                     class="nav-link text-white {{ Route::is('complain.report') ? 'sidebar-active' : '' }}">
                     <i class="bi bi-clipboard-data me-2"></i> Complaints Report
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="{{ route('payout_transaction') }}"
+                    class="nav-link text-white {{ Route::currentRouteName() == 'payout_transaction' ? 'sidebar-active' : '' }}">
+                    <i class="bi bi-arrow-left-right me-2"></i>
+                    Payout Transaction
                 </a>
             </li>
 

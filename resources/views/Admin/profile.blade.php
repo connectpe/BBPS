@@ -1588,169 +1588,78 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
             <hr class="mt-2">
 
-            <div class="modal-body">
+            <div class="modal-body" id="docVerifyModalBody">
 
-                <!-- STEP 1 : PAN VERIFICATION -->
-                <div class="doc-step step-1">
+                <!-- STEP 1 -->
+                <div class="doc-step" data-doc-step="1">
                     <h6 class="mb-3">PAN Verification</h6>
-
                     <div class="card border shadow-sm p-3">
                         <div class="d-flex justify-content-between align-items-center">
-
                             <div>
-                                <p class="mb-1"><strong>PAN Number:</strong> {{ $businessInfo->pan_number ?? '-' }}</p>
-
-                                @php
-                                    $panVerified = $businessInfo->pan_verified ?? 0;
-                                @endphp
-
-                                <span class="badge bg-{{ $panVerified ? 'success' : 'danger' }}">
-                                    {{ $panVerified ? 'Verified' : 'Not Verified' }}
-                                </span>
+                                <p class="mb-1"><strong>PAN Number:</strong>
+                                    <span id="panNumber">-</span>
+                                </p>
+                                <span class="badge" id="panBadge">Checking...</span>
                             </div>
-
-                            <button type="button"
-                                class="btn {{ $panVerified ? 'btn-success' : 'btn-danger' }}"
-                                onclick="verifyDocument('pan')">
-                                {{ $panVerified ? 'Verified' : 'Verify' }}
-                            </button>
-
+                            <button type="button" class="btn" id="panButton" onclick="verifyDocument('pan')">Verify</button>
                         </div>
-
-                        <div class="mt-3" id="panMessage">
-                            @if($panVerified)
-                                <div class="alert alert-success mb-0">
-                                    PAN verified successfully.
-                                </div>
-                            @else
-                                <div class="alert alert-danger mb-0">
-                                    PAN not verified. Please check details.
-                                </div>
-                            @endif
-                        </div>
+                        <div class="mt-3" id="panMessage"></div>
                     </div>
                 </div>
 
-                <!-- STEP 2 : GST VERIFICATION -->
-                <div class="doc-step step-2 d-none">
+                <!-- STEP 2 -->
+                <div class="doc-step d-none" data-doc-step="2">
                     <h6 class="mb-3">GSTIN Verification</h6>
-
-                    @php
-                        $gstVerified = $businessInfo->gst_verified ?? 0;
-                    @endphp
-
                     <div class="card border shadow-sm p-3">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <p class="mb-1"><strong>GST Number:</strong> {{ $businessInfo->gst_number ?? '-' }}</p>
-
-                                <span class="badge bg-{{ $gstVerified ? 'success' : 'danger' }}">
-                                    {{ $gstVerified ? 'Verified' : 'Not Verified' }}
-                                </span>
+                                <p class="mb-1"><strong>GST Number:</strong>
+                                    <span id="gstNumber">-</span>
+                                </p>
+                                <span class="badge" id="gstBadge">Checking...</span>
                             </div>
-
-                            <button type="button"
-                                class="btn {{ $gstVerified ? 'btn-success' : 'btn-danger' }}"
-                                onclick="verifyDocument('gst')">
-                                {{ $gstVerified ? 'Verified' : 'Verify' }}
-                            </button>
+                            <button type="button" class="btn" id="gstButton" onclick="verifyDocument('gst')">Verify</button>
                         </div>
-
-                        <div class="mt-3" id="gstMessage">
-                            @if($gstVerified)
-                                <div class="alert alert-success mb-0">
-                                    GST verified successfully.
-                                </div>
-                            @else
-                                <div class="alert alert-danger mb-0">
-                                    GST not verified. Please check details.
-                                </div>
-                            @endif
-                        </div>
+                        <div class="mt-3" id="gstMessage"></div>
                     </div>
                 </div>
 
-                <!-- STEP 3 : CIN VERIFICATION -->
-                <div class="doc-step step-3 d-none">
+                <!-- STEP 3 -->
+                <div class="doc-step d-none" data-doc-step="3">
                     <h6 class="mb-3">CIN Verification</h6>
-
-                    @php
-                        $cinVerified = $businessInfo->cin_verified ?? 0;
-                    @endphp
-
                     <div class="card border shadow-sm p-3">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <p class="mb-1"><strong>CIN:</strong> {{ $businessInfo->cin_no ?? '-' }}</p>
-
-                                <span class="badge bg-{{ $cinVerified ? 'success' : 'danger' }}">
-                                    {{ $cinVerified ? 'Verified' : 'Not Verified' }}
-                                </span>
+                                <p class="mb-1"><strong>CIN:</strong>
+                                    <span id="cinNumber">-</span>
+                                </p>
+                                <span class="badge" id="cinBadge">Checking...</span>
                             </div>
-
-                            <button type="button"
-                                class="btn {{ $cinVerified ? 'btn-success' : 'btn-danger' }}"
-                                onclick="verifyDocument('cin')">
-                                {{ $cinVerified ? 'Verified' : 'Verify' }}
-                            </button>
+                            <button type="button" class="btn" id="cinButton" onclick="verifyDocument('cin')">Verify</button>
                         </div>
-
-                        <div class="mt-3" id="cinMessage">
-                            @if($cinVerified)
-                                <div class="alert alert-success mb-0">
-                                    CIN verified successfully.
-                                </div>
-                            @else
-                                <div class="alert alert-danger mb-0">
-                                    CIN not verified. Please check details.
-                                </div>
-                            @endif
-                        </div>
+                        <div class="mt-3" id="cinMessage"></div>
                     </div>
                 </div>
 
-                <!-- STEP 4 : BANK VERIFICATION -->
-                <div class="doc-step step-4 d-none">
-                    <h6 class="mb-3">Bank Account Verification</h6>
-
-                    @php
-                        $bankVerified = $usersBank->bank_verified ?? 0;
-                    @endphp
-
+                <!-- STEP 4 -->
+                <div class="doc-step d-none" data-doc-step="4">
+                    <h6 class="mb-3">Bank Verification</h6>
                     <div class="card border shadow-sm p-3">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <p class="mb-1"><strong>Account Number:</strong> {{ $usersBank->account_number ?? '-' }}</p>
-
-                                <span class="badge bg-{{ $bankVerified ? 'success' : 'danger' }}">
-                                    {{ $bankVerified ? 'Verified' : 'Not Verified' }}
-                                </span>
+                                <p class="mb-1"><strong>Account Number:</strong>
+                                    <span id="bankNumber">-</span>
+                                </p>
+                                <span class="badge" id="bankBadge">Checking...</span>
                             </div>
-
-                            <button type="button"
-                                class="btn {{ $bankVerified ? 'btn-success' : 'btn-danger' }}"
-                                onclick="verifyDocument('bank')">
-                                {{ $bankVerified ? 'Verified' : 'Verify' }}
-                            </button>
+                            <button type="button" class="btn" id="bankButton" onclick="verifyDocument('bank')">Verify</button>
                         </div>
-
-                        <div class="mt-3" id="bankMessage">
-                            @if($bankVerified)
-                                <div class="alert alert-success mb-0">
-                                    Bank verified successfully.
-                                </div>
-                            @else
-                                <div class="alert alert-danger mb-0">
-                                    Bank account not verified.
-                                </div>
-                            @endif
-                        </div>
+                        <div class="mt-3" id="bankMessage"></div>
                     </div>
                 </div>
 
             </div>
 
-            <!-- FOOTER -->
             <div class="modal-footer d-flex justify-content-between">
                 <button class="btn btn-secondary" id="prevDocStep">Previous</button>
                 <button class="btn buttonColor" id="nextDocStep">Next</button>
@@ -2738,5 +2647,154 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
         localStorage.setItem('profileDraft', JSON.stringify(draftData));
     }
 </script>
+@if($role == 2 || $role == 3)
 
+<script>
+    let docVerifyStep = 1;
+    let documentData = {};
+
+    function getDocStepEl(step) {
+        return document.querySelector('#docVerifyModalBody .doc-step[data-doc-step="' + step + '"]');
+    }
+
+    document.getElementById('documentVerificationModal')
+        .addEventListener('show.bs.modal', function() {
+
+            // Reset to step 1
+            docVerifyStep = 1;
+            document.querySelectorAll('#docVerifyModalBody .doc-step').forEach(el => el.classList.add("d-none"));
+            getDocStepEl(1).classList.remove("d-none");
+            updateDocSteps();
+
+            fetch("{{ route('document.verification.data') }}")
+                .then(res => res.json())
+                .then(data => {
+
+                    if (!data.status) return;
+
+                    documentData = data;
+                    console.log(data);
+
+                    // Fill Numbers
+                    document.getElementById("panNumber").innerText = data.business_pan_number ?? '-';
+                    document.getElementById("gstNumber").innerText = data.gst_number ?? '-';
+                    document.getElementById("cinNumber").innerText = data.cin_no ?? '-';
+                    document.getElementById("bankNumber").innerText = data.account_number ?? '-';
+
+                    setDocStatus("pan", data.pan_verified);
+                    setDocStatus("gst", data.is_gstin_verify);
+                    setDocStatus("cin", data.is_cin_verify);
+                    setDocStatus("bank", data.bank_verified);
+                });
+        });
+
+
+    function setDocStatus(type, verified) {
+        let badge = document.getElementById(type + "Badge");
+        let button = document.getElementById(type + "Button");
+        let message = document.getElementById(type + "Message");
+
+        if (verified == 1) {
+            badge.className = "badge bg-success";
+            badge.innerText = "Verified";
+            button.className = "btn btn-success";
+            button.innerText = "Verified";
+            message.innerHTML = `<div class="alert alert-success mb-0">${type.toUpperCase()} verified successfully.</div>`;
+        } else {
+            badge.className = "badge bg-danger";
+            badge.innerText = "Not Verified";
+            button.className = "btn btn-danger";
+            button.innerText = "Verify";
+            message.innerHTML = `<div class="alert alert-danger mb-0">${type.toUpperCase()} not verified.</div>`;
+        }
+    }
+
+
+    // Step navigation
+    document.getElementById("nextDocStep").addEventListener("click", function() {
+        if (docVerifyStep < 4) {
+            getDocStepEl(docVerifyStep).classList.add("d-none");
+            docVerifyStep++;
+            getDocStepEl(docVerifyStep).classList.remove("d-none");
+            updateDocSteps();
+        }
+    });
+
+    document.getElementById("prevDocStep").addEventListener("click", function() {
+        if (docVerifyStep > 1) {
+            getDocStepEl(docVerifyStep).classList.add("d-none");
+            docVerifyStep--;
+            getDocStepEl(docVerifyStep).classList.remove("d-none");
+            updateDocSteps();
+        }
+    });
+
+    function updateDocSteps() {
+        document.querySelectorAll("#documentVerificationModal .step-item").forEach(item => {
+            item.classList.remove("active");
+            if (item.dataset.step == docVerifyStep) {
+                item.classList.add("active");
+            }
+        });
+    }
+
+
+    // API integration
+    function verifyDocument(type) {
+        let url = "";
+        let payload = {};
+
+        if (type === "pan") {
+            url = "{{ route('pan.verify') }}";
+            payload = {
+                pan_number: documentData.business_pan_number,
+                pan_name: documentData.business_pan_name
+            };
+        }
+
+        if (type === "gst") {
+            url = "{{ route('gstin.verify') }}";
+            payload = {
+                gst_number: documentData.gst_number
+            };
+        }
+
+        if (type === "cin") {
+            url = "{{ route('cin.verify') }}";
+            payload = {
+                cin_no: documentData.cin_no
+            };
+        }
+
+        if (type === "bank") {
+            url = "{{ route('ifsc.verify') }}";
+            payload = {
+                // account_number: documentData.account_number,
+                // beneficiary_name: documentData.benificiary_name,
+                // phone: documentData.phone,
+                ifsc: documentData.ifsc_code
+            };
+        }
+
+        fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(response => {
+                console.log("Response:", response);
+                if (response.status) {
+                    setDocStatus(type, 1);
+                } else {
+                    setDocStatus(type, 0);
+                }
+            })
+            .catch(err => console.log(err));
+    }
+</script>
+@endif
 @endsection

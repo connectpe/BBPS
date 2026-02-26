@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Complaint;
 use App\Models\ComplaintsCategory;
-use App\Models\GlobalService;
 use App\Models\Transaction;
+use App\Models\User;
 use App\Models\UserService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -46,8 +46,8 @@ class TransactionController extends Controller
             // Date range filter
             if ($request->from_date && $request->to_date) {
                 $query->whereBetween('created_at', [
-                    $request->from_date . ' 00:00:00',
-                    $request->to_date . ' 23:59:59'
+                    $request->from_date.' 00:00:00',
+                    $request->to_date.' 23:59:59',
                 ]);
             }
 
@@ -56,10 +56,11 @@ class TransactionController extends Controller
             if ($transactions->isEmpty()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'No record found'
+                    'message' => 'No record found',
                 ]);
             }
             DB::commit();
+
             return response()->json([
                 'success' => true,
                 'data' => $transactions->map(function ($txn) {
@@ -73,18 +74,17 @@ class TransactionController extends Controller
                         'connectpe_id' => $txn->connectpe_id,
                         'created_at' => $txn->created_at,
                     ];
-                })
+                }),
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'status' => false,
-                'message' => 'Error' . $e->getMessage()
+                'message' => 'Error'.$e->getMessage(),
             ]);
         }
     }
-
-
 
     public function transactionComplaint()
     {
@@ -95,14 +95,16 @@ class TransactionController extends Controller
             $priorities = ['Low', 'Medium', 'High'];
 
             $services = UserService::with('service:id,service_name')->select('service_id')->where('user_id', Auth::user()->id)->where('status', 'approved')->where('is_active', '1')->orderBy('id', 'desc')->get();
-            $categories = ComplaintsCategory::select('id','category_name')->where('status', '1')->orderBy('id', 'desc')->get();
+            $categories = ComplaintsCategory::select('id', 'category_name')->where('status', '1')->orderBy('id', 'desc')->get();
             DB::commit();
+
             return view('Transaction.transaction-complaint', compact('services', 'priorities', 'categories'));
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'status' => false,
-                'message' => 'Error' . $e->getMessage()
+                'message' => 'Error'.$e->getMessage(),
             ]);
         }
     }
@@ -110,51 +112,48 @@ class TransactionController extends Controller
     public function store(Request $request)
     {
 
-
         $request->validate([
             'reference_id' => 'nullable|string|required_without:mobile|exists:transactions,payment_ref_id|max:255',
-            'mobile'       => 'nullable|regex:/^[0-9]{10}$/|required_without:reference_id|exists:transactions,mobile_number',
-            'txn_date'     => 'required|date|before_or_equal:today',
-            'service_id'   => 'required|exists:global_services,id',
-            'priority'     => 'required|in:Low,High,Medium',
-            'category'     => 'required|exists:complaints_categories,id',
-            'description'  => 'required|string|min:20|max:500',
-            'attachment'   => 'nullable|file|max:2048|mimes:jpg,png,jpeg',
+            'mobile' => 'nullable|regex:/^[0-9]{10}$/|required_without:reference_id|exists:transactions,mobile_number',
+            'txn_date' => 'required|date|before_or_equal:today',
+            'service_id' => 'required|exists:global_services,id',
+            'priority' => 'required|in:Low,High,Medium',
+            'category' => 'required|exists:complaints_categories,id',
+            'description' => 'required|string|min:20|max:500',
+            'attachment' => 'nullable|file|max:2048|mimes:jpg,png,jpeg',
         ], [
             'reference_id.required_without' => 'Reference ID is required when mobile number is not provided.',
-            'reference_id.exists'           => 'The provided reference ID does not exist in transactions.',
-            'reference_id.max'              => 'Reference ID may not be greater than 255 characters.',
+            'reference_id.exists' => 'The provided reference ID does not exist in transactions.',
+            'reference_id.max' => 'Reference ID may not be greater than 255 characters.',
 
-            'mobile.required_without'       => 'Mobile number is required when reference ID is not provided.',
-            'mobile.regex'                  => 'Mobile number must be exactly 10 digits.',
-            'mobile.exists'                 => 'The provided mobile number does not exist in transactions.',
+            'mobile.required_without' => 'Mobile number is required when reference ID is not provided.',
+            'mobile.regex' => 'Mobile number must be exactly 10 digits.',
+            'mobile.exists' => 'The provided mobile number does not exist in transactions.',
 
-            'txn_date.required'             => 'Transaction date is required.',
-            'txn_date.date'                 => 'Transaction date must be a valid date.',
-            'txn_date.before_or_equal'      => 'Transaction date cannot be in the future.',
+            'txn_date.required' => 'Transaction date is required.',
+            'txn_date.date' => 'Transaction date must be a valid date.',
+            'txn_date.before_or_equal' => 'Transaction date cannot be in the future.',
 
-            'service_id.required'           => 'Service selection is required.',
-            'service_id.exists'             => 'Selected service does not exist.',
+            'service_id.required' => 'Service selection is required.',
+            'service_id.exists' => 'Selected service does not exist.',
 
-            'priority.required'             => 'Priority is required.',
-            'priority.in'                   => 'Priority must be one of Low, Medium, or High.',
+            'priority.required' => 'Priority is required.',
+            'priority.in' => 'Priority must be one of Low, Medium, or High.',
 
-            'category.required'             => 'Category is required.',
-            'category.exists'               => 'Selected category does not exist.',
+            'category.required' => 'Category is required.',
+            'category.exists' => 'Selected category does not exist.',
 
-            'description.required'          => 'Description is required.',
-            'description.string'            => 'Description must be text.',
-            'description.min'               => 'Description must be at least 20 characters.',
-            'description.max'               => 'Description may not be greater than 500 characters.',
+            'description.required' => 'Description is required.',
+            'description.string' => 'Description must be text.',
+            'description.min' => 'Description must be at least 20 characters.',
+            'description.max' => 'Description may not be greater than 500 characters.',
 
-            'attachment.file'               => 'Attachment must be a valid file.',
-            'attachment.max'                => 'Attachment size may not be greater than 2MB.',
-            'attachment.mimes'              => 'Attachment must be a file of type: jpg, png, jpeg.',
+            'attachment.file' => 'Attachment must be a valid file.',
+            'attachment.max' => 'Attachment size may not be greater than 2MB.',
+            'attachment.mimes' => 'Attachment must be a file of type: jpg, png, jpeg.',
         ]);
 
-
         DB::beginTransaction();
-
 
         try {
 
@@ -164,7 +163,7 @@ class TransactionController extends Controller
             }
 
             do {
-                $ticketId = '#' . strtoupper(rand(000000000000, 111111111111));
+                $ticketId = '#'.strtoupper(rand(000000000000, 111111111111));
             } while (Complaint::where('ticket_number', $ticketId)->exists());
 
             $userId = Auth::user()->id;
@@ -183,7 +182,6 @@ class TransactionController extends Controller
                 'updated_by' => $userId,
             ];
 
-
             $complaint = Complaint::create($data);
             DB::commit();
 
@@ -193,9 +191,10 @@ class TransactionController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'status' => false,
-                'message' => 'Error : ' . $e->getMessage(),
+                'message' => 'Error : '.$e->getMessage(),
             ]);
         }
     }
@@ -208,12 +207,14 @@ class TransactionController extends Controller
 
             $categories = ['transaction', 'refund', 'service', 'other'];
             DB::commit();
+
             return view('Transaction.complaint-status', compact('categories'));
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'status' => false,
-                'message' => 'Error' . $e->getMessage()
+                'message' => 'Error'.$e->getMessage(),
             ]);
         }
     }
@@ -238,6 +239,7 @@ class TransactionController extends Controller
                 ], 404);
             }
             DB::commit();
+
             return response()->json([
                 'status' => true,
                 'data' => [
@@ -249,9 +251,10 @@ class TransactionController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'status' => false,
-                'message' => 'Error' . $e->getMessage()
+                'message' => 'Error'.$e->getMessage(),
             ]);
         }
     }
@@ -274,13 +277,21 @@ class TransactionController extends Controller
             $pdf = Pdf::loadView('Users.reports.recharge-transaction-invoice', compact('txn'));
             $fileRef = $txn->payment_ref_id ?? $txn->connectpe_id ?? $txn->request_id ?? $txn->id;
             DB::commit();
-            return $pdf->download('Invoice_' . $fileRef . '.pdf');
+
+            return $pdf->download('Invoice_'.$fileRef.'.pdf');
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'status' => false,
-                'message' => 'Error' . $e->getMessage()
+                'message' => 'Error'.$e->getMessage(),
             ]);
         }
+    }
+
+    public function payouttransaction()
+    {
+        $users = User::whereHas('orders')->select('id', 'name', 'email')->orderBy('name')->get();
+        return view('Transaction.payout-transaction', compact('users'));
     }
 }

@@ -59,9 +59,10 @@ class CommonHelper
                 'status' => false,
                 'message' => 'Unauthorized'
             ], 401);
-        } else {
-            return redirect()->route('home');
         }
+        //  else {
+        //     return redirect()->route('home');
+        // }
     }
 
     public static function generateTransactionId()
@@ -117,35 +118,35 @@ class CommonHelper
     }
 
 
-//     public static function isIpWhitelisted($userId, $serviceId, $ipAddress): array{
-//         try{
-//             $exists = IpWhitelist::where('user_id', $userId)->where('service_id', $serviceId)
-//             ->where('ip_address', $ipAddress) ->where('is_active', 1)->where('is_deleted', 0)
-//             ->exists();
-//             if ($exists) {
-//                 return [
-//                     'status' => true,
-//                     'message' => 'IP is whitelisted.'
-//                 ];
-//             } else {
-//                 return [
-//                     'status' => false,
-//                     'message' => 'IP is not whitelisted.'
-//                 ];
-//             }
+    //     public static function isIpWhitelisted($userId, $serviceId, $ipAddress): array{
+    //         try{
+    //             $exists = IpWhitelist::where('user_id', $userId)->where('service_id', $serviceId)
+    //             ->where('ip_address', $ipAddress) ->where('is_active', 1)->where('is_deleted', 0)
+    //             ->exists();
+    //             if ($exists) {
+    //                 return [
+    //                     'status' => true,
+    //                     'message' => 'IP is whitelisted.'
+    //                 ];
+    //             } else {
+    //                 return [
+    //                     'status' => false,
+    //                     'message' => 'IP is not whitelisted.'
+    //                 ];
+    //             }
 
-//         } catch (\Throwable $e) {
-//             Log::error('IP Whitelist Check Error', [
-//                 'error' => $e->getMessage(),
-//                 'file'  => $e->getFile(),
-//                 'line'  => $e->getLine(),
-//             ]);
-//             return [
-//                 'status'  => false,
-//                 'message' => 'Unable to verify IP whitelist.'
-//             ];
-//         }
-//     }
+    //         } catch (\Throwable $e) {
+    //             Log::error('IP Whitelist Check Error', [
+    //                 'error' => $e->getMessage(),
+    //                 'file'  => $e->getFile(),
+    //                 'line'  => $e->getLine(),
+    //             ]);
+    //             return [
+    //                 'status'  => false,
+    //                 'message' => 'Unable to verify IP whitelist.'
+    //             ];
+    //         }
+    //     }
 
 
     public static function checkIpWhiteList($userId, $serviceId, $ip)
@@ -172,6 +173,4 @@ class CommonHelper
             ]);
         }
     }
-
-
 }
