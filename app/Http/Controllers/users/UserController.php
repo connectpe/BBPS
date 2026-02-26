@@ -19,6 +19,7 @@ use App\Models\UserService;
 use App\Models\WebHookUrl;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -341,6 +342,10 @@ class UserController extends Controller
                 ]
             );
 
+            Cache::store('redis')->forget("profile:{$userId}:userdata");
+            Cache::store('redis')->forget("profile:{$userId}:businessInfo");
+            Cache::store('redis')->forget("profile:{$userId}:usersBank");
+
             DB::commit();
 
             return response()->json([
@@ -419,7 +424,7 @@ class UserController extends Controller
                 'client_secret' => $encryptedSecret,
                 'is_active' => '1',
             ]);
-
+            Cache::store('redis')->forget("profile:{$userId}:saltKeys");
             DB::commit();
 
             return response()->json([
@@ -1003,6 +1008,7 @@ class UserController extends Controller
                 ['url' => $request->url, 'updated_by' => $userId]
             );
 
+            Cache::store('redis')->forget("profile:{$userId}:webhookUrl");
             DB::commit();
 
             return response()->json([
