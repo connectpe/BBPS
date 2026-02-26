@@ -5,7 +5,6 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BbpsRechargeController;
 use App\Http\Controllers\CommonController;
 use App\Http\Controllers\ComplainReportController;
-use App\Http\Controllers\DocumentVerificationController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LadgerController;
 use App\Http\Controllers\SchemeController;
@@ -106,7 +105,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/edit-support-assignment/{id}', [AdminController::class, 'editSupportAssignment'])->name('edit_support_assignment');
         Route::delete('delete-support-assignment/{id}', [AdminController::class, 'deleteSupportAssignment'])->name('delete_support_assignment');
         
-        Route::get('/payout-transaction', [TransactionController::class, 'payouttransaction'])->name('payout_transaction');
+        // Route::get('/payout-transaction', [TransactionController::class, 'payouttransaction'])->name('payout_transaction');
         // Complain Report Route
 
     });
@@ -147,14 +146,14 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
     Route::get('/complaint-status', [TransactionController::class, 'complaintStatus'])->name('complaint_status');
     Route::post('/complaint-status/check', [TransactionController::class, 'checkComplaintStatus'])->name('complaint.status.check');
     Route::post('nsdl-initiated-payment', [UserController::class, 'initiateNsdlPayment'])->name('nsdl-initiatePayment');
-    // Route::post('/service-request', [ServiceRequestController::class, 'store'])
-    //     ->name('service.request');
-
-
-
     Route::post('/service-request', [ServiceRequestController::class, 'store'])
         ->name('service.request');
 
+
+
+    // Route::post('/service-request', [ServiceRequestController::class, 'store'])
+    //     ->name('service.request');
+    
 
     Route::post('completeProfile/{user_id}', [UserController::class, 'completeProfile'])->name('admin.complete_profile');
     Route::post('generate-mpin', [UserController::class, 'generateMpin'])->name('generate_mpin');
@@ -185,31 +184,21 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('unauthrized', function () {
         return view('errors.401');
     })->name('unauthrized.page');
+
+
+     Route::get('/payout-transaction', [TransactionController::class, 'payouttransaction'])->name('payout_transaction');
     
 
     
 
     // reseller routes
     Route::get('reports', [LadgerController::class, 'reports'])->name('reseller_reports');
-
-    Route::get('document-verification', [DocumentVerificationController::class, 'getDocumentData'])->name('document.verification.data');
-    // Route::post('gstin-verify', [DocumentVerificationController::class, 'verifyGstinNumber'])->name('gstin.verify');
-    // Route::post('cin-verify', [DocumentVerificationController::class, 'verifyCinNumber'])->name('cin.verify');
-    // Route::post('bank-account-verify', [DocumentVerificationController::class, 'VerifyAccountDetails'])->name('bank.account.verify');
 });
 
 Route::group(['middleware' => ['auth'], 'prefix' => 'api-partner'], function () {
     Route::get('/dashboard', [HomeController::class, 'apiPartner'])->name('api.dashboard');
-
-
-   
-
-
-    // Route::get('ledger-reports', [LadgerController::class, 'reports'])->name('reseller_reports');
-
-
-
     Route::get('all-services', [ServiceController::class, 'apipartnerservices'])->name('api_partner_services');
+
 });
 
 
