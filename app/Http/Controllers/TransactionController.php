@@ -6,6 +6,7 @@ use App\Models\Complaint;
 use App\Models\ComplaintsCategory;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Models\Provider;
 use App\Models\UserService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -292,6 +293,7 @@ class TransactionController extends Controller
     public function payouttransaction()
     {
         $users = User::whereHas('orders')->select('id', 'name', 'email')->orderBy('name')->get();
-        return view('Transaction.payout-transaction', compact('users'));
+        $providers = Provider::whereHas('orders')->select('id', 'provider_name')->orderBy('provider_name')->get();
+        return view('Transaction.payout-transaction', compact('users', 'providers'));
     }
 }

@@ -803,7 +803,7 @@ class CommonController extends Controller
             'nsdl-payment' => ['user_id',  'service_id',  'mobile_no', 'transaction_id', 'utr',  'order_id',  'status'],
             'ip-whitelist' => ['is_deleted'],
             'support-based-user-list' => ['assined_to'],
-            'orders' => ['connectpe_id', 'transaction_no', 'client_txn_id', 'utr_no', 'mode', 'status', 'user_id'],
+            'orders' => ['connectpe_id', 'transaction_no', 'client_txn_id', 'utr_no', 'mode', 'status', 'user_id', 'provider_id'],
             // add more types and columns here
         ];
 
