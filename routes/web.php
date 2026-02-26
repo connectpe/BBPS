@@ -1,5 +1,5 @@
 <?php
-
+use Illuminate\Support\Facades\Redis;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BbpsRechargeController;
@@ -17,6 +17,11 @@ use App\Http\Controllers\SupportDashboardController;
 use App\Http\Middleware\IsAdmin;
 use Illuminate\Support\Facades\Route;
 
+
+Route::get('test-redis', function () {
+    Redis::set('test_key', 'Ramanand');
+    return Redis::get('test_key');
+});
 Route::get('/', [HomeController::class, 'loginRedirect'])->name('home');
 Route::get('/dashboard', [AdminController::class, 'dashboard'])->middleware('auth')->name('dashboard');
 

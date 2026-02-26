@@ -6,6 +6,7 @@ use App\Models\BusinessInfo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class DocumentVerificationController extends Controller
 {
@@ -246,6 +247,7 @@ class DocumentVerificationController extends Controller
         }
     }
 
+
     public function verifyIfsc(Request $request)
     {
         try {
@@ -268,28 +270,105 @@ class DocumentVerificationController extends Controller
                 'x-client-id' => $this->clientID,
                 'x-client-secret' => $this->clientSecret,
             ])->post($endpoint, $payload);
-
-            // dd($response['status']);
-
-            if ($response['status'] == "VALID") {
-                BusinessInfo::where('user_id', $this->userId)->update([
-                    'is_bank_details_verify' => '1',
-                ]);
-            }
-            // $record = BusinessInfo::where('user_id', $this->userId)->first();
-            // dd($record->is_bank_details_verify);
-            // dd($response->json());
-
+            // dd($response);
             return response()->json([
-                'status' => true,
-                'data' => $response->json(),
+                'status'=> true,
+                'data'=>$response->json(),
             ]);
-        } catch (\Exception $e) {
+        }catch(\Exception $e){
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
 
-            ], 500);
+            ],500);
+        }
+    }
+
+    public function createUserToCashFree(Request $request){
+        try{
+           
+
+            $user_id = 'USER'.'11';
+            $date = '2024-12-01';
+            $payload = [
+                'name'=> $request->name,
+                'email'=> $request->email,
+                'phone'=> $request->phone,
+                'address'=> $request->address,
+                'user_id'=> $user_id
+            ];
+            $endpoint = 'https://api.cashfree.com/verification/user';
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'x-client-id' => $this->clientID,
+                'x-client-secret' => $this->clientSecret,
+                'x-api-version' => $date
+            ])->post($endpoint, $payload);
+
+            $finalResponse = $response->json();
+            // dd($finalResponse);
+            $data = [];
+            if($finalResponse['code'] == 'user_id_already_exists'){
+                $data = [
+                    'user_id' => $user_id,
+                    
+                ];
+            }else{
+                $data = [
+                    'user_id' => $finalResponse['user_id'],
+                    
+                ];
+
+            }
+            
+            return $data;
+        }catch(Exception $e){
+            return response()->json([
+                'status'=> false,
+                'message'=> $e->getMessage()
+            ]);
+        }
+    }
+    public function initiateVideoKyc(Request $request){
+        try{
+            $request->validate([
+                'phone'=> 'required',
+                'email'=> 'required',
+                'name'=> 'required',
+                'address'=> 'required'
+            ]);
+            $date = '2024-12-01';
+           
+            $response = $this->createUserToCashFree($request);
+
+            // dd($response);
+
+            $payload = [
+                'verification_id'=> time().round(10000,99999),
+                'user_template'=> 'vkyc_user_template_v1',
+                'user_id'=> $response['user_id'],
+                'notification_types'=> ['whatsapp']
+            ];
+            // dd(1);
+            $endpoint = "https://api.cashfree.com//verification/vkyc";
+            $apiResponse = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'x-client-id' => $this->clientID,
+                'x-client-secret' => $this->clientSecret,
+                'x-api-version' =>$date
+            ])->post($endpoint, $payload);
+            // dd($apiResponse->json());
+            return response()->json([
+                'status'=> true,
+                'message'=> 'Kyc link genratewd successfully',
+                'data'=> $apiResponse->json()
+            ]);
+
+        }catch(\Exception $e){
+            return response()->json([
+                'status'=> false,
+                'message'=> $e->getMessage()
+            ]);
         }
     }
 }
