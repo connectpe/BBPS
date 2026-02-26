@@ -160,9 +160,9 @@
                     <thead>
                         <tr>
                             <th style="width:55px;">#</th>
-                            @if (auth()->user()->role_id == 1)
+                            {{-- @if (auth()->user()->role_id == 1) --}}
                                 <th>User Name</th>
-                            @endif
+                            {{-- @endif --}}
                             <th>ConnectPe ID</th>
                             <th>Transaction No</th>
                             <th>Client Txn Id</th>
@@ -327,6 +327,19 @@
                     data: null,
                     render: function(data, type, row, meta) {
                         return '<span class="dt-plus-btn buttonColor">+</span>';
+                    }
+                },
+                {
+                    data: null,
+                    render: function(row) {
+                        let url = "{{ route('view_user', ':id') }}".replace(':id', row.user_id);
+                        const userName = row?.user?.name || '----';
+                        const email = row?.user?.email || '----';
+
+                        return '<a href="' + url +
+                            '" class="text-primary fw-semibold text-decoration-none">' +
+                            userName + '<br/>[' + email + ']' +
+                            '</a>';
                     }
                 },
                 {

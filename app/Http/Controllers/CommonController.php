@@ -744,7 +744,7 @@ class CommonController extends Controller
                 break;
             case 'orders':
                 $request['table'] = '\App\Models\Order';
-                $request['searchData'] = ['id','connectpe_id','transaction_no','client_txn_id','utr_no','mode','amount','total_amount','status','status_code','created_at',];
+                $request['searchData'] = ['id', 'connectpe_id', 'transaction_no', 'client_txn_id', 'utr_no', 'mode', 'amount', 'total_amount', 'status', 'status_code', 'created_at'];
                 $request['select'] = 'all';
                 $request['with'] = ['user', 'service', 'provider', 'updatedBy'];
                 $orderIndex = $request->get('order');
@@ -776,13 +776,23 @@ class CommonController extends Controller
                 $request['whereIn'] = 'id';
                 $request['parentData'] = 'all';
 
-                if (Auth::user()->role_id == '1') {
+                // if (Auth::user()->role_id == '1') {
+                //     $request['parentData'] = 'all';
+                // } else {
+                //     $request['whereIn'] = 'user_id';
+                //     $request['parentData'] = [Auth::user()->id];
+                // }
+                $user = Auth::user();
+                if ($user->role_id == 1) {
                     $request['parentData'] = 'all';
+                } elseif ($user->role_id == 4) {
+                    $assignedUsers = UserAssignedToSupport::where('assined_to', $user->id)->pluck('user_id')->toArray();
+                    $request['whereIn'] = 'user_id';
+                    $request['parentData'] = $assignedUsers;
                 } else {
                     $request['whereIn'] = 'user_id';
-                    $request['parentData'] = [Auth::user()->id];
+                    $request['parentData'] = [$user->id];
                 }
-
                 break;
         }
 
