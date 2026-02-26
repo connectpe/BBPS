@@ -110,7 +110,6 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/edit-support-assignment/{id}', [AdminController::class, 'editSupportAssignment'])->name('edit_support_assignment');
         Route::delete('delete-support-assignment/{id}', [AdminController::class, 'deleteSupportAssignment'])->name('delete_support_assignment');
 
-        Route::get('/payout-transaction', [TransactionController::class, 'payouttransaction'])->name('payout_transaction');
 
         // Complain Report Route
 
@@ -174,6 +173,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('complaints-report', [SupportDashboardController::class, 'userComplaints'])->name('complaints_report')->middleware('isSupport');
         Route::get('/support-userlist', [SupportDashboardController::class, 'supportUserList'])->name('support_userlist')->middleware('isSupport');
     });
+    Route::get('/payout-transaction', [TransactionController::class, 'payouttransaction'])->name('payout_transaction');
+
     Route::post('/update-complaint-report/{id}', [ComplainReportController::class, 'updateComplaint'])->name('update_complaint_report');
     // Admin/User Common Routes 
     Route::post('change-password', [AuthController::class, 'passwordReset'])->name('admin.change_password');
