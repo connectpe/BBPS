@@ -27,7 +27,7 @@ class DocumentVerificationController extends Controller
     {
         try {
             $user = Auth::user();
-
+            // dd($user);
             $businessInfo = $user->business;
 
             if (!$businessInfo) {

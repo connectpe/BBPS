@@ -14,6 +14,7 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\users\ReportController;
 use App\Http\Controllers\users\UserController;
 use App\Http\Controllers\SupportDashboardController;
+use App\Http\Controllers\DocumentVerificationController;
 use App\Http\Middleware\IsAdmin;
 use Illuminate\Support\Facades\Route;
 
@@ -205,6 +206,7 @@ Route::group(['middleware' => ['auth']], function () {
 });
 
 Route::group(['middleware' => ['logs', 'auth'], 'prefix' => 'document'], function () {
+    Route::get('get-document-data',[DocumentVerificationController::class,'getDocumentData'])->name('document.verification.data');
     Route::post('verify-pan', [DocumentVerificationController::class, 'panVerify'])->name('pan.verify');
     Route::post('verify-account', [DocumentVerificationController::class, 'VerifyAccountDetails'])->name('bank.account.verify');
     Route::post('verify-cin', [DocumentVerificationController::class, 'verifyCinNumber'])->name('cin.verify');
