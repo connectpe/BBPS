@@ -104,8 +104,9 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/assign-user-to-support', [AdminController::class, 'UserAssignedtoSupportuser'])->name('save_support_assignment');
         Route::get('/edit-support-assignment/{id}', [AdminController::class, 'editSupportAssignment'])->name('edit_support_assignment');
         Route::delete('delete-support-assignment/{id}', [AdminController::class, 'deleteSupportAssignment'])->name('delete_support_assignment');
-        
-        // Route::get('/payout-transaction', [TransactionController::class, 'payouttransaction'])->name('payout_transaction');
+
+        Route::get('/payout-transaction', [TransactionController::class, 'payouttransaction'])->name('payout_transaction');
+
         // Complain Report Route
 
     });
@@ -186,17 +187,35 @@ Route::group(['middleware' => ['auth']], function () {
     })->name('unauthrized.page');
 
 
-     Route::get('/payout-transaction', [TransactionController::class, 'payouttransaction'])->name('payout_transaction');
+
+//      Route::get('/payout-transaction', [TransactionController::class, 'payouttransaction'])->name('payout_transaction');
     
 
-    
+
+
 
     // reseller routes
     Route::get('reports', [LadgerController::class, 'reports'])->name('reseller_reports');
 });
 
+Route::group(['middleware' => ['logs', 'auth'], 'prefix' => 'document'], function () {
+    Route::post('verify-pan', [DocumentVerificationController::class, 'panVerify'])->name('pan.verify');
+    Route::post('verify-account', [DocumentVerificationController::class, 'VerifyAccountDetails'])->name('bank.account.verify');
+    Route::post('verify-cin', [DocumentVerificationController::class, 'verifyCinNumber'])->name('cin.verify');
+    Route::post('verify-gstin', [DocumentVerificationController::class, 'verifyGstinNumber'])->name('gstin.verify');
+    Route::post('verify-ifsc', [DocumentVerificationController::class, 'verifyIfsc'])->name('ifsc.verify');
+});
+
 Route::group(['middleware' => ['auth'], 'prefix' => 'api-partner'], function () {
     Route::get('/dashboard', [HomeController::class, 'apiPartner'])->name('api.dashboard');
+
+
+
+
+
+
+    // Route::get('ledger-reports', [LadgerController::class, 'reports'])->name('reseller_reports');
+
     Route::get('all-services', [ServiceController::class, 'apipartnerservices'])->name('api_partner_services');
 
 });
