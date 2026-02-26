@@ -95,4 +95,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(NsdlPayment::class, 'user_id');
     }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'user_id');
+    }
 }
