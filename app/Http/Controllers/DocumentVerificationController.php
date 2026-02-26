@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\BusinessInfo;
+use App\Models\UsersBank;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Auth;
@@ -14,6 +15,7 @@ class DocumentVerificationController extends Controller
     private $clientSecret;
     private $apiVersion;
     private $userId;
+    private $user;
 
     public function __construct()
     {
@@ -21,14 +23,13 @@ class DocumentVerificationController extends Controller
         $this->clientSecret = env('CASHFREE_CLIENT_SECRET');
         $this->apiVersion = 'V2';
         $this->userId = Auth::id();
+        $this->user = Auth::user();
     }
 
     public function getDocumentData()
     {
         try {
-            $user = Auth::user();
-
-            $businessInfo = $user->business;
+            $businessInfo = BusinessInfo::select('address', 'business_pan_number', 'business_pan_name', 'is_pan_verify', 'gst_number', 'is_gstin_verify', 'cin_no', 'is_cin_verify', 'is_bank_details_verify')->where('user_id', $this->userId)->first();
 
             if (!$businessInfo) {
                 return response()->json([
@@ -37,7 +38,7 @@ class DocumentVerificationController extends Controller
                 ]);
             }
 
-            $usersBank = $user->bankDetails;
+            $usersBank = UsersBank::select('account_number', 'ifsc_code', 'benificiary_name')->where('user_id', $this->userId)->first();
 
             if (!$usersBank) {
                 return response()->json([
@@ -49,7 +50,11 @@ class DocumentVerificationController extends Controller
             return response()->json([
                 'status' => true,
 
-                'phone' => $user->mobile ?? '-',
+                'name' => $this->user->name ?? '-',
+                'email' => $this->user->email ?? '-',
+                'phone' => $this->user->mobile ?? '-',
+                'address' => $businessInfo->address ?? '-',
+                'videokyc_verified' => 1,
 
                 'business_pan_number' => $businessInfo->business_pan_number ?? '-',
                 'business_pan_name' => $businessInfo->business_pan_name ?? '-',
@@ -234,7 +239,6 @@ class DocumentVerificationController extends Controller
                 ]);
             }
 
-
             return response()->json([
                 'status' => true,
                 'message' => $response['data']['message'] ?? 'PAN verification completed',
@@ -272,30 +276,30 @@ class DocumentVerificationController extends Controller
             ])->post($endpoint, $payload);
             // dd($response);
             return response()->json([
-                'status'=> true,
-                'data'=>$response->json(),
+                'status' => true,
+                'data' => $response->json(),
             ]);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
 
-            ],500);
+            ], 500);
         }
     }
 
-    public function createUserToCashFree(Request $request){
-        try{
-           
+    public function createUserToCashFree(Request $request)
+    {
+        try {
 
-            $user_id = 'USER'.'11';
+            $user_id = 'USER' . $this->userId;
             $date = '2024-12-01';
             $payload = [
-                'name'=> $request->name,
-                'email'=> $request->email,
-                'phone'=> $request->phone,
-                'address'=> $request->address,
-                'user_id'=> $user_id
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'address' => $request->address,
+                'user_id' => $user_id
             ];
             $endpoint = 'https://api.cashfree.com/verification/user';
             $response = Http::withHeaders([
@@ -306,48 +310,53 @@ class DocumentVerificationController extends Controller
             ])->post($endpoint, $payload);
 
             $finalResponse = $response->json();
-            // dd($finalResponse);
             $data = [];
-            if($finalResponse['code'] == 'user_id_already_exists'){
+            if ($finalResponse['code'] == 'user_id_already_exists') {
                 $data = [
                     'user_id' => $user_id,
-                    
+
                 ];
-            }else{
+            } else {
                 $data = [
                     'user_id' => $finalResponse['user_id'],
-                    
-                ];
+                    'user_reference_id' => $finalResponse['user_reference_id'] ?? null,
 
+                ];
             }
-            
+
             return $data;
-        }catch(Exception $e){
+        } catch (\Exception $e) {
             return response()->json([
-                'status'=> false,
-                'message'=> $e->getMessage()
+                'status' => false,
+                'message' => $e->getMessage()
             ]);
         }
     }
-    public function initiateVideoKyc(Request $request){
-        try{
+
+    public function initiateVideoKyc(Request $request)
+    {
+        try {
+            // dd($request->all());
             $request->validate([
-                'phone'=> 'required',
-                'email'=> 'required',
-                'name'=> 'required',
-                'address'=> 'required'
+                'phone' => 'required',
+                'email' => 'required',
+                'name' => 'required',
+                'address' => 'required'
             ]);
+
             $date = '2024-12-01';
-           
+
             $response = $this->createUserToCashFree($request);
 
-            // dd($response);
+            // dd($response['user_id']);
+            $referenceId = $response['user_reference_id'] ?? null;
 
             $payload = [
-                'verification_id'=> time().round(10000,99999),
-                'user_template'=> 'vkyc_user_template_v1',
-                'user_id'=> $response['user_id'],
-                'notification_types'=> ['whatsapp']
+                'verification_id' => time() . round(10000, 99999),
+                'user_template' => 'vkyc_user_template_v1',
+                'user_id' => $response['user_id'],
+                'notification_types' => ['whatsapp'],
+                'user_reference_id' => $referenceId
             ];
             // dd(1);
             $endpoint = "https://api.cashfree.com//verification/vkyc";
@@ -355,19 +364,18 @@ class DocumentVerificationController extends Controller
                 'Content-Type' => 'application/json',
                 'x-client-id' => $this->clientID,
                 'x-client-secret' => $this->clientSecret,
-                'x-api-version' =>$date
+                'x-api-version' => $date
             ])->post($endpoint, $payload);
-            // dd($apiResponse->json());
+            dd($apiResponse->json());
             return response()->json([
-                'status'=> true,
-                'message'=> 'Kyc link genratewd successfully',
-                'data'=> $apiResponse->json()
+                'status' => true,
+                'message' => 'Kyc link genratewd successfully',
+                'data' => $apiResponse->json()
             ]);
-
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return response()->json([
-                'status'=> false,
-                'message'=> $e->getMessage()
+                'status' => false,
+                'message' => $e->getMessage()
             ]);
         }
     }
