@@ -2647,6 +2647,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
         localStorage.setItem('profileDraft', JSON.stringify(draftData));
     }
 </script>
+@if($role == 2 || $role == 3)
 
 <script>
     let docVerifyStep = 1;
@@ -2795,5 +2796,5 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
             .catch(err => console.log(err));
     }
 </script>
-
+@endif
 @endsection
