@@ -140,23 +140,23 @@ class AdminController extends Controller
                 )->where('user_id', $userId)->first();
             });
 
-            $data['businessCategory'] = Cache::remember("{$cachePrefix}businessCategory", 600, function () {
+            $data['businessCategory'] = Cache::remember("{$cachePrefix}businessCategory", 18000, function () {
                 return BusinessCategory::select('id', 'name')->where('status', 1)->orderBy('id', 'desc')->get();
             });
 
-            $data['supportRepresentative'] = Cache::remember("{$cachePrefix}supportRepresentative", 600, function () use ($userId) {
+            $data['supportRepresentative'] = Cache::remember("{$cachePrefix}supportRepresentative", 18000, function () use ($userId) {
                 return UserAssignedToSupport::where('user_id', $userId)
                     ->with('assigned_support:id,name,email,mobile')
                     ->first();
             });
 
-            $data['usersBank'] = Cache::remember("{$cachePrefix}usersBank", 600, function () use ($userId) {
+            $data['usersBank'] = Cache::remember("{$cachePrefix}usersBank", 18000, function () use ($userId) {
                 return UsersBank::select('account_number', 'ifsc_code', 'branch_name', 'bank_docs', 'benificiary_name')
                     ->where('user_id', $userId)
                     ->first();
             });
 
-            $data['UserServices'] = Cache::remember("{$cachePrefix}UserServices", 600, function () use ($userId) {
+            $data['UserServices'] = Cache::remember("{$cachePrefix}UserServices", 3600, function () use ($userId) {
                 return UserService::with('service:id,slug,service_name')
                     ->where('user_id', $userId)
                     ->where('status', 'approved')
@@ -164,7 +164,7 @@ class AdminController extends Controller
                     ->get();
             });
 
-            $data['webhookUrl'] = Cache::remember("{$cachePrefix}webhookUrl", 600, function () use ($userId) {
+            $data['webhookUrl'] = Cache::remember("{$cachePrefix}webhookUrl", 18000, function () use ($userId) {
                 return WebHookUrl::select('url')->where('user_id', $userId)->first();
             });
 
