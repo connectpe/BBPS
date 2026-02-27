@@ -325,21 +325,9 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         try {
-            $userId = auth()->id();
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
-
-            Cache::store('redis')->forget("profile:{$userId}:saltKeys");
-            Cache::store('redis')->forget("profile:{$userId}:userdata");
-            Cache::store('redis')->forget("profile:{$userId}:businessInfo");
-            Cache::store('redis')->forget("profile:{$userId}:usersBank");
-            Cache::store('redis')->forget("profile:{$userId}:txnStats");
-            Cache::store('redis')->forget("profile:{$userId}:businessCategory");
-            Cache::store('redis')->forget("profile:{$userId}:supportRepresentative");
-            Cache::store('redis')->forget("profile:{$userId}:UserServices");
-            Cache::store('redis')->forget("profile:{$userId}:webhookUrl");
-
             return redirect('/');
         } catch (\Exception $e) {
 
