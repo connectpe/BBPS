@@ -173,4 +173,45 @@ class CommonHelper
             ]);
         }
     }
+
+     public static function getRandomString2($prefix = '', $separator = true, $length = 2)
+    {
+        $ts = hrtime(true);
+
+        $base_str = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz';
+        $str_shuffle = substr(str_shuffle($base_str), 0, $length);
+        $str_md5 = substr(md5($str_shuffle), 0, $length);
+        $hash = substr(sha1($str_md5), 0, $length);
+
+        if ($prefix) {
+            if ($separator) {
+                $string = $ts . strtoupper($hash).rand(1,9);
+            } else {
+                $string = $ts . strtoupper($hash).rand(1,9);
+            }
+        } else {
+            $string = $hash . $ts;
+        }
+        return $string;
+    }
+     public static function getRandomString($prefix = '', $separator = true, $length = 5)
+    {
+        $ts = hrtime(true);
+
+        $base_str = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz';
+        $str_shuffle = substr(str_shuffle($base_str), 0, $length);
+        $str_md5 = substr(md5($str_shuffle), 0, $length);
+        $hash = substr(sha1($str_md5), 0, $length);
+
+        if ($prefix) {
+            if ($separator) {
+                $string = $ts . strtoupper($hash);
+            } else {
+                $string = $ts . strtoupper($hash);
+            }
+        } else {
+            $string = $hash . $ts;
+        }
+        return $string;
+    }
 }
