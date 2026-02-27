@@ -16,7 +16,6 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\users\ReportController;
 use App\Http\Controllers\users\UserController;
 use App\Http\Controllers\SupportDashboardController;
-use App\Http\Controllers\DocumentVerificationController;
 use App\Http\Middleware\IsAdmin;
 use Illuminate\Support\Facades\Route;
 
