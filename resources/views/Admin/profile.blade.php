@@ -1583,6 +1583,13 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                         <div class="step-label">Bank</div>
                     </div>
 
+                    <div class="step-line"></div>
+
+                    <div class="step-item" data-step="5">
+                        <span class="step-circle">5</span>
+                        <div class="step-label">VideoKyc</div>
+                    </div>
+
                 </div>
             </div>
 
@@ -1655,6 +1662,29 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             <button type="button" class="btn" id="bankButton" onclick="verifyDocument('bank')">Verify</button>
                         </div>
                         <div class="mt-3" id="bankMessage"></div>
+                    </div>
+                </div>
+
+                <!-- STEP 5 -->
+                <div class="doc-step d-none" data-doc-step="5">
+                    <h6 class="mb-3">Video KYC</h6>
+                    <div class="card border shadow-sm p-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="mb-1"><strong>Name:</strong>
+                                    <span id="videoKycName">-</span>
+                                </p>
+                                <p class="mb-1"><strong>Email:</strong>
+                                    <span id="videoKycEmail">-</span>
+                                </p>
+                                <p class="mb-1"><strong>Phone:</strong>
+                                    <span id="videoKycPhone">-</span>
+                                </p>
+                                <span class="badge" id="videoKycBadge">Checking...</span>
+                            </div>
+                            <button type="button" class="btn" id="videoKycButton" onclick="verifyDocument('videokyc')">Verify</button>
+                        </div>
+                        <div class="mt-3" id="videoKycMessage"></div>
                     </div>
                 </div>
 
@@ -2647,6 +2677,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
         localStorage.setItem('profileDraft', JSON.stringify(draftData));
     }
 </script>
+
 @if($role == 2 || $role == 3)
 
 <script>
@@ -2680,11 +2711,15 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                     document.getElementById("gstNumber").innerText = data.gst_number ?? '-';
                     document.getElementById("cinNumber").innerText = data.cin_no ?? '-';
                     document.getElementById("bankNumber").innerText = data.account_number ?? '-';
+                    document.getElementById("videoKycName").innerText = data.name ?? '-';
+                    document.getElementById("videoKycEmail").innerText = data.email ?? '-';
+                    document.getElementById("videoKycPhone").innerText = data.phone ?? '-';
 
                     setDocStatus("pan", data.pan_verified);
                     setDocStatus("gst", data.is_gstin_verify);
                     setDocStatus("cin", data.is_cin_verify);
                     setDocStatus("bank", data.bank_verified);
+                    setDocStatus("videoKyc", data.videokyc_verified);
                 });
         });
 
@@ -2712,7 +2747,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
     // Step navigation
     document.getElementById("nextDocStep").addEventListener("click", function() {
-        if (docVerifyStep < 4) {
+        if (docVerifyStep < 5) {
             getDocStepEl(docVerifyStep).classList.add("d-none");
             docVerifyStep++;
             getDocStepEl(docVerifyStep).classList.remove("d-none");
@@ -2730,12 +2765,29 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
     });
 
     function updateDocSteps() {
+        // Step indicator active class
         document.querySelectorAll("#documentVerificationModal .step-item").forEach(item => {
             item.classList.remove("active");
             if (item.dataset.step == docVerifyStep) {
                 item.classList.add("active");
             }
         });
+
+        // Button control
+        let prevBtn = document.getElementById("prevDocStep");
+        let nextBtn = document.getElementById("nextDocStep");
+
+        if (docVerifyStep === 1) {
+            prevBtn.classList.add("d-none");
+        } else {
+            prevBtn.classList.remove("d-none");
+        }
+
+        if (docVerifyStep === 5) {
+            nextBtn.classList.add("d-none");
+        } else {
+            nextBtn.classList.remove("d-none");
+        }
     }
 
 
@@ -2773,6 +2825,15 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                 // beneficiary_name: documentData.benificiary_name,
                 // phone: documentData.phone,
                 ifsc: documentData.ifsc_code
+            };
+        }
+        if (type === "videokyc") {
+            url = "{{ route('videokyc.verify') }}";
+            payload = {
+                name: documentData.name,
+                email: documentData.email,
+                phone: documentData.phone,
+                address: documentData.address
             };
         }
 

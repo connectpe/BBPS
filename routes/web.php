@@ -193,6 +193,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('unauthrized', function () {
         return view('errors.401');
     })->name('unauthrized.page');
+    Route::get('get-document-data', [DocumentVerificationController::class, 'getDocumentData'])->name('document.verification.data');
 
 
 
@@ -213,6 +214,7 @@ Route::group(['middleware' => ['logs', 'auth'], 'prefix' => 'document'], functio
     Route::post('verify-cin', [DocumentVerificationController::class, 'verifyCinNumber'])->name('cin.verify');
     Route::post('verify-gstin', [DocumentVerificationController::class, 'verifyGstinNumber'])->name('gstin.verify');
     Route::post('verify-ifsc', [DocumentVerificationController::class, 'verifyIfsc'])->name('ifsc.verify');
+    Route::post('initiate-video-link', [DocumentVerificationController::class, 'initiateVideoKyc'])->name('videokyc.verify');
 });
 
 Route::group(['middleware' => ['auth'], 'prefix' => 'api-partner'], function () {
