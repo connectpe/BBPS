@@ -29,7 +29,13 @@ class DocumentVerificationController extends Controller
     public function getDocumentData()
     {
         try {
+
+            $user = Auth::user();
+            // dd($user);
+            $businessInfo = $user->business;
+
             $businessInfo = BusinessInfo::select('address', 'business_pan_number', 'business_pan_name', 'is_pan_verify', 'gst_number', 'is_gstin_verify', 'cin_no', 'is_cin_verify', 'is_bank_details_verify')->where('user_id', $this->userId)->first();
+
 
             if (!$businessInfo) {
                 return response()->json([
