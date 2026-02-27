@@ -223,7 +223,15 @@ $role = Auth::user()->role_id;
             {
                 data: 'txn_type',
                 render: function (data) {
-                    return data || '----'
+                    if (data === 'dr') {
+                        return `<span class="badge bg-danger">DR</span>`;
+                    } 
+                    else if (data === 'cr') {
+                        return `<span class="badge bg-success">CR</span>`;
+                    } 
+                    else {
+                        return `<span class="badge bg-secondary">----</span>`;
+                    }
                 }
             },
             {
