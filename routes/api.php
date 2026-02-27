@@ -34,13 +34,13 @@ Route::group(['middleware' => ['logs']], function () {
 });
 
 
-Route::group(['middleware'=> ['logs'],'prefix'=>'document'],function(){
-    Route::post('verify-pan',[DocumentVerificationController::class,'panVerify'])->name('pan.verify');
-    Route::post('verify-account',[DocumentVerificationController::class,'VerifyAccountDetails'])->name('bank.account.verify');
-    Route::post('verify-cin',[DocumentVerificationController::class,'verifyCinNumber'])->name('cin.verify');
-    Route::post('verify-gstin',[DocumentVerificationController::class,'verifyGstinNumber'])->name('gstin.verify');
-    Route::post('verify-ifsc',[DocumentVerificationController::class,'verifyIfsc'])->name('verify.ifsc');
-    Route::post('initiate-video-link',[DocumentVerificationController::class,'initiateVideoKyc'])->name('initiate.video.link');
+Route::group(['middleware' => ['logs'], 'prefix' => 'document'], function () {
+    // Route::post('verify-pan',[DocumentVerificationController::class,'panVerify'])->name('pan.verify');
+    // Route::post('verify-account',[DocumentVerificationController::class,'VerifyAccountDetails'])->name('bank.account.verify');
+    // Route::post('verify-cin',[DocumentVerificationController::class,'verifyCinNumber'])->name('cin.verify');
+    // Route::post('verify-gstin',[DocumentVerificationController::class,'verifyGstinNumber'])->name('gstin.verify');
+    // Route::post('verify-ifsc',[DocumentVerificationController::class,'verifyIfsc'])->name('verify.ifsc');
+    // Route::post('initiate-video-link', [DocumentVerificationController::class, 'initiateVideoKyc'])->name('initiate.video.link');
 });
 
 

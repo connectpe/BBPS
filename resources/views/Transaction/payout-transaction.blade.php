@@ -92,6 +92,32 @@
                                 </select>
                             </div>
                         @endif
+
+                         <div class="col-md-3">
+                            <label class="form-label">Status</label>
+                            <select class="form-select form-select2" id="filterStatus">
+                                <option value="">--select status--</option>
+                                <option value="queued">Queued</option>
+                                <option value="processing">Processing</option>
+                                <option value="processed">Processed</option>
+                                <option value="failed">Failed</option>
+                                <option value="reversed">Reversed</option>
+                                <option value="hold">Hold</option>
+                            </select>
+                        </div>
+
+                        @if (auth()->user()->role_id == 1)
+                            <div class="col-md-3">
+                                <label class="form-label">Provider</label>
+                                <select class="form-select form-select2" id="filterProviderId">
+                                    <option value="">--Select Provider--</option>
+                                    @foreach ($providers as $p)
+                                        <option value="{{ $p->id }}">{{ $p->provider_name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @endif
+
                         <div class="col-md-3">
                             <label class="form-label">Any Key</label>
                             <input type="text" class="form-control" id="filterAnyKey"
@@ -103,18 +129,7 @@
                             <input type="text" class="form-control" id="filterUtrNo" placeholder="Enter UTR No">
                         </div>
 
-                        <div class="col-md-3">
-                            <label class="form-label">Status</label>
-                            <select class="form-select form-select2" id="filterStatus">
-                                <option value="">--select--</option>
-                                <option value="queued">Queued</option>
-                                <option value="processing">Processing</option>
-                                <option value="processed">Processed</option>
-                                <option value="failed">Failed</option>
-                                <option value="reversed">Reversed</option>
-                                <option value="hold">Hold</option>
-                            </select>
-                        </div>
+
 
                         <div class="col-md-3">
                             <label class="form-label">From Date</label>
@@ -145,9 +160,9 @@
                     <thead>
                         <tr>
                             <th style="width:55px;">#</th>
-                            @if (auth()->user()->role_id == 1)
+                            {{-- @if (auth()->user()->role_id == 1) --}}
                                 <th>User Name</th>
-                            @endif
+                            {{-- @endif --}}
                             <th>ConnectPe ID</th>
                             <th>Transaction No</th>
                             <th>Client Txn Id</th>
@@ -315,6 +330,19 @@
                     }
                 },
                 {
+                    data: null,
+                    render: function(row) {
+                        let url = "{{ route('view_user', ':id') }}".replace(':id', row.user_id);
+                        const userName = row?.user?.name || '----';
+                        const email = row?.user?.email || '----';
+
+                        return '<a href="' + url +
+                            '" class="text-primary fw-semibold text-decoration-none">' +
+                            userName + '<br/>[' + email + ']' +
+                            '</a>';
+                    }
+                },
+                {
                     data: 'connectpe_id'
                 },
                 {
@@ -373,6 +401,7 @@
                         d.any_key = $('#filterAnyKey').val();
                         if (isAdmin) {
                             d.user_id = $('#filterUserId').val();
+                            d.provider_id = $('#filterProviderId').val(); 
                         }
                     }
                 },
@@ -412,6 +441,7 @@
 
                 if (isAdmin) {
                     $('#filterUserId').val('').trigger('change');
+                    $('#filterProviderId').val('').trigger('change');
                 }
 
                 table.ajax.reload();
