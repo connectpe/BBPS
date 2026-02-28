@@ -176,6 +176,12 @@
                 html += '<th>Bank Name</th><td>' + safe(d.bank_name) + '</td>';
                 html += '<th>Beneficiary Name</th><td>' + safe(d.beneficiary_name) + '</td>';
                 html += '</tr>';
+
+                 html += '<tr>';
+                html += '<th>Beneficiary Email</th><td>' + safe(d.bene_email) + '</td>';
+                html += '<th>Beneficiary Mobile</th><td>' + safe(d.bene_mobile) + '</td>';
+                html += '</tr>';
+
                 // if (isAdmin) {
                 //     html += '<tr>';
                 //     html += '<th>Provider Name</th><td>' + safe(d.provider ? d.provider.provider_name : '') +
