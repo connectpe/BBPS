@@ -113,6 +113,10 @@ Route::group(['middleware' => ['auth']], function () {
         Route::delete('delete-support-assignment/{id}', [AdminController::class, 'deleteSupportAssignment'])->name('delete_support_assignment');
 
 
+
+        Route::get('/load-money-request', [TransactionController::class, 'loadMoneyRequest'])->name('load_money_request');
+
+
         // Complain Report Route
 
     });
@@ -166,6 +170,9 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
     Route::post('generate-mpin', [UserController::class, 'generateMpin'])->name('generate_mpin');
     Route::post('/transaction-status-check', [TransactionController::class, 'transactionStatusCheck'])->name('transaction_status_check');
     Route::post('generate/client-credentials', [UserController::class, 'generateClientCredentials'])->name('generate_client_credentials');
+
+
+     Route::get('/load-money-request', [TransactionController::class, 'userMoneyLoadRequests'])->name('user_load_money_request');
 });
 
 

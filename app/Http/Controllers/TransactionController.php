@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Complaint;
 use App\Models\ComplaintsCategory;
+use App\Models\Provider;
 use App\Models\Transaction;
 use App\Models\User;
-use App\Models\Provider;
 use App\Models\UserService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -294,6 +294,20 @@ class TransactionController extends Controller
     {
         $users = User::whereHas('orders')->select('id', 'name', 'email')->orderBy('name')->get();
         $providers = Provider::whereHas('orders')->select('id', 'provider_name')->orderBy('provider_name')->get();
+
         return view('Transaction.payout-transaction', compact('users', 'providers'));
+    }
+
+    public function loadMoneyRequest()
+    {
+        $users = User::whereHas('loadMoneyRequests')->select('id', 'name', 'email')->orderBy('name')->get();
+
+        return view('Transaction.load-money-request', compact('users'));
+    }
+
+    public function userMoneyLoadRequests()
+    {
+        $users = User::whereHas('loadMoneyRequests')->select('id', 'name', 'email')->orderBy('name')->get();
+        return view('Transaction.user-money-load-requests', compact('users'));
     }
 }

@@ -99,6 +99,15 @@
                                 </li>
 
 
+                                <li class="nav-item">
+                                    <a href="{{ route('load_money_request') }}"
+                                        class="nav-link text-white {{ Route::currentRouteName() == 'load_money_request' ? 'sidebar-active' : '' }}">
+                                        <i class="bi bi-wallet2 me-2"></i>
+                                        Load Money Request
+                                    </a>
+                                </li>
+
+
                             </ul>
                         </div>
                     </li>
@@ -459,6 +468,13 @@
                     class="nav-link text-white {{ Route::currentRouteName() == 'payout_transaction' ? 'sidebar-active' : '' }}">
                     <i class="bi bi-arrow-left-right me-2"></i>
                     Payout Transaction
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('user_load_money_request') }}"
+                    class="nav-link text-white {{ Route::currentRouteName() == 'user_load_money_request' ? 'sidebar-active' : '' }}">
+                    <i class="bi bi-wallet2 me-2"></i>
+                    Load Money Request
                 </a>
             </li>
 
