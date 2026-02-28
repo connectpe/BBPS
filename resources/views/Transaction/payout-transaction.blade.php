@@ -116,6 +116,7 @@
                     <thead>
                         <tr>
                             <th style="width:55px;">#</th>
+                            <th>Sr. No</th>
                             {{-- @if (auth()->user()->role_id == 1) --}}
                                 <th>User Name</th>
                             {{-- @endif --}}
@@ -228,6 +229,13 @@
                 },
                 {
                     data: null,
+                    render: function (data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    }
+
+                },
+                {
+                    data: null,
                     render: function(row) {
                         let url = "{{ route('view_user', ':id') }}".replace(':id', row.user_id);
                         const userName = row?.user?.name || '----';
@@ -239,6 +247,7 @@
                             '</a>';
                     }
                 },
+                
                 {
                     data: 'connectpe_id'
                 },
@@ -287,6 +296,13 @@
                 },
                 {
                     data: null,
+                    render: function (data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    }
+
+                },
+                {
+                    data: null,
                     render: function(row) {
                         let url = "{{ route('view_user', ':id') }}".replace(':id', row.user_id);
                         const userName = row?.user?.name || '----';
@@ -298,6 +314,7 @@
                             '</a>';
                     }
                 },
+                
                 {
                     data: 'connectpe_id'
                 },
