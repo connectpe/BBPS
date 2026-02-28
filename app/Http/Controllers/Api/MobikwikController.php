@@ -739,7 +739,7 @@ class MobikwikController extends Controller
                 $response = $mobikwikHelper->sendRequest(
                     '/recharge/v3/retailerViewbill',
                     $payload,
-                    'LTc5BrqrRB1yQpq0HSpKJYRwbYxVWeSsZc_OEItKmCM'
+                    $token
                 );
 
                 return response()->json([
