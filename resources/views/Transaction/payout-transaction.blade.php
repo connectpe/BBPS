@@ -5,61 +5,17 @@
 
 <style>
     table.dataTable.dtr-inline.collapsed>tbody>tr>td:first-child:before,
-    table.dataTable.dtr-inline.collapsed>tbody>tr>th:first-child:before {
-        display: none !important;
-    }
-
-    .dt-plus-btn {
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        background: #0d6efd;
-        color: #fff;
-        font-weight: 900;
-        font-size: 16px;
-        cursor: pointer;
-    }
-
-    tr.shown .dt-plus-btn {
-        background: #0b5ed7;
-    }
-
-    .child-wrap {
-        padding: 10px;
-    }
-
-    .child-table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        border: 1px solid rgba(0, 0, 0, .10);
-        border-radius: 10px;
-        background: #fff;
-    }
-
+    table.dataTable.dtr-inline.collapsed>tbody>tr>th:first-child:before {display: none !important;}
+    .dt-plus-btn {width: 24px;height: 24px;border-radius: 50%;display: inline-flex;align-items: center;justify-content: center;background: #0d6efd;color: #fff;
+        font-weight: 900;font-size: 16px;cursor: pointer;}
+    tr.shown .dt-plus-btn {background: #0b5ed7;}
+    .child-wrap {padding: 10px;}
+    .child-table {width: 100%;border-collapse: separate;border-spacing: 0;border: 1px solid rgba(0, 0, 0, .10);border-radius: 10px;background: #fff;}
     .child-table th,
-    .child-table td {
-        padding: 10px 12px;
-        border-bottom: 1px solid rgba(0, 0, 0, .06);
-        font-size: 14px;
-    }
-
-    .child-table th {
-        width: 180px;
-        background: #f8fafc;
-        font-weight: 800;
-    }
-
-    .child-table td {
-        font-weight: 600;
-    }
-
-    .table.dataTable td.dt-control:before {
-        display: none !important;
-    }
+    .child-table td {padding: 10px 12px;border-bottom: 1px solid rgba(0, 0, 0, .06);font-size: 14px;}
+    .child-table th {width: 180px;background: #f8fafc;font-weight: 800;}
+    .child-table td {font-weight: 600;}
+    .table.dataTable td.dt-control:before {display: none !important;}
 </style>
 
 @section('content')
