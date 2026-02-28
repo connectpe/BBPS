@@ -5,6 +5,17 @@
 
 @section('content')
 
+    <style>
+        .dt-plus-btn {width: 24px;height: 24px;border-radius: 50%;display: inline-flex;align-items: center;justify-content: center;background: #0d6efd;color: #fff;font-weight: 900;font-size: 16px;cursor: pointer;}
+        tr.shown .dt-plus-btn {background: #0b5ed7;}
+        .child-wrap { padding: 10px; }
+        .child-table { width:100%; border-collapse: separate; border-spacing:0; border:1px solid rgba(0,0,0,.10); border-radius:10px; background:#fff }
+        .child-table th, .child-table td { padding:10px 12px; border-bottom:1px solid rgba(0,0,0,.06); font-size:14px }
+        .child-table th { width:180px; background:#f8fafc; font-weight:800 }
+        .child-table td { font-weight:600 }
+        .table.dataTable td.dt-control:before {display: none !important;}
+    </style>
+
 @php
 $role = Auth::user()->role_id;
 @endphp
@@ -75,23 +86,16 @@ $role = Auth::user()->role_id;
                 <table id="usersTable" class="table table-striped table-bordered table-hover w-100">
                     <thead>
                         <tr>
-                            <th>S.No</th>
-                            @if($role == 1)
+                            <th style="width:55px;"></th>
                             <th>Organization Name</th>
-                            @else
-                            <th> </th>
-                            @endif
-                            <th>Service</th>
                             <th>Reference No.</th>
                             <th>Request Id</th>
                             <th>ConnectPe Id</th>
                             <th>Txn Amt.</th>
-                            <th>Total Txn Amt.</th>
                             <th>Txn Type</th>
                             <th>Opening Balance</th>
                             <th>Closing Balance</th>
                             <th>Date</th>
-                            <th>Remark</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -105,14 +109,14 @@ $role = Auth::user()->role_id;
 
 <script>
     $(document).ready(function () {
-        let role = "{{$role}}";
+        // let role = "{{$role}}";
         var table = $('#usersTable').DataTable({
             processing: true,
             serverSide: true,
-            columnDefs: [{
-                targets: 1,
-                visible: role == 1
-            }],
+            // columnDefs: [{
+            //     targets: 1,
+            //     visible: role == 1
+            // }],
             ajax: {
                 url: "{{url('fetch')}}/ledger/0",
                 type: 'POST',
@@ -150,13 +154,14 @@ $role = Auth::user()->role_id;
             },
 
             columns: [{
-                data: null,
-                orderable: false,
-                searchable: false,
-                render: function (data, type, row, meta) {
-                    return meta.settings._iDisplayStart + meta.row + 1;
-                }
-            },
+                 className: 'dt-control',
+                 orderable: false,
+                 searchable: false,
+                 data: null,
+                 render: function(data, type, row, meta) {
+                     return '<span class="dt-plus-btn buttonColor">+</span>';
+                 }
+             },
             {
                 data: null,
                 render: function (data, type, row) {
@@ -170,13 +175,6 @@ $role = Auth::user()->role_id;
                                     [${businessName ?? '----'}]
                                 </a>
                             `;
-                }
-            },
-
-            {
-                data: 'service.service_name',
-                render: function (data) {
-                    return data || '----'
                 }
             },
             {
@@ -209,17 +207,6 @@ $role = Auth::user()->role_id;
                 }
             },
 
-            {
-                data: 'total_txn_amount',
-                render: function (data) {
-                    const amount = new Intl.NumberFormat('en-IN', {
-                        style: 'currency',
-                        currency: 'INR',
-                    }).format(data || 0);
-
-                    return amount;
-                }
-            },
             {
                 data: 'txn_type',
                 render: function (data) {
@@ -262,13 +249,57 @@ $role = Auth::user()->role_id;
                     return formatDateTime(data)
                 }
             },
-            {
-                data: 'remarks',
-                render: function (data) {
-                    return `<i class="fas fa-eye cursor-pointer viewModalBtn"  data-title="Remark" data-content='${data}'></i>`;
-                }
-            },
             ]
+        });
+
+        // Child row formatter: show service name, fee, tax, total amount and other details
+        function safe(v) {
+            return (v === null || v === undefined || v === '') ? '----' : v;
+        }
+
+        function formatRowDetails(d) {
+            var html = '';
+            html += '<div class="child-wrap">';
+            html += '<table class="child-table"><tbody>';
+
+            html += '<tr>';
+            html += '<th>Service Name</th><td>' + safe(d.service ? d.service.service_name : '') + '</td>';
+            html += '</tr>';
+
+            html += '<tr>';
+            html += '<th>Total Txn Amount</th><td>' + safe(d.total_txn_amount) + '</td>';
+            html += '</tr>';
+
+            html += '<tr>';
+            html += '<th>Fee</th><td>' + safe(d.fee) + '</td>';
+            html += '</tr>';
+
+            html += '<tr>';
+            html += '<th>Tax</th><td>' + safe(d.tax) + '</td>';
+            html += '</tr>';
+
+            html += '<tr>';
+            html += '<th>Remark</th><td colspan="3" style="word-break:break-word;">' + safe(d.remarks) + '</td>';
+            html += '</tr>';
+
+            html += '</tbody></table></div>';
+            return html;
+        }
+
+        // Toggle child row on click of control cell
+        $('#usersTable tbody').on('click', 'td.dt-control', function () {
+            var tr = $(this).closest('tr');
+            var row = table.row(tr);
+
+            if (row.child.isShown()) {
+                row.child.hide();
+                tr.removeClass('shown');
+                $(this).find('.dt-plus-btn').text('+');
+            } else {
+                row.child(formatRowDetails(row.data())).show();
+                tr.addClass('shown');
+                $(this).find('.dt-plus-btn').text('−');
+            }
         });
         $('#filterDateFrom').on('change', function () {
             let from = $(this).val();
