@@ -193,7 +193,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('unauthrized', function () {
         return view('errors.401');
     })->name('unauthrized.page');
-    Route::get('get-document-data', [DocumentVerificationController::class, 'getDocumentData'])->name('document.verification.data');
 
 
 
