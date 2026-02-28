@@ -86,7 +86,8 @@ $role = Auth::user()->role_id;
                 <table id="usersTable" class="table table-striped table-bordered table-hover w-100">
                     <thead>
                         <tr>
-                            <th style="width:55px;"></th>
+                            <th style="width:55px;">#</th>
+                            <th>Sr. No</th>
                             <th>Organization Name</th>
                             <th>Reference No.</th>
                             <th>Request Id</th>
@@ -162,6 +163,14 @@ $role = Auth::user()->role_id;
                      return '<span class="dt-plus-btn buttonColor">+</span>';
                  }
              },
+                {
+                    data: null,
+                    render: function (data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    }
+
+                },
+
             {
                 data: null,
                 render: function (data, type, row) {
