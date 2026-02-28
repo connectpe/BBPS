@@ -193,7 +193,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('unauthrized', function () {
         return view('errors.401');
     })->name('unauthrized.page');
-    Route::get('get-document-data', [DocumentVerificationController::class, 'getDocumentData'])->name('document.verification.data');
+    // Route::get('get-document-data', [DocumentVerificationController::class, 'getDocumentData'])->name('document.verification.data');
 
 
 
@@ -208,7 +208,7 @@ Route::group(['middleware' => ['auth']], function () {
 });
 
 Route::group(['middleware' => ['logs', 'auth'], 'prefix' => 'document'], function () {
-    Route::get('get-document-data',[DocumentVerificationController::class,'getDocumentData'])->name('document.verification.data');
+    Route::get('get-document-data', [DocumentVerificationController::class, 'getDocumentData'])->name('document.verification.data');
 
     Route::post('verify-pan', [DocumentVerificationController::class, 'panVerify'])->name('pan.verify');
     Route::post('verify-account', [DocumentVerificationController::class, 'VerifyAccountDetails'])->name('bank.account.verify');
