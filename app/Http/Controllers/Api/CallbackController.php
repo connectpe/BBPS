@@ -28,7 +28,7 @@ class CallbackController extends Controller
 
                 $isTxnFound = Transaction::where(['transaction_id' => $txnId, 'status' => 'initiate'])->first();
 
-                if (! $isTxnFound) {
+                if (!$isTxnFound) {
                     Log::warning('Transaction not found or not in initiate status', ['transaction_id' => $txnId]);
 
                     return response()->json(['message' => 'Transaction not found or not in initiate status'], 400);
@@ -39,7 +39,7 @@ class CallbackController extends Controller
                     // 'response' => json_encode($data)
                 ]);
 
-                break;
+            break;
 
             default:
                 return response()->json([
