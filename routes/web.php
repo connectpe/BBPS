@@ -114,9 +114,7 @@ Route::group(['middleware' => ['auth']], function () {
 
 
 
-        Route::get('/load-money-request', [TransactionController::class, 'loadMoneyRequest'])->name('load_money_request');
-
-
+        
         // Complain Report Route
 
     });
@@ -185,6 +183,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/support-userlist', [SupportDashboardController::class, 'supportUserList'])->name('support_userlist')->middleware('isSupport');
     });
     Route::get('/payout-transaction', [TransactionController::class, 'payouttransaction'])->name('payout_transaction');
+    Route::get('/load-money-request', [TransactionController::class, 'loadMoneyRequest'])->name('user_load_money_request');
+
 
     Route::post('/update-complaint-report/{id}', [ComplainReportController::class, 'updateComplaint'])->name('update_complaint_report');
     // Admin/User Common Routes 
