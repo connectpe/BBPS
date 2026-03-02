@@ -5,17 +5,61 @@
 
 <style>
     table.dataTable.dtr-inline.collapsed>tbody>tr>td:first-child:before,
-    table.dataTable.dtr-inline.collapsed>tbody>tr>th:first-child:before {display: none !important;}
-    .dt-plus-btn {width: 24px;height: 24px;border-radius: 50%;display: inline-flex;align-items: center;justify-content: center;background: #0d6efd;color: #fff;
-        font-weight: 900;font-size: 16px;cursor: pointer;}
-    tr.shown .dt-plus-btn {background: #0b5ed7;}
-    .child-wrap {padding: 10px;}
-    .child-table {width: 100%;border-collapse: separate;border-spacing: 0;border: 1px solid rgba(0, 0, 0, .10);border-radius: 10px;background: #fff;}
+    table.dataTable.dtr-inline.collapsed>tbody>tr>th:first-child:before {
+        display: none !important;
+    }
+
+    .dt-plus-btn {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #0d6efd;
+        color: #fff;
+        font-weight: 900;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    tr.shown .dt-plus-btn {
+        background: #0b5ed7;
+    }
+
+    .child-wrap {
+        padding: 10px;
+    }
+
+    .child-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        border: 1px solid rgba(0, 0, 0, .10);
+        border-radius: 10px;
+        background: #fff;
+    }
+
     .child-table th,
-    .child-table td {padding: 10px 12px;border-bottom: 1px solid rgba(0, 0, 0, .06);font-size: 14px;}
-    .child-table th {width: 180px;background: #f8fafc;font-weight: 800;}
-    .child-table td {font-weight: 600;}
-    .table.dataTable td.dt-control:before {display: none !important;}
+    .child-table td {
+        padding: 10px 12px;
+        border-bottom: 1px solid rgba(0, 0, 0, .06);
+        font-size: 14px;
+    }
+
+    .child-table th {
+        width: 180px;
+        background: #f8fafc;
+        font-weight: 800;
+    }
+
+    .child-table td {
+        font-weight: 600;
+    }
+
+    .table.dataTable td.dt-control:before {
+        display: none !important;
+    }
 </style>
 
 @section('content')
@@ -49,7 +93,7 @@
                             </div>
                         @endif
 
-                         <div class="col-md-3">
+                        <div class="col-md-3">
                             <label class="form-label">Status</label>
                             <select class="form-select form-select2" id="filterStatus">
                                 <option value="">--select status--</option>
@@ -118,7 +162,7 @@
                             <th style="width:55px;">#</th>
                             <th>Sr. No</th>
                             {{-- @if (auth()->user()->role_id == 1) --}}
-                                <th>User Name</th>
+                            <th>User Name</th>
                             {{-- @endif --}}
                             <th>ConnectPe ID</th>
                             <th>Transaction No</th>
@@ -131,6 +175,7 @@
                             <th>Amount</th>
                             <th>Status</th>
                             <th>Created At</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -177,7 +222,7 @@
                 html += '<th>Beneficiary Name</th><td>' + safe(d.beneficiary_name) + '</td>';
                 html += '</tr>';
 
-                 html += '<tr>';
+                html += '<tr>';
                 html += '<th>Beneficiary Email</th><td>' + safe(d.bene_email) + '</td>';
                 html += '<th>Beneficiary Mobile</th><td>' + safe(d.bene_mobile) + '</td>';
                 html += '</tr>';
@@ -235,7 +280,7 @@
                 },
                 {
                     data: null,
-                    render: function (data, type, row, meta) {
+                    render: function(data, type, row, meta) {
                         return meta.row + meta.settings._iDisplayStart + 1;
                     }
 
@@ -253,7 +298,7 @@
                             '</a>';
                     }
                 },
-                
+
                 {
                     data: 'connectpe_id'
                 },
@@ -289,6 +334,28 @@
                     render: function(data) {
                         return formatDateTime(data);
                     }
+                },
+
+                {
+                    data: null,
+                    title: 'Action',
+                    orderable: false,
+                    searchable: false,
+                    render: function(data, type, row) {
+                        if (row.status === 'processed') {
+
+                            let url = "{{ route('download_payout_invoice', ':id') }}".replace(':id', row
+                            .id);
+
+                            return `
+                <a href="${url}" class="btn btn-sm btn-success">
+                    <i class="bi bi-download"></i> Invoice
+                </a>
+            `;
+                        }
+
+                        return `<span class="text-muted">----</span>`;
+                    }
                 }
 
             ] : [{
@@ -302,7 +369,7 @@
                 },
                 {
                     data: null,
-                    render: function (data, type, row, meta) {
+                    render: function(data, type, row, meta) {
                         return meta.row + meta.settings._iDisplayStart + 1;
                     }
 
@@ -320,7 +387,7 @@
                             '</a>';
                     }
                 },
-                
+
                 {
                     data: 'connectpe_id'
                 },
@@ -350,6 +417,24 @@
                     render: function(data) {
                         return formatDateTime(data);
                     }
+                },
+                // Payout Transaction Blade file ke columns array mein:
+                {
+                    data: null,
+                    title: 'Action',
+                    orderable: false,
+                    searchable: false,
+                    render: function(data, type, row) {
+                        if (row.status === 'processed') {
+                            // Hamara naya payout invoice route
+                            let url = "{{ route('download_payout_invoice', ':id') }}".replace(':id', row
+                                .id);
+                            return `<a href="${url}" class="btn btn-sm btn-outline-primary shadow-sm">
+                        <i class="fas fa-file-invoice"></i> Invoice
+                    </a>`;
+                        }
+                        return '<span class="text-muted">N/A</span>';
+                    }
                 }
             ];
 
@@ -357,15 +442,15 @@
                 processing: true,
                 serverSide: true,
                 responsive: false,
-                 dom: "<'row mb-2'<'col-sm-4'l><'col-sm-4'f><'col-sm-4 text-end'B>>" +
-                "<'row'<'col-12'tr>>" +
-                "<'row mt-2'<'col-sm-6'i><'col-sm-6'p>>",
-            buttons: [{
-                extend: 'excelHtml5',
-                text: 'Excel',
-                className: 'btn buttonColor btn-sm'
+                dom: "<'row mb-2'<'col-sm-4'l><'col-sm-4'f><'col-sm-4 text-end'B>>" +
+                    "<'row'<'col-12'tr>>" +
+                    "<'row mt-2'<'col-sm-6'i><'col-sm-6'p>>",
+                buttons: [{
+                    extend: 'excelHtml5',
+                    text: 'Excel',
+                    className: 'btn buttonColor btn-sm'
 
-            },],
+                }, ],
                 ajax: {
                     url: "{{ url('fetch/orders/0/all') }}",
                     type: "POST",
@@ -380,7 +465,7 @@
                         d.any_key = $('#filterAnyKey').val();
                         if (isAdmin) {
                             d.user_id = $('#filterUserId').val();
-                            d.provider_id = $('#filterProviderId').val(); 
+                            d.provider_id = $('#filterProviderId').val();
                         }
                     }
                 },

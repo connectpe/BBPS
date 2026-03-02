@@ -212,8 +212,7 @@ Route::group(['middleware' => ['auth']], function () {
     //      Route::get('/payout-transaction', [TransactionController::class, 'payouttransaction'])->name('payout_transaction');
 
 
-
-
+Route::get('/payout-invoice/download/{id}', [TransactionController::class, 'downloadPayoutInvoice'])->name('download_payout_invoice');
 
     // reseller routes
     Route::get('reports', [LadgerController::class, 'reports'])->name('reseller_reports');
