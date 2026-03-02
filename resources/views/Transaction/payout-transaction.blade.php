@@ -418,7 +418,6 @@
                         return formatDateTime(data);
                     }
                 },
-                // Payout Transaction Blade file ke columns array mein:
                 {
                     data: null,
                     title: 'Action',
@@ -426,14 +425,18 @@
                     searchable: false,
                     render: function(data, type, row) {
                         if (row.status === 'processed') {
-                            // Hamara naya payout invoice route
+
                             let url = "{{ route('download_payout_invoice', ':id') }}".replace(':id', row
-                                .id);
-                            return `<a href="${url}" class="btn btn-sm btn-outline-primary shadow-sm">
-                        <i class="fas fa-file-invoice"></i> Invoice
-                    </a>`;
+                            .id);
+
+                            return `
+                <a href="${url}" class="btn btn-sm btn-success">
+                    <i class="bi bi-download"></i> Invoice
+                </a>
+            `;
                         }
-                        return '<span class="text-muted">N/A</span>';
+
+                        return `<span class="text-muted">----</span>`;
                     }
                 }
             ];
