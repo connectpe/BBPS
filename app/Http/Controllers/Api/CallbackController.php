@@ -40,7 +40,10 @@ class CallbackController extends Controller
                 ]);
 
                 break;
-
+            case 'idfc-callback':
+                // Handle IDFC callback logic here
+                
+                break;
             default:
                 return response()->json([
                     'status' => false,
