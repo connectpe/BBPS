@@ -172,7 +172,9 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
     Route::post('generate/client-credentials', [UserController::class, 'generateClientCredentials'])->name('generate_client_credentials');
 
 
-     Route::get('/load-money-request', [TransactionController::class, 'userMoneyLoadRequests'])->name('user_load_money_request');
+    // Load Money Request 
+    Route::post('load-money-request', [UserController::class, 'addMoneyRequest'])->name('load-money-request');
+
 });
 
 
