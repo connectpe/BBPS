@@ -5,61 +5,17 @@
 
 <style>
     table.dataTable.dtr-inline.collapsed>tbody>tr>td:first-child:before,
-    table.dataTable.dtr-inline.collapsed>tbody>tr>th:first-child:before {
-        display: none !important;
-    }
-
-    .dt-plus-btn {
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        background: #0d6efd;
-        color: #fff;
-        font-weight: 900;
-        font-size: 16px;
-        cursor: pointer;
-    }
-
-    tr.shown .dt-plus-btn {
-        background: #0b5ed7;
-    }
-
-    .child-wrap {
-        padding: 10px;
-    }
-
-    .child-table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        border: 1px solid rgba(0, 0, 0, .10);
-        border-radius: 10px;
-        background: #fff;
-    }
-
+    table.dataTable.dtr-inline.collapsed>tbody>tr>th:first-child:before {display: none !important;}
+    .dt-plus-btn {width: 24px;height: 24px;border-radius: 50%;display: inline-flex;align-items: center;justify-content: center;background: #0d6efd;color: #fff;
+        font-weight: 900;font-size: 16px;cursor: pointer;}
+    tr.shown .dt-plus-btn {background: #0b5ed7;}
+    .child-wrap {padding: 10px;}
+    .child-table {width: 100%;border-collapse: separate;border-spacing: 0;border: 1px solid rgba(0, 0, 0, .10);border-radius: 10px;background: #fff;}
     .child-table th,
-    .child-table td {
-        padding: 10px 12px;
-        border-bottom: 1px solid rgba(0, 0, 0, .06);
-        font-size: 14px;
-    }
-
-    .child-table th {
-        width: 180px;
-        background: #f8fafc;
-        font-weight: 800;
-    }
-
-    .child-table td {
-        font-weight: 600;
-    }
-
-    .table.dataTable td.dt-control:before {
-        display: none !important;
-    }
+    .child-table td {padding: 10px 12px;border-bottom: 1px solid rgba(0, 0, 0, .06);font-size: 14px;}
+    .child-table th {width: 180px;background: #f8fafc;font-weight: 800;}
+    .child-table td {font-weight: 600;}
+    .table.dataTable td.dt-control:before {display: none !important;}
 </style>
 
 @section('content')
@@ -160,6 +116,7 @@
                     <thead>
                         <tr>
                             <th style="width:55px;">#</th>
+                            <th>Sr. No</th>
                             {{-- @if (auth()->user()->role_id == 1) --}}
                                 <th>User Name</th>
                             {{-- @endif --}}
@@ -219,6 +176,12 @@
                 html += '<th>Bank Name</th><td>' + safe(d.bank_name) + '</td>';
                 html += '<th>Beneficiary Name</th><td>' + safe(d.beneficiary_name) + '</td>';
                 html += '</tr>';
+
+                 html += '<tr>';
+                html += '<th>Beneficiary Email</th><td>' + safe(d.bene_email) + '</td>';
+                html += '<th>Beneficiary Mobile</th><td>' + safe(d.bene_mobile) + '</td>';
+                html += '</tr>';
+
                 // if (isAdmin) {
                 //     html += '<tr>';
                 //     html += '<th>Provider Name</th><td>' + safe(d.provider ? d.provider.provider_name : '') +
@@ -272,6 +235,13 @@
                 },
                 {
                     data: null,
+                    render: function (data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    }
+
+                },
+                {
+                    data: null,
                     render: function(row) {
                         let url = "{{ route('view_user', ':id') }}".replace(':id', row.user_id);
                         const userName = row?.user?.name || '----';
@@ -283,6 +253,7 @@
                             '</a>';
                     }
                 },
+                
                 {
                     data: 'connectpe_id'
                 },
@@ -331,6 +302,13 @@
                 },
                 {
                     data: null,
+                    render: function (data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    }
+
+                },
+                {
+                    data: null,
                     render: function(row) {
                         let url = "{{ route('view_user', ':id') }}".replace(':id', row.user_id);
                         const userName = row?.user?.name || '----';
@@ -342,6 +320,7 @@
                             '</a>';
                     }
                 },
+                
                 {
                     data: 'connectpe_id'
                 },
