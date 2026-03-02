@@ -214,4 +214,17 @@ class CommonHelper
         }
         return $string;
     }
+
+    public static function case($text, $type = '')
+    {
+        if ($type == 'l') {
+            return strtolower($text);
+        } elseif ($type == 'u') {
+            return strtoupper($text);
+        } elseif ($type == 'uw') {
+            return ucwords($text);
+        } else {
+            return ucfirst($text);
+        }
+    }
 }

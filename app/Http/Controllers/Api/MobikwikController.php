@@ -638,7 +638,7 @@ class MobikwikController extends Controller
                     $response = $mobikwikHelper->sendRequest(
                         $endpoint,
                         $payload,
-                        "LTc5BrqrRB1yQpq0HSpKJYRwbYxVWeSsZc_OEItKmCM"
+                        $token
                     );
 
                     // dd($response);
