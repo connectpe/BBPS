@@ -67,8 +67,8 @@
                     <thead>
                         <tr>
                             <th>S.No</th>
-                            <th>Requested Id</th>
                             <th>User (Name / Email)</th>
+                            <th>Requested Id</th>
                             <th>Amount</th>
                             <th>UTR No</th>
                             <th>Status</th>
@@ -134,7 +134,7 @@
                             <div class="col-md-6">
                                 <label class="form-label">Remark</label>
                                 <input type="text" class="form-control" name="remark" id="reqRemark"
-                                    placeholder="Enter remark (optional)">
+                                    placeholder="Enter remark">
                             </div>
 
                             <div class="col-12">
@@ -216,11 +216,6 @@
                         }
                     },
                     {
-                        data: 'request_id',
-                        defaultContent: '----'
-                    },
-
-                    {
                         data: null,
                         render: function(row) {
                             let url = "{{ route('view_user', ':id') }}".replace(':id', row.user_id);
@@ -232,6 +227,10 @@
                                 userName + '<br/>[' + email + ']' +
                                 '</a>';
                         }
+                    },
+                    {
+                        data: 'request_id',
+                        defaultContent: '----'
                     },
                     {
                         data: 'amount',
