@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Models\BusinessInfo;
 use App\Models\GlobalService;
 use App\Models\IpWhitelist;
+use App\Models\LoadMoneyRequest;
 use App\Models\NsdlPayment;
 use App\Models\OauthUser;
 use App\Models\Provider;
@@ -1075,6 +1076,79 @@ class UserController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+
+    public function addMoneyRequest(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'amount' => 'required|numeric|min:1',
+            'utr_no' => 'required|alpha_num|min:10|max:20',
+            'request_image' => 'required|file|mimes:jpg,jpeg,png|max:2048',
+            'remark' => 'nullable|regex:/^[\w\s\p{P}\-]+$/u|max:300'
+        ], [
+            'amount.required' => 'Amount is required.',
+            'amount.numeric' => 'Amount must be a valid number.',
+            'amount.min' => 'Amount must be at least 1.',
+
+            'utr_no.required' => 'UTR number is required.',
+            'utr_no.alpha_num' => 'UTR number must be alphanumeric.',
+            'utr_no.min' => 'UTR number must be at least 10 characters long.',
+            'utr_no.max' => 'UTR number must not exceed 20 characters.',
+
+            'request_image.required' => 'Request Image is required.',
+            'request_image.url' => 'Please upload valid file.',
+            'request_image.mimes' => 'Accepted only : jpg,jpeg and png.',
+            'request_image.max' => 'Max file size is 2MB',
+
+            'remark.regex' => 'Remark is Invalid.',
+            'remark.max' => 'Remark should not exceed 300 characters.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $userId = Auth::id();
+
+            if ($request->hasFile('request_image')) {
+                $requestImage = FileUpload::uploadFile($request->request_image, "request_image/$userId", null);
+            }
+
+            $data = [
+                'user_id' => $userId,
+                'request_id' => CommonHelper::getRandomString('REQ', true),
+                'amount' => $request->amount,
+                'utr_no' => $request->utr_no,
+                'image_url' => $requestImage ?? '',
+                'request_time' => now(),
+                'remark' => $request->remark,
+                'updated_by' => $userId,
+            ];
+
+            $request = LoadMoneyRequest::create($data);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Request added Successfully '
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Error: ' . $e->getMessage(),
             ], 500);
         }
     }
