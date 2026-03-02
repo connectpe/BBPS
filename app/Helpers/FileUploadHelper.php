@@ -35,7 +35,7 @@ class FileUploadHelper
         // Nothing to upload
         if (!$files) return null;
 
-      
+
         if (is_array($files)) {
             $paths = [];
             foreach ($files as $file) {
@@ -66,17 +66,15 @@ class FileUploadHelper
             return null;
         }
 
-       
+
         if (is_array($files)) {
             return array_map(function ($file) {
 
                 return asset('storage/app/public/' . ltrim($file, '/'));
-
             }, $files);
         }
 
-       
-        return asset('storage/app/public/' . ltrim($files, '/'));
 
+        return asset('storage/app/public/' . ltrim($files, '/'));
     }
 }

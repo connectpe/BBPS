@@ -8,6 +8,7 @@ use App\Models\BusinessInfo;
 use App\Models\ComplaintsCategory;
 use App\Models\DefaultProvider;
 use App\Models\GlobalService;
+use App\Models\LoadMoneyRequest;
 use App\Models\OauthUser;
 use App\Models\Provider;
 use App\Models\Scheme;
@@ -1771,6 +1772,76 @@ class AdminController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Error : ' . $e->getMessage(),
+            ]);
+        }
+    }
+
+
+    public function uploadLoadMoneyRequest(Request $request)
+    {
+        $request->validate([
+            'id'     => 'required|exists:load_money_requests,id',
+            'status' => 'required|in:approved,rejected',
+            'remark' => 'required_if:status,rejected|nullable|string',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+
+            $moneyRequest = LoadMoneyRequest::where('id', $request->id)
+                ->where('status', 'pending')
+                ->lockForUpdate()
+                ->first();
+
+            if (!$moneyRequest) {
+                throw new \Exception('Request already approved or not found');
+            }
+
+            if ($request->status === 'approved') {
+
+                $user = User::where('id', $moneyRequest->user_id)
+                    ->where('status', '1')
+                    ->lockForUpdate()
+                    ->first();
+
+                if (!$user) {
+                    throw new \Exception('User is not active');
+                }
+
+                $amount = $moneyRequest->amount;
+
+                // Increment user wallet safely
+                if (is_null($user->transaction_amount)) {
+                    $user->transaction_amount = 0;
+                    $user->save();
+                }
+
+                $user->increment('transaction_amount', $amount);
+
+                $moneyRequest->update([
+                    'status'      => 'approved',
+                ]);
+            } else {
+                $moneyRequest->update([
+                    'status'      => 'rejected',
+                    'remark'      => $request->remark,
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Request Updated Successfully',
+            ]);
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'status'  => false,
+                'message' => $e->getMessage(),
             ]);
         }
     }
