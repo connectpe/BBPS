@@ -113,10 +113,10 @@ Route::group(['middleware' => ['auth']], function () {
         Route::delete('delete-support-assignment/{id}', [AdminController::class, 'deleteSupportAssignment'])->name('delete_support_assignment');
 
 
+        // Route::post('load-money-request', [UserController::class, 'addMoneyRequest'])->name('load-money-request'
 
          Route::get('/load-money-request', [TransactionController::class, 'loadMoneyRequest'])->name('load_money_request');
-         Route::post('update-load-money-request', [AdminController::class, 'uploadLoadMoneyRequest'])->name('update_load_money_request');
-        // Complain Report Route
+         Route::post('update-load-money-request', [AdminController::class, 'uploadLoadMoneyRequest'])->name('update_load_money_request');        // Complain Report Route
 
     });
 });

@@ -280,7 +280,7 @@
                 }
             },
 
-             {
+            {
                 data: null,
                 render: function (row) {
                     let url = "{{ route('view_user', ':id') }}".replace(':id', row.user_id);

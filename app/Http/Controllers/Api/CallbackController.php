@@ -39,7 +39,11 @@ class CallbackController extends Controller
                     // 'response' => json_encode($data)
                 ]);
 
-            break;
+                break;
+            case 'idfc-callback':
+                // Handle IDFC callback logic here
+                
+                break;
 
             default:
                 return response()->json([

@@ -102,7 +102,7 @@ class MobiKwikHelper
 
         $encryptedPayload    = $this->aesEncrypt($payload, $aesKey, $iv);
         $encryptedSessionKey = $this->rsaEncrypt($aesKey, $this->publicKey);
-
+        // dd($encryptedSessionKey); 
         $requestData = [
             'encryptedSessionKey' => base64_encode($encryptedSessionKey),
             'encryptedPayload'    => base64_encode($encryptedPayload),
@@ -115,7 +115,7 @@ class MobiKwikHelper
             'Authorization' => $bearerToken,
             'Content-Type'  => 'application/json',
         ])->post($this->baseUrl . $endpoint, $requestData);
-
+        // dd($response->json());
         return $response->json();
     }
 
