@@ -812,7 +812,7 @@ class CommonController extends Controller
                         $columnName = 'id';
                         $columnSortOrder = 'DESC';
                     }
-                    $allowedOrderColumns = ['id', 'amount', 'utr_no', 'status', 'request_time','created_at'];
+                    $allowedOrderColumns = ['id', 'amount', 'utr_no', 'status', 'request_time', 'created_at'];
                     if (! in_array($columnName, $allowedOrderColumns)) {
                         $columnName = 'id';
                         $columnSortOrder = 'DESC';
@@ -823,7 +823,7 @@ class CommonController extends Controller
                 }
                 $request['whereIn'] = 'id';
                 $request['parentData'] = 'all';
-               if (Auth::user()->role_id == '1') {
+                if (Auth::user()->role_id == '1') {
                     $request['parentData'] = 'all';
                 } else {
                     $request['whereIn'] = 'user_id';
@@ -985,7 +985,8 @@ class CommonController extends Controller
                 if ($column === 'any_key') {
                     $query->where(function ($q) use ($value, $request) {
                         if ($request['type'] === 'load-money-requests') {
-                            $q->where('utr_no', 'LIKE', "%{$value}%")
+                            $q->where('request_id', 'LIKE', "%{$value}%")
+                                ->orWhere('utr_no', 'LIKE', "%{$value}%")
                                 ->orWhere('amount', 'LIKE', "%{$value}%")
                                 ->orWhere('status', 'LIKE', "%{$value}%");
 

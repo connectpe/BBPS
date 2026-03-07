@@ -13,9 +13,14 @@ class LoadMoneyRequest extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-
     public function updated_by()
     {
         return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    public function getImageUrlAttribute($value)
+    {
+        if (! $value) {return null;}
+        return asset('storage/'.$value);
     }
 }

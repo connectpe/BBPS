@@ -116,9 +116,7 @@ Route::group(['middleware' => ['auth']], function () {
         // Route::post('load-money-request', [UserController::class, 'addMoneyRequest'])->name('load-money-request'
 
          Route::get('/load-money-request', [TransactionController::class, 'loadMoneyRequest'])->name('load_money_request');
-         Route::post('update-load-money-request', [AdminController::class, 'uploadLoadMoneyRequest'])->name('update_load_money_request');
-
-        // Complain Report Route
+         Route::post('update-load-money-request', [AdminController::class, 'uploadLoadMoneyRequest'])->name('update_load_money_request');        // Complain Report Route
 
     });
 });
@@ -214,8 +212,7 @@ Route::group(['middleware' => ['auth']], function () {
     //      Route::get('/payout-transaction', [TransactionController::class, 'payouttransaction'])->name('payout_transaction');
 
 
-
-
+Route::get('/payout-invoice/download/{id}', [TransactionController::class, 'downloadPayoutInvoice'])->name('download_payout_invoice');
 
     // reseller routes
     Route::get('reports', [LadgerController::class, 'reports'])->name('reseller_reports');

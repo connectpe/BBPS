@@ -3,15 +3,13 @@
 @section('title', 'Load Money Request')
 @section('page-title', 'Load Money Request')
 @section('page-button')
-<div class="d-flex justify-content-end mb-3">
+    <div class="d-flex justify-content-end mb-3">
         <button class="btn buttonColor" id="openRequestModal">
             <i class="bi bi-plus-circle me-1"></i> Request Load Money
         </button>
     </div>
 @endsection
 @section('content')
-
-    
 
     <div class="accordion mb-3" id="filterAccordion">
         <div class="accordion-item">
@@ -69,8 +67,8 @@
                     <thead>
                         <tr>
                             <th>S.No</th>
-                            <th>Requested Id</th>
                             <th>User (Name / Email)</th>
+                            <th>Requested Id</th>
                             <th>Amount</th>
                             <th>UTR No</th>
                             <th>Status</th>
@@ -99,11 +97,10 @@
 
                 <form id="loadMoneyRequestForm" enctype="multipart/form-data">
                     @csrf
-
                     <div class="modal-body">
                         <div class="row g-3">
 
-                             <div class="col-md-6">
+                            <div class="col-md-6">
                                 <label class="form-label">Amount</label>
                                 <input type="number" class="form-control" name="amount" id="reqAmount" required
                                     min="1" placeholder="Enter amount">
@@ -124,9 +121,10 @@
 
                             <div class="col-md-6">
                                 <label class="form-label">Image</label>
-                                <input type="file" class="form-control" name="image" id="reqImage"
-                                    accept="image/*">
-                                <small class="text-muted">Optional</small>
+                                <input type="file" class="form-control" name="request_image" id="reqImage"
+                                    accept="image/*" required>
+                                <small class="text-muted">jpg, jpeg, png (max 2MB)</small>
+
                                 <div class="mt-2 d-none" id="imgPreviewWrap">
                                     <img id="imgPreview" src="" alt="preview"
                                         style="max-width: 100%; height: 120px; object-fit: cover; border-radius: 10px;">
@@ -136,7 +134,7 @@
                             <div class="col-md-6">
                                 <label class="form-label">Remark</label>
                                 <input type="text" class="form-control" name="remark" id="reqRemark"
-                                    placeholder="Enter remark (optional)">
+                                    placeholder="Enter remark">
                             </div>
 
                             <div class="col-12">
@@ -157,6 +155,21 @@
         </div>
     </div>
 
+
+    {{-- image preview --}}
+    <div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Image Preview</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img src="" id="modalPreviewImage" class="img-fluid rounded" alt="Preview">
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
         $(document).ready(function() {
@@ -203,11 +216,6 @@
                         }
                     },
                     {
-                        data: 'requested_id',
-                        defaultContent: '----'
-                    },
-
-                    {
                         data: null,
                         render: function(row) {
                             let url = "{{ route('view_user', ':id') }}".replace(':id', row.user_id);
@@ -219,6 +227,10 @@
                                 userName + '<br/>[' + email + ']' +
                                 '</a>';
                         }
+                    },
+                    {
+                        data: 'request_id',
+                        defaultContent: '----'
                     },
                     {
                         data: 'amount',
@@ -256,8 +268,17 @@
                     {
                         data: 'image_url',
                         render: function(data) {
-                            if (data) return `<a href="${data}" target="_blank">View</a>`;
-                            return '----';
+                            if (data) {
+                                return `
+                <div class="d-flex align-items-center gap-3">
+                    
+                    <i class="fas fa-eye view-image-btn" 
+                       data-url="${data}" 
+                       style="cursor: pointer; color: #000; font-size: 18px;" 
+                       title="Quick View"></i>
+                </div>`;
+                            }
+                            return '<span class="text-muted">No Image</span>';
                         }
                     },
                     {
@@ -288,18 +309,34 @@
 
 
     <script>
-        const STORE_URL = "";
         $(document).ready(function() {
+
+            const STORE_URL = "{{ route('add-load-money-request') }}";
+
+            function showSwalError(title, htmlMsg) {
+                Swal.fire({
+                    icon: 'error',
+                    title: title || 'Error',
+                    html: htmlMsg || 'Something went wrong.',
+                    confirmButtonText: 'OK'
+                });
+            }
+
+            function showSwalSuccess(msg) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: msg || 'Request saved successfully.',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            }
             $('#openRequestModal').on('click', function() {
-                $('#reqErrBox').addClass('d-none').html('');
-                $('#reqOkBox').addClass('d-none').html('');
                 $('#loadMoneyRequestForm')[0].reset();
                 $('#imgPreviewWrap').addClass('d-none');
                 $('#imgPreview').attr('src', '');
                 $('#loadMoneyModal').modal('show');
             });
-
-            // Image preview
             $('#reqImage').on('change', function() {
                 const file = this.files && this.files[0];
                 if (!file) {
@@ -311,21 +348,13 @@
                 $('#imgPreview').attr('src', url);
                 $('#imgPreviewWrap').removeClass('d-none');
             });
+
             $('#loadMoneyRequestForm').on('submit', function(e) {
                 e.preventDefault();
 
                 $('#saveRequestBtn').prop('disabled', true).text('Saving...');
-                $('#reqErrBox').addClass('d-none').html('');
-                $('#reqOkBox').addClass('d-none').html('');
 
                 let formData = new FormData(this);
-
-                if (!STORE_URL) {
-                    $('#saveRequestBtn').prop('disabled', false).text('Submit Request');
-                    $('#reqOkBox').removeClass('d-none').html(
-                        'Frontend ready ✅ (User Auth se aayega, backend URL not connected yet)');
-                    return;
-                }
 
                 $.ajax({
                     url: STORE_URL,
@@ -335,31 +364,75 @@
                     contentType: false,
                     success: function(res) {
                         $('#saveRequestBtn').prop('disabled', false).text('Submit Request');
-                        $('#reqOkBox').removeClass('d-none').html(res.message ??
-                            'Request saved successfully.');
 
-                        setTimeout(() => {
-                            $('#loadMoneyModal').modal('hide');
-                            $('#loadMoneyTable').DataTable().ajax.reload(null, false);
-                        }, 700);
+                        if (res && res.status) {
+                            showSwalSuccess(res.message);
+
+                            setTimeout(() => {
+                                $('#loadMoneyModal').modal('hide');
+                                if ($.fn.DataTable.isDataTable('#loadMoneyTable')) {
+                                    $('#loadMoneyTable').DataTable().ajax.reload(null,
+                                        false);
+                                }
+                            }, 700);
+
+                        } else {
+                            showSwalError('Failed', (res && res.message) ? res.message :
+                                'The request could not be processed.');
+                        }
                     },
                     error: function(xhr) {
                         $('#saveRequestBtn').prop('disabled', false).text('Submit Request');
 
-                        let msg = 'Something went wrong.';
-                        if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON
-                            .message;
+                        if (xhr.status === 419) {
+                            showSwalError('Session Expired',
+                                'Your session has expired. Please refresh the page and try again.'
+                                );
+                            return;
+                        }
+                        if (xhr.status === 401) {
+                            showSwalError('Unauthorized',
+                                'You are not logged in or your session has timed out.');
+                            return;
+                        }
+                        if (xhr.status === 403) {
+                            showSwalError('Forbidden',
+                                'You do not have permission to perform this action.');
+                            return;
+                        }
+                        if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                            let errors = xhr.responseJSON.errors;
+                            let html =
+                                '<ul style="text-align:left; margin:0; padding-left:18px;">';
 
-                        if (xhr.responseJSON && xhr.responseJSON.errors) {
-                            msg = '';
-                            Object.values(xhr.responseJSON.errors).forEach(arr => {
-                                msg += arr.join('<br>') + '<br>';
+                            Object.keys(errors).forEach((key) => {
+                                errors[key].forEach((msg) => {
+                                    html += `<li>${msg}</li>`;
+                                });
                             });
+
+                            html += '</ul>';
+                            showSwalError('Validation Error', html);
+                            return;
                         }
 
-                        $('#reqErrBox').removeClass('d-none').html(msg);
+                        let msg = 'An unexpected server error occurred.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            msg = xhr.responseJSON.message;
+                        }
+                        showSwalError('Server Error', msg);
                     }
                 });
+            });
+            $(document).on('click', '.view-image-btn', function() {
+                let imageUrl = $(this).data('url');
+                if (imageUrl) {
+                    $('#modalPreviewImage').attr('src', imageUrl);
+                    var myModal = new bootstrap.Modal(document.getElementById('imagePreviewModal'));
+                    myModal.show();
+                } else {
+                    showSwalError('Error', 'Image URL not found.');
+                }
             });
 
         });

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Complaint;
 use App\Models\ComplaintsCategory;
+use App\Models\Order;
 use App\Models\Provider;
 use App\Models\Transaction;
 use App\Models\User;
@@ -308,6 +309,32 @@ class TransactionController extends Controller
     public function userMoneyLoadRequests()
     {
         $users = User::whereHas('loadMoneyRequests')->select('id', 'name', 'email')->orderBy('name')->get();
+
         return view('Transaction.user-money-load-requests', compact('users'));
+    }
+    
+    public function downloadPayoutInvoice($id)
+    {
+        DB::beginTransaction();
+        try {
+            $order = Order::with(['user', 'user.business', 'provider'])
+                ->where('id', $id)
+                ->where('status', 'processed')
+                ->firstOrFail();
+
+            $pdf = Pdf::loadView('Transaction.payout-transaction-invoice', compact('order'));
+            $customPaper = [0, 0, 595.28, 400.00];
+            $pdf->setPaper($customPaper);
+
+            $fileName = $order->transaction_no ?? $order->connectpe_id ?? $order->id;
+            DB::commit();
+
+            return $pdf->download('Payout_Receipt_'.$fileName.'.pdf');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json(['status' => false, 'message' => $e->getMessage()]);
+        }
     }
 }
