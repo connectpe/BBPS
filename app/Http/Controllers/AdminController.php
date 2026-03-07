@@ -1777,7 +1777,7 @@ class AdminController extends Controller
     }
 
 
-    public function uploadLoadMoneyRequest(Request $request)
+    public function updateLoadMoneyRequest(Request $request)
     {
         $request->validate([
             'id'     => 'required|exists:load_money_requests,id',

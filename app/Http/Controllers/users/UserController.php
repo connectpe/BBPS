@@ -1131,7 +1131,7 @@ class UserController extends Controller
                 'utr_no' => $request->utr_no,
                 'image_url' => $requestImage ?? '',
                 'request_time' => now(),
-                'remark' => $request->remark,
+                // 'remark' => $request->remark,
                 'updated_by' => $userId,
             ];
 
