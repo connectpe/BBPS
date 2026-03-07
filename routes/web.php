@@ -113,6 +113,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::delete('delete-support-assignment/{id}', [AdminController::class, 'deleteSupportAssignment'])->name('delete_support_assignment');
 
 
+
+        
         // Complain Report Route
 
     });
@@ -166,6 +168,11 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
     Route::post('generate-mpin', [UserController::class, 'generateMpin'])->name('generate_mpin');
     Route::post('/transaction-status-check', [TransactionController::class, 'transactionStatusCheck'])->name('transaction_status_check');
     Route::post('generate/client-credentials', [UserController::class, 'generateClientCredentials'])->name('generate_client_credentials');
+
+
+    // Load Money Request 
+    Route::post('load-money-request', [UserController::class, 'addMoneyRequest'])->name('load-money-request');
+
 });
 
 
@@ -176,6 +183,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/support-userlist', [SupportDashboardController::class, 'supportUserList'])->name('support_userlist')->middleware('isSupport');
     });
     Route::get('/payout-transaction', [TransactionController::class, 'payouttransaction'])->name('payout_transaction');
+    Route::get('/load-money-request', [TransactionController::class, 'loadMoneyRequest'])->name('user_load_money_request');
+
 
     Route::post('/update-complaint-report/{id}', [ComplainReportController::class, 'updateComplaint'])->name('update_complaint_report');
     // Admin/User Common Routes 

@@ -100,4 +100,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Order::class, 'user_id');
     }
+
+    public function loadMoneyRequests()
+    {
+        return $this->hasMany(\App\Models\LoadMoneyRequest::class, 'user_id');
+    }
 }

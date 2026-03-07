@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Ladger extends Model
 {
-    protected $fillable = ['reference_no', 'request_id', 'connectpe_id', 'user_id', 'txn_amount', 'total_txn_amount', 'txn_date', 'txn_type', 'service_id', 'opening_balance', 'closing_balanace', 'remarks'];
+    protected $fillable = ['reference_no', 'request_id', 'connectpe_id', 'transaction_no', 'user_id', 'txn_amount', 'total_txn_amount', 'fee', 'tax', 'txn_date', 'txn_type', 'service_id', 'opening_balance', 'closing_balanace', 'remarks'];
 
     public function user()
     {
