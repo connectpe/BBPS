@@ -46,6 +46,7 @@
                                 <option value="">Select Status</option>
                                 <option value="pending">Pending</option>
                                 <option value="approved">Approved</option>
+                                <option value="rejected">Rejected</option>
                             </select>
                         </div>
 
@@ -105,13 +106,7 @@
                                 <input type="number" class="form-control" name="amount" id="reqAmount" required
                                     min="1" placeholder="Enter amount">
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Status</label>
-                                <select class="form-select" name="status" id="reqStatus" required>
-                                    <option value="pending" selected>Pending</option>
-                                    <option value="approved">Approved</option>
-                                </select>
-                            </div>
+                          
 
                             <div class="col-md-6">
                                 <label class="form-label">UTR No</label>
@@ -131,11 +126,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6">
-                                <label class="form-label">Remark</label>
-                                <input type="text" class="form-control" name="remark" id="reqRemark"
-                                    placeholder="Enter remark">
-                            </div>
+                        
 
                             <div class="col-12">
                                 <div class="alert alert-danger d-none" id="reqErrBox"></div>
@@ -252,10 +243,10 @@
                             }
 
                             if (status === 'pending') {
-                                return `<span class="badge bg-danger">Pending</span>`;
+                                return `<span class="badge bg-warning">Pending</span>`;
                             }
 
-                            return `<span class="badge bg-secondary">${data}</span>`;
+                           return `<span class="badge bg-danger text-capitalize">${data.charAt(0).toUpperCase() + data.slice(1)}</span>`;
                         }
                     },
 
@@ -311,7 +302,7 @@
     <script>
         $(document).ready(function() {
 
-            const STORE_URL = "{{ route('add-load-money-request') }}";
+            const STORE_URL = "{{ route('add_load_money_request') }}";
 
             function showSwalError(title, htmlMsg) {
                 Swal.fire({

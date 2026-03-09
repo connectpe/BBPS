@@ -113,10 +113,9 @@ Route::group(['middleware' => ['auth']], function () {
         Route::delete('delete-support-assignment/{id}', [AdminController::class, 'deleteSupportAssignment'])->name('delete_support_assignment');
 
 
-        // Route::post('load-money-request', [UserController::class, 'addMoneyRequest'])->name('load-money-request'
 
-         Route::get('/load-money-request', [TransactionController::class, 'loadMoneyRequest'])->name('load_money_request');
-         Route::post('update-load-money-request', [AdminController::class, 'uploadLoadMoneyRequest'])->name('update_load_money_request');        // Complain Report Route
+        Route::get('/load-money-request', [TransactionController::class, 'loadMoneyRequest'])->name('load_money_request');
+        Route::post('update-load-money-request', [AdminController::class, 'updateLoadMoneyRequest'])->name('update_load_money_request');        // Complain Report Route
 
     });
 });
@@ -170,10 +169,9 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
     Route::post('/transaction-status-check', [TransactionController::class, 'transactionStatusCheck'])->name('transaction_status_check');
     Route::post('generate/client-credentials', [UserController::class, 'generateClientCredentials'])->name('generate_client_credentials');
 
-     Route::get('/load-money-request', [TransactionController::class, 'userMoneyLoadRequests'])->name('user_load_money_request');
     // Load Money Request 
-    Route::post('load-money-request', [UserController::class, 'addMoneyRequest'])->name('add-load-money-request');
-
+    Route::get('/load-money-request', [TransactionController::class, 'userMoneyLoadRequests'])->name('user_load_money_request');
+    Route::post('add-load-money-request', [UserController::class, 'addMoneyRequest'])->name('add_load_money_request');
 });
 
 
@@ -184,7 +182,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/support-userlist', [SupportDashboardController::class, 'supportUserList'])->name('support_userlist')->middleware('isSupport');
     });
     Route::get('/payout-transaction', [TransactionController::class, 'payouttransaction'])->name('payout_transaction');
-   
+
 
 
     Route::post('/update-complaint-report/{id}', [ComplainReportController::class, 'updateComplaint'])->name('update_complaint_report');
@@ -212,7 +210,7 @@ Route::group(['middleware' => ['auth']], function () {
     //      Route::get('/payout-transaction', [TransactionController::class, 'payouttransaction'])->name('payout_transaction');
 
 
-Route::get('/payout-invoice/download/{id}', [TransactionController::class, 'downloadPayoutInvoice'])->name('download_payout_invoice');
+    Route::get('/payout-invoice/download/{id}', [TransactionController::class, 'downloadPayoutInvoice'])->name('download_payout_invoice');
 
     // reseller routes
     Route::get('reports', [LadgerController::class, 'reports'])->name('reseller_reports');
