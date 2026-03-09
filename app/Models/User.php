@@ -23,9 +23,13 @@ class User extends Authenticatable
         'email',
         'mobile',
         'password',
+        'forget_password_otp',
+        'password_otp_expires_at',
         'role_id',
         'status',
         'mpin',
+        'forget_mpin_otp',
+        'mpin_otp_expires_at',
         'profile_image',
     ];
 
