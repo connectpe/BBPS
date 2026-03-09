@@ -43,7 +43,7 @@ class MobikwikController extends Controller
                 ->withHeaders([
                     'Content-Type' => 'application/json',
                 ])
-                ->post($this->baseUrl.'/recharge/v1/verify/retailer', [
+                ->post($this->baseUrl . '/recharge/v1/verify/retailer', [
                     'clientId' => $this->clientId,
                     'clientSecret' => $this->clientSecret,
                 ]);
@@ -110,20 +110,19 @@ class MobikwikController extends Controller
             $userData = CommonHelper::validateClient($encryptedId, $encryptedSecret);
 
             if (! $userData) {
-                return response()->json([
+                return [
                     'status' => false,
                     'message' => 'you are passing the invalid credentials',
-
-                ], 403);
+                ];
             }
 
             $userId = $userData['user_id'];
             $serviceId = $userData['service'];
             if (empty($userId)) {
-                return response()->json([
-                    'staus' => false,
-                    'message' => 'User Client id is Invailed',
-                ]);
+                return [
+                    'status' => false,
+                    'message' => 'User Client id is Invalid',
+                ];
             }
 
             $isServiceActive = UserService::where('user_id', $userId)->where('service_id', $serviceId)->where('is_active', '1')->first();
@@ -131,10 +130,10 @@ class MobikwikController extends Controller
             // dd($isServiceActive);
 
             if (! $isServiceActive) {
-                return response()->json([
+                return [
                     'status' => false,
                     'message' => 'Service is not active at this time',
-                ]);
+                ];
             }
             $data = [
                 'status' => true,
@@ -144,10 +143,10 @@ class MobikwikController extends Controller
 
             return $data;
         } catch (\Exception $e) {
-            return response()->json([
+            return [
                 'status' => false,
                 'message' => $e->getMessage(),
-            ]);
+            ];
         }
     }
 
@@ -189,7 +188,7 @@ class MobikwikController extends Controller
                                 'Content-Type' => 'application/json',
                                 'X-MClient' => '14',
                             ])
-                            ->get($this->baseUrl.$endpoint);
+                            ->get($this->baseUrl . $endpoint);
 
                         if (! $response->successful()) {
                             Log::error('Mobikwik Plan API HTTP Error', [
@@ -407,6 +406,7 @@ class MobikwikController extends Controller
             if (! $tokenData) {
                 $mobikwikHelper = new MobiKwikHelper;
                 $data = $mobikwikHelper->generateMobikwikToken();
+                // dd($data);
                 $token = $data->token;
             } else {
                 $token = $tokenData->token;
@@ -495,12 +495,11 @@ class MobikwikController extends Controller
 
     public function mobikwikPayment(Request $request, $type)
     {
-        // dd($request->all());
+        // dd($type);
         $data = $this->ValidateUsers($request);
         $userId = $data['user_id'];
         $serviceId = $data['service'];
         $ip = $request->ip();
-
         $ipWhitelist = CommonHelper::checkIpWhiteList($userId, $serviceId, $ip);
         // if (!$ipWhitelist) {
         //     return response()->json([
@@ -570,15 +569,16 @@ class MobikwikController extends Controller
         ];
 
         $request->validate([
-            // 'customerNUmber' => 'required|string|regex:/^[0-9]{10}$/',
+            'customerNUmber' => 'required|string|regex:/^[0-9]{4}$/',
             'operator' => 'required',
-            'circle' => '',
+            // 'circle' => '',
             'amount' => 'required|numeric|min:1',
             'requestId' => 'required|string|unique:transactions,request_id',
             'customerMobile' => 'required|string|regex:/^[0-9]{10}$/',
+            'agentId' => 'required|string',
             'remitterName' => 'required|string|max:100',
             'paymentRefID' => 'required|string|unique:transactions,payment_ref_id',
-            'paymentMode' => '',
+            'paymentMode' => 'required|string',
             'paymentAccountInfo' => 'required|string|max:100',
             'additionalPrm1' => 'nullable|string|max:255',
             'additionalPrm2' => 'nullable|string|max:255',
@@ -604,12 +604,12 @@ class MobikwikController extends Controller
                         'customerMobile' => $request->customerMobile,
                         'remitterName' => $request->remitterName,
                         'paymentRefID' => $request->paymentRefID,
-                        'paymentMode' => 'UPI',
+                        'paymentMode' => $request->paymentMode,
                         // "connectpeId" => $connectPeId,
-                        'paymentAccountInfo' => '9999999999@ybl',
+                        'paymentAccountInfo' => $request->paymentAccountInfo,
                         // "bankCode" => "ICIC",
-                        'ad9' => '7378926854',
-                        'ad3' => 'BARB',
+                        'ad9' => $request->additionalPrm1,
+                        'ad3' => $request->additionalPrm2,
                         // 'status'                => 'queued',
                         // "call"               => 'balance_debit',
                         // 'user_id'            => $userId,
