@@ -97,12 +97,13 @@ class MobiKwikHelper
 
     public function sendRequest(string $endpoint, array $payload, string $bearerToken)
     {
+        // dd($bearerToken);
         $aesKey = random_bytes(32);
         $iv     = random_bytes(16);
 
         $encryptedPayload    = $this->aesEncrypt($payload, $aesKey, $iv);
         $encryptedSessionKey = $this->rsaEncrypt($aesKey, $this->publicKey);
-        // dd($encryptedSessionKey); 
+        // dd($encryptedPayload); 
         $requestData = [
             'encryptedSessionKey' => base64_encode($encryptedSessionKey),
             'encryptedPayload'    => base64_encode($encryptedPayload),

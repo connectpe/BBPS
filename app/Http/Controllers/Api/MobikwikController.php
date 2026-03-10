@@ -430,13 +430,13 @@ class MobikwikController extends Controller
         $serviceId = $data['service'];
         $ip = $request->ip();
         // dd($ip);
-        $ipWhitelist = CommonHelper::checkIpWhiteList($userId, $serviceId, $ip);
-        if (! $ipWhitelist) {
-            return response()->json([
-                'status' => false,
-                'mesage' => 'Ip not whitelisted',
-            ]);
-        }
+        // $ipWhitelist = CommonHelper::checkIpWhiteList($userId, $serviceId, $ip);
+        // if (! $ipWhitelist) {
+        //     return response()->json([
+        //         'status' => false,
+        //         'mesage' => 'Ip not whitelisted',
+        //     ]);
+        // }
 
         $request->validate([
             'amount' => 'required|string',
@@ -600,8 +600,8 @@ class MobikwikController extends Controller
                         // "cir" => $request->circle,
                         'amt' => $request->amount,
                         'reqid' => $request->requestId,
-                        'agentId' => $request->agentId,
                         'customerMobile' => $request->customerMobile,
+                        'agentId' => $request->agentId,
                         'remitterName' => $request->remitterName,
                         'paymentRefID' => $request->paymentRefID,
                         'paymentMode' => $request->paymentMode,
@@ -637,7 +637,7 @@ class MobikwikController extends Controller
                     $token = $this->isTokenPresent();
                     $endpoint = '/recharge/v3/retailerPayment';
 
-                    //    dd($token);
+                    // dd($token);
 
                     $response = $mobikwikHelper->sendRequest(
                         $endpoint,
@@ -733,10 +733,10 @@ class MobikwikController extends Controller
                     'cn' => $request->connectionNumber,
                     'op' => $request->operatorId,
                     'cir' => $request->circleId,
+                    'agentId' => "MK01MK01INB523643654",
                     'adParams' => (object) [],
-
                 ];
-
+                // dd($payload);
                 $mobikwikHelper = new MobiKwikHelper;
                 $token = $this->isTokenPresent();
                 // dd($token);
@@ -751,7 +751,6 @@ class MobikwikController extends Controller
                     $payload,
                     $token
                 );
-                // dd($response);
 
                 return response()->json([
                     'status' => true,
