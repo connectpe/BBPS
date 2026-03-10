@@ -109,4 +109,21 @@ class User extends Authenticatable
     {
         return $this->hasMany(\App\Models\LoadMoneyRequest::class, 'user_id');
     }
+
+
+    // Masked email 
+    public function getMaskedEmailAttribute()
+    {
+        $email = $this->email;
+        [$name, $domain] = explode("@", $email);
+
+        if (strlen($name) <= 2) {
+            // If very short name, just show first char
+            $maskedName = substr($name, 0, 1) . str_repeat('*', strlen($name) - 1);
+        } else {
+            $maskedName = substr($name, 0, 1) . str_repeat('*', strlen($name) - 2) . substr($name, -1);
+        }
+
+        return $maskedName . '@' . $domain;
+    }
 }

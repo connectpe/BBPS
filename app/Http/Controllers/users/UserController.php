@@ -5,6 +5,7 @@ namespace App\Http\Controllers\users;
 use App\Facades\FileUpload;
 use App\Helpers\CommonHelper;
 use App\Helpers\NSDLHelper;
+use App\Helpers\SendingMail;
 use App\Http\Controllers\Controller;
 use App\Models\BusinessInfo;
 use App\Models\GlobalService;
@@ -19,6 +20,7 @@ use App\Models\UsersBank;
 use App\Models\UserService;
 use App\Models\WebHookUrl;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -1149,6 +1151,154 @@ class UserController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Error: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function sendForgetMpinOtp()
+    {
+        DB::beginTransaction();
+        try {
+
+            $id = Auth::id();
+            $user = User::find($id);
+
+            if (! $user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User not found',
+                ], 404);
+            }
+
+            $otp = rand(1000, 9999);
+            $expiresAt = Carbon::now()->addMinutes(10);
+
+            $user->forget_mpin_otp =  $otp;
+            $user->mpin_otp_expires_at =  $expiresAt;
+            $user->save();
+
+            try {
+                SendingMail::sendForgetPasswordMail([
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'otp' => $otp,
+                    'subject' => 'Forget MPIN',
+                ]);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                \Log::error('Mail sending failed: ' . $e->getMessage());
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Failed to send OTP. Please try again.',
+                ], 500);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'OTP sent to your Email adress, Please verify OTP'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Error: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+    public function verifyOtpForgetMpin(Request $request)
+    {
+        $request->validate([
+            'otp' => 'required|digits:4',
+        ]);
+
+        DB::beginTransaction();
+        try {
+
+            $id = Auth::id();
+            $user = User::find($id);
+
+            if (! $user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User not found',
+                ], 404);
+            }
+
+            if (!$user->forget_mpin_otp || $user->forget_mpin_otp != $request->otp) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Invalid OTP',
+                ], 401);
+            }
+
+            if (Carbon::now()->greaterThan($user->mpin_otp_expires_at)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'OTP expired',
+                ], 401);
+            }
+
+            $user->forget_mpin_otp = NULL;
+            $user->mpin_otp_expires_at = NULL;
+            $user->save();
+
+            DB::commit();
+            return response()->json([
+                'status' => true,
+                'message' => 'OTP Verified Successfully',
+            ]);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            \Log::error('Verify OTP Error: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Error : ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+    public function forgetMPIN(Request $request)
+    {
+        $request->validate([
+            'newMpin' => 'required|digits:4',
+            'confirmMpin' => 'required|same:newMpin',
+        ]);
+
+        DB::beginTransaction();
+        try {
+
+            $id = Auth::id();
+            $user = User::find($id);
+
+            if (! $user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User not found',
+                ], 404);
+            }
+
+            $user->mpin = Hash::make($request->newMpin);
+            $user->save();
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'MPIN Updated Successfully',
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Verify OTP Error: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Error : ' . $e->getMessage(),
             ], 500);
         }
     }
