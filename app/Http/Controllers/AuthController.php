@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -394,6 +395,151 @@ class AuthController extends Controller
             \Log::error('checkUserStatus Error: ' . $e->getMessage());
 
             return 'Unauthorized Access.';
+        }
+    }
+
+
+    public function forgetPassword(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+
+            $validator = Validator::make($request->all(), [
+                'email' => 'required|email|exists:users,email',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validation error',
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
+            $user = User::where('email', $request->email)->first();
+
+            if (! $user) {
+                DB::rollBack();
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User not found',
+                ], 404);
+            }
+
+            if ($user->status != '1') {
+                DB::rollBack();
+                $message = $this->checkUserStatus($user->status);
+                return response()->json([
+                    'status' => false,
+                    'message' => $message,
+                ], 403);
+            }
+
+            $otp = rand(1000, 9999);
+            $expiresAt = Carbon::now()->addMinutes(10);
+
+            try {
+                SendingMail::sendForgetPasswordMail([
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'otp' => $otp,
+                    'subject' => 'Forget Password',
+                ]);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                Log::error('Mail sending failed: ' . $e->getMessage());
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Failed to send OTP. Please try again.',
+                ], 500);
+            }
+
+            $user->forget_password_otp = $otp;
+            $user->password_otp_expires_at = $expiresAt;
+            $user->save();
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'id' => Crypt::encryptString($user->id),
+                'message' => 'OTP sent to your email. Please verify for forget password.',
+            ], 200);
+        } catch (\Throwable $e) {
+            DB::rollBack(); // rollback if any exception occurs
+            \Log::error('Login Error: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Error : ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+    public function verifyOtpForgetPassword(Request $request)
+    {
+        $request->validate([
+            'id' => 'required',
+            'otp' => 'required|digits:4',
+        ]);
+
+        DB::beginTransaction();
+        try {
+
+            try {
+
+                $userId = Crypt::decryptString($request->id);
+
+                $user = User::find($userId);
+            } catch (\Exception $e) {
+
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Invalid user id',
+                ], 400);
+            }
+
+            if (! $user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User not found',
+                ], 404);
+            }
+
+
+            if (!$user->forget_password_otp) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Invalid OTP',
+                ], 401);
+            }
+
+            if (Carbon::now()->greaterThan($user->password_otp_expires_at)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'OTP expired',
+                ], 401);
+            }
+
+
+            $user->forget_password_otp = NULL;
+            $user->password_otp_expires_at = NULL;
+            $user->save();
+
+            DB::commit();
+            return response()->json([
+                'status' => true,
+                'message' => 'OTP verified successfully',
+            ]);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            \Log::error('Verify OTP Error: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong. Please try again later.',
+            ], 500);
         }
     }
 }

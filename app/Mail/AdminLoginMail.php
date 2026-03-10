@@ -20,6 +20,6 @@ class AdminLoginMail extends Mailable
     public function build()
     {
         return $this->subject($this->data['subject'])
-                    ->view('ForOtp.email-varification');
+            ->view('ForOtp.email-varification');
     }
 }

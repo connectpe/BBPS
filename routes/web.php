@@ -37,7 +37,8 @@ Route::get('kyc', function () {
     return view('Users.kyc-page');
 });
 
-
+Route::post('forget-password', [AuthController::class, 'forgetPassword'])->name('forget_password');
+Route::post('verify-otp-forget-password', [AuthController::class, 'verifyOtpForgetPassword'])->name('verify_otp_forget_password');
 
 Route::group(['middleware' => ['auth']], function () {
     Route::group(['prefix' => 'admin'], function () {
