@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Helpers\CommonHelper;
 use App\Helpers\TransactionHelper;
+use App\Models\Ladger;
 use App\Models\Transaction;
 use App\Models\UserService;
 use App\Models\Ledger;
@@ -161,7 +162,7 @@ class DebitBalanceUpdateJob implements ShouldQueue
                 throw new \Exception('Wallet credit failed');
             }
 
-            Ledger::create([
+            Ladger::create([
                 'reference_no'     => $this->payload['paymentRefID'],
                 'request_id'       => $this->payload['reqid'],
                 'connectpe_id'     => $this->payload['connectpeId'],
