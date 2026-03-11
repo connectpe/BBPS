@@ -206,17 +206,12 @@
                             return meta.row + 1;
                         }
                     },
-                    {
+                   {
                         data: null,
                         render: function(row) {
-                            let url = "{{ route('view_user', ':id') }}".replace(':id', row.user_id);
-                            const userName = row?.user?.name || '----';
-                            const email = row?.user?.email || '----';
-
-                            return '<a href="' + url +
-                                '" class="text-primary fw-semibold text-decoration-none">' +
-                                userName + '<br/>[' + email + ']' +
-                                '</a>';
+                        const userName = row?.user?.name || '----';
+                        const email = row?.user?.email || '----';
+                        return '<span class="fw-semibold">' +userName + '<br/>[' + email + ']' +'</span>';
                         }
                     },
                     {
