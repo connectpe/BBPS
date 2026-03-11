@@ -564,14 +564,14 @@ class MobikwikController extends Controller
             'additionalPrm1.string' => 'Additional parameter 1 must be a valid string.',
             'additionalPrm1.max' => 'Additional parameter 1 cannot exceed 255 characters.',
 
-            'additionalPrm2.string' => 'Additional parameter 2 must be a valid string.',
-            'additionalPrm2.max' => 'Additional parameter 2 cannot exceed 255 characters.',
+            // 'additionalPrm2.string' => 'Additional parameter 2 must be a valid string.',
+            // 'additionalPrm2.max' => 'Additional parameter 2 cannot exceed 255 characters.',
         ];
 
         $request->validate([
-            'customerNUmber' => 'required|string|regex:/^[0-9]{4}$/',
+            'customerNUmber' => 'required|string|regex:/^[0-9]{10}$/',
             'operator' => 'required',
-            // 'circle' => '',
+            'circle' => '',
             'amount' => 'required|numeric|min:1',
             'requestId' => 'required|string|unique:transactions,request_id',
             'customerMobile' => 'required|string|regex:/^[0-9]{10}$/',
@@ -580,8 +580,8 @@ class MobikwikController extends Controller
             'paymentRefID' => 'required|string|unique:transactions,payment_ref_id',
             'paymentMode' => 'required|string',
             'paymentAccountInfo' => 'required|string|max:100',
-            'additionalPrm1' => 'nullable|string|max:255',
-            'additionalPrm2' => 'nullable|string|max:255',
+            // 'additionalPrm1' => 'nullable|string|max:255',
+            // 'additionalPrm2' => 'nullable|string|max:255',
         ], $messages);
 
         switch ($type) {
@@ -597,7 +597,7 @@ class MobikwikController extends Controller
                     $payload = [
                         'cn' => $request->customerNUmber,
                         'op' => $request->operator,
-                        // "cir" => $request->circle,
+                        "cir" => $request->circle,
                         'amt' => $request->amount,
                         'reqid' => $request->requestId,
                         'customerMobile' => $request->customerMobile,
@@ -608,8 +608,8 @@ class MobikwikController extends Controller
                         // "connectpeId" => $connectPeId,
                         'paymentAccountInfo' => $request->paymentAccountInfo,
                         // "bankCode" => "ICIC",
-                        'ad9' => $request->additionalPrm1,
-                        'ad3' => $request->additionalPrm2,
+                        // 'ad9' => $request->additionalPrm1,
+                        // 'ad3' => $request->additionalPrm2,
                         // 'status'                => 'queued',
                         // "call"               => 'balance_debit',
                         // 'user_id'            => $userId,
@@ -706,6 +706,7 @@ class MobikwikController extends Controller
 
     public function fetchPostpaidBill(Request $request, $type)
     {
+        // dd($request->all());
         // $this->ValidateUsers($request);
         $data = $this->ValidateUsers($request);
         $userId = $data['user_id'];
@@ -723,7 +724,7 @@ class MobikwikController extends Controller
         $request->validate([
             'connectionNumber' => 'required|string',
             'operatorId' => 'required|string',
-            'circleId' => 'required|string',
+            'circleId' => 'nullable|string',
             'adParams' => 'nullable',
         ]);
 
@@ -732,11 +733,11 @@ class MobikwikController extends Controller
                 $payload = [
                     'cn' => $request->connectionNumber,
                     'op' => $request->operatorId,
-                    'cir' => $request->circleId,
+                    'cir' => $request->circleId ?? '',
                     'agentId' => "MK01MK01INB523643654",
-                    'adParams' => (object) [],
+                    'adParams' => (object)[],
                 ];
-                // dd($payload);
+                dd($payload);
                 $mobikwikHelper = new MobiKwikHelper;
                 $token = $this->isTokenPresent();
                 // dd($token);
@@ -783,7 +784,8 @@ class MobikwikController extends Controller
         // }
 
         $request->validate([
-            'txnId' => 'required|exists:transactions,request_id',
+            // 'txnId' => 'required|exists:transactions,request_id',
+            'txnId' => 'required|string',
         ]);
 
         switch ($type) {
@@ -791,7 +793,7 @@ class MobikwikController extends Controller
             case 'mobikwik-status':
                 try {
                     $payload = [
-                        'txId' => $request->txId,
+                        'txId' => $request->txnId,
                     ];
 
                     $mobikwikHelper = new MobiKwikHelper;
