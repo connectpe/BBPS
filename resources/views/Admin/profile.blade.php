@@ -83,6 +83,19 @@
         width: 75px;
         border-radius: 50%;
     }
+
+
+    .otp-box {
+        width: 50px;
+        height: 50px;
+        text-align: center;
+        font-size: 1.5rem;
+        margin: 0 5px;
+        border-radius: 10px;
+        border: none;
+        outline: none;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, .15);
+    }
 </style>
 
 @php
@@ -385,16 +398,11 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
     <div class="col-auto">
         <div class="d-flex flex-column gap-2 mt-lg-0 mt-2">
 
-            <button type="button"
-                class="btn buttonColor"
-                data-bs-toggle="modal"
-                data-bs-target="#completeProfileModal">
+            <button type="button" class="btn buttonColor" data-bs-toggle="modal" data-bs-target="#completeProfileModal">
                 <i class="bi bi-pencil-square me-1"></i> Complete Profile
             </button>
 
-            <button type="button"
-                class="btn buttonColor"
-                data-bs-toggle="modal"
+            <button type="button" class="btn buttonColor" data-bs-toggle="modal"
                 data-bs-target="#documentVerificationModal">
                 <i class="bi bi-file-earmark-check me-1"></i> Documents Verification
             </button>
@@ -647,8 +655,17 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                     @if ($role != 4)
                     <div class="col-lg-6">
                         <div class="card shadow-sm h-100">
-                            <div class="card-header bg-transparent fw-bold text-dark">
-                                <i class="bi bi-pci-card me-2"></i> Change MPIN
+                            <div class="card-header bg-transparent fw-bold text-dark d-flex justify-content-between align-items-center">
+
+                                <div>
+                                    <i class="bi bi-pci-card me-2"></i> Change MPIN
+                                </div>
+
+                                <button class="btn btn-sm buttonColor" data-bs-toggle="modal"
+                                    data-bs-target="#forgotMpinModal">
+                                    Forgot MPIN?
+                                </button>
+
                             </div>
                             <div class="card-body">
                                 <form id="changeMpinForm">
@@ -1608,7 +1625,8 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                 </p>
                                 <span class="badge" id="panBadge">Checking...</span>
                             </div>
-                            <button type="button" class="btn" id="panButton" onclick="verifyDocument('pan')">Verify</button>
+                            <button type="button" class="btn" id="panButton"
+                                onclick="verifyDocument('pan')">Verify</button>
                         </div>
                         <div class="mt-3" id="panMessage"></div>
                     </div>
@@ -1625,7 +1643,8 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                 </p>
                                 <span class="badge" id="gstBadge">Checking...</span>
                             </div>
-                            <button type="button" class="btn" id="gstButton" onclick="verifyDocument('gst')">Verify</button>
+                            <button type="button" class="btn" id="gstButton"
+                                onclick="verifyDocument('gst')">Verify</button>
                         </div>
                         <div class="mt-3" id="gstMessage"></div>
                     </div>
@@ -1642,7 +1661,8 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                 </p>
                                 <span class="badge" id="cinBadge">Checking...</span>
                             </div>
-                            <button type="button" class="btn" id="cinButton" onclick="verifyDocument('cin')">Verify</button>
+                            <button type="button" class="btn" id="cinButton"
+                                onclick="verifyDocument('cin')">Verify</button>
                         </div>
                         <div class="mt-3" id="cinMessage"></div>
                     </div>
@@ -1659,7 +1679,8 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                 </p>
                                 <span class="badge" id="bankBadge">Checking...</span>
                             </div>
-                            <button type="button" class="btn" id="bankButton" onclick="verifyDocument('bank')">Verify</button>
+                            <button type="button" class="btn" id="bankButton"
+                                onclick="verifyDocument('bank')">Verify</button>
                         </div>
                         <div class="mt-3" id="bankMessage"></div>
                     </div>
@@ -1682,7 +1703,8 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                 </p>
                                 <span class="badge" id="videoKycBadge">Checking...</span>
                             </div>
-                            <button type="button" class="btn" id="videoKycButton" onclick="verifyDocument('videokyc')">Verify</button>
+                            <button type="button" class="btn" id="videoKycButton"
+                                onclick="verifyDocument('videokyc')">Verify</button>
                         </div>
                         <div class="mt-3" id="videoKycMessage"></div>
                     </div>
@@ -1715,7 +1737,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                         <option value="">-- Select Service --</option>
                         @foreach ($UserServices as $userService)
                         <option value="{{ $userService->slug }}">{{ $userService->service_name }}</option>
-                    @endforeach
+                        @endforeach
                     </select> --}}
                     <select class="form-select form-select2" name="service" id="service" required>
                         <option value="">-- Select Service --</option>
@@ -1782,6 +1804,246 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 </div>
 
 
+<!-- Forgot MPIN Modal -->
+<div class="modal fade" id="forgotMpinModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Reset MPIN</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <!-- EMAIL DISPLAY -->
+                <div id="emailSection">
+                    <p class="text-center">
+                        OTP will be sent to<br>
+                        <strong id="maskedEmail">{{$userdata->masked_email}}</strong>
+                    </p>
+
+                    <div class="text-center mt-3">
+                        <button class="btn btn-sm buttonColor" id="sendOtpBtn">
+                            Send OTP
+                        </button>
+                    </div>
+                </div>
+
+
+                <!-- OTP SECTION -->
+                <div id="otpSection" style="display:none">
+
+                    <p class="text-center mb-3">Enter 4 Digit OTP sent to your Email</p>
+
+                    <div class="d-flex justify-content-center gap-2 mb-3">
+
+                        <input type="text" inputmode="numeric" maxlength="1" class="otp-box form-control" id="otp1"
+                            autofocus>
+                        <input type="text" inputmode="numeric" maxlength="1" class="otp-box form-control" id="otp2">
+                        <input type="text" inputmode="numeric" maxlength="1" class="otp-box form-control" id="otp3">
+                        <input type="text" inputmode="numeric" maxlength="1" class="otp-box form-control" id="otp4">
+
+                    </div>
+
+                    <div class="d-flex justify-content-center gap-2">
+                        <button class="btn btn-sm buttonColor" id="verifyOtpBtn">
+                            Verify OTP
+                        </button>
+                        <button class="btn btn-sm buttonColor" id="resendOtpBtn">
+                            Resend OTP
+                        </button>
+                    </div>
+
+                </div>
+
+
+                <!-- NEW MPIN SECTION -->
+                <div id="mpinSection" style="display:none">
+
+                    <div class="mb-3">
+                        <label class="form-label">New MPIN</label>
+                        <input type="password" class="form-control" id="newMpin" placeholder="Enter MPIN" maxlength="4"
+                            inputmode="numeric">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Confirm MPIN</label>
+                        <input type="password" class="form-control" id="confirmMpin" placeholder="Confirm MPIN"
+                            maxlength="4" inputmode="numeric">
+                    </div>
+
+                    <div class="text-end">
+                        <button class="btn btn-sm buttonColor" id="updateMpinBtn">
+                            Update MPIN
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<script>
+
+    document.querySelectorAll('.otp-box').forEach((input, index, inputs) => {
+
+        input.addEventListener('keyup', function (e) {
+
+            if (this.value.length === 1 && index < inputs.length - 1) {
+                inputs[index + 1].focus();
+            }
+
+            if (e.key === "Backspace" && index > 0) {
+                inputs[index - 1].focus();
+            }
+
+        });
+
+    });
+
+
+    $('#sendOtpBtn, #resendOtpBtn').click(function () {
+
+        let $btn = $(this);
+        $btn.prop('disabled', true);
+        $btn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...');
+
+        $.ajax({
+            url: "{{ route('send_otp_forget_mpin') }}",
+            success: function (response) {
+                if (response.status === true) {
+                    Swal.fire('Success', response.message || 'OTP sent successfully', 'success');
+                    $('#emailSection').hide();
+                    $('#otpSection').show();
+                    if ($btn.attr('id') === 'sendOtpBtn') {
+                        $btn.text('OTP Sent'); // permanently change Send OTP button
+                    } else {
+                        $btn.text('Resend OTP'); // revert Resend OTP button text
+                    }
+                } else {
+                    Swal.fire('Error', response.message || 'Failed to send otp', 'error');
+                    $btn.text($btn.attr('id') === 'sendOtpBtn' ? 'Send OTP' : 'Resend OTP');
+                    $btn.prop('disabled', false);
+                }
+            },
+            error: function (xhr, status, error) {
+                Swal.fire('Error', xhr.responseJSON?.message || 'Something went wrong. Please try again.', 'error');
+                $btn.text($btn.attr('id') === 'sendOtpBtn' ? 'Send OTP' : 'Resend OTP');
+                $btn.prop('disabled', false);
+            },
+            complete: function () {
+                if ($btn.attr('id') === 'resendOtpBtn') {
+                    $btn.prop('disabled', false);
+                }
+            }
+        });
+
+    });
+
+
+    $('#verifyOtpBtn').click(function () {
+
+        let $btn = $(this);
+
+        let otp = $('#otp1').val() + $('#otp2').val() + $('#otp3').val() + $('#otp4').val();
+
+        if (otp.length < 4) {
+            Swal.fire('Error', 'Please enter complete 4-digit OTP', 'error');
+            return;
+        }
+
+        $btn.prop('disabled', true);
+        $btn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Verifying...');
+
+        $.ajax({
+            url: "{{ route('verify_otp_forget_mpin') }}", // Laravel route
+            type: 'POST',
+            data: {
+                _token: $('meta[name="csrf-token"]').attr('content'),
+                otp: otp
+            },
+            success: function (response) {
+                if (response.status === true) {
+                    Swal.fire('Success', response.message || 'OTP Verified', 'success');
+
+                    // Hide OTP section & show New MPIN section
+                    $('#otpSection').hide();
+                    $('#mpinSection').show();
+
+                } else {
+                    Swal.fire('Error', response.message || 'Invalid OTP', 'error');
+                    $btn.prop('disabled', false);
+                    $btn.text('Verify OTP');
+                }
+            },
+            error: function (xhr) {
+                Swal.fire('Error', xhr.responseJSON?.message || 'Something went wrong', 'error');
+                $btn.prop('disabled', false);
+                $btn.text('Verify OTP');
+            },
+            complete: function () {
+                $btn.prop('disabled', false);
+                $btn.text('Verify OTP');
+            }
+        });
+
+    });
+
+
+    $('#updateMpinBtn').click(function () {
+
+        let $btn = $(this);
+
+        const newMpin = $("#newMpin").val();
+        const confirmMpin = $("#confirmMpin").val();
+
+        $btn.prop('disabled', true);
+        $btn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...');
+
+        $.ajax({
+            url: "{{ route('forget_mpin') }}", // Laravel route
+            type: 'POST',
+            data: {
+                _token: $('meta[name="csrf-token"]').attr('content'),
+                newMpin: newMpin,
+                confirmMpin: confirmMpin,
+            },
+            success: function (response) {
+                if (response.status === true) {
+                    $("#forgotMpinModal").modal('hide');
+                    Swal.fire('Success', response.message || 'MPIN Changed Successfully', 'success');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000);
+                } else {
+                    Swal.fire('Error', response.message || 'MPIN not Changed', 'error');
+                    $btn.prop('disabled', false);
+                    $btn.text('Update MPIN');
+                }
+            },
+            error: function (xhr) {
+                Swal.fire('Error', xhr.responseJSON?.message || 'Something went wrong', 'error');
+                $btn.prop('disabled', false);
+                $btn.text('Update MPIN');
+            },
+            complete: function () {
+                $btn.prop('disabled', false);
+                $btn.text('Update MPIN');
+            }
+        });
+
+    });
+</script>
+
+
 
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -1814,7 +2076,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
 
 <script>
-    document.getElementById('nextStep').addEventListener('click', function(e) {
+    document.getElementById('nextStep').addEventListener('click', function (e) {
 
         const currentStep = document.querySelector('.step:not(.d-none)');
         const inputs = currentStep.querySelectorAll('.validate');
@@ -1854,7 +2116,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
             // progress bar
             const stepNo = next.classList.contains('step-2') ? 2 :
                 next.classList.contains('step-3') ? 3 :
-                next.classList.contains('step-4') ? 4 : 5;
+                    next.classList.contains('step-4') ? 4 : 5;
 
 
             document.querySelectorAll('.step-item').forEach(item => {
@@ -1886,7 +2148,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
         $('.step-item').removeClass('active completed');
 
-        $('.step-item').each(function() {
+        $('.step-item').each(function () {
             let itemStep = $(this).data('step');
             if (itemStep < step) {
                 $(this).addClass('completed');
@@ -1901,7 +2163,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
         updateNextButton(step, 5);
     }
 
-    $('#nextStep').click(function() {
+    $('#nextStep').click(function () {
         saveDraft();
         if (currentStep < totalSteps) {
             currentStep++;
@@ -1913,14 +2175,14 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
         }
     });
 
-    $('#prevStep').click(function() {
+    $('#prevStep').click(function () {
         if (currentStep > 1) {
             currentStep--;
             showStep(currentStep);
         }
     });
 
-    $('#completeProfileModal').on('shown.bs.modal', function() {
+    $('#completeProfileModal').on('shown.bs.modal', function () {
 
         currentStep = 1;
         showStep(currentStep);
@@ -1937,7 +2199,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
             const draft = JSON.parse(localStorage.getItem('profileDraft'));
 
             if (draft) {
-                Object.keys(draft).forEach(function(key) {
+                Object.keys(draft).forEach(function (key) {
                     const field = document.querySelector('[name="' + key + '"]');
                     if (field && !field.disabled) {
                         field.value = draft[key];
@@ -1951,7 +2213,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 </script>
 
 <script>
-    $(document).on('submit', '#nsdlPayForm', function(e) {
+    $(document).on('submit', '#nsdlPayForm', function (e) {
         e.preventDefault();
 
         let btn = $('#payNowBtn');
@@ -1966,7 +2228,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
             url: "{{ route('nsdl-initiatePayment') }}",
             type: "POST",
             data: $(this).serialize(),
-            success: function(res) {
+            success: function (res) {
                 if (!res.status) {
                     Swal.fire('Error', res.message || 'Failed', 'error');
                     return;
@@ -1994,10 +2256,10 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
                 Swal.fire('Warning', 'QR data not found in API response', 'warning');
             },
-            error: function(xhr) {
+            error: function (xhr) {
                 Swal.fire('Error', xhr.responseJSON?.message || 'Server Error', 'error');
             },
-            complete: function() {
+            complete: function () {
                 btn.prop('disabled', false).text('Pay Now');
             }
         });
@@ -2007,9 +2269,9 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
 
-        $('#serviceForm').on('submit', function(e) {
+        $('#serviceForm').on('submit', function (e) {
             e.preventDefault();
 
             const service = $('#service').val();
@@ -2047,7 +2309,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                 service: service,
                 _token: $('meta[name="csrf-token"]').attr('content'),
             }),
-            success: function(response) {
+            success: function (response) {
 
                 const client_id = response.data.client_id;
                 const client_key = response.data.client_secret;
@@ -2067,7 +2329,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                     showCredentials(result.client_id, result.client_key);
                 }
             },
-            error: function(xhr) {
+            error: function (xhr) {
                 console.error(xhr.responseText);
             }
         });
@@ -2141,7 +2403,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
 
 <script>
-    $('#changePasswordForm').on('submit', function(e) {
+    $('#changePasswordForm').on('submit', function (e) {
         e.preventDefault();
 
         $('.text-danger').text('');
@@ -2150,7 +2412,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
             url: "{{ route('admin.change_password') }}",
             type: "POST",
             data: $(this).serialize(),
-            success: function(response) {
+            success: function (response) {
                 Swal.fire({
                     icon: 'success',
                     title: 'Success',
@@ -2160,13 +2422,13 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
                 $('#changePasswordForm')[0].reset();
             },
-            error: function(xhr) {
+            error: function (xhr) {
 
                 if (xhr.status === 422) {
                     let errors = xhr.responseJSON.errors;
 
                     if (errors) {
-                        $.each(errors, function(key, value) {
+                        $.each(errors, function (key, value) {
                             $('.error-' + key).text(value[0]);
                         });
                     } else {
@@ -2190,7 +2452,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
         const userId = document.getElementById('user_id').value;
         // console.log('User ID:', userId);
         // Automatically append all input, select, textarea values
-        $('#completeProfileModal input, #completeProfileModal select, #completeProfileModal textarea').each(function() {
+        $('#completeProfileModal input, #completeProfileModal select, #completeProfileModal textarea').each(function () {
             const name = $(this).attr('name');
             if (!name) return;
 
@@ -2236,7 +2498,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
             data: formData,
             processData: false,
             contentType: false,
-            success: function(response) {
+            success: function (response) {
                 // Handle success
                 $('#completeProfileModal').modal('hide');
                 Swal.fire({
@@ -2252,7 +2514,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                     location.reload();
                 }, 2000);
             },
-            error: function(xhr) {
+            error: function (xhr) {
                 // Handle errors
                 let errorMessage = 'Something went wrong!';
 
@@ -2303,7 +2565,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
     // Live validation: typing ke sath error remove ho
     document.querySelectorAll('.validate').forEach(input => {
 
-        input.addEventListener('input', function() {
+        input.addEventListener('input', function () {
             const pattern = this.getAttribute('pattern');
             const error = this.nextElementSibling;
 
@@ -2322,7 +2584,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         var table = $('#ipWhitelistTable').DataTable({
             processing: true,
             serverSide: true,
@@ -2337,31 +2599,31 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                 }
             },
             columns: [{
-                    data: 'id',
-                    render: (data, type, row, meta) => meta.row + meta.settings._iDisplayStart + 1
-                },
-                {
-                    data: 'service.service_name',
-                    defaultContent: '<span class="text-muted">N/A</span>'
-                },
-                {
-                    data: 'ip_address'
-                },
-                {
-                    data: 'is_active',
-                    render: (data, type, row) => `
+                data: 'id',
+                render: (data, type, row, meta) => meta.row + meta.settings._iDisplayStart + 1
+            },
+            {
+                data: 'service.service_name',
+                defaultContent: '<span class="text-muted">N/A</span>'
+            },
+            {
+                data: 'ip_address'
+            },
+            {
+                data: 'is_active',
+                render: (data, type, row) => `
                     <div class="form-check form-switch">
                         <input class="form-check-input status-toggle" type="checkbox" data-id="${row.id}" ${data == "1" ? 'checked' : ''}>
                     </div>`
-                },
-                {
-                    data: 'created_at',
-                    render: (data) => typeof moment !== 'undefined' ? moment(data).format(
-                        'DD-MMM-YYYY hh:mm A') : data
-                },
-                {
-                    data: null,
-                    render: (data, type, row) => `
+            },
+            {
+                data: 'created_at',
+                render: (data) => typeof moment !== 'undefined' ? moment(data).format(
+                    'DD-MMM-YYYY hh:mm A') : data
+            },
+            {
+                data: null,
+                render: (data, type, row) => `
                     <div class="btn-group">
                         <button class="btn btn-outline-primary btn-sm edit-btn me-1 edit-ip" 
                             data-id="${row.id}" data-ip="${row.ip_address}" data-service="${row.service_id}">
@@ -2371,12 +2633,12 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             <i class="bi bi-trash"></i>
                         </button>
                     </div>`
-                }
+            }
             ]
         });
 
 
-        $('.btn[data-bs-target="#addIpModal"]').on('click', function() {
+        $('.btn[data-bs-target="#addIpModal"]').on('click', function () {
             $('#ipForm')[0].reset();
             $('#ip_id').val('');
             $('#modalTitle').text('Add IP to Whitelist');
@@ -2386,7 +2648,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
         });
 
 
-        $(document).on('click', '.edit-ip', function() {
+        $(document).on('click', '.edit-ip', function () {
             const id = $(this).data('id');
             const ip = $(this).data('ip');
             const serviceId = $(this).data('service');
@@ -2401,7 +2663,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
         });
 
 
-        $('#ipForm').on('submit', function(e) {
+        $('#ipForm').on('submit', function (e) {
             e.preventDefault();
             const id = $('#ip_id').val();
             const submitBtn = $('#modalSubmitBtn');
@@ -2414,7 +2676,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                 url: targetUrl,
                 type: "POST",
                 data: $(this).serialize(),
-                success: function(res) {
+                success: function (res) {
                     if (res.status) {
                         $('#ipModal').modal('hide');
                         table.ajax.reload(null, false);
@@ -2423,7 +2685,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                         Swal.fire('Warning', res.message, 'warning');
                     }
                 },
-                error: function(xhr) {
+                error: function (xhr) {
                     let errorMsg = xhr.status === 422 ? Object.values(xhr.responseJSON
                         .errors).flat().join('<br>') : 'Internal Server Error';
                     Swal.fire('Error', errorMsg, 'error');
@@ -2434,7 +2696,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
         });
 
 
-        $(document).on('change', '.status-toggle', function() {
+        $(document).on('change', '.status-toggle', function () {
             let checkbox = $(this);
             let id = checkbox.data('id');
             let isChecked = checkbox.is(':checked') ? 1 : 0;
@@ -2454,7 +2716,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                     $.ajax({
                         url: "{{ route('status_ip_address',['id' => ':id']) }}".replace(':id', id),
                         type: "GET",
-                        success: function(res) {
+                        success: function (res) {
                             if (res.status) {
                                 Swal.fire({
                                     icon: 'success',
@@ -2471,7 +2733,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                     ':checked'));
                             }
                         },
-                        error: function() {
+                        error: function () {
                             Swal.fire('Error', 'Server side error occurred',
                                 'error');
                             checkbox.prop('checked', !checkbox.is(
@@ -2487,7 +2749,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
 
 
-        $(document).on('click', '.delete-ip', function(e) {
+        $(document).on('click', '.delete-ip', function (e) {
             e.preventDefault();
             let id = $(this).data('id');
             let deleteUrl = "{{ route('delete_ip_address',['id'=> ':id']) }}".replace(':id', id);
@@ -2508,7 +2770,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                     $.ajax({
                         url: deleteUrl,
                         type: "GET",
-                        success: function(res) {
+                        success: function (res) {
                             if (res.status) {
                                 Swal.fire({
                                     icon: 'success',
@@ -2522,7 +2784,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                 Swal.fire('Error', res.message, 'error');
                             }
                         },
-                        error: function(xhr) {
+                        error: function (xhr) {
                             console.error(xhr.responseText);
                             Swal.fire('Error',
                                 'Server error: Could not delete the IP.',
@@ -2538,10 +2800,10 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
 
         if ($('#changeMpinForm').length > 0) {
-            $('#changeMpinForm').on('submit', function(e) {
+            $('#changeMpinForm').on('submit', function (e) {
                 e.preventDefault();
                 e.stopPropagation();
 
@@ -2557,7 +2819,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     data: $(this).serialize(),
-                    success: function(response) {
+                    success: function (response) {
                         if (response.status) {
                             Swal.fire('Success', response.message, 'success');
                             $('#changeMpinForm')[0].reset();
@@ -2565,10 +2827,10 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             Swal.fire('Error', response.message, 'error');
                         }
                     },
-                    error: function(xhr) {
+                    error: function (xhr) {
                         if (xhr.status === 422) {
                             let errors = xhr.responseJSON.errors;
-                            $.each(errors, function(key, value) {
+                            $.each(errors, function (key, value) {
                                 $('.error-' + key).text(value[0]);
                             });
                         } else {
@@ -2577,7 +2839,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             Swal.fire('Error', errorMsg, 'error');
                         }
                     },
-                    complete: function() {
+                    complete: function () {
                         submitBtn.prop('disabled', false).text('Update MPIN');
                     }
                 });
@@ -2587,9 +2849,9 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 </script>
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
 
-        $('#webhookForm').on('submit', function(e) {
+        $('#webhookForm').on('submit', function (e) {
             e.preventDefault();
 
             let btn = $('#saveWebhookBtn');
@@ -2601,7 +2863,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                 url: "{{ route('web_hook_url') }}",
                 type: "POST",
                 data: $(this).serialize(),
-                success: function(res) {
+                success: function (res) {
                     if (res.status) {
                         $('#display_webhook_url').text(res.data.url);
                         $('#webhookBtnText').text('Update URL');
@@ -2620,7 +2882,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                         Swal.fire('Error', res.message || 'Something went wrong', 'error');
                     }
                 },
-                error: function(xhr) {
+                error: function (xhr) {
                     if (xhr.status === 422) {
                         let errors = xhr.responseJSON.errors;
                         if (errors && errors.url) {
@@ -2631,7 +2893,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             'error');
                     }
                 },
-                complete: function() {
+                complete: function () {
                     btn.prop('disabled', false).text('Save Changes');
                 }
             });
@@ -2640,7 +2902,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
     });
 </script>
 <script>
-    $(function() {
+    $(function () {
         const kyc = @json(request('is_kyc') === 'Yes');
 
         if (kyc == true || kyc == 1) {
@@ -2663,7 +2925,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
             user_id: userId
         };
 
-        $('#completeProfileModal input, #completeProfileModal select, #completeProfileModal textarea').each(function() {
+        $('#completeProfileModal input, #completeProfileModal select, #completeProfileModal textarea').each(function () {
 
             const name = $(this).attr('name');
             if (name === '_token') return;
@@ -2689,7 +2951,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
     }
 
     document.getElementById('documentVerificationModal')
-        .addEventListener('show.bs.modal', function() {
+        .addEventListener('show.bs.modal', function () {
 
             // Reset to step 1
             docVerifyStep = 1;
@@ -2746,7 +3008,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
 
     // Step navigation
-    document.getElementById("nextDocStep").addEventListener("click", function() {
+    document.getElementById("nextDocStep").addEventListener("click", function () {
         if (docVerifyStep < 5) {
             getDocStepEl(docVerifyStep).classList.add("d-none");
             docVerifyStep++;
@@ -2755,7 +3017,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
         }
     });
 
-    document.getElementById("prevDocStep").addEventListener("click", function() {
+    document.getElementById("prevDocStep").addEventListener("click", function () {
         if (docVerifyStep > 1) {
             getDocStepEl(docVerifyStep).classList.add("d-none");
             docVerifyStep--;
@@ -2838,13 +3100,13 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
         }
 
         fetch(url, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                },
-                body: JSON.stringify(payload)
-            })
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+            },
+            body: JSON.stringify(payload)
+        })
             .then(res => res.json())
             .then(response => {
                 console.log("Response:", response);

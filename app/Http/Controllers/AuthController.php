@@ -399,22 +399,19 @@ class AuthController extends Controller
     }
 
 
-    public function forgetPassword(Request $request)
+    public function sendOtpForForgetPassword(Request $request)
     {
+
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+        ], [
+            'email.required' => 'Email is required',
+            'email.email' => 'Please enter valid email address',
+            'email.exists' => 'Email not found',
+        ]);
+
         DB::beginTransaction();
         try {
-
-            $validator = Validator::make($request->all(), [
-                'email' => 'required|email|exists:users,email',
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Validation error',
-                    'errors' => $validator->errors(),
-                ], 422);
-            }
 
             $user = User::where('email', $request->email)->first();
 
@@ -447,7 +444,7 @@ class AuthController extends Controller
                 ]);
             } catch (\Exception $e) {
                 DB::rollBack();
-                Log::error('Mail sending failed: ' . $e->getMessage());
+                \Log::error('Mail sending failed: ' . $e->getMessage());
                 return response()->json([
                     'status' => false,
                     'message' => 'Failed to send OTP. Please try again.',
@@ -508,7 +505,7 @@ class AuthController extends Controller
             }
 
 
-            if (!$user->forget_password_otp) {
+            if (!$user->forget_password_otp || $user->forget_password_otp != $request->otp) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Invalid OTP',
@@ -538,7 +535,55 @@ class AuthController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Something went wrong. Please try again later.',
+                'message' => 'Error : ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+    public function forgetPassword(Request $request)
+    {
+        $request->validate([
+            'id' => 'required',
+            'password' => 'required|min:6',
+            'confirmPassword' => 'required|min:6|same:password',
+        ]);
+
+        DB::beginTransaction();
+        try {
+
+            try {
+                $userId = Crypt::decryptString($request->id);
+                $user = User::find($userId);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Invalid user id',
+                ], 400);
+            }
+
+            if (! $user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User not found',
+                ], 404);
+            }
+
+            $user->password = Hash::make($request->password);
+            $user->save();
+
+            DB::commit();
+            return response()->json([
+                'status' => true,
+                'message' => 'Password changed successfully',
+            ]);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            \Log::error('Error : ' . $e->getMessage());
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Error : ' . $e->getMessage(),
             ], 500);
         }
     }

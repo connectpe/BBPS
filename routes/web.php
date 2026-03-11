@@ -37,8 +37,10 @@ Route::get('kyc', function () {
     return view('Users.kyc-page');
 });
 
-Route::post('forget-password', [AuthController::class, 'forgetPassword'])->name('forget_password');
+Route::post('send-otp-forget-password', [AuthController::class, 'sendOtpForForgetPassword'])->name('send_otp_forget_password');
 Route::post('verify-otp-forget-password', [AuthController::class, 'verifyOtpForgetPassword'])->name('verify_otp_forget_password');
+Route::post('forget-password', [AuthController::class, 'forgetPassword'])->name('forget_password');
+
 
 Route::group(['middleware' => ['auth']], function () {
     Route::group(['prefix' => 'admin'], function () {
@@ -215,6 +217,9 @@ Route::group(['middleware' => ['auth']], function () {
 
     // reseller routes
     Route::get('reports', [LadgerController::class, 'reports'])->name('reseller_reports');
+    Route::get('send-otp-forget-mpin',[UserController::class,'sendForgetMpinOtp'])->name('send_otp_forget_mpin');
+    Route::post('verify-otp-forget-mpin',[UserController::class,'verifyOtpForgetMpin'])->name('verify_otp_forget_mpin');
+    Route::post('forget-mpin',[UserController::class,'forgetMPIN'])->name('forget_mpin');
 });
 
 Route::group(['middleware' => ['logs', 'auth'], 'prefix' => 'document'], function () {
