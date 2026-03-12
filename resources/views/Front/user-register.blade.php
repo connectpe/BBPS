@@ -280,7 +280,7 @@
                         <div class="mb-3 form-floating">
                             <input type="password" name="currentPassword" class="form-control" id="currentPassword"
                                 placeholder="Password">
-                            <label for="currentPassword">Password</label>
+                            <label for="currentPassword">New Password</label>
                         </div>
 
                         <div class="mb-3 form-floating">
