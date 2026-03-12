@@ -1192,7 +1192,7 @@ class AdminController extends Controller
                 ]);
             }
             $request->validate([
-                'name' => 'required|string|min:3',
+                'name' => 'required|string',
                 'email' => 'required|email|unique:users',
                 'mobile' => 'required|digits:10',
                 'password' => 'required|min:6',

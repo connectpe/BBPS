@@ -34,6 +34,8 @@
                             <option value="0">Initiated</option>
                             <option value="1">Active</option>
                             <option value="2">Inactive</option>
+                            <option value="3">Pending</option>
+                            <option value="4">Suspended</option>
                         </select>
                     </div>
                     <div class="col-md-3">
