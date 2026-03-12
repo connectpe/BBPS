@@ -90,7 +90,7 @@ class AuthController extends Controller
                     'subject' => 'Email Verification for Dashboard Login '
 
                 ]);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 return response()->json([
                     'status' => false,
                     'message' => $e->getMessage(),

@@ -65,7 +65,7 @@ class BbpsRechargeController extends Controller
 
             $mobikwikHelper = new MobiKwikHelper();
             $paymentResponse = $mobikwikHelper->Payment($endpoint, $request->mobile, $request->operator_id, $request->circle_id, $request->plan_id, $request->amount);
-            dd($paymentResponse);
+            // dd($paymentResponse);
 
             if (!empty($paymentResponse)) {
                 return response()->json([
@@ -91,7 +91,7 @@ class BbpsRechargeController extends Controller
         }
     }
 
-    
+
 
 
     public function getPlans($operator_id, $circle_id, $plan_type = null)
