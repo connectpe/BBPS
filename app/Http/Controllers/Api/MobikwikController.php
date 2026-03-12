@@ -301,12 +301,12 @@ class MobikwikController extends Controller
         $ip = $request->ip();
 
         $ipWhitelist = CommonHelper::checkIpWhiteList($userId, $serviceId, $ip);
-        if (! $ipWhitelist) {
-            return response()->json([
-                'status' => false,
-                'mesage' => 'Ip not whitelisted',
-            ]);
-        }
+        // if (! $ipWhitelist) {
+        //     return response()->json([
+        //         'status' => false,
+        //         'mesage' => 'Ip not whitelisted',
+        //     ]);
+        // }
 
         switch ($type) {
 
@@ -524,9 +524,9 @@ class MobikwikController extends Controller
         // ]);
 
         $messages = [
-            'customerNUmber.required' => 'Customer number is required.',
-            'customerNUmber.string' => 'Customer number must be a valid string.',
-            'customerNUmber.regex' => 'Customer number must be a 10-digit number.',
+            'connectionNUmber.required' => 'Customer number is required.',
+            'connectionNUmber.string' => 'Customer number must be a valid string.',
+            'connectionNUmber.regex' => 'Customer number must be a 10-digit number.',
 
             'operator.required' => 'Operator is required.',
             'operator.exists' => 'Selected operator is invalid.',
@@ -569,7 +569,7 @@ class MobikwikController extends Controller
         ];
 
         $request->validate([
-            'customerNUmber' => 'required|string|regex:/^[0-9]{10}$/',
+            'connectionNUmber' => 'required|string|regex:/^[0-9]{10}$/',
             'operator' => 'required',
             'circle' => '',
             'amount' => 'required|numeric|min:1',
@@ -595,7 +595,7 @@ class MobikwikController extends Controller
 
                     $slug = $defaultSlugData->provider_slug;
                     $payload = [
-                        'cn' => $request->customerNUmber,
+                        'cn' => $request->connectionNUmber,
                         'op' => $request->operator,
                         "cir" => $request->circle,
                         'amt' => $request->amount,
@@ -737,7 +737,7 @@ class MobikwikController extends Controller
                     'agentId' => "MK01MK01INB523643654",
                     'adParams' => (object)[],
                 ];
-                dd($payload);
+                // dd($payload);
                 $mobikwikHelper = new MobiKwikHelper;
                 $token = $this->isTokenPresent();
                 // dd($token);
