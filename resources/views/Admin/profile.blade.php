@@ -2590,6 +2590,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
             serverSide: true,
             pageLength: 5,
             lengthMenu: [5, 10, 25, 50, 100],
+            order: [[0, 'desc']],
             ajax: {
                 url: "{{ url('fetch/ip-whitelist/0') }}",
                 type: 'POST',
