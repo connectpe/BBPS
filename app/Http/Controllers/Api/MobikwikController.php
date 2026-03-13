@@ -109,7 +109,7 @@ class MobikwikController extends Controller
 
             $userData = CommonHelper::validateClient($encryptedId, $encryptedSecret);
 
-            if (! $userData) {
+            if (!$userData) {
                 return [
                     'status' => false,
                     'message' => 'you are passing the invalid credentials',
@@ -160,19 +160,20 @@ class MobikwikController extends Controller
             $ip = $request->ip();
 
             $ipWhitelist = CommonHelper::checkIpWhiteList($userId, $serviceId, $ip);
-            // if (!$ipWhitelist) {
-            //     return response()->json([
-            //         'status' => false,
-            //         'mesage' => 'Ip not whitelisted'
-            //     ]);
-            // }
+            if (!$ipWhitelist) {
+                return response()->json([
+                    'status' => false,
+                    'mesage' => 'Ip not whitelisted'
+                ]);
+            }
 
             $opId = $operator_id;
             $cirId = $circle_id;
             $planType = $plan_type;
             $ProviderName = $provider;
+            // dd($ProviderName);
             switch ($ProviderName) {
-                case 'plans':
+                case 'mobikwik-plans':
                     try {
                         $endpoint = "/recharge/v1/rechargePlansAPI/{$opId}/{$cirId}";
 

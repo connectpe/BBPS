@@ -43,7 +43,7 @@ class CommonHelper
             ];
         }
 
-        $credential->service = $serviceSlug->service;
+        // $credential->service = $serviceSlug->service;
         return [
             'status'   => true,
             'user_id'  => $credential->user_id,
@@ -160,7 +160,6 @@ class CommonHelper
 
             $data = IpWhitelist::where(['user_id' => $userId, 'service_id' => $serviceId, 'ip_address' => $ip])->count();
 
-
             if ($data > 0) {
                 $status = true;
             }
@@ -174,7 +173,7 @@ class CommonHelper
         }
     }
 
-     public static function getRandomString2($prefix = '', $separator = true, $length = 2)
+    public static function getRandomString2($prefix = '', $separator = true, $length = 2)
     {
         $ts = hrtime(true);
 
@@ -194,7 +193,8 @@ class CommonHelper
         }
         return $string;
     }
-     public static function getRandomString($prefix = '', $separator = true, $length = 5)
+     
+    public static function getRandomString($prefix = '', $separator = true, $length = 5)
     {
         $ts = hrtime(true);
 
