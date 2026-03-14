@@ -546,33 +546,18 @@ class MobikwikController extends Controller
 
     public function mobikwikPayment(Request $request, $type)
     {
-        // dd($type);
         $data = $this->ValidateUsers($request);
         $userId = $data['user_id'];
         $serviceId = $data['service'];
         $ip = $request->ip();
-        $ipWhitelist = CommonHelper::checkIpWhiteList($userId, $serviceId, $ip);
-        // if (!$ipWhitelist) {
-        //     return response()->json([
-        //         'status' => false,
-        //         'mesage' => 'Ip not whitelisted'
-        //     ]);
-        // }
 
-        // $request->validate([
-        //     'customerNUmber' => 'required',
-        //     'operator' => 'required',
-        //     'circle' => 'required',
-        //     'amount' => 'required',
-        //     'requestId' => 'required',
-        //     'customerMobile' => 'required',
-        //     'remitterName' => 'required',
-        //     'paymentRefID' => 'required',
-        //     'paymentMode' => 'required',
-        //     'paymentAccountInfo' => 'required',
-        //     'additionalPrm1' => 'nullable',
-        //     'additionalPrm2' => 'nullable'
-        // ]);
+        $ipWhitelist = CommonHelper::checkIpWhiteList($userId, $serviceId, $ip);
+        if (!$ipWhitelist) {
+            return response()->json([
+                'status' => false,
+                'mesage' => 'Ip not whitelisted'
+            ]);
+        }
 
         $messages = [
             'connectionNUmber.required' => 'Customer number is required.',
@@ -615,12 +600,10 @@ class MobikwikController extends Controller
             'additionalPrm1.string' => 'Additional parameter 1 must be a valid string.',
             'additionalPrm1.max' => 'Additional parameter 1 cannot exceed 255 characters.',
 
-            // 'additionalPrm2.string' => 'Additional parameter 2 must be a valid string.',
-            // 'additionalPrm2.max' => 'Additional parameter 2 cannot exceed 255 characters.',
         ];
 
         $request->validate([
-            'connectionNUmber' => 'required|string|regex:/^[0-9]{10}$/',
+            'connectionNumber' => 'required|string|regex:/^[0-9]{10}$/',
             'operator' => 'required',
             'circle' => '',
             'amount' => 'required|numeric|min:1',
@@ -645,8 +628,9 @@ class MobikwikController extends Controller
                     }
 
                     $slug = $defaultSlugData->provider_slug;
+                    dd($slug);
                     $payload = [
-                        'cn' => $request->connectionNUmber,
+                        'cn' => $request->connectionNumber,
                         'op' => $request->operator,
                         "cir" => $request->circle,
                         'amt' => $request->amount,
@@ -658,9 +642,6 @@ class MobikwikController extends Controller
                         'paymentMode' => $request->paymentMode,
                         // "connectpeId" => $connectPeId,
                         'paymentAccountInfo' => $request->paymentAccountInfo,
-                        // "bankCode" => "ICIC",
-                        // 'ad9' => $request->additionalPrm1,
-                        // 'ad3' => $request->additionalPrm2,
                         // 'status'                => 'queued',
                         // "call"               => 'balance_debit',
                         // 'user_id'            => $userId,
