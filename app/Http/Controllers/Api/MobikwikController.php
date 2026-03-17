@@ -420,27 +420,21 @@ class MobikwikController extends Controller
     protected function isTokenPresent()
     {
         try {
-            $tokenData = MobikwikToken::where('expire_at', '>=', now())
-                ->orderBy('expire_at', 'desc')
-                ->select('token', 'expire_at')
+            $tokenData = MobikwikToken::where('is_active', true)
+                ->where('expire_at', '>=', now())
+                ->latest()
                 ->first();
 
-            $token = null;
-            if (! $tokenData) {
-                $mobikwikHelper = new MobiKwikHelper;
-                $data = $mobikwikHelper->generateMobikwikToken();
-                // dd($data);
-                $token = $data->token;
-            } else {
-                $token = $tokenData->token;
+            // Agar valid token mil gaya
+            if ($tokenData) {
+                return $tokenData->token;
             }
 
-            return $token;
+            //  Nahi mila → new generate
+            return (new MobiKwikHelper)->generateToken();
         } catch (\Exception $e) {
             Log::error('Mobikwik Token Present Exception', [
                 'error' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
             ]);
         }
     }
