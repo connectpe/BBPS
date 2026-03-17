@@ -104,9 +104,10 @@ class MobikwikController extends Controller
     protected function ValidateUsers(Request $request)
     {
         try {
+            // dd($request->all());
             $encryptedId = $request->getUser();
             $encryptedSecret = $request->getPassword();
-
+            // dd($encryptedSecret);
             $userData = CommonHelper::validateClient($encryptedId, $encryptedSecret);
 
             if (!$userData) {
@@ -560,9 +561,9 @@ class MobikwikController extends Controller
         }
 
         $messages = [
-            'connectionNUmber.required' => 'Customer number is required.',
-            'connectionNUmber.string' => 'Customer number must be a valid string.',
-            'connectionNUmber.regex' => 'Customer number must be a 10-digit number.',
+            'connectionNumber.required' => 'Connection number is required.',
+            'connectionNumber.string' => 'Connection number must be a valid string.',
+            'connectionNumber.regex' => 'Connection number must be a 10-digit number.',
 
             'operator.required' => 'Operator is required.',
             'operator.exists' => 'Selected operator is invalid.',
@@ -628,7 +629,7 @@ class MobikwikController extends Controller
                     }
 
                     $slug = $defaultSlugData->provider_slug;
-                    dd($slug);
+                    // dd($slug);
                     $payload = [
                         'cn' => $request->connectionNumber,
                         'op' => $request->operator,
@@ -683,13 +684,13 @@ class MobikwikController extends Controller
                         'data' => $response,
                     ]);
 
-                    dispatch(
-                        new DebitBalanceUpdateJob(
-                            $endpoint,
-                            $payload,
-                            $token
-                        )
-                    )->onQueue('recharge_process_queue');
+                    // dispatch(
+                    //     new DebitBalanceUpdateJob(
+                    //         $endpoint,
+                    //         $payload,
+                    //         $token
+                    //     )
+                    // )->onQueue('recharge_process_queue');
                     // $response = $mobikwikHelper->sendRequest(
                     //     '/recharge/v3/retailerPayment',
                     //     $payload,
@@ -714,11 +715,11 @@ class MobikwikController extends Controller
                     //     'connectpe_id' => $connectPeId
 
                     // ];
-                    return response()->json([
-                        'status' => true,
-                        'message' => 'Your recharge is queued successfully',
+                    // return response()->json([
+                    //     'status' => true,
+                    //     'message' => 'Your recharge is queued successfully',
 
-                    ]);
+                    // ]);
                 } catch (\Exception $e) {
                     return response()->json([
                         'status' => false,
