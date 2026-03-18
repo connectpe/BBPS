@@ -222,6 +222,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('send-otp-forget-mpin',[UserController::class,'sendForgetMpinOtp'])->name('send_otp_forget_mpin');
     Route::post('verify-otp-forget-mpin',[UserController::class,'verifyOtpForgetMpin'])->name('verify_otp_forget_mpin');
     Route::post('forget-mpin',[UserController::class,'forgetMPIN'])->name('forget_mpin');
+    Route::get('all-agreements', [UserController::class, 'allAgreement'])->name('all_agreements');
 });
 
 Route::group(['middleware' => ['logs', 'auth'], 'prefix' => 'document'], function () {

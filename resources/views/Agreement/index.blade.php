@@ -1,17 +1,19 @@
 @extends('layouts.app')
 
-@section('title', 'Upload Agreement')
-@section('page-title', 'Upload Agreement')
+@section('title', 'Agreement')
+@section('page-title', 'Agreement')
 
 @section('page-button')
-    <div class="row align-items-center mb-2">
-        <div class="col-auto ms-auto">
-            <button type="button" class="btn buttonColor btn-sm px-4 shadow-sm" data-bs-toggle="modal"
-                data-bs-target="#agreementModal">
-                <i class="fas fa-plus me-1"></i> Add Agreement
-            </button>
+    @if (Auth::user()->role_id == 1)
+        <div class="row align-items-center mb-2">
+            <div class="col-auto ms-auto">
+                <button type="button" class="btn buttonColor btn-sm px-4 shadow-sm" data-bs-toggle="modal"
+                    data-bs-target="#agreementModal">
+                    <i class="fas fa-plus me-1"></i> Add Agreement
+                </button>
+            </div>
         </div>
-    </div>
+    @endif
 @endsection
 
 @section('content')
@@ -19,58 +21,48 @@
 
 
 
-<div class="row mt-4" id="agreementList">
+    <div class="row mt-4" id="agreementList">
 
-    @forelse($agreements as $agreement)
+        @forelse($agreements as $agreement)
+            <div class="col-md-4 mb-3">
+                <div class="card shadow-sm border-0 h-100">
 
-        <div class="col-md-4 mb-3">
-            <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body text-center">
 
-                <div class="card-body text-center">
+                        @php
+                            $ext = pathinfo($agreement->file_path, PATHINFO_EXTENSION);
+                        @endphp
 
-                    @php
-                        $ext = pathinfo($agreement->file_path, PATHINFO_EXTENSION);
-                    @endphp
+                        @if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png']))
+                            <img src="{{ asset('storage/' . $agreement->file_path) }}" class="img-fluid rounded mb-2"
+                                style="max-height:200px; object-fit:cover;">
+                        @elseif($ext == 'pdf')
+                            <i class="bi bi-file-earmark-pdf text-danger" style="font-size:60px;"></i>
+                            <p class="mt-2">PDF Document</p>
+                        @endif
 
-                    @if(in_array(strtolower($ext), ['jpg','jpeg','png']))
-                        <img src="{{ asset('storage/'.$agreement->file_path) }}"
-                             class="img-fluid rounded mb-2"
-                             style="max-height:200px; object-fit:cover;">
-                    @elseif($ext == 'pdf')
-                        <i class="bi bi-file-earmark-pdf text-danger" style="font-size:60px;"></i>
-                        <p class="mt-2">PDF Document</p>
-                    @endif
+                    </div>
 
-                </div>
-
-                <div class="card-footer text-center bg-white">
-
-                    <a href="{{ asset('storage/'.$agreement->file_path) }}"
-                       target="_blank"
-                       class="btn btn-sm btn-primary">
-                        View
-                    </a>
-
-                    <a href="{{ asset('storage/'.$agreement->file_path) }}"
-                       download
-                       class="btn btn-sm btn-success">
-                        Download
-                    </a>
+                    <div class="card-footer text-center bg-white">
+                        <a href="{{ asset('storage/' . $agreement->file_path) }}" target="_blank"
+                            class="btn btn-sm buttonColor">
+                           <i class="fa-solid fa-eye"></i>
+                        </a>
+                        <a href="{{ asset('storage/' . $agreement->file_path) }}" download class="btn btn-sm btn-success">
+                           <i class="fa-solid fa-download"></i>
+                        </a>
+                    </div>
 
                 </div>
-
             </div>
-        </div>
 
-    @empty
+        @empty
+            <div class="col-12 text-center text-muted">
+                No agreements uploaded yet.
+            </div>
+        @endforelse
 
-        <div class="col-12 text-center text-muted">
-            No agreements uploaded yet.
-        </div>
-
-    @endforelse
-
-</div>
+    </div>
 
 
 
@@ -114,79 +106,79 @@
     </div>
 
 
-   <script>
-    $(document).ready(function() {
+    <script>
+        $(document).ready(function() {
 
-        $('#agreementForm').on('submit', function(e) {
-            e.preventDefault();
+            $('#agreementForm').on('submit', function(e) {
+                e.preventDefault();
 
-            let formData = new FormData(this);
+                let formData = new FormData(this);
 
-            $('.file_error').text('');
-            $('#saveAgreementBtn').prop('disabled', true).text('Saving...');
+                $('.file_error').text('');
+                $('#saveAgreementBtn').prop('disabled', true).text('Saving...');
 
-            $.ajax({
-                url: "{{ route('agreement.store') }}",
-                type: "POST",
-                data: formData,
-                processData: false,
-                contentType: false,
+                $.ajax({
+                    url: "{{ route('agreement.store') }}",
+                    type: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
 
-                success: function(response) {
-                    $('#saveAgreementBtn').prop('disabled', false).text('Save');
+                    success: function(response) {
+                        $('#saveAgreementBtn').prop('disabled', false).text('Save');
 
-                    if (response.status == true) {
-                        $('#agreementForm')[0].reset();
+                        if (response.status == true) {
+                            $('#agreementForm')[0].reset();
 
-                        let modalEl = document.getElementById('agreementModal');
-                        let modal = bootstrap.Modal.getInstance(modalEl);
-                        if (modal) {
-                            modal.hide();
+                            let modalEl = document.getElementById('agreementModal');
+                            let modal = bootstrap.Modal.getInstance(modalEl);
+                            if (modal) {
+                                modal.hide();
+                            }
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: response.message,
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.message
+                            });
                         }
+                    },
 
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success',
-                            text: response.message,
-                            timer: 2000,
-                            showConfirmButton: false
-                        });
+                    error: function(xhr) {
+                        $('#saveAgreementBtn').prop('disabled', false).text('Save');
 
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.message
-                        });
-                    }
-                },
+                        if (xhr.status == 422) {
+                            let errors = xhr.responseJSON.errors;
 
-                error: function(xhr) {
-                    $('#saveAgreementBtn').prop('disabled', false).text('Save');
+                            if (errors.file) {
+                                $('.file_error').text(errors.file[0]);
+                            }
 
-                    if (xhr.status == 422) {
-                        let errors = xhr.responseJSON.errors;
-
-                        if (errors.file) {
-                            $('.file_error').text(errors.file[0]);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Validation Error',
+                                text: 'Please select a valid file.'
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Something went wrong.'
+                            });
                         }
-
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Validation Error',
-                            text: 'Please select a valid file.'
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Something went wrong.'
-                        });
                     }
-                }
+                });
             });
-        });
 
-    });
-</script>
+        });
+    </script>
 @endsection

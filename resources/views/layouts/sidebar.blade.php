@@ -492,6 +492,13 @@
                     Ledger Report
                 </a>
             </li>
+            <li class="nav-item">
+                <a href="{{ route('all_agreements') }}"
+                    class="nav-link text-white {{ Route::currentRouteName() == 'all_agreements' ? 'sidebar-active' : '' }}">
+                    <i class="bi bi-file-earmark-text me-2"></i>
+                    Agreement
+                </a>
+            </li>
 
             <!-- Logout -->
             <li class="nav-item">
@@ -623,6 +630,16 @@
         </li> -->
 
 
+
+            <li class="nav-item">
+                <a href="{{ route('all_agreements') }}"
+                    class="nav-link text-white {{ Route::currentRouteName() == 'all_agreements' ? 'sidebar-active' : '' }}">
+                    <i class="bi bi-file-earmark-text me-2"></i>
+                    Agreement
+                </a>
+            </li>
+
+
             <!-- Logout -->
             <li class="nav-item">
                 <form action="{{ route('admin.logout') }}" method="POST">
@@ -715,6 +732,14 @@
                         </div>
                     </li>
                 </ul>
+            </li>
+
+            <li class="nav-item">
+                <a href="{{ route('all_agreements') }}"
+                    class="nav-link text-white {{ Route::currentRouteName() == 'all_agreements' ? 'sidebar-active' : '' }}">
+                    <i class="bi bi-file-earmark-text me-2"></i>
+                    Agreement
+                </a>
             </li>
 
             <li class="nav-item">
