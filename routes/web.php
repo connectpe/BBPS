@@ -119,6 +119,8 @@ Route::group(['middleware' => ['auth']], function () {
 
         Route::get('/load-money-request', [TransactionController::class, 'loadMoneyRequest'])->name('load_money_request');
         Route::post('update-load-money-request', [AdminController::class, 'updateLoadMoneyRequest'])->name('update_load_money_request');        // Complain Report Route
+        Route::get('/agreement', [AdminController::class, 'agreementIndex'])->name('add_agreement');
+        Route::post('/agreement-store', [AdminController::class, 'storeAgreement'])->name('agreement.store');
 
     });
 });

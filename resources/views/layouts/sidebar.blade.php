@@ -300,6 +300,13 @@
                     Ledger
                 </a>
             </li>
+            <li class="nav-item">
+                <a href="{{ route('add_agreement') }}"
+                    class="nav-link text-white {{ Route::currentRouteName() == 'add_agreement' ? 'sidebar-active' : '' }}">
+                    <i class="bi bi-file-earmark-arrow-up me-2"></i>
+                    Agreement Upload
+                </a>
+            </li>
 
             <!-- Logout -->
             <li class="nav-item">
