@@ -5,8 +5,7 @@
 
 @section('page-button')
     <div class="d-flex justify-content-end mb-2">
-        <button type="button" class="btn btn-sm buttonColor shadow-sm" data-bs-toggle="modal" data-bs-target="#categoryModal"
-            onclick="resetForm()">
+        <button type="button" class="btn btn-sm buttonColor shadow-sm" data-bs-toggle="modal" data-bs-target="#categoryModal" onclick="resetForm()">
             <i class="fa fa-plus me-1"></i> Add Category
         </button>
     </div>
@@ -136,7 +135,7 @@
                         searchable: false,
                         render: function(data, type, row) {
                             return `
-                                <button type="button" class="btn btn-sm btn-primary editBtn" 
+                                <button type="button" class="btn btn-sm buttonColor editBtn" 
                                     data-id="${row.id}" 
                                     data-name="${row.name}">
                                     <i class="fa fa-edit"></i>
