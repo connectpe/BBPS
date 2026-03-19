@@ -102,12 +102,17 @@ class UserController extends Controller
 
     public function completeProfile(Request $request, $userId)
     {
+
         DB::beginTransaction();
         try {
 
             $businessData = BusinessInfo::where('user_id', $userId)->first();
             $bankDetail = UsersBank::where('user_id', $userId)->first();
             $user = User::find($userId);
+
+            // short function for the image validation check 
+            $requiredIfMissing = fn($existing) => empty($existing) ? 'required|' : 'nullable|';
+            $requiredIfMissingOrCondition = fn($existing, $condition) => (empty($existing) && $condition) ? 'required|' : 'nullable|';   // this is for the condtional based
 
             $validator = Validator::make(
                 $request->all(),
@@ -117,19 +122,11 @@ class UserController extends Controller
                     'business_category' => 'required|exists:business_categories,id',
                     'business_type' => 'required|string|max:255|regex:/^(?!.*([.,@-])\1{2,}).*$/|regex:/^[a-zA-Z0-9\s&.,-]+$/',
 
-                    // 'cin_number'         => 'nullable|string|max:50|unique:business_infos,cin_no',
-                    // 'gst_number'         => 'required|string|max:50|unique:business_infos,gst_number',
-                    // 'business_pan'       => 'required|string|max:50|unique:business_infos,business_pan_number',
-                    // 'business_email'     => 'nullable|email|max:255|unique:business_infos,business_email ',
-                    // 'business_phone'     => 'nullable|string|max:20|unique:business_infos,business_phone ',
-
                     'cin_number' => 'nullable|string|max:50|unique:business_infos,cin_no,' . ($businessData->id ?? 'NULL') . ',id|regex:/^[A-Z]{1}[0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$/i',
                     'gst_number' => 'required|string|max:50|unique:business_infos,gst_number,' . ($businessData->id ?? 'NULL') . ',id|regex:/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/i',
                     'business_pan' => 'required|string|max:50|unique:business_infos,business_pan_number,' . ($businessData->id ?? 'NULL') . ',id|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i',
                     'business_email' => 'nullable|email|max:255|unique:business_infos,business_email,' . ($businessData->id ?? 'NULL') . ',id',
                     'business_phone' => 'nullable|string|max:20|unique:business_infos,business_phone,' . ($businessData->id ?? 'NULL') . ',id|regex:/^[6-9]\d{9}$/',
-
-                    'business_docs.*' => 'nullable|file|mimes:pdf,jpg,png|max:5120',
 
                     'state' => 'required|string|max:255',
                     'city' => 'required|string|max:255',
@@ -147,6 +144,25 @@ class UserController extends Controller
                     'ifsc_code' => 'required|string|max:20',
                     'branch_name' => 'required|string|max:255',
                     'bank_docs' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
+
+                    // Added in Later
+                    'itr_filled' => 'required|in:1,0',
+                    'itr_not_reason' => 'required_if:itr_filled,0|max:300',
+                    'itr_filled_image' => $requiredIfMissingOrCondition($businessData->itr_file_image, $request->itr_filled == 1)
+                        . 'file|mimes:jpg,jpeg,png|max:2048',
+
+                    'individual_photo' => $requiredIfMissing($businessData->individual_photo) . 'file|mimes:jpg,jpeg,png|max:2048',
+                    'business_pan_image' => $requiredIfMissing($businessData->business_pan_image) . 'file|mimes:jpg,jpeg,png|max:2048',
+                    'registration_certificate_image' => $requiredIfMissing($businessData->registration_certificate_image) . 'file|mimes:jpg,jpeg,png|max:2048',
+
+                    'gst_registration_certificate_image' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
+                    'inside_image' => $requiredIfMissing($businessData->inside_image) . 'file|mimes:jpg,jpeg,png|max:2048',
+                    'outside_image' => $requiredIfMissing($businessData->outside_image) . 'file|mimes:jpg,jpeg,png|max:2048',
+                    'signed_moa_image' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
+                    'signed_aoa_image' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
+                    'board_resolution' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
+                    'nsdl_declaration' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
+
                 ],
                 [
                     'profile_image.image' => 'Profile image must be an image file.',
@@ -192,10 +208,6 @@ class UserController extends Controller
                     'business_phone.max' => 'Business phone must not exceed 20 characters.',
                     'business_phone.unique' => 'This Business Phone has already been taken.',
                     'business_phone.regex' => 'The phone number must be a valid 10-digit Indian mobile number starting with 6-9.',
-
-                    'business_docs.*.file' => 'Each business document must be a valid file.',
-                    'business_docs.*.mimes' => 'Business documents must be a file of type: pdf, jpg, png.',
-                    'business_docs.*.max' => 'Business documents must not exceed 5MB each.',
 
                     'state.required' => 'State is required.',
                     'state.string' => 'State must be a valid string.',
@@ -257,6 +269,75 @@ class UserController extends Controller
                     'bank_docs.file' => 'Each bank document must be a valid file.',
                     'bank_docs.mimes' => 'Bank documents must be a file of type: pdf, jpg, png.',
                     'bank_docs.max' => 'Bank documents must not exceed 5MB each.',
+
+                    // Added in Later
+
+                    // ITR
+                    'itr_filled.required' => 'Please select whether ITR is filed or not.',
+                    'itr_filled.in' => 'Invalid selection for ITR status.',
+
+                    'itr_not_reason.required_if' => 'Please provide a reason if ITR is not filed.',
+                    'itr_not_reason.max' => 'ITR not filed reason must not exceed 300 characters.',
+
+                    'itr_filled_image.required_if' => 'Please upload ITR document when ITR is filed.',
+                    'itr_filled_image.file' => 'ITR document must be a valid file.',
+                    'itr_filled_image.mimes' => 'ITR document must be a file of type: jpg, jpeg, png.',
+                    'itr_filled_image.max' => 'ITR document must not exceed 2MB.',
+
+                    // Individual Photo
+                    'individual_photo.required' => 'Individual photo is required.',
+                    'individual_photo.file' => 'Individual photo must be a valid file.',
+                    'individual_photo.mimes' => 'Individual photo must be a file of type: jpg, jpeg, png.',
+                    'individual_photo.max' => 'Individual photo must not exceed 2MB.',
+
+                    // Business PAN
+                    'business_pan_image.required' => 'Business PAN image is required.',
+                    'business_pan_image.file' => 'Business PAN image must be a valid file.',
+                    'business_pan_image.mimes' => 'Business PAN image must be a file of type: jpg, jpeg, png.',
+                    'business_pan_image.max' => 'Business PAN image must not exceed 2MB.',
+
+                    // Registration Certificate
+                    'registration_certificate_image.required' => 'Registration certificate is required.',
+                    'registration_certificate_image.file' => 'Registration certificate must be a valid file.',
+                    'registration_certificate_image.mimes' => 'Registration certificate must be a file of type: jpg, jpeg, png.',
+                    'registration_certificate_image.max' => 'Registration certificate must not exceed 2MB.',
+
+                    // GST
+                    'gst_registration_certificate_image.file' => 'GST certificate must be a valid file.',
+                    'gst_registration_certificate_image.mimes' => 'GST certificate must be a file of type: jpg, jpeg, png.',
+                    'gst_registration_certificate_image.max' => 'GST certificate must not exceed 2MB.',
+
+                    // Inside Image
+                    'inside_image.required' => 'Inside image of business premises is required.',
+                    'inside_image.file' => 'Inside image must be a valid file.',
+                    'inside_image.mimes' => 'Inside image must be a file of type: jpg, jpeg, png.',
+                    'inside_image.max' => 'Inside image must not exceed 2MB.',
+
+                    // Outside Image
+                    'outside_image.required' => 'Outside image of business premises is required.',
+                    'outside_image.file' => 'Outside image must be a valid file.',
+                    'outside_image.mimes' => 'Outside image must be a file of type: jpg, jpeg, png.',
+                    'outside_image.max' => 'Outside image must not exceed 2MB.',
+
+                    // MOA
+                    'signed_moa_image.file' => 'Signed MOA must be a valid file.',
+                    'signed_moa_image.mimes' => 'Signed MOA must be a file of type: jpg, jpeg, png.',
+                    'signed_moa_image.max' => 'Signed MOA must not exceed 2MB.',
+
+                    // AOA
+                    'signed_aoa_image.file' => 'Signed AOA must be a valid file.',
+                    'signed_aoa_image.mimes' => 'Signed AOA must be a file of type: jpg, jpeg, png.',
+                    'signed_aoa_image.max' => 'Signed AOA must not exceed 2MB.',
+
+                    // Board Resolution
+                    'board_resolution.file' => 'Board resolution must be a valid file.',
+                    'board_resolution.mimes' => 'Board resolution must be a file of type: jpg, jpeg, png.',
+                    'board_resolution.max' => 'Board resolution must not exceed 2MB.',
+
+                    // NSDL
+                    'nsdl_declaration.file' => 'NSDL declaration must be a valid file.',
+                    'nsdl_declaration.mimes' => 'NSDL declaration must be a file of type: jpg, jpeg, png.',
+                    'nsdl_declaration.max' => 'NSDL declaration must not exceed 2MB.',
                 ]
             );
 
@@ -273,13 +354,7 @@ class UserController extends Controller
                 User::where('id', $userId)->update(['profile_image' => $profilePicPath]);
             }
 
-            $businessDocsPath = null;
-            if ($request->hasFile('business_docs')) {
-                $oldDoc = $businessData?->business_document ? json_decode($businessData?->business_document, true) : null;
-                $businessDocs = FileUpload::uploadFile($request->business_docs, "business_documents/$userId", $oldDoc);
-                $businessDocsPath = json_encode($businessDocs);
-            }
-            // dd($businessDocsPath);
+
             $adharFrontPath = $businessData->aadhar_front_image ?? null;
             if ($request->hasFile('adhar_front_image')) {
                 $adharFrontPath = FileUpload::uploadFile($request->adhar_front_image, "kyc_documents/$userId", $businessData->aadhar_front_image ?? null);
@@ -299,6 +374,66 @@ class UserController extends Controller
             if ($request->hasFile('bank_docs')) {
                 $bankDocsPath = FileUpload::uploadFile($request->bank_docs, "bank_documents/$userId", $bankDetail->bank_docs ?? null);
             }
+
+            // Added in Lated
+
+            $individualPhoto = $businessData->individual_photo ?? null;
+            if ($request->hasFile('individual_photo')) {
+                $individualPhoto = FileUpload::uploadFile($request->individual_photo, "kyc_documents/$userId", $businessData->individual_photo ?? null);
+            }
+
+            $businessPanImage = $businessData->business_pan_image ?? null;
+            if ($request->hasFile('business_pan_image')) {
+                $businessPanImage = FileUpload::uploadFile($request->business_pan_image, "kyc_documents/$userId", $businessData->business_pan_image ?? null);
+            }
+
+            $registrationCertificate = $businessData->registration_certificate_image ?? null;
+            if ($request->hasFile('registration_certificate_image')) {
+                $registrationCertificate = FileUpload::uploadFile($request->registration_certificate_image, "kyc_documents/$userId", $businessData->registration_certificate_image ?? null);
+            }
+
+            $gstRegistrationCertificate = $businessData->gst_registration_certificate_image ?? null;
+            if ($request->hasFile('gst_registration_certificate_image')) {
+                $gstRegistrationCertificate = FileUpload::uploadFile($request->gst_registration_certificate_image, "kyc_documents/$userId", $businessData->gst_registration_certificate_image ?? null);
+            }
+
+            $insideImage = $businessData->inside_image ?? null;
+            if ($request->hasFile('inside_image')) {
+                $insideImage = FileUpload::uploadFile($request->inside_image, "kyc_documents/$userId", $businessData->inside_image ?? null);
+            }
+
+            $outsideImage = $businessData->outside_image ?? null;
+            if ($request->hasFile('outside_image')) {
+                $outsideImage = FileUpload::uploadFile($request->outside_image, "kyc_documents/$userId", $businessData->outside_image ?? null);
+            }
+
+            $signedMOAImage = $businessData->signed_moa_image ?? null;
+            if ($request->hasFile('signed_moa_image')) {
+                $signedMOAImage = FileUpload::uploadFile($request->signed_moa_image, "kyc_documents/$userId", $businessData->signed_moa_image ?? null);
+            }
+
+            $signedAOAImage = $businessData->signed_aoa_image ?? null;
+            if ($request->hasFile('signed_aoa_image')) {
+                $signedAOAImage = FileUpload::uploadFile($request->signed_aoa_image, "kyc_documents/$userId", $businessData->signed_aoa_image ?? null);
+            }
+
+            $boardResolutionImage = $businessData->board_resoultion_image ?? null;
+            if ($request->hasFile('board_resolution')) {
+                $boardResolutionImage = FileUpload::uploadFile($request->board_resolution, "kyc_documents/$userId", $businessData->board_resoultion_image ?? null);
+            }
+
+            $nsdlDocument = $businessData->nsdl_declaration_image ?? null;
+            if ($request->hasFile('nsdl_declaration')) {
+                $nsdlDocument = FileUpload::uploadFile($request->nsdl_declaration, "kyc_documents/$userId", $businessData->nsdl_declaration_image ?? null);
+            }
+
+            $itrFilledImage = $businessData->itr_file_image ?? null;
+            if ($request->hasFile('itr_filled_image')) {
+                $itrFilledImage = FileUpload::uploadFile($request->itr_filled_image, "kyc_documents/$userId", $businessData->itr_file_image ?? null);
+            }
+
+
+            // Added in Lated
 
             $data = [
                 'business_name' => $request->business_name,
@@ -321,11 +456,24 @@ class UserController extends Controller
                 'aadhar_back_image' => $adharBackPath,
                 'pancard_image' => $panCardPath,
 
+                // Added in Lated 
+                'itr_filled' => $request->itr_filled,
+                'itr_not_reason' => $request->itr_filled == 0 ? $request->itr_not_reason : NULL,
+
+                'individual_photo' => $individualPhoto,
+                'business_pan_image' => $businessPanImage,
+                'registration_certificate_image' => $registrationCertificate,
+                'gst_registration_certificate_image' => $gstRegistrationCertificate,
+                'inside_image' => $insideImage,
+                'outside_image' => $outsideImage,
+                'signed_moa_image' => $signedMOAImage,
+                'signed_aoa_image' => $signedAOAImage,
+                'board_resoultion_image' => $boardResolutionImage,
+                'nsdl_declaration_image' => $nsdlDocument,
+                'itr_file_image' => $itrFilledImage,
             ];
 
-            if ($businessDocsPath != null) {
-                $data['business_document'] = $businessDocsPath;
-            }
+
 
             $businessInfo = BusinessInfo::updateOrCreate([
                 'user_id' => $userId,
@@ -1304,7 +1452,8 @@ class UserController extends Controller
         }
     }
 
-    public function allAgreement(){
+    public function allAgreement()
+    {
         $agreements = Agreement::where('status', '1')->latest()->get();
         return view('Agreement.index', compact('agreements'));
     }

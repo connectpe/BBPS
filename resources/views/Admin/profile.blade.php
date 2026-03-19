@@ -655,7 +655,8 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                     @if ($role != 4)
                     <div class="col-lg-6">
                         <div class="card shadow-sm h-100">
-                            <div class="card-header bg-transparent fw-bold text-dark d-flex justify-content-between align-items-center">
+                            <div
+                                class="card-header bg-transparent fw-bold text-dark d-flex justify-content-between align-items-center">
 
                                 <div>
                                     <i class="bi bi-pci-card me-2"></i> Change MPIN
@@ -1148,8 +1149,8 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
                 <!-- STEP 2: Business Details -->
                 <div class="step step-2 d-none">
-                    <h6 class="mb-3">Business Details</h6>
-                    <div class="row g-2">
+                    <h5 class="mb-3">Business Details</h5>
+                    <div class="row g-3">
 
                         <div class="col-md-6">
                             <label class="form-label">Business Name</label>
@@ -1159,24 +1160,21 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                         </div>
 
                         <div class="col-md-6">
-                            <label for="business_category" class="form-label">Business Category</label>
-                            <select class="form-select form-select2 w-100" name="business_category"
-                                id="business_category">
-                                <option value="">--Select Business Category--</option>
-                                @foreach ($businessCategory as $category)
-                                <option value="{{ $category->id }}" {{ $businessInfo?->business_category_id ==
-                                    $category->id ? 'selected' : '' }}>
-                                    {{ $category->name }}
-                                </option>
-                                @endforeach
-                            </select>
+                            <label class="form-label">Business Email</label>
+                            <input type="email" class="form-control" placeholder="Enter business email"
+                                name="business_email" value="{{ $businessInfo->business_email ?? '' }}">
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">Business Type</label>
-                            <input type="text" class="form-control" placeholder="e.g. Retail, IT, Manufacturing"
-                                name="business_type" value="{{ $businessInfo?->business_type }}">
+                            <label class="form-label">Business Phone</label>
+                            <input type="text" class="form-control validate" name="business_phone"
+                                placeholder="Enter 10 digit mobile number" maxlength="10" pattern="[6-9][0-9]{9}"
+                                title="Enter valid 10-digit mobile number starting with 6-9" required
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                value="{{ $businessInfo->business_phone ?? '' }}">
+                            <span class="error-text">Invalid Phone number</span>
                         </div>
+
 
                         <div class="col-md-6">
                             <label class="form-label">CIN No</label>
@@ -1207,30 +1205,24 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             <span class="error-text">Invalid PAN number</span>
                         </div>
 
-
                         <div class="col-md-6">
-                            <label class="form-label">Business Email</label>
-                            <input type="email" class="form-control" placeholder="Enter business email"
-                                name="business_email" value="{{ $businessInfo->business_email ?? '' }}">
+                            <label for="business_category" class="form-label">Business Category</label>
+                            <select class="form-select form-select2 w-100" name="business_category"
+                                id="business_category">
+                                <option value="">--Select Business Category--</option>
+                                @foreach ($businessCategory as $category)
+                                <option value="{{ $category->id }}" {{ $businessInfo?->business_category_id ==
+                                    $category->id ? 'selected' : '' }}>
+                                    {{ $category->name }}
+                                </option>
+                                @endforeach
+                            </select>
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">Business Phone</label>
-                            <input type="text" class="form-control validate" name="business_phone"
-                                placeholder="Enter 10 digit mobile number" maxlength="10" pattern="[6-9][0-9]{9}"
-                                title="Enter valid 10-digit mobile number starting with 6-9" required
-                                oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                                value="{{ $businessInfo->business_phone ?? '' }}">
-                            <span class="error-text">Invalid Phone number</span>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">
-                                Business Documents
-                                <small class="text-muted">(You can upload multiple files)</small>
-                            </label>
-                            <input type="file" class="form-control skip-draft" multiple accept=".pdf,.jpg,.jpeg,.png"
-                                name="business_docs[]">
+                            <label class="form-label">Business Type</label>
+                            <input type="text" class="form-control" placeholder="e.g. Retail, IT, Manufacturing"
+                                name="business_type" value="{{ $businessInfo?->business_type }}">
                         </div>
 
                         <div class="col-md-6">
@@ -1238,7 +1230,8 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             <select class="form-select form-select2" name="state">
                                 <option value="">--Select State--</option>
                                 <option value="Uttar Pradesh" value="{{ $businessInfo->state ?? '' }}" {{
-                                    $businessInfo?->state == 'Uttar Pradesh' ? 'selected' : '' }}>Uttar Pradesh
+                                    $businessInfo?->state ==
+                                    'Uttar Pradesh' ? 'selected' : '' }}>Uttar Pradesh
                                 </option>
                                 <option value="Bihar">Bihar</option>
                             </select>
@@ -1264,37 +1257,159 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                         </div>
 
 
-                        <div class="col-12">
+                        <div class="col-6">
                             <label class="form-label">Business Address</label>
                             <textarea class="form-control" rows="2" placeholder="Enter business address"
                                 name="business_address">{{ $businessInfo->address ?? '' }}</textarea>
                         </div>
-                        @if (!empty($businessInfo->business_document))
-                        @php
 
-                        $docImage = json_decode($businessInfo->business_document ?? '', true);
-                        @endphp
-                        <div class="col-12 border p-1">
-                            <h6>Business Document</h6>
-                            @foreach ($docImage as $image)
-                            <img src="{{ FileUpload::getFilePath($image) }}" class="img m-1 shadow cursor-pointer"
-                                alt="Business Document" style="max-height:200px; width:200px;"
-                                onclick="showImage(this.src,'Business Document')">
-                            @endforeach
+
+                        <h5 class="my-3">Business Documents</h5>
+                        <hr>
+
+
+                        <div class="col-md-6">
+                            <label class="form-label">Business PAN Image</label>
+
+                            <div class="input-group">
+                                <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
+                                    name="business_pan_image">
+
+                                <span class="input-group-text" style="cursor:pointer;">
+                                    <i class="fa-solid fa-eye" onclick="showImage('test','Business PAN Image')"></i>
+                                </span>
+
+                            </div>
                         </div>
-                        @endif
+
+                        <div class="col-md-6">
+                            <label class="form-label">Registeration Certificate</label>
+                            <div class="input-group">
+                                <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
+                                    name="registration_certificate_image">
+                                <span class="input-group-text" style="cursor:pointer;">
+                                    <i class="fa-solid fa-eye" onclick="showImage('test','Business PAN Image')"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">GST Registeration Certificate</label>
+                            <div class="input-group">
+                                <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
+                                    name="gst_registration_certificate_image">
+                                <span class="input-group-text" style="cursor:pointer;">
+                                    <i class="fa-solid fa-eye" onclick="showImage('test','Business PAN Image')"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Inside Image</label>
+                            <div class="input-group">
+                                <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
+                                    name="inside_image">
+                                <span class="input-group-text" style="cursor:pointer;">
+                                    <i class="fa-solid fa-eye" onclick="showImage('test','Business PAN Image')"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">OutSide Image</label>
+                            <div class="input-group">
+                                <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
+                                    name="outside_image">
+                                <span class="input-group-text" style="cursor:pointer;">
+                                    <i class="fa-solid fa-eye" onclick="showImage('test','Business PAN Image')"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Signed MOA Image</label>
+                            <div class="input-group">
+                                <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
+                                    name="signed_moa_image">
+                                <span class="input-group-text" style="cursor:pointer;">
+                                    <i class="fa-solid fa-eye" onclick="showImage('test','Business PAN Image')"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Signed AOA Image</label>
+                            <div class="input-group">
+                                <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
+                                    name="signed_aoa_image">
+                                <span class="input-group-text" style="cursor:pointer;">
+                                    <i class="fa-solid fa-eye" onclick="showImage('test','Business PAN Image')"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Board Resolution</label>
+                            <div class="input-group">
+                                <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
+                                    name="board_resolution">
+                                <span class="input-group-text" style="cursor:pointer;">
+                                    <i class="fa-solid fa-eye" onclick="showImage('test','Business PAN Image')"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">NSDL Declaration</label>
+                            <div class="input-group">
+                                <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
+                                    name="nsdl_declaration">
+                                <span class="input-group-text" style="cursor:pointer;">
+                                    <i class="fa-solid fa-eye" onclick="showImage('test','Business PAN Image')"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">ITR Filled</label>
+                            <select class="form-select form-select2" name="itr_filled">
+                                <option value="">--Select State--</option>
+                                <option value="1" {{ $businessInfo?->itr_filled == '1' ? 'selected' : '' }}>Yes</option>
+                                <option value="0" {{ $businessInfo?->itr_filled == '0' ? 'selected' : '' }}>No</option>
+                            </select>
+                        </div>
+ 
+
+                        <div class="col-md-6">
+                            <label class="form-label">ITR Filled Image</label>
+                            <div class="input-group">
+                                <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
+                                    name="itr_filled_image">
+                                <span class="input-group-text" style="cursor:pointer;">
+                                    <i class="fa-solid fa-eye" onclick="showImage('test','Business PAN Image')"></i>
+                                </span>
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-6">
+                            <label class="form-label">ITR Not Filled Reason</label>
+                            <textarea class="form-control" placeholder="ITR Not Filled Reason" name="itr_not_reason"
+                                id="itr_not_reason"></textarea>
+                        </div>
+
                     </div>
                 </div>
 
                 <!-- STEP 3: KYC Details -->
                 <div class="step step-3 d-none">
                     <div class="step step-3">
-                        <h6 class="mb-3">KYC Details</h6>
+                        <h6 class="mb-3">KYC Details (Individual)</h6>
 
                         <!-- Aadhaar & PAN Numbers -->
                         <div class="row g-2">
                             <div class="col-md-6">
-                                <label class="form-label">Aadhaar Number</label>
+                                <label class="form-label">Individual Aadhaar Number</label>
                                 <input type="text" class="form-control validate"
                                     placeholder="Enter 12-digit Aadhaar Number" name="adhar_number" maxlength="12"
                                     inputmode="numeric" pattern="[0-9]{12}"
@@ -1305,7 +1420,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
 
                             <div class="col-md-6">
-                                <label class="form-label">PAN Number</label>
+                                <label class="form-label">Individual PAN Number</label>
                                 <input type="text" class="form-control validate"
                                     placeholder="Enter PAN Number (ABCDE1234F)" name="pan_number" maxlength="10"
                                     style="text-transform: uppercase;" pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}"
@@ -1315,42 +1430,54 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             </div>
 
 
-
-                            <div class="col-md-4">
-                                <label class="form-label">Aadhaar Front</label>
+                            <div class="col-md-6">
+                                <label class="form-label">Individual Aadhaar Front</label>
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
                                     name="adhar_front_image">
                                 @if (!empty($businessInfo->aadhar_front_image))
                                 <div class="mt-2">
                                     <img src="{{ FileUpload::getFilePath($businessInfo->aadhar_front_image) }}"
                                         alt="Aadhaar Front" class="img-thumbnail cursor-pointer "
-                                        style="max-height: 120px;" onclick="showImage(this.src,'Aadhaar Front')">
+                                        style="max-height: 70px;" onclick="showImage(this.src,'Aadhaar Front')">
                                 </div>
                                 @endif
                             </div>
 
-                            <div class="col-md-4">
-                                <label class="form-label">Aadhaar Back</label>
+                            <div class="col-md-6">
+                                <label class="form-label">Individual Aadhaar Back</label>
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
                                     name="adhar_back_image">
                                 @if (!empty($businessInfo->aadhar_back_image))
                                 <div class="mt-2">
                                     <img src="{{ FileUpload::getFilePath($businessInfo->aadhar_back_image) }}"
                                         alt="Aadhaar Back" class="img-thumbnail cursor-pointer"
-                                        style="max-height: 120px;" onclick="showImage(this.src,'Aadhaar Back')">
+                                        style="max-height: 70px;" onclick="showImage(this.src,'Aadhaar Back')">
                                 </div>
                                 @endif
                             </div>
 
-                            <div class="col-md-4">
-                                <label class="form-label">PAN Card</label>
+                            <div class="col-md-6">
+                                <label class="form-label">Individual PAN Card</label>
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
                                     name="pan_card_image">
                                 @if (!empty($businessInfo->pancard_image))
                                 <div class="mt-2">
                                     <img src="{{ FileUpload::getFilePath($businessInfo->pancard_image) }}"
-                                        alt="PAN Card" class="img-thumbnail cursor-pointer" style="max-height: 120px;"
+                                        alt="PAN Card" class="img-thumbnail cursor-pointer" style="max-height: 70px;"
                                         onclick="showImage(this.src,'PAN Card')">
+                                </div>
+                                @endif
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Individual Photo</label>
+                                <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
+                                    name="individual_photo" id="individual_photo">
+                                @if (!empty($businessInfo->individual_photo))
+                                <div class="mt-2">
+                                    <img src="{{ FileUpload::getFilePath($businessInfo->individual_photo) }}"
+                                        alt="Individual Photo" class="img-thumbnail cursor-pointer"
+                                        style="max-height: 70px;" onclick="showImage(this.src,'Individual Photo')">
                                 </div>
                                 @endif
                             </div>
@@ -1399,7 +1526,8 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">Bank Documents</label>
+                            <label class="form-label">Bank Proof Documents (<small>Passbook/Cancelled Check/Bank
+                                    Statement/Verification Letter</small> )</label>
                             <input type="file" class="form-control skip-draft" accept=".pdf,.jpg,.jpeg,.png"
                                 name="bank_docs">
                             <small class="text-muted">Upload cheque / passbook copy (Max 2MB each)</small>

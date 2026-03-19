@@ -122,7 +122,6 @@ class AdminController extends Controller
                     'business_pan_number',
                     'business_email',
                     'business_phone',
-                    'business_document',
                     'address',
                     'city',
                     'state',
@@ -138,7 +137,19 @@ class AdminController extends Controller
                     'aadhar_back_image',
                     'business_type',
                     'cin_no',
-                    'is_kyc'
+                    'is_kyc',
+                    'individual_photo',
+                    'business_pan_image',
+                    'registration_certificate_image',
+                    'gst_registration_certificate_image',
+                    'inside_image',
+                    'outside_image',
+                    'signed_moa_image',
+                    'signed_aoa_image',
+                    'board_resoultion_image',
+                    'nsdl_declaration_image',
+                    'itr_file_image',
+                    'itr_filled'
                 )->where('user_id', $userId)->first();
             });
 
@@ -1871,7 +1882,7 @@ class AdminController extends Controller
 
         try {
             $file = $request->file('file');
-            $fileName = time().'_'.$file->getClientOriginalName();
+            $fileName = time() . '_' . $file->getClientOriginalName();
             $filePath = $file->storeAs('agreements', $fileName, 'public');
 
             Agreement::create([
