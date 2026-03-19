@@ -831,6 +831,42 @@ class CommonController extends Controller
                 }
 
                 break;
+            case 'business-categories':
+                $request['table'] = '\App\Models\BusinessCategory';
+                $request['searchData'] = ['id', 'name', 'slug', 'status', 'created_at'];
+                $request['select'] = 'all';
+
+                $orderIndex = $request->get('order');
+
+                if (isset($orderIndex) && count($orderIndex)) {
+                    $columnsIndex = $request->get('columns');
+                    $columnIndex = $orderIndex[0]['column'] ?? 0;
+                    $columnName = $columnsIndex[$columnIndex]['data'] ?? 'id';
+                    $columnSortOrder = $orderIndex[0]['dir'] ?? 'DESC';
+
+                    if ($columnName == 'new_created_at') {
+                        $columnName = 'created_at';
+                    }
+
+                    if ($columnName == '0' || $columnName == '' || $columnName == null) {
+                        $columnName = 'id';
+                        $columnSortOrder = 'DESC';
+                    }
+
+                    $allowedOrderColumns = ['id', 'name', 'slug', 'status', 'created_at'];
+
+                    if (! in_array($columnName, $allowedOrderColumns)) {
+                        $columnName = 'id';
+                        $columnSortOrder = 'DESC';
+                    }
+
+                    $request['order'] = [$columnName, strtoupper($columnSortOrder)];
+                } else {
+                    $request['order'] = ['id', 'DESC'];
+                }
+
+                $request['parentData'] = 'all';
+                break;
 
         }
 
