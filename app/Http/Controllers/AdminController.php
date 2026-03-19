@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\CommonHelper;
 use App\Models\BusinessCategory;
+use App\Models\Agreement;
 use App\Models\BusinessInfo;
 use App\Models\ComplaintsCategory;
 use App\Models\DefaultProvider;
@@ -1843,6 +1844,52 @@ class AdminController extends Controller
                 'status'  => false,
                 'message' => $e->getMessage(),
             ]);
+        }
+    }
+
+
+
+
+    public function agreementIndex()
+    {
+        $agreements = Agreement::where('status', '1')->latest()->get();
+        return view('Agreement.index', compact('agreements'));
+    }
+
+    public function storeAgreement(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'file' => 'required|mimes:jpg,jpeg,png,pdf|max:2048',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            $file = $request->file('file');
+            $fileName = time().'_'.$file->getClientOriginalName();
+            $filePath = $file->storeAs('agreements', $fileName, 'public');
+
+            Agreement::create([
+                'file_path' => $filePath,
+                // 'status' => '1',
+                'updated_by' => auth()->id(),
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Agreement uploaded successfully.',
+                'file_path' => $filePath,
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to upload agreement.',
+            ], 500);
         }
     }
 }

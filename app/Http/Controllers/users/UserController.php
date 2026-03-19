@@ -4,6 +4,7 @@ namespace App\Http\Controllers\users;
 
 use App\Facades\FileUpload;
 use App\Helpers\CommonHelper;
+use App\Models\Agreement;
 use App\Helpers\NSDLHelper;
 use App\Helpers\SendingMail;
 use App\Http\Controllers\Controller;
@@ -1301,5 +1302,10 @@ class UserController extends Controller
                 'message' => 'Error : ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function allAgreement(){
+        $agreements = Agreement::where('status', '1')->latest()->get();
+        return view('Agreement.index', compact('agreements'));
     }
 }
