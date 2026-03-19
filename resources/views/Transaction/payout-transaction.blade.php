@@ -92,6 +92,32 @@
                                 </select>
                             </div>
                         @endif
+
+                        <div class="col-md-3">
+                            <label class="form-label">Status</label>
+                            <select class="form-select form-select2" id="filterStatus">
+                                <option value="">--select status--</option>
+                                <option value="queued">Queued</option>
+                                <option value="processing">Processing</option>
+                                <option value="processed">Processed</option>
+                                <option value="failed">Failed</option>
+                                <option value="reversed">Reversed</option>
+                                <option value="hold">Hold</option>
+                            </select>
+                        </div>
+
+                        @if (auth()->user()->role_id == 1)
+                            <div class="col-md-3">
+                                <label class="form-label">Provider</label>
+                                <select class="form-select form-select2" id="filterProviderId">
+                                    <option value="">--Select Provider--</option>
+                                    @foreach ($providers as $p)
+                                        <option value="{{ $p->id }}">{{ $p->provider_name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @endif
+
                         <div class="col-md-3">
                             <label class="form-label">Any Key</label>
                             <input type="text" class="form-control" id="filterAnyKey"
@@ -103,18 +129,7 @@
                             <input type="text" class="form-control" id="filterUtrNo" placeholder="Enter UTR No">
                         </div>
 
-                        <div class="col-md-3">
-                            <label class="form-label">Status</label>
-                            <select class="form-select form-select2" id="filterStatus">
-                                <option value="">--select--</option>
-                                <option value="queued">Queued</option>
-                                <option value="processing">Processing</option>
-                                <option value="processed">Processed</option>
-                                <option value="failed">Failed</option>
-                                <option value="reversed">Reversed</option>
-                                <option value="hold">Hold</option>
-                            </select>
-                        </div>
+
 
                         <div class="col-md-3">
                             <label class="form-label">From Date</label>
@@ -145,9 +160,10 @@
                     <thead>
                         <tr>
                             <th style="width:55px;">#</th>
-                            @if (auth()->user()->role_id == 1)
-                                <th>User Name</th>
-                            @endif
+                            <th>Sr. No</th>
+                            {{-- @if (auth()->user()->role_id == 1) --}}
+                            <th>User Name</th>
+                            {{-- @endif --}}
                             <th>ConnectPe ID</th>
                             <th>Transaction No</th>
                             <th>Client Txn Id</th>
@@ -159,6 +175,7 @@
                             <th>Amount</th>
                             <th>Status</th>
                             <th>Created At</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -204,6 +221,12 @@
                 html += '<th>Bank Name</th><td>' + safe(d.bank_name) + '</td>';
                 html += '<th>Beneficiary Name</th><td>' + safe(d.beneficiary_name) + '</td>';
                 html += '</tr>';
+
+                html += '<tr>';
+                html += '<th>Beneficiary Email</th><td>' + safe(d.bene_email) + '</td>';
+                html += '<th>Beneficiary Mobile</th><td>' + safe(d.bene_mobile) + '</td>';
+                html += '</tr>';
+
                 // if (isAdmin) {
                 //     html += '<tr>';
                 //     html += '<th>Provider Name</th><td>' + safe(d.provider ? d.provider.provider_name : '') +
@@ -257,6 +280,13 @@
                 },
                 {
                     data: null,
+                    render: function(data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    }
+
+                },
+                {
+                    data: null,
                     render: function(row) {
                         let url = "{{ route('view_user', ':id') }}".replace(':id', row.user_id);
                         const userName = row?.user?.name || '----';
@@ -268,6 +298,7 @@
                             '</a>';
                     }
                 },
+
                 {
                     data: 'connectpe_id'
                 },
@@ -303,6 +334,28 @@
                     render: function(data) {
                         return formatDateTime(data);
                     }
+                },
+
+                {
+                    data: null,
+                    title: 'Action',
+                    orderable: false,
+                    searchable: false,
+                    render: function(data, type, row) {
+                        if (row.status === 'processed') {
+
+                            let url = "{{ route('download_payout_invoice', ':id') }}".replace(':id', row
+                            .id);
+
+                            return `
+                <a href="${url}" class="btn btn-sm btn-success">
+                    <i class="bi bi-download"></i> Invoice
+                </a>
+            `;
+                        }
+
+                        return `<span class="text-muted">----</span>`;
+                    }
                 }
 
             ] : [{
@@ -314,6 +367,27 @@
                         return '<span class="dt-plus-btn buttonColor">+</span>';
                     }
                 },
+                {
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    }
+
+                },
+                {
+                    data: null,
+                    render: function(row) {
+                        let url = "{{ route('view_user', ':id') }}".replace(':id', row.user_id);
+                        const userName = row?.user?.name || '----';
+                        const email = row?.user?.email || '----';
+
+                        return '<a href="' + url +
+                            '" class="text-primary fw-semibold text-decoration-none">' +
+                            userName + '<br/>[' + email + ']' +
+                            '</a>';
+                    }
+                },
+
                 {
                     data: 'connectpe_id'
                 },
@@ -343,6 +417,27 @@
                     render: function(data) {
                         return formatDateTime(data);
                     }
+                },
+                {
+                    data: null,
+                    title: 'Action',
+                    orderable: false,
+                    searchable: false,
+                    render: function(data, type, row) {
+                        if (row.status === 'processed') {
+
+                            let url = "{{ route('download_payout_invoice', ':id') }}".replace(':id', row
+                            .id);
+
+                            return `
+                <a href="${url}" class="btn btn-sm btn-success">
+                    <i class="bi bi-download"></i> Invoice
+                </a>
+            `;
+                        }
+
+                        return `<span class="text-muted">----</span>`;
+                    }
                 }
             ];
 
@@ -350,15 +445,15 @@
                 processing: true,
                 serverSide: true,
                 responsive: false,
-                 dom: "<'row mb-2'<'col-sm-4'l><'col-sm-4'f><'col-sm-4 text-end'B>>" +
-                "<'row'<'col-12'tr>>" +
-                "<'row mt-2'<'col-sm-6'i><'col-sm-6'p>>",
-            buttons: [{
-                extend: 'excelHtml5',
-                text: 'Excel',
-                className: 'btn buttonColor btn-sm'
+                dom: "<'row mb-2'<'col-sm-4'l><'col-sm-4'f><'col-sm-4 text-end'B>>" +
+                    "<'row'<'col-12'tr>>" +
+                    "<'row mt-2'<'col-sm-6'i><'col-sm-6'p>>",
+                buttons: [{
+                    extend: 'excelHtml5',
+                    text: 'Excel',
+                    className: 'btn buttonColor btn-sm'
 
-            },],
+                }, ],
                 ajax: {
                     url: "{{ url('fetch/orders/0/all') }}",
                     type: "POST",
@@ -373,6 +468,7 @@
                         d.any_key = $('#filterAnyKey').val();
                         if (isAdmin) {
                             d.user_id = $('#filterUserId').val();
+                            d.provider_id = $('#filterProviderId').val();
                         }
                     }
                 },
@@ -412,6 +508,7 @@
 
                 if (isAdmin) {
                     $('#filterUserId').val('').trigger('change');
+                    $('#filterProviderId').val('').trigger('change');
                 }
 
                 table.ajax.reload();

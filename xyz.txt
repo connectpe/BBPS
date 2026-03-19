@@ -1,0 +1,42 @@
+DELIMITER $$
+
+CREATE PROCEDURE debitPayoutBalanceOrder(
+    IN p_user_id INT,
+    IN p_order_ref_id VARCHAR(100),
+    IN p_integration_id VARCHAR(100),
+    IN p_txn VARCHAR(100),
+    OUT p_json JSON
+)
+BEGIN
+    DECLARE user_balance DECIMAL(10,2);
+
+    -- Get user balance
+    SELECT balance INTO user_balance
+    FROM users
+    WHERE id = p_user_id
+    FOR UPDATE;
+
+    IF user_balance >= 100 THEN
+        
+        -- Deduct balance
+        UPDATE users
+        SET balance = balance - 100
+        WHERE id = p_user_id;
+
+        SET p_json = JSON_OBJECT(
+            'status', '1',
+            'message', 'Order processed successfully'
+        );
+
+    ELSE
+        
+        SET p_json = JSON_OBJECT(
+            'status', '0',
+            'message', 'Insufficient Balance'
+        );
+
+    END IF;
+
+END$$
+
+DELIMITER ;

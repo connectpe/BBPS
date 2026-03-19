@@ -170,7 +170,7 @@ class CommonController extends Controller
                 $request['parentData'] = [$request->id];
                 if (Auth::user()->role_id == '1') {
                     $request['parentData'] = 'all';
-                } elseif (Auth::user()->role_id == 2) {
+                } elseif (Auth::user()->role_id == 2 || Auth::user()->role_id == 3) {
                     $request['whereIn'] = 'user_id';
                     $request['parentData'] = [Auth::user()->id];
                 } elseif (Auth::user()->role_id == 4) {
@@ -744,7 +744,7 @@ class CommonController extends Controller
                 break;
             case 'orders':
                 $request['table'] = '\App\Models\Order';
-                $request['searchData'] = ['id','connectpe_id','transaction_no','client_txn_id','utr_no','mode','amount','total_amount','status','status_code','created_at',];
+                $request['searchData'] = ['id', 'connectpe_id', 'transaction_no', 'client_txn_id', 'utr_no', 'mode', 'amount', 'total_amount', 'status', 'status_code', 'created_at'];
                 $request['select'] = 'all';
                 $request['with'] = ['user', 'service', 'provider', 'updatedBy'];
                 $orderIndex = $request->get('order');
@@ -776,6 +776,53 @@ class CommonController extends Controller
                 $request['whereIn'] = 'id';
                 $request['parentData'] = 'all';
 
+                // if (Auth::user()->role_id == '1') {
+                //     $request['parentData'] = 'all';
+                // } else {
+                //     $request['whereIn'] = 'user_id';
+                //     $request['parentData'] = [Auth::user()->id];
+                // }
+                $user = Auth::user();
+                if ($user->role_id == 1) {
+                    $request['parentData'] = 'all';
+                } elseif ($user->role_id == 4) {
+                    $assignedUsers = UserAssignedToSupport::where('assined_to', $user->id)->pluck('user_id')->toArray();
+                    $request['whereIn'] = 'user_id';
+                    $request['parentData'] = $assignedUsers;
+                } else {
+                    $request['whereIn'] = 'user_id';
+                    $request['parentData'] = [$user->id];
+                }
+                break;
+            case 'load-money-requests':
+                $request['table'] = '\App\Models\LoadMoneyRequest';
+                $request['searchData'] = ['id', 'amount', 'utr_no', 'status', 'request_time', 'created_at'];
+                $request['select'] = 'all';
+                $request['with'] = ['user', 'updated_by'];
+                $orderIndex = $request->get('order');
+                if (isset($orderIndex) && count($orderIndex)) {
+                    $columnsIndex = $request->get('columns');
+                    $columnIndex = $orderIndex[0]['column'] ?? 0;
+                    $columnName = $columnsIndex[$columnIndex]['data'] ?? 'id';
+                    $columnSortOrder = $orderIndex[0]['dir'] ?? 'DESC';
+                    if ($columnName == 'new_created_at') {
+                        $columnName = 'created_at';
+                    }
+                    if ($columnName == '0' || $columnName == '' || $columnName == null) {
+                        $columnName = 'id';
+                        $columnSortOrder = 'DESC';
+                    }
+                    $allowedOrderColumns = ['id', 'amount', 'utr_no', 'status', 'request_time', 'created_at'];
+                    if (! in_array($columnName, $allowedOrderColumns)) {
+                        $columnName = 'id';
+                        $columnSortOrder = 'DESC';
+                    }
+                    $request['order'] = [$columnName, strtoupper($columnSortOrder)];
+                } else {
+                    $request['order'] = ['id', 'DESC'];
+                }
+                $request['whereIn'] = 'id';
+                $request['parentData'] = 'all';
                 if (Auth::user()->role_id == '1') {
                     $request['parentData'] = 'all';
                 } else {
@@ -784,6 +831,7 @@ class CommonController extends Controller
                 }
 
                 break;
+
         }
 
         // For filter the Records
@@ -803,7 +851,8 @@ class CommonController extends Controller
             'nsdl-payment' => ['user_id',  'service_id',  'mobile_no', 'transaction_id', 'utr',  'order_id',  'status'],
             'ip-whitelist' => ['is_deleted'],
             'support-based-user-list' => ['assined_to'],
-            'orders' => ['connectpe_id', 'transaction_no', 'client_txn_id', 'utr_no', 'mode', 'status', 'user_id'],
+            'orders' => ['connectpe_id', 'transaction_no', 'client_txn_id', 'utr_no', 'mode', 'status', 'user_id', 'provider_id'],
+            'load-money-requests' => ['user_id', 'status', 'utr_no'],
             // add more types and columns here
         ];
 
@@ -922,13 +971,30 @@ class CommonController extends Controller
                 if ($value === '') {
                     continue;
                 }
+                // if ($column === 'any_key') {
+                //     $query->where(function ($q) use ($value) {
+                //         $q->where('connectpe_id', 'LIKE', "%{$value}%")
+                //             ->orWhere('transaction_no', 'LIKE', "%{$value}%")
+                //             ->orWhere('client_txn_id', 'LIKE', "%{$value}%");
+
+                //     });
+
+                //     continue;
+                // }
+
                 if ($column === 'any_key') {
-                    $query->where(function ($q) use ($value) {
+                    $query->where(function ($q) use ($value, $request) {
+                        if ($request['type'] === 'load-money-requests') {
+                            $q->where('request_id', 'LIKE', "%{$value}%")
+                                ->orWhere('utr_no', 'LIKE', "%{$value}%")
+                                ->orWhere('amount', 'LIKE', "%{$value}%")
+                                ->orWhere('status', 'LIKE', "%{$value}%");
+
+                            return;
+                        }
                         $q->where('connectpe_id', 'LIKE', "%{$value}%")
                             ->orWhere('transaction_no', 'LIKE', "%{$value}%")
                             ->orWhere('client_txn_id', 'LIKE', "%{$value}%");
-                        // optional:
-                        // ->orWhere('utr_no','LIKE', "%{$value}%");
                     });
 
                     continue;

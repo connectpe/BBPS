@@ -8,6 +8,7 @@ use App\Models\BusinessInfo;
 use App\Models\ComplaintsCategory;
 use App\Models\DefaultProvider;
 use App\Models\GlobalService;
+use App\Models\LoadMoneyRequest;
 use App\Models\OauthUser;
 use App\Models\Provider;
 use App\Models\Scheme;
@@ -140,23 +141,23 @@ class AdminController extends Controller
                 )->where('user_id', $userId)->first();
             });
 
-            $data['businessCategory'] = Cache::remember("{$cachePrefix}businessCategory", 600, function () {
+            $data['businessCategory'] = Cache::remember("{$cachePrefix}businessCategory", 18000, function () {
                 return BusinessCategory::select('id', 'name')->where('status', 1)->orderBy('id', 'desc')->get();
             });
 
-            $data['supportRepresentative'] = Cache::remember("{$cachePrefix}supportRepresentative", 600, function () use ($userId) {
+            $data['supportRepresentative'] = Cache::remember("{$cachePrefix}supportRepresentative", 18000, function () use ($userId) {
                 return UserAssignedToSupport::where('user_id', $userId)
                     ->with('assigned_support:id,name,email,mobile')
                     ->first();
             });
 
-            $data['usersBank'] = Cache::remember("{$cachePrefix}usersBank", 600, function () use ($userId) {
+            $data['usersBank'] = Cache::remember("{$cachePrefix}usersBank", 18000, function () use ($userId) {
                 return UsersBank::select('account_number', 'ifsc_code', 'branch_name', 'bank_docs', 'benificiary_name')
                     ->where('user_id', $userId)
                     ->first();
             });
 
-            $data['UserServices'] = Cache::remember("{$cachePrefix}UserServices", 600, function () use ($userId) {
+            $data['UserServices'] = Cache::remember("{$cachePrefix}UserServices", 3600, function () use ($userId) {
                 return UserService::with('service:id,slug,service_name')
                     ->where('user_id', $userId)
                     ->where('status', 'approved')
@@ -164,7 +165,7 @@ class AdminController extends Controller
                     ->get();
             });
 
-            $data['webhookUrl'] = Cache::remember("{$cachePrefix}webhookUrl", 600, function () use ($userId) {
+            $data['webhookUrl'] = Cache::remember("{$cachePrefix}webhookUrl", 18000, function () use ($userId) {
                 return WebHookUrl::select('url')->where('user_id', $userId)->first();
             });
 
@@ -1191,7 +1192,7 @@ class AdminController extends Controller
                 ]);
             }
             $request->validate([
-                'name' => 'required|string|min:3',
+                'name' => 'required|string',
                 'email' => 'required|email|unique:users',
                 'mobile' => 'required|digits:10',
                 'password' => 'required|min:6',
@@ -1771,6 +1772,76 @@ class AdminController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Error : ' . $e->getMessage(),
+            ]);
+        }
+    }
+
+
+    public function updateLoadMoneyRequest(Request $request)
+    {
+        $request->validate([
+            'id'     => 'required|exists:load_money_requests,id',
+            'status' => 'required|in:approved,rejected',
+            'remark' => 'required_if:status,rejected|nullable|string',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+
+            $moneyRequest = LoadMoneyRequest::where('id', $request->id)
+                ->where('status', 'pending')
+                ->lockForUpdate()
+                ->first();
+
+            if (!$moneyRequest) {
+                throw new \Exception('Request already approved or not found');
+            }
+
+            if ($request->status === 'approved') {
+
+                $user = User::where('id', $moneyRequest->user_id)
+                    ->where('status', '1')
+                    ->lockForUpdate()
+                    ->first();
+
+                if (!$user) {
+                    throw new \Exception('User is not active');
+                }
+
+                $amount = $moneyRequest->amount;
+
+                // Increment user wallet safely
+                if (is_null($user->transaction_amount)) {
+                    $user->transaction_amount = 0;
+                    $user->save();
+                }
+
+                $user->increment('transaction_amount', $amount);
+
+                $moneyRequest->update([
+                    'status'      => 'approved',
+                ]);
+            } else {
+                $moneyRequest->update([
+                    'status'      => 'rejected',
+                    'remark'      => $request->remark,
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Request Updated Successfully',
+            ]);
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'status'  => false,
+                'message' => $e->getMessage(),
             ]);
         }
     }

@@ -52,7 +52,8 @@
             border-radius: 10px;
         }
 
-        .otp-input {
+        .otp-input,
+        .otp-input1 {
             width: 50px;
             height: 50px;
             text-align: center;
@@ -102,8 +103,7 @@
                         <p class="text-center text-muted mb-4">Login to access your panel</p>
 
                         <div class="mb-3 form-floating">
-                            <input type="email" name="email" class="form-control" id="loginEmail"
-                                placeholder="Email">
+                            <input type="email" name="email" class="form-control" id="loginEmail" placeholder="Email">
                             <label for="loginEmail">Email</label>
                         </div>
 
@@ -113,13 +113,23 @@
                             <label for="loginPassword">Password</label>
                         </div>
 
-                        <button type="submit" class="btn bbps-btn w-100" id="loginButton">Login</button>
-
-                        <p class="text-center mt-3 text-muted">
-                            Don't have an account?
+                        <button type="submit" class="btn bbps-btn w-100 mt-1" id="loginButton">Login</button>
+                        <!-- <a href="#" id="switchToForget" style="color:#667eea; text-decoration:none;">Forgot
+                            Password?</a>
+                        <span class="text-center mt-3 text-muted">
                             <a href="#" id="switchToSignup"
                                 style="color:#667eea; text-decoration:none; font-weight:500;">SignUp</a>
-                        </p>
+                        </span> -->
+                        <div class="d-flex justify-content-between mt-1">
+                            <a href="#" id="switchToForget" style="color:#667eea; text-decoration:none;">
+                                Forgot Password?
+                            </a>
+
+                            <a href="#" id="switchToSignup"
+                                style="color:#667eea; text-decoration:none; font-weight:500;">
+                                SignUp
+                            </a>
+                        </div>
                     </form>
 
                     {{-- SignUp Form --}}
@@ -146,15 +156,15 @@
                         </div>
 
                         <div class="mb-3 form-floating">
-                            <input name="email" type="email" class="form-control" id="signupEmail"
-                                placeholder="Email" required>
+                            <input name="email" type="email" class="form-control" id="signupEmail" placeholder="Email"
+                                required>
                             <span class="text-danger" id="emailError" style="font-size: 0.875em;"></span>
                             <label for="signupEmail">Email</label>
                         </div>
 
                         <div class="mb-3 form-floating">
-                            <input type="text" name="mobile" class="form-control" id="signupMobile"
-                                placeholder="Mobile" required>
+                            <input type="text" name="mobile" class="form-control" id="signupMobile" placeholder="Mobile"
+                                required>
                             <span class="text-danger" id="mobileError" style="font-size: 0.875em;"></span>
                             <label for="signupMobile">Mobile</label>
                         </div>
@@ -178,7 +188,7 @@
 
                         <p class="text-center mt-2 text-muted">
                             Already have an account?
-                            <a href="#" id="switchToLogin"
+                            <a href="#" class="switchToLogin"
                                 style="color:#667eea; text-decoration:none; font-weight:500;">Login</a>
                         </p>
                     </form>
@@ -204,9 +214,82 @@
                         <button type="submit" class="btn bbps-btn w-100" id="otpVerifyBtn">Verify OTP</button>
 
                         <p class="text-center mt-3 text-muted">
-                            <a href="#" id="switchLogin"
+                            <a href="#" class="switchToLogin"
                                 style="color:#667eea; text-decoration:none; font-weight:500;">Back to Login</a>
                         </p>
+                    </form>
+
+                    <!-- Forget Password OTP form  -->
+                    <form id="forgetPassOtpForm" class="d-none text-center mt-3">
+                        @csrf
+                        <h3 class="text-center mb-2" style="color:#667eea;">Verify OTP</h3>
+                        <p style="color:#667eea; font-size:0.9rem;">Enter the 4-digit OTP sent to your email</p>
+                        <input type="hidden" id="forgetPasswordId" name="forgetPasswordId">
+
+                        <div class="d-flex justify-content-center mb-4">
+                            <input type="text" maxlength="1" class="otp-input1 form-control" inputmode="numeric"
+                                required>
+                            <input type="text" maxlength="1" class="otp-input1 form-control" inputmode="numeric"
+                                required>
+                            <input type="text" maxlength="1" class="otp-input1 form-control" inputmode="numeric"
+                                required>
+                            <input type="text" maxlength="1" class="otp-input1 form-control" inputmode="numeric"
+                                required>
+                        </div>
+
+                        <button type="submit" class="btn bbps-btn w-100" id="passOtpVerifyBtn">Verify OTP</button>
+
+                        <div class="d-flex justify-content-between mt-1">
+                            <a href="#" class="switchToLogin"
+                                style="color:#667eea; text-decoration:none; font-weight:500;"> <span
+                                    class="text-muted">Back to</span>
+                                Login</a>
+                            <a href="#" id="resendOtpButton" class="text-decoration-none p-1 fw-semi-bold">Resend
+                                OTP</a>
+                        </div>
+
+                    </form>
+
+                    <!-- Forget Password form  -->
+                    <form id="forgetPasswordForm" class="d-none" method="POST">
+                        @csrf
+                        <h3 class="text-center mb-2" style="color:#667eea;">Forget Password</h3>
+                        <p class="text-center text-muted mb-4">Forget your password</p>
+
+                        <div class="mb-3 form-floating">
+                            <input type="email" name="email" class="form-control" id="forgetEmail" placeholder="Email">
+                            <label for="forgetEmail">Email</label>
+                        </div>
+
+                        <button type="submit" class="btn bbps-btn w-100 mt-1" id="forgetButton">Submit</button>
+                        <p class="text-center mt-1 text-muted">
+                            Back to
+                            <a href="#" class="switchToLogin"
+                                style="color:#667eea; text-decoration:none; font-weight:500;">Login</a>
+                        </p>
+
+                    </form>
+
+
+                    <!-- Reset Password Form  -->
+                    <form id="resetPasswordForm" class="d-none" method="POST">
+                        @csrf
+                        <h3 class="text-center mb-2" style="color:#667eea;">Forget Password</h3>
+                        <p class="text-center text-muted mb-4">Forget your password</p>
+
+                        <div class="mb-3 form-floating">
+                            <input type="password" name="currentPassword" class="form-control" id="currentPassword"
+                                placeholder="Password">
+                            <label for="currentPassword">New Password</label>
+                        </div>
+
+                        <div class="mb-3 form-floating">
+                            <input type="password" name="confirmPassword" class="form-control" id="confirmPassword"
+                                placeholder="Confirm Password">
+                            <label for="confirmPassword">Confirm Password</label>
+                        </div>
+
+                        <button type="submit" class="btn bbps-btn w-100 mt-1" id="resetPasswordButton">Submit</button>
                     </form>
 
                 </div>
@@ -214,45 +297,94 @@
         </div>
     </div>
 
+
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            
+        document.addEventListener('DOMContentLoaded', function () {
+
 
             const loginForm = document.getElementById('loginForm');
             const signupForm = document.getElementById('signupForm');
             const otpForm = document.getElementById('otpForm');
+            const forgetPassOtpForm = document.getElementById('forgetPassOtpForm');
+            const forgetPasswordForm = document.getElementById('forgetPasswordForm');
+            const resetPasswordForm = document.getElementById('resetPasswordForm');
+
 
             const switchToSignup = document.getElementById('switchToSignup');
-            const switchToLogin = document.getElementById('switchToLogin');
-            const switchLogin = document.getElementById('switchLogin');
+            const switchToLogin = document.querySelectorAll('.switchToLogin');
+            const switchToForgetPassword = document.getElementById('switchToForget');
+            const resendOtpButton = document.getElementById('resendOtpButton');
 
             const otpInputs = document.querySelectorAll('.otp-input');
+            const otpInputsPassword = document.querySelectorAll('.otp-input1');
 
-            let userEmail = ''; 
-            let pendingLoginEmail = ''; 
-            let pendingLoginPassword = ''; 
+            let userEmail = '';
+            let pendingLoginEmail = '';
+            let pendingLoginPassword = '';
             let isverfiy = false;
 
             function showLogin() {
                 loginForm.classList.remove('d-none');
                 signupForm.classList.add('d-none');
+                resetPasswordForm.classList.add('d-none');
                 otpForm.classList.add('d-none');
+                forgetPassOtpForm.classList.add('d-none');
+                forgetPasswordForm.classList.add('d-none');
                 clearErrors();
             }
 
             function showSignup() {
                 signupForm.classList.remove('d-none');
                 loginForm.classList.add('d-none');
+                forgetPassOtpForm.classList.add('d-none');
+                forgetPasswordForm.classList.add('d-none');
+                resetPasswordForm.classList.add('d-none');
                 otpForm.classList.add('d-none');
                 clearErrors();
             }
+
+            function showforgetPassword() {
+                forgetPasswordForm.classList.remove('d-none');
+                loginForm.classList.add('d-none');
+                signupForm.classList.add('d-none');
+                otpForm.classList.add('d-none');
+                forgetPassOtpForm.classList.add('d-none');
+                resetPasswordForm.classList.add('d-none');
+                clearErrors();
+            }
+
 
             function showOTP() {
                 otpForm.classList.remove('d-none');
                 signupForm.classList.add('d-none');
                 loginForm.classList.add('d-none');
+                forgetPassOtpForm.classList.add('d-none');
+                forgetPasswordForm.classList.add('d-none');
+                resetPasswordForm.classList.add('d-none');
                 otpInputs[0].focus();
             }
+
+
+            function showPasswordOTP() {
+                forgetPassOtpForm.classList.remove('d-none');
+                signupForm.classList.add('d-none');
+                loginForm.classList.add('d-none');
+                forgetPasswordForm.classList.add('d-none');
+                otpForm.classList.add('d-none');
+                resetPasswordForm.classList.add('d-none');
+                otpInputsPassword[0].focus();
+            }
+
+            function showResetPasswordForm() {
+                resetPasswordForm.classList.remove('d-none');
+                loginForm.classList.add('d-none');
+                signupForm.classList.add('d-none');
+                otpForm.classList.add('d-none');
+                forgetPassOtpForm.classList.add('d-none');
+                forgetPasswordForm.classList.add('d-none');
+                clearErrors();
+            }
+
 
             function clearErrors() {
                 ['name', 'email', 'mobile', 'password', 'password_confirmation'].forEach(f => {
@@ -262,7 +394,7 @@
             }
 
             document.querySelectorAll('.role-selector button').forEach(button => {
-                button.addEventListener('click', function() {
+                button.addEventListener('click', function () {
                     document.querySelectorAll('.role-selector button').forEach(btn => btn.classList
                         .remove('bbps-btn'));
                     this.classList.add('bbps-btn');
@@ -344,9 +476,21 @@
                 });
             });
 
-            
+            otpInputsPassword.forEach((input, i) => {
+                input.addEventListener('input', (e) => {
+                    e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                    if (e.target.value.length === 1 && i < otpInputsPassword.length - 1) {
+                        otpInputsPassword[i + 1].focus();
+                    }
+                });
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Backspace' && input.value === '' && i > 0) {
+                        otpInputsPassword[i - 1].focus();
+                    }
+                });
+            });
 
-            loginForm.addEventListener('submit', async function(e) {
+            loginForm.addEventListener('submit', async function (e) {
                 e.preventDefault();
 
                 const loginButton = document.getElementById('loginButton');
@@ -435,7 +579,7 @@
 
                     const data = await res.json();
 
-                   
+
 
                     if (!(data.status)) {
                         Swal.fire('Error', data.message || 'OTP verification failed', 'error');
@@ -444,31 +588,31 @@
                         return;
                     }
                     // console.log('is verify value is = ',isverfiy)
-                    if(isverfiy){
+                    if (isverfiy) {
 
-                    const fd = new FormData();
-                    fd.append('email', pendingLoginEmail || userEmail);
-                    fd.append('password', pendingLoginPassword);
+                        const fd = new FormData();
+                        fd.append('email', pendingLoginEmail || userEmail);
+                        fd.append('password', pendingLoginPassword);
 
-                    const loginRes = await fetch("{{ route('admin.login') }}", {
-                        method: "POST",
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                .getAttribute('content'),
-                            'Accept': 'application/json',
-                        },
-                        body: fd
-                    });
+                        const loginRes = await fetch("{{ route('admin.login') }}", {
+                            method: "POST",
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                    .getAttribute('content'),
+                                'Accept': 'application/json',
+                            },
+                            body: fd
+                        });
 
-                    const loginData = await loginRes.json();
+                        const loginData = await loginRes.json();
 
-                    if (loginRes.ok && loginData.status) {
-                        Swal.fire('Success', 'Verified & Logged in successfully!', 'success')
-                            .then(() => window.location.href = loginData.redirect);
-                        return;
-                    }
+                        if (loginRes.ok && loginData.status) {
+                            Swal.fire('Success', 'Verified & Logged in successfully!', 'success')
+                                .then(() => window.location.href = loginData.redirect);
+                            return;
+                        }
 
-                    Swal.fire('Error', loginData.message || 'Login failed after verification', 'error');
+                        Swal.fire('Error', loginData.message || 'Login failed after verification', 'error');
                     }
                 } catch (err) {
                     Swal.fire('Error', 'Server error. Try again later.', 'error');
@@ -479,18 +623,234 @@
                 otpBtn.textContent = 'Verify OTP';
             });
 
+            forgetPassOtpForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const otpBtn = document.getElementById('passOtpVerifyBtn');
+                otpBtn.disabled = true;
+                otpBtn.textContent = 'Verifying...';
+
+                const otpValues = Array.from(otpInputsPassword).map(i => i.value).join('');
+                const id = document.getElementById('forgetPasswordId').value;
+
+                if (otpValues.length !== 4) {
+                    Swal.fire('Error', 'Please enter a valid 4-digit OTP', 'error');
+                    otpBtn.disabled = false;
+                    otpBtn.textContent = 'Verify OTP';
+                    return;
+                }
+
+                try {
+                    const res = await fetch("{{ route('verify_otp_forget_password') }}", {
+                        method: "POST",
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content'),
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            id: id,
+                            otp: otpValues
+                        })
+                    });
+
+                    const data = await res.json();
+
+                    if (!(data.status)) {
+                        Swal.fire('Error', data.message || 'OTP verification failed', 'error');
+                        otpBtn.disabled = false;
+                        otpBtn.textContent = 'Verify OTP';
+                        return;
+                    }
+
+
+                    if (data.status) {
+                        Swal.fire('Success', data.message || 'Success', 'success');
+                        otpBtn.disabled = false;
+                        otpBtn.textContent = 'Verify OTP';
+                        showResetPasswordForm();
+                        return;
+                    }
+
+                } catch (err) {
+                    Swal.fire('Error', 'Server error. Try again later.', 'error');
+                    console.error(err);
+                }
+
+                otpBtn.disabled = false;
+                otpBtn.textContent = 'Verify OTP';
+            });
+
+            forgetPasswordForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const otpBtn = document.getElementById('forgetButton');
+                otpBtn.disabled = true;
+                otpBtn.textContent = 'Submitting...';
+                const forgetEmail = document.getElementById('forgetEmail').value;
+
+                try {
+                    const res = await fetch("{{ route('send_otp_forget_password') }}", {
+                        method: "POST",
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content'),
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            email: forgetEmail,
+                        })
+                    });
+
+                    const data = await res.json();
+
+
+                    if (!(data.status)) {
+                        Swal.fire('Error', data.message || 'OTP verification failed', 'error');
+                        otpBtn.disabled = false;
+                        otpBtn.textContent = 'Submit';
+                        return;
+                    }
+
+                    if (data.status) {
+                        Swal.fire('Success', data.message || 'OTP sent to your mail verify for forget password', 'success');
+                        otpBtn.disabled = false;
+                        otpBtn.textContent = 'Submit';
+                        document.getElementById('forgetPasswordId').value = data.id;
+                        showPasswordOTP();
+                        return;
+                    }
+
+                } catch (err) {
+                    Swal.fire('Error', 'Server error. Try again later.', 'error');
+                    console.error(err);
+                }
+
+                otpBtn.disabled = false;
+                otpBtn.textContent = 'Submit';
+            });
+
+
+            resendOtpButton.addEventListener('click', async (e) => {
+                e.preventDefault();
+                resendOtpButton.disabled = true;
+                resendOtpButton.innerHTML = `
+                    <span class="spinner-border spinner-border-sm"></span> Sending...
+                `;
+                const forgetEmail = document.getElementById('forgetEmail').value;
+
+                try {
+                    const res = await fetch("{{ route('send_otp_forget_password') }}", {
+                        method: "POST",
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content'),
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            email: forgetEmail,
+                        })
+                    });
+
+                    const data = await res.json();
+
+                    if (!(data.status)) {
+                        Swal.fire('Error', data.message || 'OTP verification failed', 'error');
+                        resendOtpButton.disabled = false;
+                        resendOtpButton.innerHTML = "Resend OTP";
+                        return;
+                    }
+
+                    if (data.status) {
+                        Swal.fire('Success', data.message || 'OTP sent to your mail verify for forget password', 'success');
+                        document.getElementById('forgetPasswordId').value = data.id;
+                        showPasswordOTP();
+                        resendOtpButton.disabled = false;
+                        resendOtpButton.innerHTML = "Resend OTP";
+                        return;
+                    }
+                    resendOtpButton.disabled = false;
+                    resendOtpButton.innerHTML = "Resend OTP";
+                } catch (err) {
+                    Swal.fire('Error', 'Server error. Try again later.', 'error');
+                    console.error(err);
+                }
+            });
+
+
+            resetPasswordForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const otpBtn = document.getElementById('resetPasswordButton');
+                otpBtn.disabled = true;
+                otpBtn.textContent = 'Saving...';
+                const id = document.getElementById('forgetPasswordId').value;
+                const password = document.getElementById('currentPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+
+                try {
+                    const res = await fetch("{{ route('forget_password') }}", {
+                        method: "POST",
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content'),
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            id: id,
+                            password: password,
+                            confirmPassword: confirmPassword,
+                        })
+                    });
+
+                    const data = await res.json();
+
+
+                    if (!(data.status)) {
+                        Swal.fire('Error', data.message || 'Failed to change Password', 'error');
+                        otpBtn.disabled = false;
+                        otpBtn.textContent = 'Submit';
+                        return;
+                    }
+
+                    if (data.status) {
+                        Swal.fire('Success', data.message || 'Password Changed Successfully', 'success');
+                        // otpBtn.disabled = false;
+                        otpBtn.textContent = 'Submit';
+                        setTimeout(() => {
+                            location.reload();
+                        }, 2000);
+                        return;
+                    }
+
+                } catch (err) {
+                    Swal.fire('Error', 'Server error. Try again later.', 'error');
+                    console.error(err);
+                }
+
+                otpBtn.disabled = false;
+                otpBtn.textContent = 'Submit';
+            });
 
             switchToSignup.addEventListener('click', (e) => {
                 e.preventDefault();
                 showSignup();
             });
-            switchToLogin.addEventListener('click', (e) => {
-                e.preventDefault();
-                showLogin();
+
+            switchToLogin.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    showLogin();
+                });
             });
-            switchLogin.addEventListener('click', (e) => {
+
+            switchToForgetPassword.addEventListener('click', (e) => {
                 e.preventDefault();
-                showLogin();
+                showforgetPassword();
             });
 
         });

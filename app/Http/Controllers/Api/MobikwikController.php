@@ -2,35 +2,38 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Helpers\CommonHelper;
 use App\Helpers\MobiKwikHelper;
-use App\Models\UserService;
+use App\Http\Controllers\Controller;
+use App\Jobs\DebitBalanceUpdateJob;
+use App\Models\DefaultProvider;
 use App\Models\MobikwikToken;
 use App\Models\Transaction;
+use App\Models\UserRooting;
+use App\Models\UserService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Auth;
-use App\Models\UserRooting;
-use App\Models\DefaultProvider;
-use App\Jobs\DebitBalanceUpdateJob;
 
 class MobikwikController extends Controller
 {
     private $baseUrl;
+
     private $publicKey;
+
     private $keyVersion;
+
     private $clientId;
+
     private $clientSecret;
 
     public function __construct()
     {
-        $this->baseUrl = config("mobikwik.base_url");
-        $this->keyVersion = config("mobikwik.key_version");
-        $this->clientSecret = config("mobikwik.client_secret");
-        $this->clientId = config("mobikwik.client_id");
-        $this->publicKey = file_get_contents(config("mobikwik.public_key"));
+        $this->baseUrl = config('mobikwik.base_url');
+        $this->keyVersion = config('mobikwik.key_version');
+        $this->clientSecret = config('mobikwik.client_secret');
+        $this->clientId = config('mobikwik.client_id');
+        $this->publicKey = file_get_contents(config('mobikwik.public_key'));
     }
 
     public function generateToken()
@@ -38,115 +41,113 @@ class MobikwikController extends Controller
         try {
             $response = Http::timeout(15)
                 ->withHeaders([
-                    "Content-Type" => "application/json",
+                    'Content-Type' => 'application/json',
                 ])
-                ->post($this->baseUrl . "/recharge/v1/verify/retailer", [
-                    "clientId" => $this->clientId,
-                    "clientSecret" => $this->clientSecret,
+                ->post($this->baseUrl . '/recharge/v1/verify/retailer', [
+                    'clientId' => $this->clientId,
+                    'clientSecret' => $this->clientSecret,
                 ]);
 
-            if (!$response->successful()) {
-                Log::error("Mobikwik Token API HTTP Error", [
-                    "status" => $response->status(),
-                    "response" => $response->body(),
+            if (! $response->successful()) {
+                Log::error('Mobikwik Token API HTTP Error', [
+                    'status' => $response->status(),
+                    'response' => $response->body(),
                 ]);
 
                 return response()->json(
                     [
-                        "success" => false,
-                        "message" => "Unable to generate token",
+                        'success' => false,
+                        'message' => 'Unable to generate token',
                     ],
                     $response->status()
                 );
             }
             $data = $response->json();
             MobikwikToken::create([
-                "token" => $data->data->token,
-                "creation_time" => now(),
-                "response" => $data,
-                "created_at" => now(),
-                "updated_at" => now(),
+                'token' => $data->data->token,
+                'creation_time' => now(),
+                'response' => $data,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
 
             return response()->json($data, 200);
         } catch (\Illuminate\Http\Client\ConnectionException $e) {
-            Log::error("Mobikwik Token API Timeout", [
-                "error" => $e->getMessage(),
+            Log::error('Mobikwik Token API Timeout', [
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json(
                 [
-                    "success" => false,
-                    "message" => "Connection timeout, please try again later",
+                    'success' => false,
+                    'message' => 'Connection timeout, please try again later',
                 ],
                 504
             );
         } catch (\Exception $e) {
-            Log::error("Mobikwik Token API Exception", [
-                "error" => $e->getMessage(),
-                "file" => $e->getFile(),
-                "line" => $e->getLine(),
+            Log::error('Mobikwik Token API Exception', [
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
             ]);
 
             return response()->json(
                 [
-                    "success" => false,
-                    "message" => "Internal server error",
+                    'success' => false,
+                    'message' => 'Internal server error',
                 ],
                 500
             );
         }
     }
-    
+
     protected function ValidateUsers(Request $request)
     {
         try {
+            // dd($request->all());
             $encryptedId = $request->getUser();
             $encryptedSecret = $request->getPassword();
-
+            // dd($encryptedSecret);
             $userData = CommonHelper::validateClient($encryptedId, $encryptedSecret);
 
             if (!$userData) {
-                return response()->json([
+                return [
                     'status' => false,
-                    'message' => 'you are passing the invalid credentials'
-
-                ], 403);
+                    'message' => 'you are passing the invalid credentials',
+                ];
             }
-
-
 
             $userId = $userData['user_id'];
             $serviceId = $userData['service'];
             if (empty($userId)) {
-                return response()->json([
-                    'staus' => false,
-                    'message' => 'User Client id is Invailed'
-                ]);
+                return [
+                    'status' => false,
+                    'message' => 'User Client id is Invalid',
+                ];
             }
-
 
             $isServiceActive = UserService::where('user_id', $userId)->where('service_id', $serviceId)->where('is_active', '1')->first();
 
             // dd($isServiceActive);
 
-            if (!$isServiceActive) {
-                return response()->json([
+            if (! $isServiceActive) {
+                return [
                     'status' => false,
                     'message' => 'Service is not active at this time',
-                ]);
+                ];
             }
             $data = [
                 'status' => true,
                 'user_id' => $userId,
                 'service' => $serviceId,
             ];
+
             return $data;
         } catch (\Exception $e) {
-            return response()->json([
+            return [
                 'status' => false,
-                'message' => $e->getMessage()
-            ]);
+                'message' => $e->getMessage(),
+            ];
         }
     }
 
@@ -160,24 +161,25 @@ class MobikwikController extends Controller
             $ip = $request->ip();
 
             $ipWhitelist = CommonHelper::checkIpWhiteList($userId, $serviceId, $ip);
-            // if (!$ipWhitelist) {
-            //     return response()->json([
-            //         'status' => false,
-            //         'mesage' => 'Ip not whitelisted'
-            //     ]);
-            // }
+            if (!$ipWhitelist) {
+                return response()->json([
+                    'status' => false,
+                    'mesage' => 'Ip not whitelisted'
+                ]);
+            }
 
             $opId = $operator_id;
             $cirId = $circle_id;
             $planType = $plan_type;
             $ProviderName = $provider;
+            // dd($ProviderName);
             switch ($ProviderName) {
-                case 'plans':
+                case 'mobikwik-plans':
                     try {
                         $endpoint = "/recharge/v1/rechargePlansAPI/{$opId}/{$cirId}";
 
                         // Append planType ONLY if provided
-                        if (!empty($planType)) {
+                        if (! empty($planType)) {
                             $endpoint .= "/{$planType}";
                         }
 
@@ -185,23 +187,22 @@ class MobikwikController extends Controller
                             ->timeout(120)
                             ->retry(3, 3000)
                             ->withHeaders([
-                                "Content-Type" => "application/json",
-                                "X-MClient" => "14",
+                                'Content-Type' => 'application/json',
+                                'X-MClient' => '14',
                             ])
                             ->get($this->baseUrl . $endpoint);
 
-                        if (!$response->successful()) {
-                            Log::error("Mobikwik Plan API HTTP Error", [
-                                "url" => $endpoint,
-                                "status" => $response->status(),
-                                "response" => $response->body(),
+                        if (! $response->successful()) {
+                            Log::error('Mobikwik Plan API HTTP Error', [
+                                'url' => $endpoint,
+                                'status' => $response->status(),
+                                'response' => $response->body(),
                             ]);
 
                             return response()->json(
                                 [
-                                    "success" => false,
-                                    "message" =>
-                                    "Unable to fetch plans from provider",
+                                    'success' => false,
+                                    'message' => 'Unable to fetch plans from provider',
                                 ],
                                 $response->status()
                             );
@@ -210,21 +211,21 @@ class MobikwikController extends Controller
                         $data = $response->json();
 
                         if (
-                            isset($data["success"]) &&
-                            $data["success"] === false
+                            isset($data['success']) &&
+                            $data['success'] === false
                         ) {
                             return response()->json(
                                 [
-                                    "success" => false,
-                                    "message" =>
-                                    $data["message"]["text"] ??
-                                        "Plans not available",
-                                    "code" => $data["message"]["code"] ?? null,
+                                    'success' => false,
+                                    'message' => $data['message']['text'] ??
+                                        'Plans not available',
+                                    'code' => $data['message']['code'] ?? null,
                                 ],
                                 400
                             );
                         }
-                        $originalData = $data["data"]["plans"];
+                        $originalData = $data['data']['plans'];
+
                         // dd($originalData);
                         return response()->json(
                             [
@@ -240,6 +241,7 @@ class MobikwikController extends Controller
                                         'validity' => $data['validity'] ?? null,
                                         'planName' => $data['planName'] ?? null,
                                         'planDescription' => $data['planDescription'] ?? null,
+                                        'dataBenefit' => $data['dataBenefit'] ?? null,
                                         'isPopular' => $data['isPopular'] ?? null,
                                         'stringTalktime' => $data['stringTalktime'] ?? null,
                                         'validityInDays' => $data['validityInDays'] ?? null,
@@ -250,29 +252,28 @@ class MobikwikController extends Controller
                             200
                         );
                     } catch (\Illuminate\Http\Client\ConnectionException $e) {
-                        Log::error("Mobikwik Plan API Timeout", [
-                            "error" => $e->getMessage(),
+                        Log::error('Mobikwik Plan API Timeout', [
+                            'error' => $e->getMessage(),
                         ]);
 
                         return response()->json(
                             [
-                                "success" => false,
-                                "message" =>
-                                "Provider timeout, please try again later",
+                                'success' => false,
+                                'message' => 'Provider timeout, please try again later',
                             ],
                             504
                         );
                     } catch (\Exception $e) {
-                        Log::error("Mobikwik Plan API Exception", [
-                            "error" => $e->getMessage(),
-                            "line" => $e->getLine(),
-                            "file" => $e->getFile(),
+                        Log::error('Mobikwik Plan API Exception', [
+                            'error' => $e->getMessage(),
+                            'line' => $e->getLine(),
+                            'file' => $e->getFile(),
                         ]);
 
                         return response()->json(
                             [
-                                "success" => false,
-                                "message" => "Internal server error",
+                                'success' => false,
+                                'message' => 'Internal server error',
                             ],
                             500
                         );
@@ -281,8 +282,8 @@ class MobikwikController extends Controller
 
                 default:
                     return response()->json([
-                        "status" => false,
-                        "message" => "provider slug not found",
+                        'status' => false,
+                        'message' => 'provider slug not found',
                     ]);
             }
         } catch (\Exception $e) {
@@ -295,18 +296,16 @@ class MobikwikController extends Controller
 
     public function getBalance(Request $request, $type)
     {
-
-        // $this->ValidateUsers($request);
         $data = $this->ValidateUsers($request);
         $userId = $data['user_id'];
         $serviceId = $data['service'];
         $ip = $request->ip();
 
         $ipWhitelist = CommonHelper::checkIpWhiteList($userId, $serviceId, $ip);
-        if (!$ipWhitelist) {
+        if (! $ipWhitelist) {
             return response()->json([
                 'status' => false,
-                'mesage' => 'Ip not whitelisted'
+                'mesage' => 'Ip not whitelisted',
             ]);
         }
 
@@ -315,15 +314,14 @@ class MobikwikController extends Controller
             case 'mobikwik-balance':
                 try {
                     $request->validate([
-                        "memberId" => "required|string",
+                        'memberId' => 'required|string',
                     ]);
 
                     $payload = [
-                        "memberId" => $request->memberId,
+                        'memberId' => $request->memberId,
                     ];
 
-                    $mobikwikHelper = new MobiKwikHelper();
-
+                    $mobikwikHelper = new MobiKwikHelper;
 
                     $data = MobikwikToken::whereDate('creation_time', today())->select('token')->first();
                     // dd($data);
@@ -334,55 +332,77 @@ class MobikwikController extends Controller
                         $token = $data->token;
                     }
 
+                    $endpoint = '/recharge/v3/retailerBalance';
+
                     $response = $mobikwikHelper->sendRequest(
-                        "/recharge/v3/retailerBalance",
+                        $endpoint,
                         $payload,
                         $token
                     );
                     // dd($response);
 
-                    // if(!$response->successfull()){
-                    //     return response()->json([
-                    //         'status'=> false,
-                    //         'message'=> 'invailed response'
-                    //     ]);
-                    // }
+                    if (!$response->successfull()) {
+                        Log::error('Mobikwik Balance API HTTP Error', [
+                            'url' => $endpoint,
+                            'status' => $response->status(),
+                            'response' => $response->body(),
+                        ]);
+                        return response()->json([
+                            'status' => false,
+                            'message' => 'Unable to fetch response from provider side'
+                        ]);
+                    }
+
+                    if (
+                        isset($response['success']) &&
+                        $response['success'] === false
+                    ) {
+                        return response()->json(
+                            [
+                                'success' => false,
+                                'message' => $response['message']['text'] ??
+                                    'Token is expired/Invalid Token/Token not found in request',
+                                'code' => $response['message']['code'] ?? null,
+                            ],
+                            400
+                        );
+                    }
 
                     return response()->json([
                         'status' => true,
                         'data' => $response,
                     ]);
-                } catch (ConnectionException $e) {
-                    Log::error("Mobikwik Balance API Timeout", [
-                        "error" => $e->getMessage(),
+                } catch (\Illuminate\Http\Client\ConnectionException $e) {
+                    Log::error('Mobikwik Balance API Timeout', [
+                        'error' => $e->getMessage(),
                     ]);
 
                     return response()->json(
                         [
-                            "success" => false,
-                            "message" => "Provider timeout, please try again later",
+                            'success' => false,
+                            'message' => 'Provider timeout, please try again later',
                         ],
                         504
                     );
                 } catch (\Illuminate\Validation\ValidationException $e) {
                     return response()->json(
                         [
-                            "success" => false,
-                            "message" => $e->errors(),
+                            'success' => false,
+                            'message' => $e->errors(),
                         ],
                         422
                     );
                 } catch (\Exception $e) {
-                    Log::error("Mobikwik Balance API Exception", [
-                        "error" => $e->getMessage(),
-                        "file" => $e->getFile(),
-                        "line" => $e->getLine(),
+                    Log::error('Mobikwik Balance API Exception', [
+                        'error' => $e->getMessage(),
+                        'file' => $e->getFile(),
+                        'line' => $e->getLine(),
                     ]);
 
                     return response()->json(
                         [
-                            "success" => false,
-                            "message" => "Internal server error",
+                            'success' => false,
+                            'message' => 'Internal server error',
                         ],
                         500
                     );
@@ -392,80 +412,107 @@ class MobikwikController extends Controller
             default:
                 return response()->json([
                     'status' => false,
-                    'message' => "Some error occur duing the balance api calls"
+                    'message' => 'Some error occur duing the balance api calls',
                 ]);
         }
     }
+
     protected function isTokenPresent()
     {
         try {
-            $tokenData = MobikwikToken::where('expire_at', '>=', now())
-                ->orderBy('expire_at', 'desc')
-                ->select('token', 'expire_at')
+            $tokenData = MobikwikToken::where('is_active', true)
+                ->where('expire_at', '>=', now())
+                ->latest()
                 ->first();
 
-            $token = null;
-            if (!$tokenData) {
-                $mobikwikHelper = new MobiKwikHelper();
-                $data = $mobikwikHelper->generateMobikwikToken();
-                $token = $data->token;
-            } else {
-                $token = $tokenData->token;
+            // Agar valid token mil gaya
+            if ($tokenData) {
+                return $tokenData->token;
             }
-            return $token;
+
+            //  Nahi mila → new generate
+            return (new MobiKwikHelper)->generateToken();
         } catch (\Exception $e) {
             Log::error('Mobikwik Token Present Exception', [
                 'error' => $e->getMessage(),
-                'file'  => $e->getFile(),
-                'line'  => $e->getLine(),
             ]);
         }
     }
+
     public function validateRecharge(Request $request, $type)
     {
-        // $this->ValidateUsers($request);
         $data = $this->ValidateUsers($request);
         $userId = $data['user_id'];
         $serviceId = $data['service'];
         $ip = $request->ip();
-        // dd($ip);    
+
         $ipWhitelist = CommonHelper::checkIpWhiteList($userId, $serviceId, $ip);
-        if (!$ipWhitelist) {
+        if (! $ipWhitelist) {
             return response()->json([
                 'status' => false,
-                'mesage' => 'Ip not whitelisted'
+                'mesage' => 'Ip not whitelisted',
             ]);
         }
 
         $request->validate([
             'amount' => 'required|string',
             'connectionNumber' => 'required',
-            'operatorName' => 'required',
-            'circleName' => 'required',
+            'operatorId' => 'required',
+            'circleId' => 'required',
             'planCode' => 'required',
-            'adParams' => []
+            'adParams' => [],
         ]);
 
         switch ($type) {
-            case "mobiwik-recharge-validation":
+            case 'mobiwik-recharge-validation':
                 try {
                     $payload = [
-                        "amt" => $request->amount,
-                        "cn" => $request->connectionNumber,
-                        "op" => $request->operatorName,
-                        "cir" => $request->circleName,
-                        "planCode" => $request->planCode,
-                        "adParams" => (object) [],
+                        'amt' => $request->amount,
+                        'cn' => $request->connectionNumber,
+                        'op' => $request->operatorId,
+                        'cir' => $request->circleId,
+                        'planCode' => $request->planCode,
+                        'adParams' => (object) [],
                     ];
 
-                    $mobikwikHelper = new MobiKwikHelper();
+                    $mobikwikHelper = new MobiKwikHelper;
                     $token = $this->isTokenPresent();
-                    // dd($token);
+
+                    $endpoint = '/recharge/v3/retailerValidation';
+
                     $response = $mobikwikHelper->sendRequest(
-                        '/recharge/v3/retailerValidation',
+                        $endpoint,
                         $payload,
                         $token
                     );
+
+                    if (!$response->successfull()) {
+                        Log::error('Mobikwik Validation API HTTP Error', [
+                            'url' => $endpoint,
+                            'status' => $response->status(),
+                            'response' => $response->body(),
+                        ]);
+                        return response()->json([
+                            'status' => false,
+                            'message' => 'Unable to fetch validation response from provider side'
+                        ]);
+                    }
+
+                    if (
+                        isset($response['success']) &&
+                        $response['success'] === false
+                    ) {
+                        return response()->json(
+                            [
+                                'success' => false,
+                                'message' => $response['message']['text'] ??
+                                    'Invalid Hash Value',
+                                'code' => $response['message']['code'] ?? null,
+                                'data' => $response['data']
+                            ],
+                            400
+                        );
+                    }
 
                     return response()->json([
                         'status' => true,
@@ -480,13 +527,13 @@ class MobikwikController extends Controller
                                 'autoPaySupported' => $response['data']['autoPaySupported'],
                                 'rewardWidgetEnabled' => $response['data']['rewardWidgetEnabled'],
                                 'superCashBurned' => $response['data']['superCashBurned'],
-                            ]
-                        ]
+                            ],
+                        ],
                     ]);
                 } catch (\Exception $e) {
                     return response()->json([
-                        "status" => false,
-                        "message" => $e->getMessage(),
+                        'status' => false,
+                        'message' => $e->getMessage(),
                     ]);
                 }
         }
@@ -494,40 +541,23 @@ class MobikwikController extends Controller
 
     public function mobikwikPayment(Request $request, $type)
     {
-        // dd($request->all());
         $data = $this->ValidateUsers($request);
         $userId = $data['user_id'];
         $serviceId = $data['service'];
         $ip = $request->ip();
 
         $ipWhitelist = CommonHelper::checkIpWhiteList($userId, $serviceId, $ip);
-        // if (!$ipWhitelist) {
-        //     return response()->json([
-        //         'status' => false,
-        //         'mesage' => 'Ip not whitelisted'
-        //     ]);
-        // }
-
-        // $request->validate([
-        //     'customerNUmber' => 'required',
-        //     'operator' => 'required',
-        //     'circle' => 'required',
-        //     'amount' => 'required',
-        //     'requestId' => 'required',
-        //     'customerMobile' => 'required',
-        //     'remitterName' => 'required',
-        //     'paymentRefID' => 'required',
-        //     'paymentMode' => 'required',
-        //     'paymentAccountInfo' => 'required',
-        //     'additionalPrm1' => 'nullable',
-        //     'additionalPrm2' => 'nullable'
-        // ]);
-
+        if (!$ipWhitelist) {
+            return response()->json([
+                'status' => false,
+                'mesage' => 'Ip not whitelisted'
+            ]);
+        }
 
         $messages = [
-            'customerNUmber.required' => 'Customer number is required.',
-            'customerNUmber.string' => 'Customer number must be a valid string.',
-            'customerNUmber.regex' => 'Customer number must be a 10-digit number.',
+            'connectionNumber.required' => 'Connection number is required.',
+            'connectionNumber.string' => 'Connection number must be a valid string.',
+            'connectionNumber.regex' => 'Connection number must be a 10-digit number.',
 
             'operator.required' => 'Operator is required.',
             'operator.exists' => 'Selected operator is invalid.',
@@ -565,23 +595,22 @@ class MobikwikController extends Controller
             'additionalPrm1.string' => 'Additional parameter 1 must be a valid string.',
             'additionalPrm1.max' => 'Additional parameter 1 cannot exceed 255 characters.',
 
-            'additionalPrm2.string' => 'Additional parameter 2 must be a valid string.',
-            'additionalPrm2.max' => 'Additional parameter 2 cannot exceed 255 characters.',
         ];
 
         $request->validate([
-            'customerNUmber' => 'required|string|regex:/^[0-9]{10}$/',
-            'operator' => 'required|exists:operators,id',
-            'circle' => 'required|exists:circles,id',
+            'connectionNumber' => 'required|string|regex:/^[0-9]{10}$/',
+            'operator' => 'required',
+            'circle' => '',
             'amount' => 'required|numeric|min:1',
             'requestId' => 'required|string|unique:transactions,request_id',
             'customerMobile' => 'required|string|regex:/^[0-9]{10}$/',
+            'agentId' => 'required|string',
             'remitterName' => 'required|string|max:100',
             'paymentRefID' => 'required|string|unique:transactions,payment_ref_id',
-            'paymentMode' => 'required|in:Wallet',
+            'paymentMode' => 'required|string',
             'paymentAccountInfo' => 'required|string|max:100',
-            'additionalPrm1' => 'nullable|string|max:255',
-            'additionalPrm2' => 'nullable|string|max:255'
+            // 'additionalPrm1' => 'nullable|string|max:255',
+            // 'additionalPrm2' => 'nullable|string|max:255',
         ], $messages);
 
         switch ($type) {
@@ -594,65 +623,68 @@ class MobikwikController extends Controller
                     }
 
                     $slug = $defaultSlugData->provider_slug;
+                    // dd($slug);
                     $payload = [
-                        "cn" => $request->customerNUmber,
-                        "op" => $request->operator,
+                        'cn' => $request->connectionNumber,
+                        'op' => $request->operator,
                         "cir" => $request->circle,
-                        "amt" => $request->amount,
-                        "reqid" => $request->requestId,
-                        "customerMobile" => $request->customerMobile,
-                        "remitterName" => $request->remitterName,
-                        "paymentRefID" => $request->paymentRefID,
-                        "paymentMode" => 'Wallet',
-                        "connectpeId" => $connectPeId,
-                        "paymentAccountInfo" => '9999999999',
-                        'status'                => 'queued',
-                        "call"               => 'balance_debit',
-                        'user_id'            => $userId,
-                        "serviceId"         => $serviceId,
-                        'slug'              => $slug,
+                        'amt' => $request->amount,
+                        'reqid' => $request->requestId,
+                        'customerMobile' => $request->customerMobile,
+                        'agentId' => $request->agentId,
+                        'remitterName' => $request->remitterName,
+                        'paymentRefID' => $request->paymentRefID,
+                        'paymentMode' => $request->paymentMode,
+                        // "connectpeId" => $connectPeId,
+                        'paymentAccountInfo' => $request->paymentAccountInfo,
+                        // 'status'                => 'queued',
+                        // "call"               => 'balance_debit',
+                        // 'user_id'            => $userId,
+                        // "serviceId"         => $serviceId,
+                        // 'slug'              => $slug,
                     ];
 
+                    // dd($payload);
+                    // Transaction::create([
+                    //     'user_id'               => $userId,
+                    //     'operator_id'           => $payload['op'],
+                    //     'circle_id'             => $payload['cir'],
+                    //     'amount'                => $payload['amt'],
+                    //     'transaction_type'      => $payload['paymentMode'],
+                    //     'request_id'            => $payload['reqid'],
+                    //     'mobile_number'         => $payload['customerMobile'],
+                    //     'payment_ref_id'        => $payload['paymentRefID'],
+                    //     'payment_account_info'  => $payload['paymentAccountInfo'],
+                    //     'recharge_type'         => 'prepaid',
+                    //     'status'                => 'queued',
+                    //     'connectpe_id'          => $connectPeId,
+                    // ]);
 
-                    Transaction::create([
-                        'user_id'               => $userId,
-                        'operator_id'           => $payload['op'],
-                        'circle_id'             => $payload['cir'],
-                        'amount'                => $payload['amt'],
-                        'transaction_type'      => $payload['paymentMode'],
-                        'request_id'            => $payload['reqid'],
-                        'mobile_number'         => $payload['customerMobile'],
-                        'payment_ref_id'        => $payload['paymentRefID'],
-                        'payment_account_info'  => $payload['paymentAccountInfo'],
-                        'recharge_type'         => 'prepaid',
-                        'status'                => 'queued',
-                        'connectpe_id'          => $connectPeId,
-                    ]);
-
-                    $mobikwikHelper = new MobiKwikHelper();
+                    $mobikwikHelper = new MobiKwikHelper;
                     $token = $this->isTokenPresent();
                     $endpoint = '/recharge/v3/retailerPayment';
 
-                   
+                    // dd($token);
 
                     $response = $mobikwikHelper->sendRequest(
                         $endpoint,
                         $payload,
-                        "LTc5BrqrRB1yQpq0HSpKJYRwbYxVWeSsZc_OEItKmCM"
+                        $token
                     );
 
                     // dd($response);
                     return response()->json([
-                        'data'=>$response,
+                        'status' => true,
+                        'data' => $response,
                     ]);
 
-                    dispatch(
-                        new DebitBalanceUpdateJob(
-                            $endpoint,
-                            $payload,
-                            $token
-                        )
-                    )->onQueue('recharge_process_queue');
+                    // dispatch(
+                    //     new DebitBalanceUpdateJob(
+                    //         $endpoint,
+                    //         $payload,
+                    //         $token
+                    //     )
+                    // )->onQueue('recharge_process_queue');
                     // $response = $mobikwikHelper->sendRequest(
                     //     '/recharge/v3/retailerPayment',
                     //     $payload,
@@ -667,8 +699,6 @@ class MobikwikController extends Controller
                     //     ]);
                     // }
 
-
-
                     // $success = $response['success'];
                     // $finalResponse = [
                     //     'success' => $success,
@@ -679,15 +709,15 @@ class MobikwikController extends Controller
                     //     'connectpe_id' => $connectPeId
 
                     // ];
-                    return response()->json([
-                        'status' => true,
-                        'message' => 'Your recharge is queued successfully'
+                    // return response()->json([
+                    //     'status' => true,
+                    //     'message' => 'Your recharge is queued successfully',
 
-                    ]);
+                    // ]);
                 } catch (\Exception $e) {
                     return response()->json([
-                        "status" => false,
-                        "message" => $e->getMessage(),
+                        'status' => false,
+                        'message' => $e->getMessage(),
                     ]);
                 }
 
@@ -696,13 +726,14 @@ class MobikwikController extends Controller
             default:
                 return response()->json([
                     'status' => false,
-                    'message' => "Some error occur while you are doing the payment"
+                    'message' => 'Some error occur while you are doing the payment',
                 ]);
         }
     }
 
     public function fetchPostpaidBill(Request $request, $type)
     {
+        // dd($request->all());
         // $this->ValidateUsers($request);
         $data = $this->ValidateUsers($request);
         $userId = $data['user_id'];
@@ -720,8 +751,8 @@ class MobikwikController extends Controller
         $request->validate([
             'connectionNumber' => 'required|string',
             'operatorId' => 'required|string',
-            'circleId' => 'required|string',
-            'adParams' => 'nullable'
+            'circleId' => 'nullable|string',
+            'adParams' => 'nullable',
         ]);
 
         switch ($type) {
@@ -729,29 +760,36 @@ class MobikwikController extends Controller
                 $payload = [
                     'cn' => $request->connectionNumber,
                     'op' => $request->operatorId,
-                    'cir' => $request->circleId,
-                    'adParams' => $request->adParams,
-
+                    'cir' => $request->circleId ?? '',
+                    'agentId' => "MK01MK01INB523643654",
+                    'adParams' => (object)[],
                 ];
-
-                $mobikwikHelper = new MobiKwikHelper();
+                // dd($payload);
+                $mobikwikHelper = new MobiKwikHelper;
                 $token = $this->isTokenPresent();
+                // dd($token);
+                if (! $token) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'token not found',
+                    ]);
+                }
                 $response = $mobikwikHelper->sendRequest(
                     '/recharge/v3/retailerViewbill',
                     $payload,
-                    'LTc5BrqrRB1yQpq0HSpKJYRwbYxVWeSsZc_OEItKmCM'
+                    $token
                 );
 
                 return response()->json([
-                    'status' => false,
-                    'data' => $response
+                    'status' => true,
+                    'data' => $response,
                 ]);
 
                 break;
             default:
                 return response()->json([
                     'status' => false,
-                    'message' => 'API Error'
+                    'message' => 'API Error',
                 ]);
         }
     }
@@ -773,7 +811,8 @@ class MobikwikController extends Controller
         // }
 
         $request->validate([
-            'txnId' => 'required|exists:transactions,request_id',
+            // 'txnId' => 'required|exists:transactions,request_id',
+            'txnId' => 'required|string',
         ]);
 
         switch ($type) {
@@ -781,27 +820,27 @@ class MobikwikController extends Controller
             case 'mobikwik-status':
                 try {
                     $payload = [
-                        "txId" => $request->txId,
+                        'txId' => $request->txnId,
                     ];
 
-                    $mobikwikHelper = new MobiKwikHelper();
+                    $mobikwikHelper = new MobiKwikHelper;
                     $token = $this->isTokenPresent();
                     // dd($token);
-                    
 
                     $data = $mobikwikHelper->sendRequest(
-                        "/recharge/v3/retailerStatus",
+                        '/recharge/v3/retailerStatus',
                         $payload,
-                        "LTc5BrqrRB1yQpq0HSpKJYRwbYxVWeSsZc_OEItKmCM"
+                        $token
                     );
+
                     return response()->json([
-                        "status" => false,
-                        "response" => $data,
+                        'status' => false,
+                        'response' => $data,
                     ]);
                 } catch (\Exception $e) {
                     return response()->json([
-                        "status" => false,
-                        "message" => $e->getMessage(),
+                        'status' => false,
+                        'message' => $e->getMessage(),
                     ]);
                 }
 
@@ -810,7 +849,7 @@ class MobikwikController extends Controller
             default:
                 return response()->json([
                     'status' => false,
-                    'message' => 'API Error'
+                    'message' => 'API Error',
                 ]);
         }
     }

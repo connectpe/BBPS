@@ -31,78 +31,72 @@ class MobiKwikHelper
         $this->paymentAccountInfo = config('mobikwik.payment_account_info');
     }
 
-    public static function generateMobikwikToken()
+    public function generateToken()
     {
         try {
-
             $response = Http::timeout(15)
                 ->withHeaders([
                     'Content-Type' => 'application/json',
                 ])
-                ->post(
-                    config('mobikwik.base_url') . '/recharge/v1/verify/retailer',
-                    [
-                        'clientId'     => config('mobikwik.client_id'),
-                        'clientSecret' => config('mobikwik.client_secret'),
-                    ]
-                );
+                ->post($this->baseUrl . '/recharge/v1/verify/retailer', [
+                    'clientId' => $this->clientId,
+                    'clientSecret' => $this->clientSecret,
+                ]);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 Log::error('Mobikwik Token API HTTP Error', [
-                    'status'   => $response->status(),
+                    'status' => $response->status(),
                     'response' => $response->body(),
                 ]);
 
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unable to generate token',
-                ], $response->status());
+                throw new \Exception('Token API failed');
             }
 
             $data = $response->json();
+            $token = $data['data']['token'];
 
+            //  OLD TOKEN HANDLE (rotation rule)
+            MobikwikToken::where('is_active', true)
+                ->update([
+                    'is_active' => false,
+                    'expire_at' => now()->addMinutes(5), // old token only 5 min
+                    'rotated_at' => now(),
+                ]);
 
-
+            // NEW TOKEN SAVE
             MobikwikToken::create([
-                'token' => $data['data']['token'],
-                'creation_time' => now()->toDateTimeString(),
-                'expire_at' => $data['data']['expiryTime'],
-                'response' => json_encode($data),
+                'token' => $token,
+                'expire_at' => now()->addHours(24),
+                'is_active' => true,
+                'response' => $data,
             ]);
 
-            return $data['data']['token'] ?? null;
-        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            return $token; // ONLY TOKEN RETURN
 
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
             Log::error('Mobikwik Token API Timeout', [
                 'error' => $e->getMessage(),
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Connection timeout, please try again later',
-            ], 504);
+            throw new \Exception('Connection timeout');
         } catch (\Exception $e) {
-
             Log::error('Mobikwik Token API Exception', [
                 'error' => $e->getMessage(),
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error',
-            ], 500);
+            throw $e;
         }
     }
 
-
     public function sendRequest(string $endpoint, array $payload, string $bearerToken)
     {
+        // dd($bearerToken);
         $aesKey = random_bytes(32);
         $iv     = random_bytes(16);
 
         $encryptedPayload    = $this->aesEncrypt($payload, $aesKey, $iv);
         $encryptedSessionKey = $this->rsaEncrypt($aesKey, $this->publicKey);
-
+        // dd($encryptedPayload); 
         $requestData = [
             'encryptedSessionKey' => base64_encode($encryptedSessionKey),
             'encryptedPayload'    => base64_encode($encryptedPayload),
@@ -115,7 +109,7 @@ class MobiKwikHelper
             'Authorization' => $bearerToken,
             'Content-Type'  => 'application/json',
         ])->post($this->baseUrl . $endpoint, $requestData);
-
+        // dd($response->json());
         return $response->json();
     }
 

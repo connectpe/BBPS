@@ -23,9 +23,13 @@ class User extends Authenticatable
         'email',
         'mobile',
         'password',
+        'forget_password_otp',
+        'password_otp_expires_at',
         'role_id',
         'status',
         'mpin',
+        'forget_mpin_otp',
+        'mpin_otp_expires_at',
         'profile_image',
     ];
 
@@ -99,5 +103,27 @@ class User extends Authenticatable
     public function orders()
     {
         return $this->hasMany(Order::class, 'user_id');
+    }
+
+    public function loadMoneyRequests()
+    {
+        return $this->hasMany(\App\Models\LoadMoneyRequest::class, 'user_id');
+    }
+
+
+    // Masked email 
+    public function getMaskedEmailAttribute()
+    {
+        $email = $this->email;
+        [$name, $domain] = explode("@", $email);
+
+        if (strlen($name) <= 2) {
+            // If very short name, just show first char
+            $maskedName = substr($name, 0, 1) . str_repeat('*', strlen($name) - 1);
+        } else {
+            $maskedName = substr($name, 0, 1) . str_repeat('*', strlen($name) - 2) . substr($name, -1);
+        }
+
+        return $maskedName . '@' . $domain;
     }
 }

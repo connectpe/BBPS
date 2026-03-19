@@ -43,7 +43,7 @@ class CommonHelper
             ];
         }
 
-        $credential->service = $serviceSlug->service;
+        // $credential->service = $serviceSlug->service;
         return [
             'status'   => true,
             'user_id'  => $credential->user_id,
@@ -160,7 +160,6 @@ class CommonHelper
 
             $data = IpWhitelist::where(['user_id' => $userId, 'service_id' => $serviceId, 'ip_address' => $ip])->count();
 
-
             if ($data > 0) {
                 $status = true;
             }
@@ -171,6 +170,61 @@ class CommonHelper
                 'status' => false,
                 'message' => $e->getMessage(),
             ]);
+        }
+    }
+
+    public static function getRandomString2($prefix = '', $separator = true, $length = 2)
+    {
+        $ts = hrtime(true);
+
+        $base_str = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz';
+        $str_shuffle = substr(str_shuffle($base_str), 0, $length);
+        $str_md5 = substr(md5($str_shuffle), 0, $length);
+        $hash = substr(sha1($str_md5), 0, $length);
+
+        if ($prefix) {
+            if ($separator) {
+                $string = $ts . strtoupper($hash).rand(1,9);
+            } else {
+                $string = $ts . strtoupper($hash).rand(1,9);
+            }
+        } else {
+            $string = $hash . $ts;
+        }
+        return $string;
+    }
+     
+    public static function getRandomString($prefix = '', $separator = true, $length = 5)
+    {
+        $ts = hrtime(true);
+
+        $base_str = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz';
+        $str_shuffle = substr(str_shuffle($base_str), 0, $length);
+        $str_md5 = substr(md5($str_shuffle), 0, $length);
+        $hash = substr(sha1($str_md5), 0, $length);
+
+        if ($prefix) {
+            if ($separator) {
+                $string = $ts . strtoupper($hash);
+            } else {
+                $string = $ts . strtoupper($hash);
+            }
+        } else {
+            $string = $hash . $ts;
+        }
+        return $string;
+    }
+
+    public static function case($text, $type = '')
+    {
+        if ($type == 'l') {
+            return strtolower($text);
+        } elseif ($type == 'u') {
+            return strtoupper($text);
+        } elseif ($type == 'uw') {
+            return ucwords($text);
+        } else {
+            return ucfirst($text);
         }
     }
 }

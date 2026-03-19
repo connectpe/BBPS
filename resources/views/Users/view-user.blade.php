@@ -639,53 +639,71 @@ use App\Facades\FileUpload;
             if (result.isConfirmed) {
                 $.ajax({
                     url: "{{ route('change_ekyc_status') }}",
-                    type: 'POST',
+                    type: "POST",
                     data: {
                         id: id,
                         userId: userId,
-                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        _token: $('meta[name="csrf-token"]').attr("content"),
                     },
                     success: function(response) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: response.message ?? 'Status updated successfully',
-                            timer: 2000,
-                            showConfirmButton: true
-                        });
 
-                        setTimeout(() => {
-                            location.reload();
-                        }, 2000);
+                        if (response.status === true) {
+
+                            Swal.fire({
+                                icon: "success",
+                                title: "Success",
+                                text: response.message,
+                                confirmButtonText: "OK",
+                                confirmButtonColor: "#2563eb"
+                            }).then(() => {
+                                location.reload();
+                            });
+
+                        } else {
+
+                            Swal.fire({
+                                icon: "warning",
+                                title: "Incomplete Verification",
+                                text: response.message,
+                                confirmButtonText: "OK",
+                                confirmButtonColor: "#f59e0b"
+                            }).then(() => {
+                                location.reload();
+                            });
+
+                        }
                     },
+
                     error: function(xhr) {
-                        let title = 'Error';
-                        let message = 'Something went wrong!';
+
+                        let title = "Error";
+                        let message = "Something went wrong!";
 
                         if (xhr.status === 422) {
-                            title = 'Validation Error';
+                            title = "Validation Error";
 
                             if (xhr.responseJSON && xhr.responseJSON.errors) {
                                 let firstKey = Object.keys(xhr.responseJSON.errors)[0];
                                 message = xhr.responseJSON.errors[firstKey][0];
                             }
-                        } else if (xhr.responseJSON && xhr.responseJSON.message) {
+
+                        } else if (xhr.status === 404) {
+                            title = "Not Found";
+                            message = xhr.responseJSON.message;
+
+                        } else if (xhr.status === 500) {
+                            title = "Server Error";
                             message = xhr.responseJSON.message;
                         }
 
                         Swal.fire({
-                            icon: 'error',
+                            icon: "error",
                             title: title,
-                            html: message,
-                            timer: 2000,
-                            showConfirmButton: true
+                            text: message,
+                            confirmButtonText: "OK",
+                            confirmButtonColor: "#dc2626"
                         });
-
-                        // setTimeout(() => {
-                        //     location.reload();
-                        // }, 3000);
                     }
-
                 });
             }
         });

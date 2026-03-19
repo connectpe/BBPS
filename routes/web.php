@@ -1,10 +1,12 @@
 <?php
+
 use Illuminate\Support\Facades\Redis;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BbpsRechargeController;
 use App\Http\Controllers\CommonController;
 use App\Http\Controllers\ComplainReportController;
+use App\Http\Controllers\DocumentVerificationController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LadgerController;
 use App\Http\Controllers\SchemeController;
@@ -35,6 +37,9 @@ Route::get('kyc', function () {
     return view('Users.kyc-page');
 });
 
+Route::post('send-otp-forget-password', [AuthController::class, 'sendOtpForForgetPassword'])->name('send_otp_forget_password');
+Route::post('verify-otp-forget-password', [AuthController::class, 'verifyOtpForgetPassword'])->name('verify_otp_forget_password');
+Route::post('forget-password', [AuthController::class, 'forgetPassword'])->name('forget_password');
 
 
 Route::group(['middleware' => ['auth']], function () {
@@ -111,7 +116,9 @@ Route::group(['middleware' => ['auth']], function () {
         Route::delete('delete-support-assignment/{id}', [AdminController::class, 'deleteSupportAssignment'])->name('delete_support_assignment');
 
 
-        // Complain Report Route
+
+        Route::get('/load-money-request', [TransactionController::class, 'loadMoneyRequest'])->name('load_money_request');
+        Route::post('update-load-money-request', [AdminController::class, 'updateLoadMoneyRequest'])->name('update_load_money_request');        // Complain Report Route
 
     });
 });
@@ -158,12 +165,16 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
 
     // Route::post('/service-request', [ServiceRequestController::class, 'store'])
     //     ->name('service.request');
-    
+
 
     Route::post('completeProfile/{user_id}', [UserController::class, 'completeProfile'])->name('admin.complete_profile');
     Route::post('generate-mpin', [UserController::class, 'generateMpin'])->name('generate_mpin');
     Route::post('/transaction-status-check', [TransactionController::class, 'transactionStatusCheck'])->name('transaction_status_check');
     Route::post('generate/client-credentials', [UserController::class, 'generateClientCredentials'])->name('generate_client_credentials');
+
+    // Load Money Request 
+    Route::get('/load-money-request', [TransactionController::class, 'userMoneyLoadRequests'])->name('user_load_money_request');
+    Route::post('add-load-money-request', [UserController::class, 'addMoneyRequest'])->name('add_load_money_request');
 });
 
 
@@ -174,6 +185,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/support-userlist', [SupportDashboardController::class, 'supportUserList'])->name('support_userlist')->middleware('isSupport');
     });
     Route::get('/payout-transaction', [TransactionController::class, 'payouttransaction'])->name('payout_transaction');
+
+
 
     Route::post('/update-complaint-report/{id}', [ComplainReportController::class, 'updateComplaint'])->name('update_complaint_report');
     // Admin/User Common Routes 
@@ -192,24 +205,32 @@ Route::group(['middleware' => ['auth']], function () {
         return view('errors.401');
     })->name('unauthrized.page');
 
-
-
-//      Route::get('/payout-transaction', [TransactionController::class, 'payouttransaction'])->name('payout_transaction');
-    
+    // Route::get('get-document-data', [DocumentVerificationController::class, 'getDocumentData'])->name('document.verification.data');
 
 
 
+
+    //      Route::get('/payout-transaction', [TransactionController::class, 'payouttransaction'])->name('payout_transaction');
+
+
+    Route::get('/payout-invoice/download/{id}', [TransactionController::class, 'downloadPayoutInvoice'])->name('download_payout_invoice');
 
     // reseller routes
     Route::get('reports', [LadgerController::class, 'reports'])->name('reseller_reports');
+    Route::get('send-otp-forget-mpin',[UserController::class,'sendForgetMpinOtp'])->name('send_otp_forget_mpin');
+    Route::post('verify-otp-forget-mpin',[UserController::class,'verifyOtpForgetMpin'])->name('verify_otp_forget_mpin');
+    Route::post('forget-mpin',[UserController::class,'forgetMPIN'])->name('forget_mpin');
 });
 
 Route::group(['middleware' => ['logs', 'auth'], 'prefix' => 'document'], function () {
+    Route::get('get-document-data', [DocumentVerificationController::class, 'getDocumentData'])->name('document.verification.data');
+
     Route::post('verify-pan', [DocumentVerificationController::class, 'panVerify'])->name('pan.verify');
     Route::post('verify-account', [DocumentVerificationController::class, 'VerifyAccountDetails'])->name('bank.account.verify');
     Route::post('verify-cin', [DocumentVerificationController::class, 'verifyCinNumber'])->name('cin.verify');
     Route::post('verify-gstin', [DocumentVerificationController::class, 'verifyGstinNumber'])->name('gstin.verify');
     Route::post('verify-ifsc', [DocumentVerificationController::class, 'verifyIfsc'])->name('ifsc.verify');
+    Route::post('initiate-video-link', [DocumentVerificationController::class, 'initiateVideoKyc'])->name('videokyc.verify');
 });
 
 Route::group(['middleware' => ['auth'], 'prefix' => 'api-partner'], function () {
@@ -223,7 +244,6 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'api-partner'], function () 
     // Route::get('ledger-reports', [LadgerController::class, 'reports'])->name('reseller_reports');
 
     Route::get('all-services', [ServiceController::class, 'apipartnerservices'])->name('api_partner_services');
-
 });
 
 
