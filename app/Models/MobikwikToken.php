@@ -12,6 +12,8 @@ class MobikwikToken extends Model
         'token',
         'creation_time',
         'expire_at',
+        'is_active',
+        'rotated_at',
         'response',
     ];
 }
