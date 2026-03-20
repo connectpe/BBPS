@@ -75,6 +75,6 @@ class FileUploadHelper
         }
 
 
-        return asset('storage/app/public/' . ltrim($files, '/'));
+        return asset('storage/' . ltrim($files, '/'));
     }
 }
