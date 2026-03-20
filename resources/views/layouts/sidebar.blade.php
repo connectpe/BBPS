@@ -257,6 +257,13 @@
                                         Switch
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('business_category') }}"
+                                        class="nav-link text-white {{ Route::currentRouteName() == 'business_category' ? 'sidebar-active' : '' }}">
+                                        <i class="bi bi-grid me-2"></i>
+                                        Business Category
+                                    </a>
+                                </li>
 
 
 
