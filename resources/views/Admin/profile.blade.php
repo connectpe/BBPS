@@ -96,6 +96,13 @@
         outline: none;
         box-shadow: 0 3px 10px rgba(0, 0, 0, .15);
     }
+
+
+    .img-fixed {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
 </style>
 
 @php
@@ -609,7 +616,6 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
 
             <div class="tab-pane fade" id="security" role="tabpanel" aria-labelledby="security-tab">
-
                 <div class="row g-4">
                     <div class="col-lg-6">
                         <div class="card shadow-sm h-100">
@@ -715,21 +721,64 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
             <div class="tab-pane fade" id="kyc" role="tabpanel" aria-labelledby="kyc-tab">
 
                 <!-- KYC Details -->
-                <div class="row mb-3">
-                    <div class="col-md-4 fw-bold">Aadhaar Number:</div>
-                    <div class="col-md-8">{{ $businessInfo->aadhar_number ?? '----' }}</div>
-                </div>
+                <div class="row">
 
-                <div class="row mb-3">
-                    <div class="col-md-4 fw-bold">PAN Number:</div>
-                    <div class="col-md-8">{{ $businessInfo->pan_number ?? '----' }}</div>
-                </div>
-                <div class="row mb-4">
-                    <div class="col-md-4 fw-bold">Document Status:</div>
-                    <div class="col-md-8">
-                        <span class="badge  bg-{{ $businessInfo?->is_kyc == '1' ? 'success' : 'danger' }}">
-                            {{ $businessInfo?->is_kyc == '1' ? 'Verified' : 'Not Verified' }} </span>
+                    <div class="col-md-6 mb-3">
+                        <div class="row">
+                            <div class="col-5 fw-bold">Aadhaar Number:</div>
+                            <div class="col-7">{{ $businessInfo->aadhar_number ?? '----' }}</div>
+                        </div>
                     </div>
+
+                    <div class="col-md-6 mb-3">
+                        <div class="row">
+                            <div class="col-5 fw-bold">PAN Number:</div>
+                            <div class="col-7">{{ $businessInfo->pan_number ?? '----' }}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <div class="row">
+                            <div class="col-5 fw-bold">Business PAN Number:</div>
+                            <div class="col-7">{{ $businessInfo->business_pan_number ?? '----' }}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <div class="row">
+                            <div class="col-5 fw-bold">GSTIN:</div>
+                            <div class="col-7">{{ $businessInfo->gst_number ?? '----' }}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <div class="row">
+                            <div class="col-5 fw-bold">ITR Filled:</div>
+                            <div class="col-7">{{ $businessInfo?->itr_filled == '1' ? 'Yes' :
+                                ($businessInfo?->itr_filled == '0' ? 'No' : '----') }}</div>
+                        </div>
+                    </div>
+
+                    @if($businessInfo?->itr_filled == '0')
+                    <div class="col-md-6 mb-3">
+                        <div class="row">
+                            <div class="col-5 fw-bold">ITR Not Filled Reason:</div>
+                            <div class="col-7">{{ $businessInfo->itr_not_filed_reason ?? '----' }}</div>
+                        </div>
+                    </div>
+                    @endif
+
+                    <div class="col-md-6 mb-3">
+                        <div class="row">
+                            <div class="col-5 fw-bold">Document Status:</div>
+                            <div class="col-7">
+                                <span class="badge bg-{{ $businessInfo?->is_kyc == '1' ? 'success' : 'danger' }}">
+                                    {{ $businessInfo?->is_kyc == '1' ? 'Verified' : 'Not Verified' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
                 <hr>
@@ -737,7 +786,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                 <!-- Document Images -->
                 <div class="row">
                     <!-- Aadhaar Front -->
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-3 mb-3">
                         <div class="card shadow-sm">
                             <div class="card-header fw-bold text-center">
                                 Aadhaar Front
@@ -745,15 +794,17 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             <div class="card-body text-center">
                                 @if (!empty($businessInfo->aadhar_front_image))
                                 <img src="{{ FileUpload::getFilePath($businessInfo->aadhar_front_image) }}"
-                                    class="img-fluid rounded border" alt="Aadhaar Front" style="cursor:pointer"
+                                    class="img-fixed rounded border" alt="Aadhaar Front" style="cursor:pointer"
                                     onclick="showImage(this.src,'Aadhaar Front')">
+                                @else
+                                <span>No Image Found</span>
                                 @endif
                             </div>
                         </div>
                     </div>
 
                     <!-- Aadhaar Back -->
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-3 mb-3">
                         <div class="card shadow-sm">
                             <div class="card-header fw-bold text-center">
                                 Aadhaar Back
@@ -761,15 +812,17 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             <div class="card-body text-center">
                                 @if (!empty($businessInfo->aadhar_back_image))
                                 <img src="{{ FileUpload::getFilePath($businessInfo->aadhar_back_image) }}"
-                                    class="img-fluid rounded border" style="cursor:pointer"
+                                    class="img-fixed rounded border" style="cursor:pointer"
                                     onclick="showImage(this.src,'Aadhaar Back')" alt="Aadhaar Back">
+                                @else
+                                <span>No Image Found</span>
                                 @endif
                             </div>
                         </div>
                     </div>
 
                     <!-- PAN Card -->
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-3 mb-3">
                         <div class="card shadow-sm">
                             <div class="card-header fw-bold text-center">
                                 PAN Card
@@ -777,12 +830,224 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             <div class="card-body text-center">
                                 @if (!empty($businessInfo->pancard_image))
                                 <img src="{{ FileUpload::getFilePath($businessInfo->pancard_image) }}"
-                                    class="img-fluid rounded border" style="cursor:pointer"
+                                    class="img-fixed rounded border" style="cursor:pointer"
                                     onclick="showImage(this.src,'PAN Card')" alt="PAN Card">
+                                @else
+                                <span>No Image Found</span>
                                 @endif
                             </div>
                         </div>
                     </div>
+
+                    <div class="col-md-3 mb-3">
+                        <div class="card shadow-sm">
+                            <div class="card-header fw-bold text-center">
+                                Individual Photo
+                            </div>
+                            <div class="card-body text-center">
+                                @if (!empty($businessInfo->individual_photo))
+                                <img src="{{ FileUpload::getFilePath($businessInfo->individual_photo) }}"
+                                    class="img-fixed rounded border" style="cursor:pointer"
+                                    onclick="showImage(this.src,'Individual Photo')" alt="Individual Photo">
+                                @else
+                                <span>No Image Found</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <div class="card shadow-sm">
+                            <div class="card-header fw-bold text-center">
+                                Business PAN Image
+                            </div>
+                            <div class="card-body text-center">
+                                @if (!empty($businessInfo->business_pan_image))
+                                <img src="{{ FileUpload::getFilePath($businessInfo->business_pan_image) }}"
+                                    class="img-fixed rounded border" style="cursor:pointer"
+                                    onclick="showImage(this.src,'Business PAN Image')" alt="Business PAN Image">
+                                @else
+                                <span>No Image Found</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <div class="card shadow-sm">
+                            <div class="card-header fw-bold text-center">
+                                Registeration Certificate
+                            </div>
+                            <div class="card-body text-center">
+                                @if (!empty($businessInfo->registration_certificate_image))
+                                <img src="{{ FileUpload::getFilePath($businessInfo->registration_certificate_image) }}"
+                                    class="img-fixed rounded border" style="cursor:pointer"
+                                    onclick="showImage(this.src,'Registeration Certificate')"
+                                    alt="Registeration Certificate">
+                                @else
+                                <span>No Image Found</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <div class="card shadow-sm">
+                            <div class="card-header fw-bold text-center">
+                                GST Registeration Certificate
+                            </div>
+                            <div class="card-body text-center">
+                                @if (!empty($businessInfo->gst_registration_certificate_image))
+                                <img src="{{ FileUpload::getFilePath($businessInfo->gst_registration_certificate_image) }}"
+                                    class="img-fixed rounded border" style="cursor:pointer"
+                                    onclick="showImage(this.src,'GST Registeration Certificate')"
+                                    alt="GST Registeration Certificate">
+                                @else
+                                <span>No Image Found</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-3 mb-3">
+                        <div class="card shadow-sm">
+                            <div class="card-header fw-bold text-center">
+                                Business Address Proof Image
+                            </div>
+                            <div class="card-body text-center">
+                                @if (!empty($businessInfo->business_address_proof_image))
+                                <img src="{{ FileUpload::getFilePath($businessInfo->business_address_proof_image) }}"
+                                    class="img-fixed rounded border" style="cursor:pointer"
+                                    onclick="showImage(this.src,'Business Address Proof Image')"
+                                    alt="Business Address Proof Image">
+                                @else
+                                <span>No Image Found</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <div class="card shadow-sm">
+                            <div class="card-header fw-bold text-center">
+                                Inside Image
+                            </div>
+                            <div class="card-body text-center">
+                                @if (!empty($businessInfo->inside_image))
+                                <img src="{{ FileUpload::getFilePath($businessInfo->inside_image) }}"
+                                    class="img-fixed rounded border" style="cursor:pointer"
+                                    onclick="showImage(this.src,'Inside Image')" alt="Inside Image">
+                                @else
+                                <span>No Image Found</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <div class="card shadow-sm">
+                            <div class="card-header fw-bold text-center">
+                                OutSide Image
+                            </div>
+                            <div class="card-body text-center">
+                                @if (!empty($businessInfo->outside_image))
+                                <img src="{{ FileUpload::getFilePath($businessInfo->outside_image) }}"
+                                    class="img-fixed rounded border" style="cursor:pointer"
+                                    onclick="showImage(this.src,'OutSide Image')" alt="OutSide Image">
+                                @else
+                                <span>No Image Found</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <div class="card shadow-sm">
+                            <div class="card-header fw-bold text-center">
+                                Signed MOA Image
+                            </div>
+                            <div class="card-body text-center">
+                                @if (!empty($businessInfo->signed_moa_image))
+                                <img src="{{ FileUpload::getFilePath($businessInfo->signed_moa_image) }}"
+                                    class="img-fixed rounded border" style="cursor:pointer"
+                                    onclick="showImage(this.src,'Signed MOA Image')" alt="Signed MOA Image">
+                                @else
+                                <span>No Image Found</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <div class="card shadow-sm">
+                            <div class="card-header fw-bold text-center">
+                                Signed AOA Image
+                            </div>
+                            <div class="card-body text-center">
+                                @if (!empty($businessInfo->signed_aoa_image))
+                                <img src="{{ FileUpload::getFilePath($businessInfo->signed_aoa_image) }}"
+                                    class="img-fixed rounded border" style="cursor:pointer"
+                                    onclick="showImage(this.src,'Signed AOA Image')" alt="Signed AOA Image">
+                                @else
+                                <span>No Image Found</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <div class="card shadow-sm">
+                            <div class="card-header fw-bold text-center">
+                                Board Resolution
+                            </div>
+                            <div class="card-body text-center">
+                                @if (!empty($businessInfo->board_resoultion_image))
+                                <img src="{{ FileUpload::getFilePath($businessInfo->board_resoultion_image) }}"
+                                    class="img-fixed rounded border" style="cursor:pointer"
+                                    onclick="showImage(this.src,'Board Resolution')" alt="Board Resolution">
+                                @else
+                                <span>No Image Found</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <div class="card shadow-sm">
+                            <div class="card-header fw-bold text-center">
+                                NSDL Declaration
+                            </div>
+                            <div class="card-body text-center">
+                                @if (!empty($businessInfo->nsdl_declaration_image))
+                                <img src="{{ FileUpload::getFilePath($businessInfo->nsdl_declaration_image) }}"
+                                    class="img-fixed rounded border" style="cursor:pointer"
+                                    onclick="showImage(this.src,'NSDL Declaration')" alt="NSDL Declaration">
+                                @else
+                                <span>No Image Found</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <div class="card shadow-sm">
+                            <div class="card-header fw-bold text-center">
+                                ITR Filled Image
+                            </div>
+                            <div class="card-body text-center">
+                                @if (!empty($businessInfo->itr_file_image))
+                                <img src="{{ FileUpload::getFilePath($businessInfo->itr_file_image) }}"
+                                    class="img-fixed rounded border" style="cursor:pointer"
+                                    onclick="showImage(this.src,'ITR Filled Image')" alt="ITR Filled Image">
+                                @else
+                                <span>No Image Found</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+
                 </div>
             </div>
 
@@ -1108,7 +1373,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                 <!-- STEP 1: Personal Details -->
                 <div class="step step-1">
                     <h6 class="mb-3">Personal Details</h6>
-                    <div class="row g-2">
+                    <div class="row g-3">
 
                         <input type="hidden" name="user_id" id="user_id" value="{{ $user->id }}">
 
@@ -1134,15 +1399,21 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             <label class="form-label">
                                 Profile Pic
                             </label>
-                            <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                name="profile_image">
-                            @if (!empty($userdata->profile_image))
-                            <div class="mt-2">
-                                <img src="{{ FileUpload::getFilePath($userdata->profile_image) }}" alt="Profile Image"
-                                    class="img-thumbnail cursor-pointer profile-image" style="max-height: 120px;"
-                                    onclick="showImage(this.src,'Profile Image')">
+                            <div class="input-group">
+                                <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
+                                    name="profile_image">
+                                @if (!empty($userdata->profile_image))
+                                <span class="input-group-text" style="cursor:pointer;">
+                                    <i class="fa-solid fa-eye"
+                                        onclick="showImage('{{ FileUpload::getFilePath($userdata->profile_image) }}','Profile Image')"></i>
+                                </span>
+                                @else
+                                <span class="input-group-text">
+                                    <i class="fa-solid fa-eye-slash"></i>
+                                </span>
+                                @endif
+
                             </div>
-                            @endif
                         </div>
                     </div>
                 </div>
@@ -1153,20 +1424,20 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                     <div class="row g-3">
 
                         <div class="col-md-6">
-                            <label class="form-label">Business Name</label>
+                            <label class="form-label">Business Name<span class="text-danger">*</span> </label>
                             <input type="text" class="form-control" placeholder="Enter business name"
                                 name="business_name" id="business_name"
                                 value="{{ $businessInfo->business_name ?? '' }}">
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">Business Email</label>
+                            <label class="form-label">Business Email<span class="text-danger">*</span></label>
                             <input type="email" class="form-control" placeholder="Enter business email"
                                 name="business_email" value="{{ $businessInfo->business_email ?? '' }}">
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">Business Phone</label>
+                            <label class="form-label">Business Phone<span class="text-danger">*</span></label>
                             <input type="text" class="form-control validate" name="business_phone"
                                 placeholder="Enter 10 digit mobile number" maxlength="10" pattern="[6-9][0-9]{9}"
                                 title="Enter valid 10-digit mobile number starting with 6-9" required
@@ -1177,7 +1448,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
 
                         <div class="col-md-6">
-                            <label class="form-label">CIN No</label>
+                            <label class="form-label">CIN No<span class="text-danger">*</span></label>
                             <input type="text" class="form-control validate" name="cin_number"
                                 placeholder="e.g. L12345MH2010PLC123456"
                                 pattern="^[LU][0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$" title="Enter valid CIN number"
@@ -1187,7 +1458,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
 
                         <div class="col-md-6">
-                            <label class="form-label">GST No</label>
+                            <label class="form-label">GST No<span class="text-danger">*</span></label>
                             <input type="text" class="form-control validate" name="gst_number"
                                 placeholder="e.g. 27AAPFU0939F1ZV" maxlength="15"
                                 pattern="^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$"
@@ -1197,7 +1468,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">Business PAN</label>
+                            <label class="form-label">Business PAN<span class="text-danger">*</span></label>
                             <input type="text" class="form-control validate" name="business_pan"
                                 placeholder="e.g. AAACC1234A" maxlength="10" pattern="^[A-Z]{5}[0-9]{4}[A-Z]$"
                                 title="Enter valid PAN (AAAAA9999A)" style="text-transform: uppercase;"
@@ -1206,7 +1477,8 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                         </div>
 
                         <div class="col-md-6">
-                            <label for="business_category" class="form-label">Business Category</label>
+                            <label for="business_category" class="form-label">Business Category<span
+                                    class="text-danger">*</span></label>
                             <select class="form-select form-select2 w-100" name="business_category"
                                 id="business_category">
                                 <option value="">--Select Business Category--</option>
@@ -1220,14 +1492,14 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">Business Type</label>
+                            <label class="form-label">Business Type<span class="text-danger">*</span></label>
                             <input type="text" class="form-control" placeholder="e.g. Retail, IT, Manufacturing"
-                                name="business_type" value="{{ $businessInfo?->business_type }}">
+                                name="business_type" id="business_type" value="{{ $businessInfo?->business_type }}">
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">State</label>
-                            <select class="form-select form-select2" name="state">
+                            <label class="form-label">State<span class="text-danger">*</span></label>
+                            <select class="form-select form-select2" name="state" id="state">
                                 <option value="">--Select State--</option>
                                 <option value="Uttar Pradesh" value="{{ $businessInfo->state ?? '' }}" {{
                                     $businessInfo?->state ==
@@ -1238,8 +1510,8 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">City</label>
-                            <select class="form-select form-select2" name="city">
+                            <label class="form-label">City<span class="text-danger">*</span></label>
+                            <select class="form-select form-select2" name="city" id="city">
                                 <option value="">--Select City--</option>
                                 <option value="Lucknow" value="{{ $businessInfo->city ?? '' }}" {{ $businessInfo?->city
                                     == 'Lucknow' ? 'selected' : '' }}>Lucknow</option>
@@ -1248,9 +1520,9 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">Pin Code</label>
+                            <label class="form-label">Pin Code<span class="text-danger">*</span></label>
                             <input type="text" class="form-control validate" placeholder="Enter 6-digit Pin Code"
-                                name="pincode" maxlength="6" inputmode="numeric" pattern="[0-9]{6}"
+                                name="pincode" id="pincode" maxlength="6" inputmode="numeric" pattern="[0-9]{6}"
                                 oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                 value="{{ $businessInfo->pincode ?? '' }}" required>
                             <span class="error-text">Invalid Pin code</span>
@@ -1258,10 +1530,11 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
 
                         <div class="col-6">
-                            <label class="form-label">Business Address</label>
+                            <label class="form-label">Business Address<span class="text-danger">*</span></label>
                             <textarea class="form-control" rows="2" placeholder="Enter business address"
                                 name="business_address">{{ $businessInfo->address ?? '' }}</textarea>
                         </div>
+
 
 
                         <h5 class="my-3">Business Documents</h5>
@@ -1269,27 +1542,42 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
 
                         <div class="col-md-6">
-                            <label class="form-label">Business PAN Image</label>
+                            <label class="form-label">Business PAN Image<span class="text-danger">*</span></label>
 
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
                                     name="business_pan_image">
 
+                                @if (!empty($businessInfo->business_pan_image))
                                 <span class="input-group-text" style="cursor:pointer;">
-                                    <i class="fa-solid fa-eye" onclick="showImage('test','Business PAN Image')"></i>
+                                    <i class="fa-solid fa-eye"
+                                        onclick="showImage('{{ FileUpload::getFilePath($businessInfo->business_pan_image) }}','Business PAN')"></i>
                                 </span>
+                                @else
+                                <span class="input-group-text">
+                                    <i class="fa-solid fa-eye-slash"></i>
+                                </span>
+                                @endif
 
                             </div>
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">Registeration Certificate</label>
+                            <label class="form-label">Registeration Certificate<span
+                                    class="text-danger">*</span></label>
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
                                     name="registration_certificate_image">
+                                @if (!empty($businessInfo->registration_certificate_image))
                                 <span class="input-group-text" style="cursor:pointer;">
-                                    <i class="fa-solid fa-eye" onclick="showImage('test','Business PAN Image')"></i>
+                                    <i class="fa-solid fa-eye"
+                                        onclick="showImage('{{ FileUpload::getFilePath($businessInfo->registration_certificate_image) }}','Registeration Certificate')"></i>
                                 </span>
+                                @else
+                                <span class="input-group-text">
+                                    <i class="fa-solid fa-eye-slash"></i>
+                                </span>
+                                @endif
                             </div>
                         </div>
 
@@ -1298,31 +1586,74 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
                                     name="gst_registration_certificate_image">
+                                @if (!empty($businessInfo->gst_registration_certificate_image))
                                 <span class="input-group-text" style="cursor:pointer;">
-                                    <i class="fa-solid fa-eye" onclick="showImage('test','Business PAN Image')"></i>
+                                    <i class="fa-solid fa-eye"
+                                        onclick="showImage('{{ FileUpload::getFilePath($businessInfo->gst_registration_certificate_image) }}','GST Registeration Certificate')"></i>
                                 </span>
+                                @else
+                                <span class="input-group-text">
+                                    <i class="fa-solid fa-eye-slash"></i>
+                                </span>
+                                @endif
                             </div>
                         </div>
 
+
                         <div class="col-md-6">
-                            <label class="form-label">Inside Image</label>
+                            <label class="form-label">Business Address Proof Image <i
+                                    title="Electricity Bill (latest)/ Rent Agreement / Landline / Internet Bill / Property Tax Receipt"
+                                    class="fas fa-circle-info"></i></label>
+                            <div class="input-group">
+                                <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
+                                    name="business_address_proof_image">
+                                @if (!empty($businessInfo->business_address_proof_image))
+                                <span class="input-group-text" style="cursor:pointer;">
+                                    <i class="fa-solid fa-eye"
+                                        onclick="showImage('{{ FileUpload::getFilePath($businessInfo->business_address_proof_image) }}','Business Address Proof Image')"></i>
+                                </span>
+                                @else
+                                <span class="input-group-text">
+                                    <i class="fa-solid fa-eye-slash"></i>
+                                </span>
+                                @endif
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-6">
+                            <label class="form-label">Inside Image<span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
                                     name="inside_image">
+                                @if (!empty($businessInfo->inside_image))
                                 <span class="input-group-text" style="cursor:pointer;">
-                                    <i class="fa-solid fa-eye" onclick="showImage('test','Business PAN Image')"></i>
+                                    <i class="fa-solid fa-eye"
+                                        onclick="showImage('{{ FileUpload::getFilePath($businessInfo->inside_image) }}','Inside Image')"></i>
                                 </span>
+                                @else
+                                <span class="input-group-text">
+                                    <i class="fa-solid fa-eye-slash"></i>
+                                </span>
+                                @endif
                             </div>
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">OutSide Image</label>
+                            <label class="form-label">OutSide Image<span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
                                     name="outside_image">
+                                @if (!empty($businessInfo->outside_image))
                                 <span class="input-group-text" style="cursor:pointer;">
-                                    <i class="fa-solid fa-eye" onclick="showImage('test','Business PAN Image')"></i>
+                                    <i class="fa-solid fa-eye"
+                                        onclick="showImage('{{ FileUpload::getFilePath($businessInfo->outside_image) }}','OutSide Image')"></i>
                                 </span>
+                                @else
+                                <span class="input-group-text">
+                                    <i class="fa-solid fa-eye-slash"></i>
+                                </span>
+                                @endif
                             </div>
                         </div>
 
@@ -1331,9 +1662,16 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
                                     name="signed_moa_image">
+                                @if (!empty($businessInfo->signed_moa_image))
                                 <span class="input-group-text" style="cursor:pointer;">
-                                    <i class="fa-solid fa-eye" onclick="showImage('test','Business PAN Image')"></i>
+                                    <i class="fa-solid fa-eye"
+                                        onclick="showImage('{{ FileUpload::getFilePath($businessInfo->signed_moa_image) }}','Signed MOA Image')"></i>
                                 </span>
+                                @else
+                                <span class="input-group-text">
+                                    <i class="fa-solid fa-eye-slash"></i>
+                                </span>
+                                @endif
                             </div>
                         </div>
 
@@ -1342,9 +1680,16 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
                                     name="signed_aoa_image">
+                                @if (!empty($businessInfo->signed_aoa_image))
                                 <span class="input-group-text" style="cursor:pointer;">
-                                    <i class="fa-solid fa-eye" onclick="showImage('test','Business PAN Image')"></i>
+                                    <i class="fa-solid fa-eye"
+                                        onclick="showImage('{{ FileUpload::getFilePath($businessInfo->signed_aoa_image) }}','Signed AOA Image')"></i>
                                 </span>
+                                @else
+                                <span class="input-group-text">
+                                    <i class="fa-solid fa-eye-slash"></i>
+                                </span>
+                                @endif
                             </div>
                         </div>
 
@@ -1353,9 +1698,16 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
                                     name="board_resolution">
+                                @if (!empty($businessInfo->board_resoultion_image))
                                 <span class="input-group-text" style="cursor:pointer;">
-                                    <i class="fa-solid fa-eye" onclick="showImage('test','Business PAN Image')"></i>
+                                    <i class="fa-solid fa-eye"
+                                        onclick="showImage('{{ FileUpload::getFilePath($businessInfo->board_resoultion_image) }}','Board Resolution')"></i>
                                 </span>
+                                @else
+                                <span class="input-group-text">
+                                    <i class="fa-solid fa-eye-slash"></i>
+                                </span>
+                                @endif
                             </div>
                         </div>
 
@@ -1364,42 +1716,56 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
                                     name="nsdl_declaration">
+                                @if (!empty($businessInfo->nsdl_declaration_image))
                                 <span class="input-group-text" style="cursor:pointer;">
-                                    <i class="fa-solid fa-eye" onclick="showImage('test','Business PAN Image')"></i>
+                                    <i class="fa-solid fa-eye"
+                                        onclick="showImage('{{ FileUpload::getFilePath($businessInfo->nsdl_declaration_image) }}','NSDL Declaration')"></i>
                                 </span>
+                                @else
+                                <span class="input-group-text">
+                                    <i class="fa-solid fa-eye-slash"></i>
+                                </span>
+                                @endif
                             </div>
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">ITR Filled</label>
-                            <select class="form-select form-select2" name="itr_filled">
+                            <label class="form-label">ITR Filled<span class="text-danger">*</span></label>
+                            <select class="form-select form-select2" name="itr_filled" id="itr_filled"
+                                onchange="showHideITRNotReason(this.value, 'div_itr_not_reason')">
                                 <option value="">--Select State--</option>
                                 <option value="1" {{ $businessInfo?->itr_filled == '1' ? 'selected' : '' }}>Yes</option>
                                 <option value="0" {{ $businessInfo?->itr_filled == '0' ? 'selected' : '' }}>No</option>
                             </select>
                         </div>
- 
 
-                        <div class="col-md-6">
-                            <label class="form-label">ITR Filled Image</label>
+
+                        <div class="col-md-6 d-none" id="div_itr_filled_image">
+                            <label class="form-label">ITR Filled Image<span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                    name="itr_filled_image">
+                                    name="itr_filled_image" id="itr_filled_image">
+                                @if (!empty($businessInfo->itr_file_image))
                                 <span class="input-group-text" style="cursor:pointer;">
-                                    <i class="fa-solid fa-eye" onclick="showImage('test','Business PAN Image')"></i>
+                                    <i class="fa-solid fa-eye"
+                                        onclick="showImage('{{ FileUpload::getFilePath($businessInfo->itr_file_image) }}','ITR Filled Image')"></i>
                                 </span>
+                                @else
+                                <span class="input-group-text">
+                                    <i class="fa-solid fa-eye-slash"></i>
+                                </span>
+                                @endif
                             </div>
                         </div>
 
-
-                        <div class="col-md-6">
-                            <label class="form-label">ITR Not Filled Reason</label>
+                        <div class="col-md-6 d-none" id="div_itr_not_reason">
+                            <label class="form-label">ITR Not Filled Reason<span class="text-danger">*</span></label>
                             <textarea class="form-control" placeholder="ITR Not Filled Reason" name="itr_not_reason"
-                                id="itr_not_reason"></textarea>
+                                id="itr_not_reason"> {{$businessInfo->itr_not_filed_reason ?? ''}} </textarea>
                         </div>
-
                     </div>
                 </div>
+
 
                 <!-- STEP 3: KYC Details -->
                 <div class="step step-3 d-none">
@@ -1409,7 +1775,8 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                         <!-- Aadhaar & PAN Numbers -->
                         <div class="row g-2">
                             <div class="col-md-6">
-                                <label class="form-label">Individual Aadhaar Number</label>
+                                <label class="form-label">Individual Aadhaar Number<span
+                                        class="text-danger">*</span></label>
                                 <input type="text" class="form-control validate"
                                     placeholder="Enter 12-digit Aadhaar Number" name="adhar_number" maxlength="12"
                                     inputmode="numeric" pattern="[0-9]{12}"
@@ -1420,7 +1787,8 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
 
                             <div class="col-md-6">
-                                <label class="form-label">Individual PAN Number</label>
+                                <label class="form-label">Individual PAN Number<span
+                                        class="text-danger">*</span></label>
                                 <input type="text" class="form-control validate"
                                     placeholder="Enter PAN Number (ABCDE1234F)" name="pan_number" maxlength="10"
                                     style="text-transform: uppercase;" pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}"
@@ -1431,55 +1799,79 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
 
                             <div class="col-md-6">
-                                <label class="form-label">Individual Aadhaar Front</label>
-                                <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                    name="adhar_front_image">
-                                @if (!empty($businessInfo->aadhar_front_image))
-                                <div class="mt-2">
-                                    <img src="{{ FileUpload::getFilePath($businessInfo->aadhar_front_image) }}"
-                                        alt="Aadhaar Front" class="img-thumbnail cursor-pointer "
-                                        style="max-height: 70px;" onclick="showImage(this.src,'Aadhaar Front')">
+                                <label class="form-label">Individual Aadhaar Front<span
+                                        class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
+                                        name="adhar_front_image">
+                                    @if (!empty($businessInfo->aadhar_front_image))
+                                    <span class="input-group-text" style="cursor:pointer;">
+                                        <i class="fa-solid fa-eye"
+                                            onclick="showImage('{{ FileUpload::getFilePath($businessInfo->aadhar_front_image) }}','Aadhaar Front')"></i>
+                                    </span>
+                                    @else
+                                    <span class="input-group-text">
+                                        <i class="fa-solid fa-eye-slash"></i>
+                                    </span>
+                                    @endif
                                 </div>
-                                @endif
+                            </div>
+
+
+                            <div class="col-md-6">
+                                <label class="form-label">Individual Aadhaar Back<span
+                                        class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
+                                        name="adhar_back_image">
+                                    @if (!empty($businessInfo->aadhar_back_image))
+                                    <span class="input-group-text" style="cursor:pointer;">
+                                        <i class="fa-solid fa-eye"
+                                            onclick="showImage('{{ FileUpload::getFilePath($businessInfo->aadhar_back_image) }}','Aadhaar Back')"></i>
+                                    </span>
+                                    @else
+                                    <span class="input-group-text">
+                                        <i class="fa-solid fa-eye-slash"></i>
+                                    </span>
+                                    @endif
+                                </div>
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label">Individual Aadhaar Back</label>
-                                <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                    name="adhar_back_image">
-                                @if (!empty($businessInfo->aadhar_back_image))
-                                <div class="mt-2">
-                                    <img src="{{ FileUpload::getFilePath($businessInfo->aadhar_back_image) }}"
-                                        alt="Aadhaar Back" class="img-thumbnail cursor-pointer"
-                                        style="max-height: 70px;" onclick="showImage(this.src,'Aadhaar Back')">
+                                <label class="form-label">Individual PAN Card<span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
+                                        name="pan_card_image">
+
+                                    @if (!empty($businessInfo->pancard_image))
+                                    <span class="input-group-text" style="cursor:pointer;">
+                                        <i class="fa-solid fa-eye"
+                                            onclick="showImage('{{ FileUpload::getFilePath($businessInfo->pancard_image) }}','PAN Card')"></i>
+                                    </span>
+                                    @else
+                                    <span class="input-group-text">
+                                        <i class="fa-solid fa-eye-slash"></i>
+                                    </span>
+                                    @endif
                                 </div>
-                                @endif
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label">Individual PAN Card</label>
-                                <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                    name="pan_card_image">
-                                @if (!empty($businessInfo->pancard_image))
-                                <div class="mt-2">
-                                    <img src="{{ FileUpload::getFilePath($businessInfo->pancard_image) }}"
-                                        alt="PAN Card" class="img-thumbnail cursor-pointer" style="max-height: 70px;"
-                                        onclick="showImage(this.src,'PAN Card')">
+                                <label class="form-label">Individual Photo<span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
+                                        name="individual_photo" id="individual_photo">
+                                    @if (!empty($businessInfo->individual_photo))
+                                    <span class="input-group-text" style="cursor:pointer;">
+                                        <i class="fa-solid fa-eye"
+                                            onclick="showImage('{{ FileUpload::getFilePath($businessInfo->individual_photo) }}','Individual Photo')"></i>
+                                    </span>
+                                    @else
+                                    <span class="input-group-text">
+                                        <i class="fa-solid fa-eye-slash"></i>
+                                    </span>
+                                    @endif
                                 </div>
-                                @endif
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label">Individual Photo</label>
-                                <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                    name="individual_photo" id="individual_photo">
-                                @if (!empty($businessInfo->individual_photo))
-                                <div class="mt-2">
-                                    <img src="{{ FileUpload::getFilePath($businessInfo->individual_photo) }}"
-                                        alt="Individual Photo" class="img-thumbnail cursor-pointer"
-                                        style="max-height: 70px;" onclick="showImage(this.src,'Individual Photo')">
-                                </div>
-                                @endif
                             </div>
                         </div>
                     </div>
@@ -1492,13 +1884,13 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                     <div class="row g-2">
 
                         <div class="col-md-6">
-                            <label class="form-label">Account Holder Name</label>
+                            <label class="form-label">Account Holder Name<span class="text-danger">*</span></label>
                             <input type="text" class="form-control" placeholder="Enter account holder name"
                                 name="account_holder_name" value="{{ $usersBank->benificiary_name ?? '' }}">
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">Account Number</label>
+                            <label class="form-label">Account Number<span class="text-danger">*</span></label>
                             <input type="text" class="form-control validated" placeholder="Enter Account Number"
                                 name="account_number" maxlength="18" inputmode="numeric" pattern="[0-9]{9,18}"
                                 oninput="this.value = this.value.replace(/[^0-9]/g, '')" required
@@ -1508,7 +1900,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
 
                         <div class="col-md-6">
-                            <label class="form-label">IFSC Code</label>
+                            <label class="form-label">IFSC Code<span class="text-danger">*</span></label>
                             <input type="text" class="form-control validate" name="ifsc_code"
                                 placeholder="Enter IFSC Code" maxlength="11" style="text-transform: uppercase;"
                                 pattern="[A-Z]{4}0[A-Z0-9]{6}"
@@ -1520,25 +1912,30 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
 
                         <div class="col-md-6">
-                            <label class="form-label">Branch Name</label>
+                            <label class="form-label">Branch Name<span class="text-danger">*</span></label>
                             <input type="text" class="form-control" placeholder="Enter branch name" name="branch_name"
                                 value="{{ $usersBank->branch_name ?? '' }}">
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">Bank Proof Documents (<small>Passbook/Cancelled Check/Bank
+                            <label class="form-label">Bank Proof Documents<span class="text-danger">*</span>
+                                (<small>Passbook/Cancelled Check/Bank
                                     Statement/Verification Letter</small> )</label>
-                            <input type="file" class="form-control skip-draft" accept=".pdf,.jpg,.jpeg,.png"
-                                name="bank_docs">
-                            <small class="text-muted">Upload cheque / passbook copy (Max 2MB each)</small>
-
-                            @if (!empty($usersBank->bank_docs))
-                            <div class="mt-2">
-                                <img src="{{ FileUpload::getFilePath($usersBank->bank_docs) }}" alt="Bank Document"
-                                    class="img-thumbnail cursor-pointer" style="max-height: 120px;"
-                                    onclick="showImage(this.src,'Bank Document')">
+                            <div class="input-group">
+                                <input type="file" class="form-control skip-draft" accept=".pdf,.jpg,.jpeg,.png"
+                                    name="bank_docs">
+                                @if (!empty($usersBank->bank_docs))
+                                <span class="input-group-text" style="cursor:pointer;">
+                                    <i class="fa-solid fa-eye"
+                                        onclick="showImage('{{ FileUpload::getFilePath($usersBank->bank_docs) }}','Bank Document')"></i>
+                                </span>
+                                @else
+                                <span class="input-group-text">
+                                    <i class="fa-solid fa-eye-slash"></i>
+                                </span>
+                                @endif
                             </div>
-                            @endif
+                            <small class="text-muted">Upload cheque / passbook copy (Max 2MB each)</small>
                         </div>
                     </div>
                 </div>
@@ -1665,7 +2062,8 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                             <span class="fw-bold ms-1" id="txnIdText">-</span>
                                         </div>
 
-                                        <p class="small text-muted mt-3 mb-0">Scan with PhonePe, GPay, or any UPI App
+                                        <p class="small text-muted mt-3 mb-0">Scan with PhonePe, GPay, or any UPI
+                                            App
                                         </p>
                                     </div>
                                 </div>
@@ -2395,8 +2793,16 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 </script>
 
 
-
 <script>
+
+    // function for show and hide if itr not filled
+    function showHideITRNotReason(value, divId) {
+        const isZero = value == 0 || value === '0';
+        $('#' + divId).toggleClass('d-none', !isZero);
+        $('#div_itr_filled_image').toggleClass('d-none', isZero);
+
+    }
+
     $(document).ready(function () {
 
         $('#serviceForm').on('submit', function (e) {
@@ -2421,6 +2827,9 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
             });
         });
 
+
+        const itrFilled = "{{ $businessInfo?->itr_filled == 1 ? '1' : '0' }}";
+        showHideITRNotReason(itrFilled, 'div_itr_not_reason')
     });
 
     function submitForm(service) {
