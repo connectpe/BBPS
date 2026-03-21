@@ -79,7 +79,7 @@
                     @csrf
 
                     <div class="modal-header">
-                        <h5 class="modal-title">Add Agreement</h5>
+                        <h5 class="modal-title">Add Agreement or Declaration</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
 
@@ -166,27 +166,36 @@
 
                     error: function(xhr) {
                         $('#saveAgreementBtn').prop('disabled', false).text('Save');
-
                         if (xhr.status == 422) {
                             let errors = xhr.responseJSON.errors;
-
+                            $('.name_error').text('');
+                            $('.file_error').text('');
+                            let errorMsg = '';
                             if (errors.name) {
                                 $('.name_error').text(errors.name[0]);
+                                errorMsg = errors.name[0];
                             }
                             if (errors.file) {
                                 $('.file_error').text(errors.file[0]);
+                                errorMsg = errorMsg ? errorMsg + '\n' + errors.file[0] : errors
+                                    .file[0];
                             }
-
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Validation Error',
-                                text: 'Please select a valid file.'
+                                text: errorMsg
                             });
                         } else {
+                            let message = 'Something went wrong.';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                message = xhr.responseJSON.message;
+                            } else if (xhr.responseText) {
+                                message = xhr.responseText;
+                            }
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Error',
-                                text: 'Something went wrong.'
+                                text: message
                             });
                         }
                     }
