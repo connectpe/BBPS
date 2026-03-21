@@ -1465,7 +1465,7 @@ class UserController extends Controller
 
     public function allAgreement()
     {
-        $agreements = Agreement::where('status', '1')->latest()->take(1)->get();
+        $agreements = Agreement::where('status', '1')->latest()->get();
         return view('Agreement.index', compact('agreements'));
     }
 }

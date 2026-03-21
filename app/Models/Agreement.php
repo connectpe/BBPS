@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Agreement extends Model
 {
-    protected $fillable = ['file_path', 'status', 'updated_by'];
+    protected $fillable = ['file_name','file_path', 'status', 'updated_by'];
 
     public function updateBy()
     {
