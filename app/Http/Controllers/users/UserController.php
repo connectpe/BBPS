@@ -125,8 +125,8 @@ class UserController extends Controller
                     'cin_number' => 'nullable|string|max:50|unique:business_infos,cin_no,' . ($businessData->id ?? 'NULL') . ',id|regex:/^[A-Z]{1}[0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$/i',
                     'gst_number' => 'required|string|max:50|unique:business_infos,gst_number,' . ($businessData->id ?? 'NULL') . ',id|regex:/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/i',
                     'business_pan' => 'required|string|max:50|unique:business_infos,business_pan_number,' . ($businessData->id ?? 'NULL') . ',id|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i',
-                    'business_email' => 'nullable|email|max:255|unique:business_infos,business_email,' . ($businessData->id ?? 'NULL') . ',id',
-                    'business_phone' => 'nullable|string|max:20|unique:business_infos,business_phone,' . ($businessData->id ?? 'NULL') . ',id|regex:/^[6-9]\d{9}$/',
+                    'business_email' => 'required|email|max:255|unique:business_infos,business_email,' . ($businessData->id ?? 'NULL') . ',id',
+                    'business_phone' => 'required|string|max:20|unique:business_infos,business_phone,' . ($businessData->id ?? 'NULL') . ',id|regex:/^[6-9]\d{9}$/',
 
                     'state' => 'required|string|max:255',
                     'city' => 'required|string|max:255',
@@ -135,29 +135,30 @@ class UserController extends Controller
 
                     'adhar_number' => 'required|string|max:20|regex:/^\d{12}$/|unique:business_infos,aadhar_number,' . ($businessData->id ?? 'NULL') . ',id',
                     'pan_number' => 'required|string|max:20|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i|unique:business_infos,pan_number,' . ($businessData->id ?? 'NULL') . ',id',
-                    'adhar_front_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-                    'adhar_back_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-                    'pan_card_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+                    'adhar_front_image' => $requiredIfMissing($businessData->aadhar_front_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
+                    'adhar_back_image' => $requiredIfMissing($businessData->aadhar_back_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
+                    'pan_card_image' => $requiredIfMissing($businessData->pancard_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
 
                     'account_holder_name' => 'required|string|max:255|regex:/^(?!.*([.,@-])\1{2,}).*$/|regex:/^[a-zA-Z0-9\s&.,-]+$/',
                     'account_number' => 'required|string|max:30|unique:users_banks,account_number,' . ($bankDetail->id ?? 'NULL') . ',id',
                     'ifsc_code' => 'required|string|max:20',
                     'branch_name' => 'required|string|max:255',
-                    'bank_docs' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
+                    'bank_docs' => $requiredIfMissing($bankDetail->bank_docs ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
 
                     // Added in Later
                     'itr_filled' => 'required|in:1,0',
                     'itr_not_reason' => 'required_if:itr_filled,0|max:300',
-                    'itr_filled_image' => $requiredIfMissingOrCondition($businessData->itr_file_image, $request->itr_filled == 1)
+                    'itr_filled_image' => $requiredIfMissingOrCondition($businessData->itr_file_image ?? null, $request->itr_filled == 1)
                         . 'file|mimes:jpg,jpeg,png|max:2048',
 
-                    'individual_photo' => $requiredIfMissing($businessData->individual_photo) . 'file|mimes:jpg,jpeg,png|max:2048',
-                    'business_pan_image' => $requiredIfMissing($businessData->business_pan_image) . 'file|mimes:jpg,jpeg,png|max:2048',
-                    'registration_certificate_image' => $requiredIfMissing($businessData->registration_certificate_image) . 'file|mimes:jpg,jpeg,png|max:2048',
+                    'individual_photo' => $requiredIfMissing($businessData->individual_photo ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
+                    'business_pan_image' => $requiredIfMissing($businessData->business_pan_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
+                    'registration_certificate_image' => $requiredIfMissing($businessData->registration_certificate_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
 
                     'gst_registration_certificate_image' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
-                    'inside_image' => $requiredIfMissing($businessData->inside_image) . 'file|mimes:jpg,jpeg,png|max:2048',
-                    'outside_image' => $requiredIfMissing($businessData->outside_image) . 'file|mimes:jpg,jpeg,png|max:2048',
+                    'inside_image' => $requiredIfMissing($businessData->inside_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
+                    'outside_image' => $requiredIfMissing($businessData->outside_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
+                    'business_address_proof_image' => $requiredIfMissing($businessData->outside_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
                     'signed_moa_image' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
                     'signed_aoa_image' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
                     'board_resolution' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
@@ -307,6 +308,11 @@ class UserController extends Controller
                     'gst_registration_certificate_image.mimes' => 'GST certificate must be a file of type: jpg, jpeg, png.',
                     'gst_registration_certificate_image.max' => 'GST certificate must not exceed 2MB.',
 
+                    // Business Address Proof
+                    'business_address_proof_image.file' => 'Business Address Proof must be a valid file.',
+                    'business_address_proof_image.mimes' => 'Business Address Proof must be a file of type: jpg, jpeg, png.',
+                    'business_address_proof_image.max' => 'Business Address Proof must not exceed 2MB.',
+
                     // Inside Image
                     'inside_image.required' => 'Inside image of business premises is required.',
                     'inside_image.file' => 'Inside image must be a valid file.',
@@ -397,6 +403,11 @@ class UserController extends Controller
                 $gstRegistrationCertificate = FileUpload::uploadFile($request->gst_registration_certificate_image, "kyc_documents/$userId", $businessData->gst_registration_certificate_image ?? null);
             }
 
+            $businessAddressProof = $businessData->business_address_proof_image ?? null;
+            if ($request->hasFile('business_address_proof_image')) {
+                $businessAddressProof = FileUpload::uploadFile($request->business_address_proof_image, "kyc_documents/$userId", $businessData->business_address_proof_image ?? null);
+            }
+
             $insideImage = $businessData->inside_image ?? null;
             if ($request->hasFile('inside_image')) {
                 $insideImage = FileUpload::uploadFile($request->inside_image, "kyc_documents/$userId", $businessData->inside_image ?? null);
@@ -464,6 +475,7 @@ class UserController extends Controller
                 'business_pan_image' => $businessPanImage,
                 'registration_certificate_image' => $registrationCertificate,
                 'gst_registration_certificate_image' => $gstRegistrationCertificate,
+                'business_address_proof_image' => $businessAddressProof,
                 'inside_image' => $insideImage,
                 'outside_image' => $outsideImage,
                 'signed_moa_image' => $signedMOAImage,
