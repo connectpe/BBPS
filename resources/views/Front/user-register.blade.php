@@ -71,6 +71,16 @@
                 display: none;
             }
         }
+
+        #loginPassword::-ms-reveal,
+        #loginPassword::-ms-clear {
+            display: none;
+        }
+
+
+        #loginPassword::-webkit-textfield-decoration-container {
+            display: none !important;
+        }
     </style>
 </head>
 
@@ -867,7 +877,7 @@
                 showforgetPassword();
             });
 
-           // show password on click eye icon in the login form
+            // show password on click eye icon in the login form
             const togglePassword = document.getElementById('togglePassword');
             const passwordInput = document.getElementById('loginPassword');
             const icon = togglePassword.querySelector('i');

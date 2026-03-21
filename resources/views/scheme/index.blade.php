@@ -392,6 +392,7 @@
                     },
                     success: function(res) {
                         if (res.status) {
+                              $('#submitBtn').prop('disabled', false).text('Save Changes');
                             Swal.fire({
                                     icon: 'success',
                                     title: 'Success!',
@@ -478,6 +479,7 @@
                     },
                     success: function(res) {
                         if (res.status) {
+                            $('#assignSubmitBtn').prop('disabled', false).text('Submit');
                             Swal.fire({
                                     icon: 'success',
                                     title: 'Success!',
