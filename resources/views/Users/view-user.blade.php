@@ -89,6 +89,12 @@
         border-radius: 50px;
         font-size: 12px;
     }
+
+    .img-fixed {
+        width: 100%;
+        height: 100px;
+        object-fit: cover;
+    }
 </style>
 
 @php
@@ -157,84 +163,111 @@ use App\Facades\FileUpload;
 
                 <div class="info-row">
                     <span class="label">Business Name</span>
-                    <span class="value">{{ $businessInfo->business_name ?? '' }}</span>
+                    <span class="value">{{ $businessInfo->business_name ?? '----' }}</span>
                 </div>
-                <div class="info-row">
-                    <span class="label">Business Pan Number</span>
-                    <span class="value">{{ $businessInfo->business_pan_number ?? '' }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="label">Business Pan Name</span>
-                    <span class="value">{{ $businessInfo->business_pan_name ?? '' }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="label">Pan Owner Name</span>
-                    <span class="value">{{ $businessInfo->pan_owner_name ?? '' }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="label"> Pan Number</span>
-                    <span class="value">{{ $businessInfo->pan_number ?? '' }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="label"> Aadhaar Number</span>
-                    <span class="value">{{ $businessInfo->aadhar_number ?? '' }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="label">Business Aadhaar Name</span>
-                    <span class="value">{{ $businessInfo->aadhar_name ?? '' }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="label">Business Category</span>
-                    <span class="value">{{ $businessInfo->business_category_id ?? '' }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="label">Business Type</span>
-                    <span class="value">{{ $businessInfo->business_type ?? '' }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="label">GST No</span>
-                    <span class="value">{{ $businessInfo->gst_number ?? '' }}</span>
-                </div>
+
                 <div class="info-row">
                     <span class="label">Business Email</span>
-                    <span class="value">{{ $businessInfo->business_email ?? '' }}</span>
+                    <span class="value">{{ $businessInfo->business_email ?? '----' }}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Business Phone</span>
-                    <span class="value">{{ $businessInfo->business_phone ?? '' }}</span>
+                    <span class="value">{{ $businessInfo->business_phone ?? '----' }}</span>
+                </div>
+
+                <div class="info-row">
+                    <span class="label">Business Pan Number</span>
+                    <span class="value">{{ $businessInfo->business_pan_number ?? '----' }}</span>
                 </div>
                 <div class="info-row">
+                    <span class="label">Business Pan Name</span>
+                    <span class="value">{{ $businessInfo->business_pan_name ?? '----' }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Pan Owner Name</span>
+                    <span class="value">{{ $businessInfo->pan_owner_name ?? '----' }}</span>
+                </div>
+
+                <div class="info-row">
+                    <span class="label">GST No</span>
+                    <span class="value">{{ $businessInfo->gst_number ?? '----' }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Business Category</span>
+                    <span class="value">{{ $businessInfo->business_category_id ?? '----' }}</span>
+                </div>
+
+                <div class="info-row">
+                    <span class="label">Business Type</span>
+                    <span class="value">{{ $businessInfo->business_type ?? '----' }}</span>
+                </div>
+
+
+                <div class="info-row">
+                    <span class="label">ITR Filled</span>
+                    <span class="value">{{ $businessInfo?->itr_filled == '1' ? 'Yes' :
+                        ($businessInfo?->itr_filled == '0' ? 'No' : '----') }}</span>
+                </div>
+
+                @if($businessInfo?->itr_filled == '0')
+                <div class="info-row">
+                    <span class="label">ITR Not Filled Reason</span>
+                    <span class="value">{{ $businessInfo->itr_not_filed_reason ?? '----' }}</span>
+                </div>
+                @endif
+
+                <div class="info-row">
                     <span class="label">State</span>
-                    <span class="value">{{ $businessInfo->state ?? '' }}</span>
+                    <span class="value">{{ $businessInfo->state ?? '----' }}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">City</span>
-                    <span class="value">{{ $businessInfo->city ?? '' }}</span>
+                    <span class="value">{{ $businessInfo->city ?? '----' }}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Pin Code</span>
-                    <span class="value">{{ $businessInfo->pincode ?? '' }}</span>
+                    <span class="value">{{ $businessInfo->pincode ?? '----' }}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Address</span>
-                    <span class="value">{{ $businessInfo->address ?? '' }}</span>
+                    <span class="value">{{ $businessInfo->address ?? '----' }}</span>
+                </div>
+
+                <hr class="my-3">
+
+                <div class="d-flex align-items-center mt-3">
+                    <i class="bi bi-bank text-primary fs-4 me-2"></i>
+                    <h6 class="fw-bold mb-0">Bank Details</h6>
                 </div>
 
                 <div class="info-row">
-
-                    @php
-                    $docs = json_decode($businessInfo->business_document ?? '', true);
-
-                    @endphp
-
-                    <span class="label">Business Document</span>
-                    <div class="document-images">
-                        @foreach (optional($docs) as $doc)
-                        <img src="{{ FileUpload::getFilePath($doc) }}" alt=""
-                            class="img-fluid rounded m-1 doc-card" height="150" width="150"
-                            onclick="showImage(this.src,'Business Document')">
-                        @endforeach
-                    </div>
+                    <span class="label">Bank Name</span>
+                    <span class="value">{{ $usersBank->bank_name ?? '----' }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Branch Name</span>
+                    <span class="value">{{ $usersBank->branch_name ?? '----' }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Account No</span>
+                    <span class="value">{{ $usersBank->account_number ?? '----' }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">IFSC</span>
+                    <span class="value">{{ $usersBank->ifsc_code ?? '----' }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Account Holder</span>
+                    <span class="value">{{ $usersBank->benificiary_name ?? '----' }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Bank Document</span>
+                    <span class="value">
+                        <a href="javascript:void(0)" class="btn btn-outline-primary btn-sm"
+                            onclick="showImage('{{ FileUpload::getFilePath($usersBank?->bank_docs) }}','Bank Document')">
+                            <i class="bi bi-eye me-1"></i> View
+                        </a>
+                    </span>
                 </div>
 
             </div>
@@ -290,12 +323,10 @@ use App\Facades\FileUpload;
                         <div class="dropdown">
                             <button
                                 class="btn btn-outline-secondary dropdown-toggle w-100 text-start d-flex justify-content-between align-items-center"
-                                type="button" id="providerDropdown" data-bs-toggle="dropdown"
-                                aria-expanded="false">
+                                type="button" id="providerDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                 Select Provider
                             </button>
-                            <ul class="dropdown-menu w-100 p-3" aria-labelledby="providerDropdown"
-                                id="providersList">
+                            <ul class="dropdown-menu w-100 p-3" aria-labelledby="providerDropdown" id="providersList">
                                 <li class="text-muted small">Select a service first</li>
                             </ul>
                         </div>
@@ -351,110 +382,300 @@ use App\Facades\FileUpload;
                     @endphp
 
                     <div class="ms-auto d-flex flex-column align-items-center">
-                        <span class="fw-semibold mb-1 fs-6 fw-bold badge bg-{{$kyc ? 'success' : 'danger'}}"> {{$kyc ? 'Verified' : 'Not Verified'}} </span>
-                        <input class="form-check-input cursor-pointer fs-3" type="checkbox" {{$kyc ? 'checked' : ''}} onchange="changeKycStatus('{{$businessInfo?->id}}','{{$businessInfo?->user_id}}')">
+                        <span class="fw-semibold mb-1 fs-6 fw-bold badge bg-{{$kyc ? 'success' : 'danger'}}"> {{$kyc ?
+                            'Verified' : 'Not Verified'}} </span>
+                        <input class="form-check-input cursor-pointer fs-3" type="checkbox" {{$kyc ? 'checked' : '' }}
+                            onchange="changeKycStatus('{{$businessInfo?->id}}','{{$businessInfo?->user_id}}')">
                     </div>
                 </div>
 
                 <div class="info-row">
-                    <span class="label">PAN Number</span>
-                    <span class="value"> {{ $businessInfo->pan_number ?? '' }}</span>
+                    <span class="label">Aadhaar</span>
+                    <span class="value">{{ $businessInfo->aadhar_number ?? '----' }}</span>
                 </div>
 
                 <div class="info-row">
-                    <span class="label">Aadhaar</span>
-                    <span class="value">{{ $businessInfo->aadhar_number ?? '' }}</span>
+                    <span class="label">Individual PAN Number</span>
+                    <span class="value"> {{ $businessInfo->pan_number ?? '----' }}</span>
+                </div>
+
+                <div class="info-row">
+                    <span class="label">Business PAN Number</span>
+                    <span class="value"> {{ $businessInfo->business_pan_number ?? '----' }}</span>
+                </div>
+
+                <div class="info-row">
+                    <span class="label">GSTIN</span>
+                    <span class="value"> {{ $businessInfo->gst_number ?? '----' }}</span>
                 </div>
 
 
                 <!-- Documents -->
                 <div class="mt-3">
-                    <div class="row g-3">
-
+                    <div class="row">
                         <!-- Aadhaar Front -->
-                        <div class="col-6">
-                            <div class="doc-card">
-                                @if ($businessInfo?->aadhar_front_image)
-                                <img src="{{ FileUpload::getFilePath($businessInfo?->aadhar_front_image) }}"
-                                    class="img-fluid rounded border" alt="Aadhaar Front" style="cursor:pointer"
-                                    onclick="showImage(this.src,'Aadhaar Front')">
-                                @else
-                                <img src="{{ asset('assets/image/aadhar-front.png') }}" class="img-fluid rounded"
-                                    onclick="showImage(this.src,'Aadhaar Front')">
-                                @endif
-                                <small class="doc-label">Aadhaar Front</small>
+                        <div class="col-md-4 mb-3">
+                            <div class="card shadow-sm">
+                                <div class="card-header fw-bold text-center">
+                                    Aadhaar Front
+                                </div>
+                                <div class="card-body text-center">
+                                    @if (!empty($businessInfo->aadhar_front_image))
+                                    <img src="{{ FileUpload::getFilePath($businessInfo->aadhar_front_image) }}"
+                                        class="img-fixed rounded border" alt="Aadhaar Front" style="cursor:pointer"
+                                        onclick="showImage(this.src,'Aadhaar Front')">
+                                    @else
+                                    <span>No Image Found</span>
+                                    @endif
+                                </div>
                             </div>
                         </div>
 
                         <!-- Aadhaar Back -->
-                        <div class="col-6">
-                            <div class="doc-card">
-                                @if ($businessInfo?->aadhar_back_image)
-                                <img src="{{ FileUpload::getFilePath($businessInfo?->aadhar_back_image) }}"
-                                    class="img-fluid rounded border" alt="Aadhaar Back" style="cursor:pointer"
-                                    onclick="showImage(this.src,'Aadhaar Back')">
-                                @else
-                                <img src="{{ asset('assets/image/aadhar-back.png') }}" class="img-fluid rounded"
-                                    onclick="showImage(this.src,'Aadhaar Back')">
-                                @endif
-                                <small class="doc-label">Aadhaar Back</small>
+                        <div class="col-md-4 mb-3">
+                            <div class="card shadow-sm">
+                                <div class="card-header fw-bold text-center">
+                                    Aadhaar Back
+                                </div>
+                                <div class="card-body text-center">
+                                    @if (!empty($businessInfo->aadhar_back_image))
+                                    <img src="{{ FileUpload::getFilePath($businessInfo->aadhar_back_image) }}"
+                                        class="img-fixed rounded border" style="cursor:pointer"
+                                        onclick="showImage(this.src,'Aadhaar Back')" alt="Aadhaar Back">
+                                    @else
+                                    <span>No Image Found</span>
+                                    @endif
+                                </div>
                             </div>
                         </div>
 
                         <!-- PAN Card -->
-                        <div class="col-12">
-                            <div class="doc-card">
-                                @if ($businessInfo?->pancard_image)
-                                <img src="{{ FileUpload::getFilePath($businessInfo?->pancard_image) }}"
-                                    class="img-fluid rounded border" alt="PAN Card" style="cursor:pointer"
-                                    onclick="showImage(this.src,'PAN Card')">
-                                @else
-                                <img src="{{ asset('assets/image/pan-card.png') }}" class="img-fluid rounded"
-                                    onclick="showImage(this.src,'PAN Card')">
-                                @endif
-
-                                <small class="doc-label">PAN Card</small>
+                        <div class="col-md-4 mb-3">
+                            <div class="card shadow-sm">
+                                <div class="card-header fw-bold text-center">
+                                    PAN Card
+                                </div>
+                                <div class="card-body text-center">
+                                    @if (!empty($businessInfo->pancard_image))
+                                    <img src="{{ FileUpload::getFilePath($businessInfo->pancard_image) }}"
+                                        class="img-fixed rounded border" style="cursor:pointer"
+                                        onclick="showImage(this.src,'PAN Card')" alt="PAN Card">
+                                    @else
+                                    <span>No Image Found</span>
+                                    @endif
+                                </div>
                             </div>
                         </div>
 
+                        <div class="col-md-4 mb-3">
+                            <div class="card shadow-sm">
+                                <div class="card-header fw-bold text-center">
+                                    Individual Photo
+                                </div>
+                                <div class="card-body text-center">
+                                    @if (!empty($businessInfo->individual_photo))
+                                    <img src="{{ FileUpload::getFilePath($businessInfo->individual_photo) }}"
+                                        class="img-fixed rounded border" style="cursor:pointer"
+                                        onclick="showImage(this.src,'Individual Photo')" alt="Individual Photo">
+                                    @else
+                                    <span>No Image Found</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <div class="card shadow-sm">
+                                <div class="card-header fw-bold text-center">
+                                    Business PAN Image
+                                </div>
+                                <div class="card-body text-center">
+                                    @if (!empty($businessInfo->business_pan_image))
+                                    <img src="{{ FileUpload::getFilePath($businessInfo->business_pan_image) }}"
+                                        class="img-fixed rounded border" style="cursor:pointer"
+                                        onclick="showImage(this.src,'Business PAN Image')" alt="Business PAN Image">
+                                    @else
+                                    <span>No Image Found</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <div class="card shadow-sm">
+                                <div class="card-header fw-bold text-center">
+                                    Registeration Certificate
+                                </div>
+                                <div class="card-body text-center">
+                                    @if (!empty($businessInfo->registration_certificate_image))
+                                    <img src="{{ FileUpload::getFilePath($businessInfo->registration_certificate_image) }}"
+                                        class="img-fixed rounded border" style="cursor:pointer"
+                                        onclick="showImage(this.src,'Registeration Certificate')"
+                                        alt="Registeration Certificate">
+                                    @else
+                                    <span>No Image Found</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <div class="card shadow-sm">
+                                <div class="card-header fw-bold text-center">
+                                    GST Reg. Certificate
+                                </div>
+                                <div class="card-body text-center">
+                                    @if (!empty($businessInfo->gst_registration_certificate_image))
+                                    <img src="{{ FileUpload::getFilePath($businessInfo->gst_registration_certificate_image) }}"
+                                        class="img-fixed rounded border" style="cursor:pointer"
+                                        onclick="showImage(this.src,'GST Registeration Certificate')"
+                                        alt="GST Registeration Certificate">
+                                    @else
+                                    <span>No Image Found</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <div class="card shadow-sm">
+                                <div class="card-header fw-bold text-center">
+                                    Business Address Proof Image
+                                </div>
+                                <div class="card-body text-center">
+                                    @if (!empty($businessInfo->business_address_proof_image))
+                                    <img src="{{ FileUpload::getFilePath($businessInfo->business_address_proof_image) }}"
+                                        class="img-fixed rounded border" style="cursor:pointer"
+                                        onclick="showImage(this.src,'Business Address Proof Image')"
+                                        alt="Business Address Proof Image">
+                                    @else
+                                    <span>No Image Found</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <div class="card shadow-sm">
+                                <div class="card-header fw-bold text-center">
+                                    Inside Image
+                                </div>
+                                <div class="card-body text-center">
+                                    @if (!empty($businessInfo->inside_image))
+                                    <img src="{{ FileUpload::getFilePath($businessInfo->inside_image) }}"
+                                        class="img-fixed rounded border" style="cursor:pointer"
+                                        onclick="showImage(this.src,'Inside Image')" alt="Inside Image">
+                                    @else
+                                    <span>No Image Found</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <div class="card shadow-sm">
+                                <div class="card-header fw-bold text-center">
+                                    OutSide Image
+                                </div>
+                                <div class="card-body text-center">
+                                    @if (!empty($businessInfo->outside_image))
+                                    <img src="{{ FileUpload::getFilePath($businessInfo->outside_image) }}"
+                                        class="img-fixed rounded border" style="cursor:pointer"
+                                        onclick="showImage(this.src,'OutSide Image')" alt="OutSide Image">
+                                    @else
+                                    <span>No Image Found</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <div class="card shadow-sm">
+                                <div class="card-header fw-bold text-center">
+                                    Signed MOA Image
+                                </div>
+                                <div class="card-body text-center">
+                                    @if (!empty($businessInfo->signed_moa_image))
+                                    <img src="{{ FileUpload::getFilePath($businessInfo->signed_moa_image) }}"
+                                        class="img-fixed rounded border" style="cursor:pointer"
+                                        onclick="showImage(this.src,'Signed MOA Image')" alt="Signed MOA Image">
+                                    @else
+                                    <span>No Image Found</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <div class="card shadow-sm">
+                                <div class="card-header fw-bold text-center">
+                                    Signed AOA Image
+                                </div>
+                                <div class="card-body text-center">
+                                    @if (!empty($businessInfo->signed_aoa_image))
+                                    <img src="{{ FileUpload::getFilePath($businessInfo->signed_aoa_image) }}"
+                                        class="img-fixed rounded border" style="cursor:pointer"
+                                        onclick="showImage(this.src,'Signed AOA Image')" alt="Signed AOA Image">
+                                    @else
+                                    <span>No Image Found</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <div class="card shadow-sm">
+                                <div class="card-header fw-bold text-center">
+                                    Board Resolution
+                                </div>
+                                <div class="card-body text-center">
+                                    @if (!empty($businessInfo->board_resoultion_image))
+                                    <img src="{{ FileUpload::getFilePath($businessInfo->board_resoultion_image) }}"
+                                        class="img-fixed rounded border" style="cursor:pointer"
+                                        onclick="showImage(this.src,'Board Resolution')" alt="Board Resolution">
+                                    @else
+                                    <span>No Image Found</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <div class="card shadow-sm">
+                                <div class="card-header fw-bold text-center">
+                                    NSDL Declaration
+                                </div>
+                                <div class="card-body text-center">
+                                    @if (!empty($businessInfo->nsdl_declaration_image))
+                                    <img src="{{ FileUpload::getFilePath($businessInfo->nsdl_declaration_image) }}"
+                                        class="img-fixed rounded border" style="cursor:pointer"
+                                        onclick="showImage(this.src,'NSDL Declaration')" alt="NSDL Declaration">
+                                    @else
+                                    <span>No Image Found</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <div class="card shadow-sm">
+                                <div class="card-header fw-bold text-center">
+                                    ITR Filled Image
+                                </div>
+                                <div class="card-body text-center">
+                                    @if (!empty($businessInfo->itr_file_image))
+                                    <img src="{{ FileUpload::getFilePath($businessInfo->itr_file_image) }}"
+                                        class="img-fixed rounded border" style="cursor:pointer"
+                                        onclick="showImage(this.src,'ITR Filled Image')" alt="ITR Filled Image">
+                                    @else
+                                    <span>No Image Found</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
+
                     </div>
-                </div>
-
-                <hr class="my-3">
-
-                <div class="d-flex align-items-center mt-3">
-                    <i class="bi bi-bank text-primary fs-4 me-2"></i>
-                    <h6 class="fw-bold mb-0">Bank Details</h6>
-                </div>
-
-                <div class="info-row">
-                    <span class="label">Bank Name</span>
-                    <span class="value">{{ $usersBank->bank_name ?? '----' }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="label">Branch Name</span>
-                    <span class="value">{{ $usersBank->branch_name ?? '----' }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="label">Account No</span>
-                    <span class="value">{{ $usersBank->account_number ?? '----' }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="label">IFSC</span>
-                    <span class="value">{{ $usersBank->ifsc_code ?? '----' }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="label">Account Holder</span>
-                    <span class="value">{{ $usersBank->benificiary_name ?? '----' }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="label">Bank Document</span>
-                    <span class="value">
-                        <a href="javascript:void(0)" class="btn btn-outline-primary btn-sm"
-                            onclick="showImage('{{ FileUpload::getFilePath($usersBank?->bank_docs) }}','Bank Document')">
-                            <i class="bi bi-eye me-1"></i> View
-                        </a>
-                    </span>
                 </div>
             </div>
         </div>
@@ -480,7 +701,7 @@ use App\Facades\FileUpload;
                         _token: $('meta[name="csrf-token"]').attr('content'),
                         serviceId: serviceId,
                     },
-                    success: function(response) {
+                    success: function (response) {
                         Swal.fire({
                             icon: 'success',
                             title: 'Success!',
@@ -489,7 +710,7 @@ use App\Facades\FileUpload;
                             showConfirmButton: false
                         });
                     },
-                    error: function(xhr) {
+                    error: function (xhr) {
                         let message = 'Something went wrong!';
 
                         if (xhr.status === 422 && xhr.responseJSON.errors) {
@@ -513,15 +734,15 @@ use App\Facades\FileUpload;
 
 
 <script>
-    $(document).ready(function() {
-        const userRoutings = @json($userRootings->pluck('provider_slug', 'service_id'));
+    $(document).ready(function () {
+        const userRoutings = @json($userRootings -> pluck('provider_slug', 'service_id'));
         const saveUrl = "{{ route('admin.users.routing.save', encrypt($userData->id)) }}";
 
         function refreshSummary() {
             let html = '';
             const serviceOptions = $("#serviceSelect option:not([value=''])");
 
-            serviceOptions.each(function() {
+            serviceOptions.each(function () {
                 const sId = $(this).val();
                 const sName = $(this).text();
                 if (userRoutings[sId]) {
@@ -538,7 +759,7 @@ use App\Facades\FileUpload;
         }
         refreshSummary();
 
-        $("#serviceSelect").on("change", function() {
+        $("#serviceSelect").on("change", function () {
             const serviceId = $(this).val();
             const list = $("#providersList");
             const dropdownBtn = $("#providerDropdown");
@@ -555,7 +776,7 @@ use App\Facades\FileUpload;
 
             $.get(`/admin/services/${serviceId}/providers`, {
                 user_id: $("#userId").val()
-            }, function(res) {
+            }, function (res) {
                 if (res.status && res.data.length > 0) {
                     let html = '';
                     let savedSlug = userRoutings[serviceId] || null;
@@ -581,11 +802,11 @@ use App\Facades\FileUpload;
             });
         });
 
-        $(document).on("change", ".provider-chk", function() {
+        $(document).on("change", ".provider-chk", function () {
             $("#providerDropdown").text($(this).data('name'));
         });
 
-        $("#routingForm").on("submit", function(e) {
+        $("#routingForm").on("submit", function (e) {
             e.preventDefault();
             const serviceId = $("#serviceSelect").val();
             const providerSlug = $("input[name='provider_slug']:checked").val();
@@ -597,10 +818,10 @@ use App\Facades\FileUpload;
                 '<span class="spinner-border spinner-border-sm"></span> Saving...');
 
             $.post(saveUrl, {
-                    _token: "{{ csrf_token() }}",
-                    service_id: serviceId,
-                    provider_slug: providerSlug
-                })
+                _token: "{{ csrf_token() }}",
+                service_id: serviceId,
+                provider_slug: providerSlug
+            })
                 .done(res => {
                     if (res.status) {
                         userRoutings[serviceId] = providerSlug;
@@ -645,7 +866,7 @@ use App\Facades\FileUpload;
                         userId: userId,
                         _token: $('meta[name="csrf-token"]').attr("content"),
                     },
-                    success: function(response) {
+                    success: function (response) {
 
                         if (response.status === true) {
 
@@ -674,7 +895,7 @@ use App\Facades\FileUpload;
                         }
                     },
 
-                    error: function(xhr) {
+                    error: function (xhr) {
 
                         let title = "Error";
                         let message = "Something went wrong!";

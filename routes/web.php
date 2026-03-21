@@ -119,6 +119,12 @@ Route::group(['middleware' => ['auth']], function () {
 
         Route::get('/load-money-request', [TransactionController::class, 'loadMoneyRequest'])->name('load_money_request');
         Route::post('update-load-money-request', [AdminController::class, 'updateLoadMoneyRequest'])->name('update_load_money_request');        // Complain Report Route
+        Route::get('/agreement', [AdminController::class, 'agreementIndex'])->name('add_agreement');
+        Route::post('/agreement-store', [AdminController::class, 'storeAgreement'])->name('agreement.store');
+        Route::get('/bussiness-category', [AdminController::class, 'bussinessCategory'])->name('business_category');
+        Route::post('/bussiness-category/store', [AdminController::class, 'storeBusinessCategory'])->name('business_category.store');
+        Route::post('/business-category/status', [AdminController::class, 'updateStatus'])->name('business_category.status');
+        Route::post('/business-category/update', [AdminController::class, 'updateBusinessCategory'])->name('business_category.update');
 
     });
 });
@@ -220,6 +226,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('send-otp-forget-mpin',[UserController::class,'sendForgetMpinOtp'])->name('send_otp_forget_mpin');
     Route::post('verify-otp-forget-mpin',[UserController::class,'verifyOtpForgetMpin'])->name('verify_otp_forget_mpin');
     Route::post('forget-mpin',[UserController::class,'forgetMPIN'])->name('forget_mpin');
+    Route::get('all-agreements', [UserController::class, 'allAgreement'])->name('all_agreements');
 });
 
 Route::group(['middleware' => ['logs', 'auth'], 'prefix' => 'document'], function () {

@@ -36,71 +36,6 @@ class MobikwikController extends Controller
         $this->publicKey = file_get_contents(config('mobikwik.public_key'));
     }
 
-    public function generateToken()
-    {
-        try {
-            $response = Http::timeout(15)
-                ->withHeaders([
-                    'Content-Type' => 'application/json',
-                ])
-                ->post($this->baseUrl . '/recharge/v1/verify/retailer', [
-                    'clientId' => $this->clientId,
-                    'clientSecret' => $this->clientSecret,
-                ]);
-
-            if (! $response->successful()) {
-                Log::error('Mobikwik Token API HTTP Error', [
-                    'status' => $response->status(),
-                    'response' => $response->body(),
-                ]);
-
-                return response()->json(
-                    [
-                        'success' => false,
-                        'message' => 'Unable to generate token',
-                    ],
-                    $response->status()
-                );
-            }
-            $data = $response->json();
-            MobikwikToken::create([
-                'token' => $data->data->token,
-                'creation_time' => now(),
-                'response' => $data,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-
-            return response()->json($data, 200);
-        } catch (\Illuminate\Http\Client\ConnectionException $e) {
-            Log::error('Mobikwik Token API Timeout', [
-                'error' => $e->getMessage(),
-            ]);
-
-            return response()->json(
-                [
-                    'success' => false,
-                    'message' => 'Connection timeout, please try again later',
-                ],
-                504
-            );
-        } catch (\Exception $e) {
-            Log::error('Mobikwik Token API Exception', [
-                'error' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-            ]);
-
-            return response()->json(
-                [
-                    'success' => false,
-                    'message' => 'Internal server error',
-                ],
-                500
-            );
-        }
-    }
-
     protected function ValidateUsers(Request $request)
     {
         try {
@@ -327,7 +262,7 @@ class MobikwikController extends Controller
                     // dd($data);
                     $token = '';
                     if (empty($data)) {
-                        $this->generateToken();
+                        $mobikwikHelper->generateToken();
                     } else {
                         $token = $data->token;
                     }
@@ -417,27 +352,27 @@ class MobikwikController extends Controller
         }
     }
 
-    protected function isTokenPresent()
-    {
-        try {
-            $tokenData = MobikwikToken::where('is_active', true)
-                ->where('expire_at', '>=', now())
-                ->latest()
-                ->first();
+    // protected function isTokenPresent()
+    // {
+    //     try {
+    //         $tokenData = MobikwikToken::where('is_active', true)
+    //             ->where('expire_at', '>=', now())
+    //             ->latest()
+    //             ->first();
+    //         // dd($tokenData->token);
+    //         // Agar valid token mil gaya
+    //         if ($tokenData) {
+    //             return $tokenData->token;
+    //         }
 
-            // Agar valid token mil gaya
-            if ($tokenData) {
-                return $tokenData->token;
-            }
-
-            //  Nahi mila → new generate
-            return (new MobiKwikHelper)->generateToken();
-        } catch (\Exception $e) {
-            Log::error('Mobikwik Token Present Exception', [
-                'error' => $e->getMessage(),
-            ]);
-        }
-    }
+    //         //  Nahi mila → new generate
+    //         return (new MobiKwikHelper)->generateToken();
+    //     } catch (\Exception $e) {
+    //         Log::error('Mobikwik Token Present Exception', [
+    //             'error' => $e->getMessage(),
+    //         ]);
+    //     }
+    // }
 
     public function validateRecharge(Request $request, $type)
     {
@@ -476,7 +411,8 @@ class MobikwikController extends Controller
                     ];
 
                     $mobikwikHelper = new MobiKwikHelper;
-                    $token = $this->isTokenPresent();
+                    $token = $mobikwikHelper->isTokenPresent();
+                    dd($token);
 
                     $endpoint = '/recharge/v3/retailerValidation';
 
@@ -627,7 +563,7 @@ class MobikwikController extends Controller
                     $payload = [
                         'cn' => $request->connectionNumber,
                         'op' => $request->operator,
-                        "cir" => $request->circle,
+                        'cir' => $request->circle,
                         'amt' => $request->amount,
                         'reqid' => $request->requestId,
                         'customerMobile' => $request->customerMobile,
@@ -661,10 +597,9 @@ class MobikwikController extends Controller
                     // ]);
 
                     $mobikwikHelper = new MobiKwikHelper;
-                    $token = $this->isTokenPresent();
+                    $token = $mobikwikHelper->isTokenPresent();
                     $endpoint = '/recharge/v3/retailerPayment';
 
-                    // dd($token);
 
                     $response = $mobikwikHelper->sendRequest(
                         $endpoint,
@@ -766,7 +701,7 @@ class MobikwikController extends Controller
                 ];
                 // dd($payload);
                 $mobikwikHelper = new MobiKwikHelper;
-                $token = $this->isTokenPresent();
+                $token = $mobikwikHelper->isTokenPresent();
                 // dd($token);
                 if (! $token) {
                     return response()->json([
@@ -824,7 +759,7 @@ class MobikwikController extends Controller
                     ];
 
                     $mobikwikHelper = new MobiKwikHelper;
-                    $token = $this->isTokenPresent();
+                    $token = $mobikwikHelper->isTokenPresent();
                     // dd($token);
 
                     $data = $mobikwikHelper->sendRequest(

@@ -257,6 +257,13 @@
                                         Switch
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('business_category') }}"
+                                        class="nav-link text-white {{ Route::currentRouteName() == 'business_category' ? 'sidebar-active' : '' }}">
+                                        <i class="bi bi-grid me-2"></i>
+                                        Business Category
+                                    </a>
+                                </li>
 
 
 
@@ -298,6 +305,13 @@
                     class="nav-link text-white {{ Route::currentRouteName() == 'ladger.index' ? 'sidebar-active' : '' }}">
                     <i class="bi bi-journal-text me-2"></i>
                     Ledger
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('add_agreement') }}"
+                    class="nav-link text-white {{ Route::currentRouteName() == 'add_agreement' ? 'sidebar-active' : '' }}">
+                    <i class="bi bi-file-earmark-arrow-up me-2"></i>
+                    Agreement Upload
                 </a>
             </li>
 
@@ -485,6 +499,13 @@
                     Ledger Report
                 </a>
             </li>
+            <li class="nav-item">
+                <a href="{{ route('all_agreements') }}"
+                    class="nav-link text-white {{ Route::currentRouteName() == 'all_agreements' ? 'sidebar-active' : '' }}">
+                    <i class="bi bi-file-earmark-text me-2"></i>
+                    Agreement
+                </a>
+            </li>
 
             <!-- Logout -->
             <li class="nav-item">
@@ -616,6 +637,16 @@
         </li> -->
 
 
+
+            <li class="nav-item">
+                <a href="{{ route('all_agreements') }}"
+                    class="nav-link text-white {{ Route::currentRouteName() == 'all_agreements' ? 'sidebar-active' : '' }}">
+                    <i class="bi bi-file-earmark-text me-2"></i>
+                    Agreement
+                </a>
+            </li>
+
+
             <!-- Logout -->
             <li class="nav-item">
                 <form action="{{ route('admin.logout') }}" method="POST">
@@ -708,6 +739,14 @@
                         </div>
                     </li>
                 </ul>
+            </li>
+
+            <li class="nav-item">
+                <a href="{{ route('all_agreements') }}"
+                    class="nav-link text-white {{ Route::currentRouteName() == 'all_agreements' ? 'sidebar-active' : '' }}">
+                    <i class="bi bi-file-earmark-text me-2"></i>
+                    Agreement
+                </a>
             </li>
 
             <li class="nav-item">

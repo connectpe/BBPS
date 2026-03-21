@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\CommonHelper;
+use App\Models\Agreement;
 use App\Models\BusinessCategory;
 use App\Models\BusinessInfo;
 use App\Models\ComplaintsCategory;
@@ -24,7 +25,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -68,7 +68,6 @@ class AdminController extends Controller
     //                 ->selectRaw('COUNT(id) as total_count, SUM(amount) as total_amount, MIN(created_at) as first_txn_date')
     //                 ->first();
     //         }
-
 
     //         $data['walletBalance'] = $data['userdata']->transaction_amount ?? 0;
     //         $data['completedTxn'] = $data['txnStats']->total_count ?? 0;
@@ -121,7 +120,6 @@ class AdminController extends Controller
                     'business_pan_number',
                     'business_email',
                     'business_phone',
-                    'business_document',
                     'address',
                     'city',
                     'state',
@@ -137,7 +135,21 @@ class AdminController extends Controller
                     'aadhar_back_image',
                     'business_type',
                     'cin_no',
-                    'is_kyc'
+                    'is_kyc',
+                    'individual_photo',
+                    'business_pan_image',
+                    'registration_certificate_image',
+                    'gst_registration_certificate_image',
+                    'business_address_proof_image',
+                    'inside_image',
+                    'outside_image',
+                    'signed_moa_image',
+                    'signed_aoa_image',
+                    'board_resoultion_image',
+                    'nsdl_declaration_image',
+                    'itr_file_image',
+                    'itr_filled',
+                    'itr_not_filed_reason'
                 )->where('user_id', $userId)->first();
             });
 
@@ -174,6 +186,7 @@ class AdminController extends Controller
                 if ($role != 1) {
                     $query->where('user_id', $userId);
                 }
+
                 return $query->selectRaw('COUNT(id) as total_count, SUM(amount) as total_amount, MIN(created_at) as first_txn_date')->first();
             });
 
@@ -230,11 +243,10 @@ class AdminController extends Controller
         }
     }
 
-
     public function disableUserService(Request $request)
     {
         // Authorization check
-        if (!auth()->check() || auth()->user()->role_id != '1') {
+        if (! auth()->check() || auth()->user()->role_id != '1') {
             return response()->json([
                 'status' => false,
                 'message' => 'Unauthorized',
@@ -244,14 +256,14 @@ class AdminController extends Controller
         // Validation
         $validator = Validator::make($request->all(), [
             'service_id' => 'required|string|max:50',
-            'type'       => 'required|string|in:is_api_allowed,is_active',
+            'type' => 'required|string|in:is_api_allowed,is_active',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'status'  => false,
+                'status' => false,
                 'message' => 'Validation failed',
-                'errors'  => $validator->errors(),
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -287,17 +299,16 @@ class AdminController extends Controller
                 : 'Service Status Updated Successfully';
 
             return response()->json([
-                'status'  => true,
+                'status' => true,
                 'message' => $message,
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'status'  => false,
+                'status' => false,
                 'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
-
 
     public function addService(Request $request)
     {
@@ -324,6 +335,7 @@ class AdminController extends Controller
 
             $service = GlobalService::create($data);
             DB::commit();
+
             return response()->json([
                 'status' => true,
                 'message' => 'Service added successfully',
@@ -331,6 +343,7 @@ class AdminController extends Controller
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -421,6 +434,7 @@ class AdminController extends Controller
             $user->updated_at = now();
             $user->save();
             DB::commit();
+
             return response()->json([
                 'status' => true,
                 'message' => 'User status updated  successfully',
@@ -428,6 +442,7 @@ class AdminController extends Controller
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -473,9 +488,10 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error : ' . $e->getMessage()
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
+
         return view('Provider.providers', compact('globalServices'));
     }
 
@@ -1062,13 +1078,13 @@ class AdminController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json(['status' => false, 'message' => 'Error : ' . $e->getMessage()]);
         }
     }
 
     public function UserassigntoSupport()
     {
-
 
         DB::beginTransaction();
         try {
@@ -1079,9 +1095,11 @@ class AdminController extends Controller
             $data['assignedSupports'] = User::whereIn('id', UserAssignedToSupport::query()->distinct()->pluck('assined_to'))->orderBy('name')->get();
 
             DB::commit();
+
             return view('AssignuserSupport.index', $data);
         } catch (\Exception $e) {
             DB::rollback();
+
             return response()->json([
                 'status' => false,
                 'message' => 'Error : ' . $e->getMessage(),
@@ -1133,9 +1151,10 @@ class AdminController extends Controller
     {
         try {
             $data = UserAssignedToSupport::find($id);
-            if (!$data) {
+            if (! $data) {
                 return response()->json(['status' => false, 'message' => 'Not Found']);
             }
+
             return response()->json(['status' => true, 'data' => $data]);
         } catch (\Exception $e) {
             return response()->json([
@@ -1163,12 +1182,14 @@ class AdminController extends Controller
 
             $assignment->delete();
             DB::commit();
+
             return response()->json([
                 'status' => true,
                 'message' => 'Assignment removed successfully!',
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'status' => false,
                 'message' => 'Error: ' . $e->getMessage(),
@@ -1211,12 +1232,14 @@ class AdminController extends Controller
 
             $member = User::create($payload);
             DB::commit();
+
             return response()->json([
                 'status' => true,
                 'message' => 'Member created Successfully',
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -1229,6 +1252,7 @@ class AdminController extends Controller
 
         try {
             $user = User::find($id);
+
             return $user ? response()->json(['status' => true, 'data' => $user]) : response()->json(['status' => false]);
         } catch (\Exception $e) {
             return response()->json([
@@ -1263,18 +1287,21 @@ class AdminController extends Controller
             $member->mobile = $request->mobile;
             $member->save();
             DB::commit();
+
             return response()->json([
                 'status' => true,
                 'message' => 'Member updated Successfully',
             ]);
         } catch (ValidationException $e) {
             DB::rollBack();
+
             return response()->json([
                 'status' => false,
                 'errors' => $e->errors(),
             ], 422);
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -1457,14 +1484,14 @@ class AdminController extends Controller
             }
 
             if (
-                (int)$business->is_pan_verify === 1 &&
-                (int)$business->is_gstin_verify === 1 &&
-                (int)$business->is_cin_verify === 1 &&
-                (int)$business->is_bank_details_verify === 1
+                (int) $business->is_pan_verify === 1 &&
+                (int) $business->is_gstin_verify === 1 &&
+                (int) $business->is_cin_verify === 1 &&
+                (int) $business->is_bank_details_verify === 1
             ) {
 
                 $business->update([
-                    'is_kyc' => 1
+                    'is_kyc' => 1,
                 ]);
 
                 DB::commit();
@@ -1632,6 +1659,7 @@ class AdminController extends Controller
     {
         try {
             $services = GlobalService::where('is_active', '1')->select('id', 'service_name')->orderBy('service_name')->get();
+
             return view('Provider.defaultslug', compact('services'));
         } catch (\Exception $e) {
             return response()->json([
@@ -1743,9 +1771,11 @@ class AdminController extends Controller
             $users = User::select('id', 'name', 'email')->where('role_id', '!=', '1')->whereHas('nsdlPayments')->where('status', '!=', '0')->orderBy('id', 'desc')->get();
             $globalServices = GlobalService::select('id', 'service_name')->where('is_active', '1')->orderBy('id', 'desc')->get();
             DB::commit();
+
             return view('Transaction.nsdl-payment', compact('users', 'globalServices'));
         } catch (\Exception $e) {
             DB::rollback();
+
             return response()->json([
                 'status' => false,
                 'message' => 'Error : ' . $e->getMessage(),
@@ -1766,9 +1796,11 @@ class AdminController extends Controller
                 ]);
             }
             DB::commit();
+
             return view('AssignuserSupport.support-based-user-list', compact('support'));
         } catch (\Exception $e) {
             DB::rollback();
+
             return response()->json([
                 'status' => false,
                 'message' => 'Error : ' . $e->getMessage(),
@@ -1776,11 +1808,10 @@ class AdminController extends Controller
         }
     }
 
-
     public function updateLoadMoneyRequest(Request $request)
     {
         $request->validate([
-            'id'     => 'required|exists:load_money_requests,id',
+            'id' => 'required|exists:load_money_requests,id',
             'status' => 'required|in:approved,rejected',
             'remark' => 'required_if:status,rejected|nullable|string',
         ]);
@@ -1794,7 +1825,7 @@ class AdminController extends Controller
                 ->lockForUpdate()
                 ->first();
 
-            if (!$moneyRequest) {
+            if (! $moneyRequest) {
                 throw new \Exception('Request already approved or not found');
             }
 
@@ -1805,7 +1836,7 @@ class AdminController extends Controller
                     ->lockForUpdate()
                     ->first();
 
-                if (!$user) {
+                if (! $user) {
                     throw new \Exception('User is not active');
                 }
 
@@ -1820,19 +1851,19 @@ class AdminController extends Controller
                 $user->increment('transaction_amount', $amount);
 
                 $moneyRequest->update([
-                    'status'      => 'approved',
+                    'status' => 'approved',
                 ]);
             } else {
                 $moneyRequest->update([
-                    'status'      => 'rejected',
-                    'remark'      => $request->remark,
+                    'status' => 'rejected',
+                    'remark' => $request->remark,
                 ]);
             }
 
             DB::commit();
 
             return response()->json([
-                'status'  => true,
+                'status' => true,
                 'message' => 'Request Updated Successfully',
             ]);
         } catch (\Exception $e) {
@@ -1840,9 +1871,140 @@ class AdminController extends Controller
             DB::rollBack();
 
             return response()->json([
-                'status'  => false,
+                'status' => false,
                 'message' => $e->getMessage(),
             ]);
+        }
+    }
+
+    public function agreementIndex()
+    {
+        $agreements = Agreement::where('status', '1')->latest()->take(1)->get();
+        return view('Agreement.index', compact('agreements'));
+    }
+
+    public function storeAgreement(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'file' => 'required|mimes:jpg,jpeg,png,pdf|max:2048',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            $file = $request->file('file');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('agreements', $fileName, 'public');
+
+            Agreement::create([
+                'file_path' => $filePath,
+                // 'status' => '1',
+                'updated_by' => auth()->id(),
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Agreement uploaded successfully.',
+                'file_path' => $filePath,
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to upload agreement.',
+            ], 500);
+        }
+    }
+
+    public function bussinessCategory()
+    {
+        return view('Categories.bussiness-categories');
+    }
+
+    public function storeBusinessCategory(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255|unique:business_categories,name',
+            ]);
+
+            $category = BusinessCategory::create([
+                'name' => $validated['name'],
+                'slug' => Str::slug($validated['name']),
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Business Category added successfully.',
+                'data' => $category,
+            ], 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation failed.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function updateStatus(Request $request)
+    {
+        try {
+            $category = BusinessCategory::findOrFail($request->id);
+
+            $category->status = $request->status;
+            $category->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Status updated successfully',
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Error updating status',
+            ]);
+        }
+    }
+
+    public function updateBusinessCategory(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'category_id' => 'required|exists:business_categories,id',
+                'name' => 'required|string|max:255|unique:business_categories,name,' . $request->category_id,
+            ]);
+
+            $category = BusinessCategory::findOrFail($validated['category_id']);
+            $category->name = $validated['name'];
+            $category->slug = Str::slug($validated['name']);
+            $category->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Business Category updated successfully.',
+                'data' => $category,
+            ], 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation failed.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 }

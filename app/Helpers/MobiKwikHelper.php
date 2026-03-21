@@ -43,6 +43,8 @@ class MobiKwikHelper
                     'clientSecret' => $this->clientSecret,
                 ]);
 
+            // dd($this->clientId,$this->clientSecret);
+
             if (! $response->successful()) {
                 Log::error('Mobikwik Token API HTTP Error', [
                     'status' => $response->status(),
@@ -68,7 +70,8 @@ class MobiKwikHelper
                 'token' => $token,
                 'expire_at' => now()->addHours(24),
                 'is_active' => true,
-                'response' => $data,
+                'response' => json_encode($data),
+                'creation_time' => now(),
             ]);
 
             return $token; // ONLY TOKEN RETURN
@@ -85,6 +88,29 @@ class MobiKwikHelper
             ]);
 
             throw $e;
+        }
+    }
+
+    public function isTokenPresent()
+    {
+        try {
+            $tokenData = MobikwikToken::where('is_active', true)
+                ->where('expire_at', '>=', now())
+                ->latest()
+                ->first();
+            // dd($tokenData->token);
+
+            // if valid token found
+            if ($tokenData) {
+                return $tokenData->token;
+            }
+
+            //  if token not found → new generate
+            return (new MobiKwikHelper)->generateToken();
+        } catch (\Exception $e) {
+            Log::error('Mobikwik Token Present Exception', [
+                'error' => $e->getMessage(),
+            ]);
         }
     }
 
