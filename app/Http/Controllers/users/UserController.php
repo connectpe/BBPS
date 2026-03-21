@@ -483,13 +483,12 @@ class UserController extends Controller
                 'board_resoultion_image' => $boardResolutionImage,
                 'nsdl_declaration_image' => $nsdlDocument,
                 'itr_file_image' => $itrFilledImage,
+                'business_category_id' => $request->business_category,
             ];
-
 
 
             $businessInfo = BusinessInfo::updateOrCreate([
                 'user_id' => $userId,
-                'business_category_id' => $request->business_category,
             ], $data);
 
             UsersBank::updateOrCreate(
