@@ -39,7 +39,7 @@
                             @elseif($ext == 'pdf')
                                 <div class="d-flex flex-column align-items-center justify-content-center">
                                     <i class="bi bi-file-earmark-pdf text-danger" style="font-size:60px;"></i>
-                                    <p class="mt-2 mb-0">PDF Document</p>
+                                    <p class="py-1">PDF Document</p>
                                 </div>
                             @endif
 
