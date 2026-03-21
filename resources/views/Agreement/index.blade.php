@@ -25,31 +25,36 @@
 
         @forelse($agreements as $agreement)
             <div class="col-md-4 mb-3">
-                <div class="card shadow-sm border-0 h-100">
-
-                    <div class="card-body text-center">
+                <div class="card shadow-sm border-0 h-100 d-flex flex-column">
+                    <div class="card-body text-center d-flex flex-column justify-content-between">
 
                         @php
                             $ext = pathinfo($agreement->file_path, PATHINFO_EXTENSION);
                         @endphp
+                        <div style="height:200px; display:flex; align-items:center; justify-content:center;">
 
-                        @if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png']))
-                            <img src="{{ asset('storage/' . $agreement->file_path) }}" class="img-fluid rounded mb-2"
-                                style="max-height:200px; object-fit:cover;">
-                        @elseif($ext == 'pdf')
-                            <i class="bi bi-file-earmark-pdf text-danger" style="font-size:60px;"></i>
-                            <p class="mt-2">PDF Document</p>
-                        @endif
+                            @if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png']))
+                                <img src="{{ asset('storage/' . $agreement->file_path) }}"
+                                    style="max-height:100%; max-width:100%; object-fit:cover; border-radius:8px;">
+                            @elseif($ext == 'pdf')
+                                <div class="d-flex flex-column align-items-center justify-content-center">
+                                    <i class="bi bi-file-earmark-pdf text-danger" style="font-size:60px;"></i>
+                                    <p class="py-1">PDF Document</p>
+                                </div>
+                            @endif
+
+                        </div>
+                        <h6 class="mt-3 mb-0 text-truncate">{{ $agreement->file_name }}</h6>
 
                     </div>
-
-                    <div class="card-footer text-center bg-white">
+                    <div class="card-footer text-center bg-white mt-auto">
                         <a href="{{ asset('storage/' . $agreement->file_path) }}" target="_blank"
-                            class="btn btn-sm buttonColor">
-                           <i class="fa-solid fa-eye"></i>
+                            class="btn btn-sm buttonColor me-1">
+                            <i class="fa-solid fa-eye"></i>
                         </a>
+
                         <a href="{{ asset('storage/' . $agreement->file_path) }}" download class="btn btn-sm btn-success">
-                           <i class="fa-solid fa-download"></i>
+                            <i class="fa-solid fa-download"></i>
                         </a>
                     </div>
 
@@ -74,11 +79,17 @@
                     @csrf
 
                     <div class="modal-header">
-                        <h5 class="modal-title">Add Agreement</h5>
+                        <h5 class="modal-title">Add Agreement or Declaration</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
 
                     <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Agreement Name</label>
+                            <input type="text" name="name" id="name" class="form-control"
+                                placeholder="Enter agreement name">
+                            <small class="text-danger name_error"></small>
+                        </div>
 
                         <div class="mb-3">
                             <label class="form-label">Upload Agreement (Image / PDF)</label>
@@ -155,24 +166,36 @@
 
                     error: function(xhr) {
                         $('#saveAgreementBtn').prop('disabled', false).text('Save');
-
                         if (xhr.status == 422) {
                             let errors = xhr.responseJSON.errors;
-
+                            $('.name_error').text('');
+                            $('.file_error').text('');
+                            let errorMsg = '';
+                            if (errors.name) {
+                                $('.name_error').text(errors.name[0]);
+                                errorMsg = errors.name[0];
+                            }
                             if (errors.file) {
                                 $('.file_error').text(errors.file[0]);
+                                errorMsg = errorMsg ? errorMsg + '\n' + errors.file[0] : errors
+                                    .file[0];
                             }
-
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Validation Error',
-                                text: 'Please select a valid file.'
+                                text: errorMsg
                             });
                         } else {
+                            let message = 'Something went wrong.';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                message = xhr.responseJSON.message;
+                            } else if (xhr.responseText) {
+                                message = xhr.responseText;
+                            }
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Error',
-                                text: 'Something went wrong.'
+                                text: message
                             });
                         }
                     }

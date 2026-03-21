@@ -1879,13 +1879,14 @@ class AdminController extends Controller
 
     public function agreementIndex()
     {
-        $agreements = Agreement::where('status', '1')->latest()->take(1)->get();
+        $agreements = Agreement::where('status', '1')->latest()->get();
         return view('Agreement.index', compact('agreements'));
     }
 
     public function storeAgreement(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
             'file' => 'required|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
@@ -1902,6 +1903,7 @@ class AdminController extends Controller
             $filePath = $file->storeAs('agreements', $fileName, 'public');
 
             Agreement::create([
+                'file_name' => $request->name,
                 'file_path' => $filePath,
                 // 'status' => '1',
                 'updated_by' => auth()->id(),
