@@ -416,16 +416,17 @@ use App\Facades\FileUpload;
                         <!-- Aadhaar Front -->
                         <div class="col-md-4 mb-3">
                             <div class="card shadow-sm">
-                                <div class="card-header fw-bold text-center">
+                                <div class="card-header text-center">
                                     Aadhaar Front
-                                </div>
-                                <div class="card-body text-center">
                                     @if (!empty($businessInfo->aadhar_front_image))
-                                    <img src="{{ FileUpload::getFilePath($businessInfo->aadhar_front_image) }}"
-                                        class="img-fixed rounded border" alt="Aadhaar Front" style="cursor:pointer"
-                                        onclick="showImage(this.src,'Aadhaar Front')">
+                                    <span style="cursor:pointer;">
+                                        <i class="fa-solid fa-eye"
+                                            onclick="showImage('{{ FileUpload::getFilePath($businessInfo->aadhar_front_image) }}','Aadhaar Front')"></i>
+                                    </span>
                                     @else
-                                    <span>No Image Found</span>
+                                    <span>
+                                        <i class="fa-solid fa-eye-slash"></i>
+                                    </span>
                                     @endif
                                 </div>
                             </div>
@@ -434,16 +435,17 @@ use App\Facades\FileUpload;
                         <!-- Aadhaar Back -->
                         <div class="col-md-4 mb-3">
                             <div class="card shadow-sm">
-                                <div class="card-header fw-bold text-center">
+                                <div class="card-header text-center">
                                     Aadhaar Back
-                                </div>
-                                <div class="card-body text-center">
                                     @if (!empty($businessInfo->aadhar_back_image))
-                                    <img src="{{ FileUpload::getFilePath($businessInfo->aadhar_back_image) }}"
-                                        class="img-fixed rounded border" style="cursor:pointer"
-                                        onclick="showImage(this.src,'Aadhaar Back')" alt="Aadhaar Back">
+                                    <span style="cursor:pointer;">
+                                        <i class="fa-solid fa-eye"
+                                            onclick="showImage('{{ FileUpload::getFilePath($businessInfo->aadhar_back_image) }}','Aadhaar Back')"></i>
+                                    </span>
                                     @else
-                                    <span>No Image Found</span>
+                                    <span>
+                                        <i class="fa-solid fa-eye-slash"></i>
+                                    </span>
                                     @endif
                                 </div>
                             </div>
@@ -452,223 +454,245 @@ use App\Facades\FileUpload;
                         <!-- PAN Card -->
                         <div class="col-md-4 mb-3">
                             <div class="card shadow-sm">
-                                <div class="card-header fw-bold text-center">
+                                <div class="card-header text-center">
                                     PAN Card
-                                </div>
-                                <div class="card-body text-center">
                                     @if (!empty($businessInfo->pancard_image))
-                                    <img src="{{ FileUpload::getFilePath($businessInfo->pancard_image) }}"
-                                        class="img-fixed rounded border" style="cursor:pointer"
-                                        onclick="showImage(this.src,'PAN Card')" alt="PAN Card">
+                                    <span style="cursor:pointer;">
+                                        <i class="fa-solid fa-eye"
+                                            onclick="showImage('{{ FileUpload::getFilePath($businessInfo->pancard_image) }}','PAN Card')"></i>
+                                    </span>
                                     @else
-                                    <span>No Image Found</span>
+                                    <span>
+                                        <i class="fa-solid fa-eye-slash"></i>
+                                    </span>
                                     @endif
                                 </div>
                             </div>
                         </div>
 
+                        <!-- Individual Photo -->
                         <div class="col-md-4 mb-3">
                             <div class="card shadow-sm">
-                                <div class="card-header fw-bold text-center">
+                                <div class="card-header text-center">
                                     Individual Photo
-                                </div>
-                                <div class="card-body text-center">
                                     @if (!empty($businessInfo->individual_photo))
-                                    <img src="{{ FileUpload::getFilePath($businessInfo->individual_photo) }}"
-                                        class="img-fixed rounded border" style="cursor:pointer"
-                                        onclick="showImage(this.src,'Individual Photo')" alt="Individual Photo">
+                                    <span style="cursor:pointer;">
+                                        <i class="fa-solid fa-eye"
+                                            onclick="showImage('{{ FileUpload::getFilePath($businessInfo->individual_photo) }}','Individual Photo')"></i>
+                                    </span>
                                     @else
-                                    <span>No Image Found</span>
+                                    <span>
+                                        <i class="fa-solid fa-eye-slash"></i>
+                                    </span>
                                     @endif
                                 </div>
                             </div>
                         </div>
 
+                        <!-- Business PAN Image -->
                         <div class="col-md-4 mb-3">
                             <div class="card shadow-sm">
-                                <div class="card-header fw-bold text-center">
+                                <div class="card-header text-center">
                                     Business PAN Image
-                                </div>
-                                <div class="card-body text-center">
                                     @if (!empty($businessInfo->business_pan_image))
-                                    <img src="{{ FileUpload::getFilePath($businessInfo->business_pan_image) }}"
-                                        class="img-fixed rounded border" style="cursor:pointer"
-                                        onclick="showImage(this.src,'Business PAN Image')" alt="Business PAN Image">
+                                    <span style="cursor:pointer;">
+                                        <i class="fa-solid fa-eye"
+                                            onclick="showImage('{{ FileUpload::getFilePath($businessInfo->business_pan_image) }}','Business PAN Image')"></i>
+                                    </span>
                                     @else
-                                    <span>No Image Found</span>
+                                    <span>
+                                        <i class="fa-solid fa-eye-slash"></i>
+                                    </span>
                                     @endif
                                 </div>
                             </div>
                         </div>
 
+                        <!-- Registration Certificate -->
                         <div class="col-md-4 mb-3">
                             <div class="card shadow-sm">
-                                <div class="card-header fw-bold text-center">
+                                <div class="card-header text-center">
                                     Registeration Certificate
-                                </div>
-                                <div class="card-body text-center">
                                     @if (!empty($businessInfo->registration_certificate_image))
-                                    <img src="{{ FileUpload::getFilePath($businessInfo->registration_certificate_image) }}"
-                                        class="img-fixed rounded border" style="cursor:pointer"
-                                        onclick="showImage(this.src,'Registeration Certificate')"
-                                        alt="Registeration Certificate">
+                                    <span style="cursor:pointer;">
+                                        <i class="fa-solid fa-eye"
+                                            onclick="showImage('{{ FileUpload::getFilePath($businessInfo->registration_certificate_image) }}','Registeration Certificate')"></i>
+                                    </span>
                                     @else
-                                    <span>No Image Found</span>
+                                    <span>
+                                        <i class="fa-solid fa-eye-slash"></i>
+                                    </span>
                                     @endif
                                 </div>
                             </div>
                         </div>
 
+                        <!-- GST Certificate -->
                         <div class="col-md-4 mb-3">
                             <div class="card shadow-sm">
-                                <div class="card-header fw-bold text-center">
+                                <div class="card-header text-center">
                                     GST Reg. Certificate
-                                </div>
-                                <div class="card-body text-center">
                                     @if (!empty($businessInfo->gst_registration_certificate_image))
-                                    <img src="{{ FileUpload::getFilePath($businessInfo->gst_registration_certificate_image) }}"
-                                        class="img-fixed rounded border" style="cursor:pointer"
-                                        onclick="showImage(this.src,'GST Registeration Certificate')"
-                                        alt="GST Registeration Certificate">
+                                    <span style="cursor:pointer;">
+                                        <i class="fa-solid fa-eye"
+                                            onclick="showImage('{{ FileUpload::getFilePath($businessInfo->gst_registration_certificate_image) }}','GST Registeration Certificate')"></i>
+                                    </span>
                                     @else
-                                    <span>No Image Found</span>
+                                    <span>
+                                        <i class="fa-solid fa-eye-slash"></i>
+                                    </span>
                                     @endif
                                 </div>
                             </div>
                         </div>
 
+                        <!-- Business Address Proof -->
                         <div class="col-md-4 mb-3">
                             <div class="card shadow-sm">
-                                <div class="card-header fw-bold text-center">
-                                    Business Address Proof Image
-                                </div>
-                                <div class="card-body text-center">
+                                <div class="card-header text-center">
+                                    Business Address Proof
                                     @if (!empty($businessInfo->business_address_proof_image))
-                                    <img src="{{ FileUpload::getFilePath($businessInfo->business_address_proof_image) }}"
-                                        class="img-fixed rounded border" style="cursor:pointer"
-                                        onclick="showImage(this.src,'Business Address Proof Image')"
-                                        alt="Business Address Proof Image">
+                                    <span style="cursor:pointer;">
+                                        <i class="fa-solid fa-eye"
+                                            onclick="showImage('{{ FileUpload::getFilePath($businessInfo->business_address_proof_image) }}','Business Address Proof Image')"></i>
+                                    </span>
                                     @else
-                                    <span>No Image Found</span>
+                                    <span>
+                                        <i class="fa-solid fa-eye-slash"></i>
+                                    </span>
                                     @endif
                                 </div>
                             </div>
                         </div>
 
+                        <!-- Inside Image -->
                         <div class="col-md-4 mb-3">
                             <div class="card shadow-sm">
-                                <div class="card-header fw-bold text-center">
+                                <div class="card-header text-center">
                                     Inside Image
-                                </div>
-                                <div class="card-body text-center">
                                     @if (!empty($businessInfo->inside_image))
-                                    <img src="{{ FileUpload::getFilePath($businessInfo->inside_image) }}"
-                                        class="img-fixed rounded border" style="cursor:pointer"
-                                        onclick="showImage(this.src,'Inside Image')" alt="Inside Image">
+                                    <span style="cursor:pointer;">
+                                        <i class="fa-solid fa-eye"
+                                            onclick="showImage('{{ FileUpload::getFilePath($businessInfo->inside_image) }}','Inside Image')"></i>
+                                    </span>
                                     @else
-                                    <span>No Image Found</span>
+                                    <span>
+                                        <i class="fa-solid fa-eye-slash"></i>
+                                    </span>
                                     @endif
                                 </div>
                             </div>
                         </div>
 
+                        <!-- Outside Image -->
                         <div class="col-md-4 mb-3">
                             <div class="card shadow-sm">
-                                <div class="card-header fw-bold text-center">
+                                <div class="card-header text-center">
                                     OutSide Image
-                                </div>
-                                <div class="card-body text-center">
                                     @if (!empty($businessInfo->outside_image))
-                                    <img src="{{ FileUpload::getFilePath($businessInfo->outside_image) }}"
-                                        class="img-fixed rounded border" style="cursor:pointer"
-                                        onclick="showImage(this.src,'OutSide Image')" alt="OutSide Image">
+                                    <span style="cursor:pointer;">
+                                        <i class="fa-solid fa-eye"
+                                            onclick="showImage('{{ FileUpload::getFilePath($businessInfo->outside_image) }}','OutSide Image')"></i>
+                                    </span>
                                     @else
-                                    <span>No Image Found</span>
+                                    <span>
+                                        <i class="fa-solid fa-eye-slash"></i>
+                                    </span>
                                     @endif
                                 </div>
                             </div>
                         </div>
 
+                        <!-- Signed MOA -->
                         <div class="col-md-4 mb-3">
                             <div class="card shadow-sm">
-                                <div class="card-header fw-bold text-center">
+                                <div class="card-header text-center">
                                     Signed MOA Image
-                                </div>
-                                <div class="card-body text-center">
                                     @if (!empty($businessInfo->signed_moa_image))
-                                    <img src="{{ FileUpload::getFilePath($businessInfo->signed_moa_image) }}"
-                                        class="img-fixed rounded border" style="cursor:pointer"
-                                        onclick="showImage(this.src,'Signed MOA Image')" alt="Signed MOA Image">
+                                    <span style="cursor:pointer;">
+                                        <i class="fa-solid fa-eye"
+                                            onclick="showImage('{{ FileUpload::getFilePath($businessInfo->signed_moa_image) }}','Signed MOA Image')"></i>
+                                    </span>
                                     @else
-                                    <span>No Image Found</span>
+                                    <span>
+                                        <i class="fa-solid fa-eye-slash"></i>
+                                    </span>
                                     @endif
                                 </div>
                             </div>
                         </div>
 
+                        <!-- Signed AOA -->
                         <div class="col-md-4 mb-3">
                             <div class="card shadow-sm">
-                                <div class="card-header fw-bold text-center">
+                                <div class="card-header text-center">
                                     Signed AOA Image
-                                </div>
-                                <div class="card-body text-center">
                                     @if (!empty($businessInfo->signed_aoa_image))
-                                    <img src="{{ FileUpload::getFilePath($businessInfo->signed_aoa_image) }}"
-                                        class="img-fixed rounded border" style="cursor:pointer"
-                                        onclick="showImage(this.src,'Signed AOA Image')" alt="Signed AOA Image">
+                                    <span style="cursor:pointer;">
+                                        <i class="fa-solid fa-eye"
+                                            onclick="showImage('{{ FileUpload::getFilePath($businessInfo->signed_aoa_image) }}','Signed AOA Image')"></i>
+                                    </span>
                                     @else
-                                    <span>No Image Found</span>
+                                    <span>
+                                        <i class="fa-solid fa-eye-slash"></i>
+                                    </span>
                                     @endif
                                 </div>
                             </div>
                         </div>
 
+                        <!-- Board Resolution -->
                         <div class="col-md-4 mb-3">
                             <div class="card shadow-sm">
-                                <div class="card-header fw-bold text-center">
+                                <div class="card-header text-center">
                                     Board Resolution
-                                </div>
-                                <div class="card-body text-center">
                                     @if (!empty($businessInfo->board_resoultion_image))
-                                    <img src="{{ FileUpload::getFilePath($businessInfo->board_resoultion_image) }}"
-                                        class="img-fixed rounded border" style="cursor:pointer"
-                                        onclick="showImage(this.src,'Board Resolution')" alt="Board Resolution">
+                                    <span style="cursor:pointer;">
+                                        <i class="fa-solid fa-eye"
+                                            onclick="showImage('{{ FileUpload::getFilePath($businessInfo->board_resoultion_image) }}','Board Resolution')"></i>
+                                    </span>
                                     @else
-                                    <span>No Image Found</span>
+                                    <span>
+                                        <i class="fa-solid fa-eye-slash"></i>
+                                    </span>
                                     @endif
                                 </div>
                             </div>
                         </div>
 
+                        <!--  Declaration -->
                         <div class="col-md-4 mb-3">
                             <div class="card shadow-sm">
-                                <div class="card-header fw-bold text-center">
-                                    NSDL Declaration
-                                </div>
-                                <div class="card-body text-center">
+                                <div class="card-header text-center">
+                                     Declaration
                                     @if (!empty($businessInfo->nsdl_declaration_image))
-                                    <img src="{{ FileUpload::getFilePath($businessInfo->nsdl_declaration_image) }}"
-                                        class="img-fixed rounded border" style="cursor:pointer"
-                                        onclick="showImage(this.src,'NSDL Declaration')" alt="NSDL Declaration">
+                                    <span style="cursor:pointer;">
+                                        <i class="fa-solid fa-eye"
+                                            onclick="showImage('{{ FileUpload::getFilePath($businessInfo->nsdl_declaration_image) }}','Declaration')"></i>
+                                    </span>
                                     @else
-                                    <span>No Image Found</span>
+                                    <span>
+                                        <i class="fa-solid fa-eye-slash"></i>
+                                    </span>
                                     @endif
                                 </div>
                             </div>
                         </div>
 
+                        <!-- ITR -->
                         <div class="col-md-4 mb-3">
                             <div class="card shadow-sm">
-                                <div class="card-header fw-bold text-center">
+                                <div class="card-header text-center">
                                     ITR Filled Image
-                                </div>
-                                <div class="card-body text-center">
                                     @if (!empty($businessInfo->itr_file_image))
-                                    <img src="{{ FileUpload::getFilePath($businessInfo->itr_file_image) }}"
-                                        class="img-fixed rounded border" style="cursor:pointer"
-                                        onclick="showImage(this.src,'ITR Filled Image')" alt="ITR Filled Image">
+                                    <span style="cursor:pointer;">
+                                        <i class="fa-solid fa-eye"
+                                            onclick="showImage('{{ FileUpload::getFilePath($businessInfo->itr_file_image) }}','ITR Filled Image')"></i>
+                                    </span>
                                     @else
-                                    <span>No Image Found</span>
+                                    <span>
+                                        <i class="fa-solid fa-eye-slash"></i>
+                                    </span>
                                     @endif
                                 </div>
                             </div>

@@ -155,7 +155,7 @@ class UserController extends Controller
                     'business_pan_image' => $requiredIfMissing($businessData->business_pan_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
                     'registration_certificate_image' => $requiredIfMissing($businessData->registration_certificate_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
 
-                    'gst_registration_certificate_image' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
+                    'gst_registration_certificate_image' => $requiredIfMissing($businessData->gst_registration_certificate_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
                     'inside_image' => $requiredIfMissing($businessData->inside_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
                     'outside_image' => $requiredIfMissing($businessData->outside_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
                     'business_address_proof_image' => $requiredIfMissing($businessData->outside_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
