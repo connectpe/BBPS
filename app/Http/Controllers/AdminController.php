@@ -1879,8 +1879,7 @@ class AdminController extends Controller
 
     public function agreementIndex()
     {
-        $agreements = Agreement::where('status', '1')->latest()->get();
-
+        $agreements = Agreement::where('status', '1')->latest()->take(1)->get();
         return view('Agreement.index', compact('agreements'));
     }
 

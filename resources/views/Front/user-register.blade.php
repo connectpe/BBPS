@@ -13,6 +13,7 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <!-- Sweetalert -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -103,7 +104,8 @@
                         <p class="text-center text-muted mb-4">Login to access your panel</p>
 
                         <div class="mb-3 form-floating">
-                            <input type="email" name="email" class="form-control" id="loginEmail" placeholder="Email">
+                            <input type="email" name="email" class="form-control" id="loginEmail"
+                                placeholder="Email">
                             <label for="loginEmail">Email</label>
                         </div>
 
@@ -111,6 +113,10 @@
                             <input type="password" name="password" class="form-control" id="loginPassword"
                                 placeholder="Password">
                             <label for="loginPassword">Password</label>
+                            <span id="togglePassword"
+                                style="position:absolute; top:50%; right:15px; transform:translateY(-50%); cursor:pointer;">
+                                <i class="fa-solid fa-eye"></i>
+                            </span>
                         </div>
 
                         <button type="submit" class="btn bbps-btn w-100 mt-1" id="loginButton">Login</button>
@@ -156,15 +162,15 @@
                         </div>
 
                         <div class="mb-3 form-floating">
-                            <input name="email" type="email" class="form-control" id="signupEmail" placeholder="Email"
-                                required>
+                            <input name="email" type="email" class="form-control" id="signupEmail"
+                                placeholder="Email" required>
                             <span class="text-danger" id="emailError" style="font-size: 0.875em;"></span>
                             <label for="signupEmail">Email</label>
                         </div>
 
                         <div class="mb-3 form-floating">
-                            <input type="text" name="mobile" class="form-control" id="signupMobile" placeholder="Mobile"
-                                required>
+                            <input type="text" name="mobile" class="form-control" id="signupMobile"
+                                placeholder="Mobile" required>
                             <span class="text-danger" id="mobileError" style="font-size: 0.875em;"></span>
                             <label for="signupMobile">Mobile</label>
                         </div>
@@ -244,7 +250,8 @@
                                 style="color:#667eea; text-decoration:none; font-weight:500;"> <span
                                     class="text-muted">Back to</span>
                                 Login</a>
-                            <a href="#" id="resendOtpButton" class="text-decoration-none p-1 fw-semi-bold">Resend
+                            <a href="#" id="resendOtpButton"
+                                class="text-decoration-none p-1 fw-semi-bold">Resend
                                 OTP</a>
                         </div>
 
@@ -257,7 +264,8 @@
                         <p class="text-center text-muted mb-4">Forget your password</p>
 
                         <div class="mb-3 form-floating">
-                            <input type="email" name="email" class="form-control" id="forgetEmail" placeholder="Email">
+                            <input type="email" name="email" class="form-control" id="forgetEmail"
+                                placeholder="Email">
                             <label for="forgetEmail">Email</label>
                         </div>
 
@@ -289,7 +297,8 @@
                             <label for="confirmPassword">Confirm Password</label>
                         </div>
 
-                        <button type="submit" class="btn bbps-btn w-100 mt-1" id="resetPasswordButton">Submit</button>
+                        <button type="submit" class="btn bbps-btn w-100 mt-1"
+                            id="resetPasswordButton">Submit</button>
                     </form>
 
                 </div>
@@ -299,7 +308,7 @@
 
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
 
 
             const loginForm = document.getElementById('loginForm');
@@ -394,7 +403,7 @@
             }
 
             document.querySelectorAll('.role-selector button').forEach(button => {
-                button.addEventListener('click', function () {
+                button.addEventListener('click', function() {
                     document.querySelectorAll('.role-selector button').forEach(btn => btn.classList
                         .remove('bbps-btn'));
                     this.classList.add('bbps-btn');
@@ -490,7 +499,7 @@
                 });
             });
 
-            loginForm.addEventListener('submit', async function (e) {
+            loginForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
 
                 const loginButton = document.getElementById('loginButton');
@@ -597,7 +606,8 @@
                         const loginRes = await fetch("{{ route('admin.login') }}", {
                             method: "POST",
                             headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                'X-CSRF-TOKEN': document.querySelector(
+                                        'meta[name="csrf-token"]')
                                     .getAttribute('content'),
                                 'Accept': 'application/json',
                             },
@@ -612,7 +622,8 @@
                             return;
                         }
 
-                        Swal.fire('Error', loginData.message || 'Login failed after verification', 'error');
+                        Swal.fire('Error', loginData.message || 'Login failed after verification',
+                            'error');
                     }
                 } catch (err) {
                     Swal.fire('Error', 'Server error. Try again later.', 'error');
@@ -715,7 +726,8 @@
                     }
 
                     if (data.status) {
-                        Swal.fire('Success', data.message || 'OTP sent to your mail verify for forget password', 'success');
+                        Swal.fire('Success', data.message ||
+                            'OTP sent to your mail verify for forget password', 'success');
                         otpBtn.disabled = false;
                         otpBtn.textContent = 'Submit';
                         document.getElementById('forgetPasswordId').value = data.id;
@@ -765,7 +777,8 @@
                     }
 
                     if (data.status) {
-                        Swal.fire('Success', data.message || 'OTP sent to your mail verify for forget password', 'success');
+                        Swal.fire('Success', data.message ||
+                            'OTP sent to your mail verify for forget password', 'success');
                         document.getElementById('forgetPasswordId').value = data.id;
                         showPasswordOTP();
                         resendOtpButton.disabled = false;
@@ -818,7 +831,8 @@
                     }
 
                     if (data.status) {
-                        Swal.fire('Success', data.message || 'Password Changed Successfully', 'success');
+                        Swal.fire('Success', data.message || 'Password Changed Successfully',
+                            'success');
                         // otpBtn.disabled = false;
                         otpBtn.textContent = 'Submit';
                         setTimeout(() => {
@@ -851,6 +865,25 @@
             switchToForgetPassword.addEventListener('click', (e) => {
                 e.preventDefault();
                 showforgetPassword();
+            });
+
+           // show password on click eye icon in the login form
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('loginPassword');
+            const icon = togglePassword.querySelector('i');
+
+            togglePassword.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+
+                // icon change
+                if (type === 'password') {
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                } else {
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                }
             });
 
         });
