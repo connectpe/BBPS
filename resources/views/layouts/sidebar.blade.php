@@ -53,7 +53,7 @@
                 <ul class="nav nav-pills flex-column mb-auto">
 
                     @php
-                        $userRoute = ['users', 'view_user', 'request_services', 'support_details'];
+                        $userRoute = ['users', 'view_user', 'request_services', 'support_details','load_money_request'];
                         $userActive = in_array(Route::currentRouteName(), $userRoute);
                     @endphp
 
@@ -119,7 +119,7 @@
                 <ul class="nav nav-pills flex-column mb-auto">
 
                     @php
-                        $transactionRoute = ['reports/recharge', 'reports/utility', 'reports/banking', 'reports'];
+                        $transactionRoute = ['reports/recharge', 'reports/utility', 'reports/banking', 'reports','payout_transaction'];
                         $servicesActive = in_array(Route::currentRouteName(), $transactionRoute);
                     @endphp
 
@@ -212,7 +212,7 @@
             <li class="nav-item mt-2">
                 <ul class="nav nav-pills flex-column mb-auto">
                     @php
-                        $masterRoute = ['our_servicess', 'providers', 'categories.index', 'defaultslug'];
+                        $masterRoute = ['our_servicess', 'providers', 'categories.index', 'defaultslug','business_category'];
                         $masterActive = in_array(Route::currentRouteName(), $masterRoute);
                     @endphp
 
@@ -311,7 +311,7 @@
                 <a href="{{ route('add_agreement') }}"
                     class="nav-link text-white {{ Route::currentRouteName() == 'add_agreement' ? 'sidebar-active' : '' }}">
                     <i class="bi bi-file-earmark-arrow-up me-2"></i>
-                    Agreement Upload
+                    Documents Upload
                 </a>
             </li>
 
@@ -503,7 +503,7 @@
                 <a href="{{ route('all_agreements') }}"
                     class="nav-link text-white {{ Route::currentRouteName() == 'all_agreements' ? 'sidebar-active' : '' }}">
                     <i class="bi bi-file-earmark-text me-2"></i>
-                    Agreement
+                    Documents
                 </a>
             </li>
 
