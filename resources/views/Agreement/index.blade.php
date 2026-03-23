@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Agreement')
-@section('page-title', 'Agreement')
+@section('title', 'Documents & Agreements')
+@section('page-title', 'Documents & Agreements')
 
 @section('page-button')
     @if (Auth::user()->role_id == 1)
@@ -56,6 +56,11 @@
                         <a href="{{ asset('storage/' . $agreement->file_path) }}" download class="btn btn-sm btn-success">
                             <i class="fa-solid fa-download"></i>
                         </a>
+                        @if (Auth::user()->role_id == 1)
+                            <button class="btn btn-sm btn-danger deleteAgreementBtn" data-id="{{ $agreement->id }}">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        @endif
                     </div>
 
                 </div>
@@ -152,8 +157,11 @@
                                 title: 'Success',
                                 text: response.message,
                                 timer: 2000,
-                                showConfirmButton: false
+                                showConfirmButton: true
                             });
+                            setTimeout(() => {
+                                location.reload();
+                            }, 1500);
 
                         } else {
                             Swal.fire({
@@ -200,6 +208,59 @@
                         }
                     }
                 });
+            });
+
+        });
+    </script>
+
+    <script>
+        $(document).on('click', '.deleteAgreementBtn', function() {
+
+            let id = $(this).data('id');
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Delete this agreement permanently!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+
+                if (result.isConfirmed) {
+
+                    $.ajax({
+                        url: "{{ route('agreement.delete') }}",
+                        type: "POST",
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            id: id
+                        },
+
+                        success: function(response) {
+                            if (response.status) {
+
+                                Swal.fire(
+                                    'Deleted!',
+                                    response.message,
+                                    'success'
+                                );
+
+                                location.reload(); // simple refresh
+
+                            } else {
+                                Swal.fire('Error', response.message, 'error');
+                            }
+                        },
+
+                        error: function() {
+                            Swal.fire('Error', 'Something went wrong', 'error');
+                        }
+                    });
+
+                }
+
             });
 
         });
