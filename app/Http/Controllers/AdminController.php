@@ -1491,7 +1491,7 @@ class AdminController extends Controller
             ) {
 
                 $business->update([
-                    'is_kyc' => 1,
+                    'is_kyc' => '1',
                 ]);
 
                 DB::commit();

@@ -378,13 +378,15 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
             // Default values if businessInfo is null or missing 'is_kyc' attribute
             $message = 'KYC Not Verified';
             $badge = 'danger';
+            $isKyc = false;
 
             // Check if $businessInfo exists and has the is_kyc attribute
             if ($businessInfo && isset($businessInfo->is_kyc)) {
-            if ($businessInfo->is_kyc == '1') {
-            $message = 'KYC Verified';
-            $badge = 'success';
-            }
+                if ($businessInfo->is_kyc == '1') {
+                    $message = 'KYC Verified';
+                    $badge = 'success';
+                    $isKyc = true;
+                }
             }
             @endphp
             <span class="badge bg-{{ $badge }} text-white" title="{{ $message }}">{{ $message }}</span>
@@ -1318,6 +1320,13 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
     </div>
 </div>
 
+@php
+
+$kycMessage = $businessInfo?->is_kyc == '1' ? 'KYC verified' : 'You will not be able to change the details, once KYC
+verified';
+$kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
+
+@endphp
 
 <!-- Complete Profile Modal  -->
 <div class="modal fade" id="completeProfileModal" tabindex="-1">
@@ -1325,7 +1334,8 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
         <div class="modal-content">
 
             <div class="modal-header">
-                <h5 class="modal-title">Complete Your Profile</h5>
+                <h5 class="modal-title">Complete Your Profile (<small class="{{$kycColor}}">{{$kycMessage}}</small>)
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
@@ -1457,7 +1467,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             <input type="text" class="form-control validate" name="cin_number"
                                 placeholder="e.g. L12345MH2010PLC123456"
                                 pattern="^[LU][0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$" title="Enter valid CIN number"
-                                maxlength="21" value="{{ $businessInfo->cin_no ?? '' }}">
+                                maxlength="21" value="{{ $businessInfo->cin_no ?? '' }}" {{$isKyc ? 'disabled' : ''}}>
                             <span class="error-text">Invalid CIN number</span>
                         </div>
 
@@ -1468,7 +1478,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                 placeholder="e.g. 27AAPFU0939F1ZV" maxlength="15"
                                 pattern="^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$"
                                 title="Enter valid GST number" style="text-transform: uppercase;"
-                                value="{{ $businessInfo->gst_number ?? '' }}">
+                                value="{{ $businessInfo->gst_number ?? '' }}" {{$isKyc ? 'disabled' : ''}}>
                             <span class="error-text">Invalid GST number</span>
                         </div>
 
@@ -1477,7 +1487,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             <input type="text" class="form-control validate" name="business_pan"
                                 placeholder="e.g. AAACC1234A" maxlength="10" pattern="^[A-Z]{5}[0-9]{4}[A-Z]$"
                                 title="Enter valid PAN (AAAAA9999A)" style="text-transform: uppercase;"
-                                value="{{ $businessInfo->business_pan_number ?? '' }}">
+                                value="{{ $businessInfo->business_pan_number ?? '' }}" {{$isKyc ? 'disabled' : ''}}>
                             <span class="error-text">Invalid PAN number</span>
                         </div>
 
@@ -1551,7 +1561,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                    name="business_pan_image">
+                                    name="business_pan_image" {{$isKyc ? 'disabled' : ''}}>
 
                                 @if (!empty($businessInfo->business_pan_image))
                                 <span class="input-group-text" style="cursor:pointer;">
@@ -1572,7 +1582,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                     class="text-danger">*</span></label>
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                    name="registration_certificate_image">
+                                    name="registration_certificate_image" {{$isKyc ? 'disabled' : ''}}>
                                 @if (!empty($businessInfo->registration_certificate_image))
                                 <span class="input-group-text" style="cursor:pointer;">
                                     <i class="fa-solid fa-eye"
@@ -1591,7 +1601,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                     class="text-danger">*</span></label>
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                    name="gst_registration_certificate_image">
+                                    name="gst_registration_certificate_image" {{$isKyc ? 'disabled' : ''}}>
                                 @if (!empty($businessInfo->gst_registration_certificate_image))
                                 <span class="input-group-text" style="cursor:pointer;">
                                     <i class="fa-solid fa-eye"
@@ -1612,7 +1622,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                     class="fas fa-circle-info"></i></label>
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                    name="business_address_proof_image">
+                                    name="business_address_proof_image" {{$isKyc ? 'disabled' : ''}}>
                                 @if (!empty($businessInfo->business_address_proof_image))
                                 <span class="input-group-text" style="cursor:pointer;">
                                     <i class="fa-solid fa-eye"
@@ -1631,7 +1641,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             <label class="form-label">Inside Image<span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                    name="inside_image">
+                                    name="inside_image"> 
                                 @if (!empty($businessInfo->inside_image))
                                 <span class="input-group-text" style="cursor:pointer;">
                                     <i class="fa-solid fa-eye"
@@ -1667,7 +1677,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             <label class="form-label">Signed MOA Image</label>
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                    name="signed_moa_image">
+                                    name="signed_moa_image" {{$isKyc ? 'disabled' : ''}}>
                                 @if (!empty($businessInfo->signed_moa_image))
                                 <span class="input-group-text" style="cursor:pointer;">
                                     <i class="fa-solid fa-eye"
@@ -1685,7 +1695,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             <label class="form-label">Signed AOA Image</label>
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                    name="signed_aoa_image">
+                                    name="signed_aoa_image" {{$isKyc ? 'disabled' : ''}}>
                                 @if (!empty($businessInfo->signed_aoa_image))
                                 <span class="input-group-text" style="cursor:pointer;">
                                     <i class="fa-solid fa-eye"
@@ -1703,7 +1713,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             <label class="form-label">Board Resolution</label>
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                    name="board_resolution">
+                                    name="board_resolution" {{$isKyc ? 'disabled' : ''}}>
                                 @if (!empty($businessInfo->board_resoultion_image))
                                 <span class="input-group-text" style="cursor:pointer;">
                                     <i class="fa-solid fa-eye"
@@ -1721,7 +1731,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             <label class="form-label">Declaration</label>
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                    name="nsdl_declaration">
+                                    name="nsdl_declaration" {{$isKyc ? 'disabled' : ''}}> 
                                 @if (!empty($businessInfo->nsdl_declaration_image))
                                 <span class="input-group-text" style="cursor:pointer;">
                                     <i class="fa-solid fa-eye"
@@ -1787,7 +1797,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                     placeholder="Enter 12-digit Aadhaar Number" name="adhar_number" maxlength="12"
                                     inputmode="numeric" pattern="[0-9]{12}"
                                     oninput="this.value = this.value.replace(/[^0-9]/g, '')" required
-                                    value="{{ $businessInfo->aadhar_number ?? '' }}">
+                                    value="{{ $businessInfo->aadhar_number ?? '' }}" {{$isKyc ? 'disabled' : ''}}>
                                 <span class="error-text">Invalid Aadhaar number</span>
                             </div>
 
@@ -1799,7 +1809,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                     placeholder="Enter PAN Number (ABCDE1234F)" name="pan_number" maxlength="10"
                                     style="text-transform: uppercase;" pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}"
                                     oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '')" required
-                                    value="{{ $businessInfo->pan_number ?? '' }}">
+                                    value="{{ $businessInfo->pan_number ?? '' }}" {{$isKyc ? 'disabled' : ''}}>
                                 <span class="error-text">Invalid Pan number</span>
                             </div>
 
@@ -1809,7 +1819,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                         class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                        name="adhar_front_image">
+                                        name="adhar_front_image" {{$isKyc ? 'disabled' : ''}}>
                                     @if (!empty($businessInfo->aadhar_front_image))
                                     <span class="input-group-text" style="cursor:pointer;">
                                         <i class="fa-solid fa-eye"
@@ -1829,7 +1839,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                         class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                        name="adhar_back_image">
+                                        name="adhar_back_image" {{$isKyc ? 'disabled' : ''}}>
                                     @if (!empty($businessInfo->aadhar_back_image))
                                     <span class="input-group-text" style="cursor:pointer;">
                                         <i class="fa-solid fa-eye"
@@ -1847,7 +1857,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                 <label class="form-label">Individual PAN Card<span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                        name="pan_card_image">
+                                        name="pan_card_image" {{$isKyc ? 'disabled' : ''}}>
 
                                     @if (!empty($businessInfo->pancard_image))
                                     <span class="input-group-text" style="cursor:pointer;">
@@ -1866,7 +1876,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                 <label class="form-label">Individual Photo<span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                        name="individual_photo" id="individual_photo">
+                                        name="individual_photo" id="individual_photo" {{$isKyc ? 'disabled' : ''}}>
                                     @if (!empty($businessInfo->individual_photo))
                                     <span class="input-group-text" style="cursor:pointer;">
                                         <i class="fa-solid fa-eye"
@@ -1892,7 +1902,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                         <div class="col-md-6">
                             <label class="form-label">Account Holder Name<span class="text-danger">*</span></label>
                             <input type="text" class="form-control" placeholder="Enter account holder name"
-                                name="account_holder_name" value="{{ $usersBank->benificiary_name ?? '' }}">
+                                name="account_holder_name" value="{{ $usersBank->benificiary_name ?? '' }}" {{$isKyc ? 'disabled' : ''}}>
                         </div>
 
                         <div class="col-md-6">
@@ -1900,7 +1910,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             <input type="text" class="form-control validated" placeholder="Enter Account Number"
                                 name="account_number" maxlength="18" inputmode="numeric" pattern="[0-9]{9,18}"
                                 oninput="this.value = this.value.replace(/[^0-9]/g, '')" required
-                                value="{{ $usersBank->account_number ?? '' }}">
+                                value="{{ $usersBank->account_number ?? '' }}" {{$isKyc ? 'disabled' : ''}}>
                             <span class="error-text">Invalid Account number</span>
                         </div>
 
@@ -1911,7 +1921,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                 placeholder="Enter IFSC Code" maxlength="11" style="text-transform: uppercase;"
                                 pattern="[A-Z]{4}0[A-Z0-9]{6}"
                                 oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '')" required
-                                value="{{ $usersBank->ifsc_code ?? '' }}">
+                                value="{{ $usersBank->ifsc_code ?? '' }}" {{$isKyc ? 'disabled' : ''}}>
                             <span class="invalid-feedback">Invalid IFSC code</span>
 
                         </div>
@@ -1920,7 +1930,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                         <div class="col-md-6">
                             <label class="form-label">Branch Name<span class="text-danger">*</span></label>
                             <input type="text" class="form-control" placeholder="Enter branch name" name="branch_name"
-                                value="{{ $usersBank->branch_name ?? '' }}">
+                                value="{{ $usersBank->branch_name ?? '' }}" {{$isKyc ? 'disabled' : ''}}>
                         </div>
 
                         <div class="col-md-6">
@@ -1929,7 +1939,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                     Statement/Verification Letter</small> )</label>
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".pdf,.jpg,.jpeg,.png"
-                                    name="bank_docs">
+                                    name="bank_docs" {{$isKyc ? 'disabled' : ''}}>
                                 @if (!empty($usersBank->bank_docs))
                                 <span class="input-group-text" style="cursor:pointer;">
                                     <i class="fa-solid fa-eye"
