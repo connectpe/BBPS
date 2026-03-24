@@ -724,14 +724,15 @@ class UserController extends Controller
     }
 
     public function getServiceProviders(Request $request, $serviceId)
-    {
+    { 
+        // dd($request->all(),$serviceId);
         try {
             $providers = Provider::where('service_id', $serviceId)
                 ->where('is_active', '1')
                 ->select('id', 'provider_name as name', 'provider_slug as slug')
                 ->orderBy('provider_name')
                 ->get();
-
+            // dd($providers);
             return response()->json([
                 'status' => true,
                 'data' => $providers,
