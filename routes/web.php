@@ -121,10 +121,12 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('update-load-money-request', [AdminController::class, 'updateLoadMoneyRequest'])->name('update_load_money_request');        // Complain Report Route
         Route::get('/agreement', [AdminController::class, 'agreementIndex'])->name('add_agreement');
         Route::post('/agreement-store', [AdminController::class, 'storeAgreement'])->name('agreement.store');
+        Route::post('/agreement/delete', [AdminController::class, 'deleteAgreement'])->name('agreement.delete');
         Route::get('/bussiness-category', [AdminController::class, 'bussinessCategory'])->name('business_category');
         Route::post('/bussiness-category/store', [AdminController::class, 'storeBusinessCategory'])->name('business_category.store');
         Route::post('/business-category/status', [AdminController::class, 'updateStatus'])->name('business_category.status');
         Route::post('/business-category/update', [AdminController::class, 'updateBusinessCategory'])->name('business_category.update');
+
 
     });
 });
