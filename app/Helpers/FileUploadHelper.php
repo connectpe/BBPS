@@ -60,20 +60,39 @@ class FileUploadHelper
      * @param string|array|null $files   Stored DB path(s)
      * @return string|array|null
      */
+    // public static function getFilePath($files)
+    // {
+    //     if (!$files) {
+    //         return null;
+    //     }
+
+    //     $storagePath = env('MY_CUSTOM_STORAGE_PATH');
+
+    //     if (is_array($files)) {
+    //         return array_map(function ($file) {
+    //             return asset('storage/' . ltrim($file, '/'));
+    //         }, $files);
+    //     }
+
+
+    //     return asset('storage/' . ltrim($files, '/'));
+    // }
+
     public static function getFilePath($files)
     {
         if (!$files) {
             return null;
         }
 
+        $storagePath = env('MY_CUSTOM_STORAGE_PATH');
 
         if (is_array($files)) {
-            return array_map(function ($file) {
-                return asset('storage/' . ltrim($file, '/'));
+            return array_map(function ($file) use ($storagePath) {
+                //join storagePath and file name 
+                return asset(rtrim($storagePath, '/') . '/' . ltrim($file, '/'));
             }, $files);
         }
 
-
-        return asset('storage/' . ltrim($files, '/'));
+        return asset(rtrim($storagePath, '/') . '/' . ltrim($files, '/'));
     }
 }
