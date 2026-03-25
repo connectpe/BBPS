@@ -124,4 +124,8 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+
+    // for get the file location
+    'file_storage_path' => env('FILE_STORAGE_PATH', 'storage'),
+
 ];
