@@ -17,3 +17,11 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+
+# public folder all file
+/.htaccess
+/assets
+/css
+/favicon.ico
+/index.php
+/robots.txt
