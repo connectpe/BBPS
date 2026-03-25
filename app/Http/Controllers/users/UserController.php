@@ -106,12 +106,14 @@ class UserController extends Controller
         DB::beginTransaction();
         try {
 
+
             $businessData = BusinessInfo::where('user_id', $userId)->first();
             $bankDetail = UsersBank::where('user_id', $userId)->first();
             $user = User::find($userId);
 
             // short function for the image validation check 
-            $requiredIfMissing = fn($existing) => empty($existing) ? 'required|' : 'nullable|';
+            $requiredBasedOnKyc = fn($existing) => $existing === '1' ? 'nullable|' : 'required|';   // check if kyc verified then nullable othewise required,
+            $requiredIfMissing = fn($existing) => empty($existing) ? 'required|' : 'nullable|';    // check if value exists then nullable othewise required,
             $requiredIfMissingOrCondition = fn($existing, $condition) => (empty($existing) && $condition) ? 'required|' : 'nullable|';   // this is for the condtional based
 
             $validator = Validator::make(
@@ -122,9 +124,9 @@ class UserController extends Controller
                     'business_category' => 'required|exists:business_categories,id',
                     'business_type' => 'required|string|max:255|regex:/^(?!.*([.,@-])\1{2,}).*$/|regex:/^[a-zA-Z0-9\s&.,-]+$/',
 
-                    'cin_number' => 'nullable|string|max:50|unique:business_infos,cin_no,' . ($businessData->id ?? 'NULL') . ',id|regex:/^[A-Z]{1}[0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$/i',
-                    'gst_number' => 'required|string|max:50|unique:business_infos,gst_number,' . ($businessData->id ?? 'NULL') . ',id|regex:/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/i',
-                    'business_pan' => 'required|string|max:50|unique:business_infos,business_pan_number,' . ($businessData->id ?? 'NULL') . ',id|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i',
+                    'cin_number' => $requiredBasedOnKyc($businessData->is_kyc ?? '0') . 'string|max:50|unique:business_infos,cin_no,' . ($businessData->id ?? 'NULL') . ',id|regex:/^[A-Z]{1}[0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$/i',
+                    'gst_number' => $requiredBasedOnKyc($businessData->is_kyc ?? '0') . 'string|max:50|unique:business_infos,gst_number,' . ($businessData->id ?? 'NULL') . ',id|regex:/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/i',
+                    'business_pan' => $requiredBasedOnKyc($businessData->is_kyc ?? '0') . 'string|max:50|unique:business_infos,business_pan_number,' . ($businessData->id ?? 'NULL') . ',id|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i',
                     'business_email' => 'required|email|max:255|unique:business_infos,business_email,' . ($businessData->id ?? 'NULL') . ',id',
                     'business_phone' => 'required|string|max:20|unique:business_infos,business_phone,' . ($businessData->id ?? 'NULL') . ',id|regex:/^[6-9]\d{9}$/',
 
@@ -133,22 +135,22 @@ class UserController extends Controller
                     'pincode' => 'required|string|max:10',
                     'business_address' => 'required|string|max:500|regex:/^(?!.*([.,@-])\1{2,}).*$/|regex:/^[a-zA-Z0-9\s&.,-]+$/',
 
-                    'adhar_number' => 'required|string|max:20|regex:/^\d{12}$/|unique:business_infos,aadhar_number,' . ($businessData->id ?? 'NULL') . ',id',
-                    'pan_number' => 'required|string|max:20|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i|unique:business_infos,pan_number,' . ($businessData->id ?? 'NULL') . ',id',
+                    'adhar_number' => $requiredBasedOnKyc($businessData->is_kyc ?? '0') . 'string|max:20|regex:/^\d{12}$/|unique:business_infos,aadhar_number,' . ($businessData->id ?? 'NULL') . ',id',
+                    'pan_number' => $requiredBasedOnKyc($businessData->is_kyc ?? '0') . 'string|max:20|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i|unique:business_infos,pan_number,' . ($businessData->id ?? 'NULL') . ',id',
                     'adhar_front_image' => $requiredIfMissing($businessData->aadhar_front_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
                     'adhar_back_image' => $requiredIfMissing($businessData->aadhar_back_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
                     'pan_card_image' => $requiredIfMissing($businessData->pancard_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
 
-                    'account_holder_name' => 'required|string|max:255|regex:/^(?!.*([.,@-])\1{2,}).*$/|regex:/^[a-zA-Z0-9\s&.,-]+$/',
-                    'account_number' => 'required|string|max:30|unique:users_banks,account_number,' . ($bankDetail->id ?? 'NULL') . ',id',
-                    'ifsc_code' => 'required|string|max:20',
-                    'branch_name' => 'required|string|max:255',
+                    'account_holder_name' => $requiredBasedOnKyc($businessData->is_kyc ?? '0') . 'string|max:255|regex:/^(?!.*([.,@-])\1{2,}).*$/|regex:/^[a-zA-Z0-9\s&.,-]+$/',
+                    'account_number' => $requiredBasedOnKyc($businessData->is_kyc ?? '0') . 'string|max:30|unique:users_banks,account_number,' . ($bankDetail->id ?? 'NULL') . ',id',
+                    'ifsc_code' => $requiredBasedOnKyc($businessData->is_kyc ?? '0') . 'string|max:20',
+                    'branch_name' => $requiredBasedOnKyc($businessData->is_kyc ?? '0') . 'string|max:255',
                     'bank_docs' => $requiredIfMissing($bankDetail->bank_docs ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
 
                     // Added in Later
                     'itr_filled' => 'required|in:1,0',
                     'itr_not_reason' => 'required_if:itr_filled,0|max:300',
-                    'itr_filled_image' => $requiredIfMissingOrCondition($businessData->itr_file_image ?? null, $request->itr_filled == 1)
+                    'itr_filled_image' => $requiredIfMissingOrCondition($businessData->itr_file_image ?? null, $request->itr_filled === '1')
                         . 'file|mimes:jpg,jpeg,png|max:2048',
 
                     'individual_photo' => $requiredIfMissing($businessData->individual_photo ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
@@ -448,13 +450,13 @@ class UserController extends Controller
 
             $data = [
                 'business_name' => $request->business_name,
-                'industry' => $request->industry,
                 'cin_no' => $request->cin_number,
                 'gst_number' => $request->gst_number,
                 'business_pan_number' => $request->business_pan,
                 'business_email' => $request->business_email,
                 'business_phone' => $request->business_phone,
                 'business_type' => $request->business_type,
+                'business_category_id' => $request->business_category,
                 'aadhar_number' => $request->adhar_number,
 
                 'pan_number' => $request->pan_number,
@@ -483,27 +485,52 @@ class UserController extends Controller
                 'board_resoultion_image' => $boardResolutionImage,
                 'nsdl_declaration_image' => $nsdlDocument,
                 'itr_file_image' => $itrFilledImage,
-                'business_category_id' => $request->business_category,
+
             ];
+
+            if ($businessData?->is_kyc === '1') {
+                $removedToElements = [
+                    'cin_no',
+                    'gst_number',
+                    'business_pan_number',
+                    'aadhar_number',
+                    'pan_number',
+                    'aadhar_front_image',
+                    'aadhar_back_image',
+                    'pancard_image',
+                    'individual_photo',
+                    'business_pan_image',
+                    'registration_certificate_image',
+                    'gst_registration_certificate_image',
+                    'business_address_proof_image',
+                    'signed_moa_image',
+                    'signed_aoa_image',
+                    'board_resoultion_image',
+                    'nsdl_declaration_image',
+                ];
+                $data = array_diff_key($data, array_flip($removedToElements));
+            }
 
 
             $businessInfo = BusinessInfo::updateOrCreate([
                 'user_id' => $userId,
             ], $data);
 
-            UsersBank::updateOrCreate(
-                [
-                    'user_id' => $userId,
-                    'business_info_id' => $businessInfo->id,
-                ],
-                [
-                    'benificiary_name' => $request->account_holder_name,
-                    'branch_name' => $request->branch_name,
-                    'account_number' => $request->account_number,
-                    'ifsc_code' => $request->ifsc_code,
-                    'bank_docs' => $bankDocsPath,
-                ]
-            );
+            if ($businessData?->is_kyc === '0') {
+                UsersBank::updateOrCreate(
+                    [
+                        'user_id' => $userId,
+                        'business_info_id' => $businessInfo->id,
+                    ],
+                    [
+                        'benificiary_name' => $request->account_holder_name,
+                        'branch_name' => $request->branch_name,
+                        'account_number' => $request->account_number,
+                        'ifsc_code' => $request->ifsc_code,
+                        'bank_docs' => $bankDocsPath,
+                    ]
+                );
+            }
 
             Cache::store('redis')->forget("profile:{$userId}:userdata");
             Cache::store('redis')->forget("profile:{$userId}:businessInfo");
@@ -724,7 +751,7 @@ class UserController extends Controller
     }
 
     public function getServiceProviders(Request $request, $serviceId)
-    { 
+    {
         // dd($request->all(),$serviceId);
         try {
             $providers = Provider::where('service_id', $serviceId)
