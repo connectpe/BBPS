@@ -87,6 +87,7 @@ class FileUploadHelper
         $storagePath = env('MY_CUSTOM_STORAGE_PATH');
 
         if (is_array($files)) {
+
             return array_map(function ($file) use ($storagePath) {
                 //join storagePath and file name 
                 return asset(rtrim($storagePath, '/') . '/' . ltrim($file, '/'));
