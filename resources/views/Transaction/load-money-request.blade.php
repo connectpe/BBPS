@@ -366,19 +366,18 @@
             },
             {
                 data: 'image_url',
-                render: function (data) {
-                    if (data) {
-                        return `
-                <div class="d-flex align-items-center gap-3">
-                    
-                    <i class="fas fa-eye view-image-btn fs-5" 
-                       data-url="${data}" 
-                       style="cursor: pointer; color: #000;" 
-                       title="Quick View"></i>
-                </div>`;
-                    }
-                    return '<span class="text-muted">No Image</span>';
-                }
+                 render: function(data) {
+                            if (data) {
+                                return `
+            <div class="d-flex align-items-center gap-3">
+                <i class="fas fa-eye view-image-btn" 
+                   data-url="${data}" 
+                   style="cursor: pointer; color: #000; font-size: 18px;" 
+                   title="Quick View"></i>
+            </div>`;
+                            }
+                            return '<span class="text-muted">No Image</span>';
+                        }
             },
             {
                 data: 'remark',
