@@ -185,12 +185,15 @@ class MobiKwikHelper
 
     public function Payment(string $endpoint, $mobile, $operatorId, $circleId, $planId, $amount)
     {
+        DB::beginTransaction();
+
         try {
             $user = Auth::user();
+
             $connectPeId = CommonHelper::generateConnectPeTransactionId();
             $reqId = CommonHelper::generateTransactionId();
             $paymentRefId = CommonHelper::generatePaymentRefId();
-            $userService = (int) 10;
+            $userService = (int) 1;
 
             $payload = [
                 'cn'                  => $mobile,
@@ -209,6 +212,7 @@ class MobiKwikHelper
                 'call'                => 'balance_debit',
             ];
 
+            // Step 1: Create Transaction
             Transaction::create([
                 'user_id'               => $user->id,
                 'operator_id'           => $payload['op'],
@@ -223,19 +227,28 @@ class MobiKwikHelper
                 'connectpe_id'          => $connectPeId,
             ]);
 
+            // Step 2: Debit Wallet via Stored Procedure
             $result = DB::select(
                 "CALL debitAmountFromUserWallet(?, ?, ?, ?)",
                 [
                     $user->id,
-                    $userService,
                     $amount,
+                    $userService,
                     false
                 ]
             );
 
+            if (empty($result) || empty($result[0]->response)) {
+                throw new \Exception("Invalid response from wallet debit procedure");
+            }
+
             $response = json_decode($result[0]->response, true);
 
-            Ladger::create([
+            if (!$response || !isset($response['opening_balance'], $response['remaining_balance'])) {
+                throw new \Exception("Invalid wallet response structure");
+            }
+
+            $ledger = Ladger::create([
                 'reference_no'      => $paymentRefId,
                 'request_id'        => $reqId,
                 'connectpe_id'      => $connectPeId,
@@ -245,23 +258,27 @@ class MobiKwikHelper
                 'txn_type'          => 'dr',
                 'service_id'        => $userService,
                 'opening_balance'   => $response['opening_balance'],
-                'closing_balance'   => $response['remaining_balance'],
+                'closing_balanace'   => $response['remaining_balance'],
                 'remarks'           => "Payment for mobile recharge of ₹$amount to $mobile (Operator ID: $operatorId, Circle ID: $circleId)",
             ]);
 
-
             $token = CommonHelper::isTokenPresent();
+            $apiResponse = $this->sendRequest($endpoint, $payload, $token);
 
-            $response = $this->sendRequest($endpoint, $payload, $token);
-            Cache::store('redis')->forget("profile:{$user->id}:txnStats");
+            Cache::forget("profile:{$user->id}:txnStats");
+
+
+            DB::commit();
+
             return response()->json([
                 'status' => true,
-                'data' => $response,
+                'data' => $apiResponse,
             ]);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'status' => false,
-                'message' => $e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
