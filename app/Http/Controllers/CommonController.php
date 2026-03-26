@@ -972,11 +972,11 @@ class CommonController extends Controller
             print_r($e->getMessage());
             $data = [];
         }
-        if ($request->hasFile('request_image')) {
-            $requestImage = FileUpload::uploadFile($request->request_image, "request_image/$userId", null);
-        } else {
-            $requestImage = null;
-        }
+        // if ($request->hasFile('request_image')) {
+        //     $requestImage = FileUpload::uploadFile($request->request_image, "request_image/$userId", null);
+        // } else {
+        //     $requestImage = null;
+        // }
         if ($request->return == 'all' || $returnType == 'all') {
             $json_data = [
                 'draw' => intval($request['draw']),
