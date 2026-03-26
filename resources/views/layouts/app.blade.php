@@ -325,8 +325,9 @@
             <span class="letter">e</span>
         </div>
         <div class="loader-dots">
-            @for ($i = 0; $i < 5; $i++) <span>.</span>
-                @endfor
+            @for ($i = 0; $i < 5; $i++)
+                <span>.</span>
+            @endfor
 
         </div>
     </div>
@@ -370,7 +371,7 @@
     </div>
 
     <script>
-        window.notify = function (message, type = "danger") {
+        window.notify = function(message, type = "danger") {
 
             let toastEl = document.getElementById('globalToast');
             let toastMsg = document.getElementById('globalToastMessage');
@@ -398,7 +399,7 @@
     </script>
 
     <script>
-        window.addEventListener("load", function () {
+        window.addEventListener("load", function() {
             const loader = document.getElementById("page-loader");
             // Add the hidden class to fade it out
             loader.classList.add("loader-hidden");
@@ -410,9 +411,60 @@
         });
 
         // Also handle Laravel-specific actions (like form submissions)
-        window.addEventListener("beforeunload", function () {
+        window.addEventListener("beforeunload", function() {
             document.getElementById("page-loader").classList.remove("loader-hidden");
             document.getElementById("page-loader").style.display = "flex";
+        });
+    </script>
+
+    <script>
+        $('#clearCacheBtn').on('click', function() {
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "All cache (Laravel + Redis) will be cleared!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, clear it!'
+            }).then((result) => {
+
+                if (result.isConfirmed) {
+
+                    $.ajax({
+                        url: "{{ route('clear_cache') }}",
+                        type: "POST",
+                        data: {
+                            _token: "{{ csrf_token() }}"
+                        },
+                        success: function(res) {
+
+                            if (res.status) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Done!',
+                                    text: res.message,
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                });
+
+                                // Optional reload
+                                setTimeout(() => {
+                                    location.reload();
+                                }, 1500);
+
+                            } else {
+                                Swal.fire('Error', res.message, 'error');
+                            }
+                        },
+                        error: function() {
+                            Swal.fire('Error', 'Something went wrong', 'error');
+                        }
+                    });
+
+                }
+            });
         });
     </script>
 

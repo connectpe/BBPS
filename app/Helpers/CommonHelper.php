@@ -87,7 +87,7 @@ class CommonHelper
             $token = '';
             if (!$data) {
                 $mobikwikHelper = new MobiKwikHelper();
-                $token = $mobikwikHelper->generateMobikwikToken();
+                $token = $mobikwikHelper->generateToken();
             } else {
                 $token = $data->token;
             }
