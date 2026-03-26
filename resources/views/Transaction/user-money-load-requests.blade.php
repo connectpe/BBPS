@@ -106,7 +106,7 @@
                                 <input type="number" class="form-control" name="amount" id="reqAmount" required
                                     min="1" placeholder="Enter amount">
                             </div>
-                          
+
 
                             <div class="col-md-6">
                                 <label class="form-label">UTR No</label>
@@ -126,7 +126,7 @@
                                 </div>
                             </div>
 
-                        
+
 
                             <div class="col-12">
                                 <div class="alert alert-danger d-none" id="reqErrBox"></div>
@@ -206,12 +206,13 @@
                             return meta.row + 1;
                         }
                     },
-                   {
+                    {
                         data: null,
                         render: function(row) {
-                        const userName = row?.user?.name || '----';
-                        const email = row?.user?.email || '----';
-                        return '<span class="fw-semibold">' +userName + '<br/>[' + email + ']' +'</span>';
+                            const userName = row?.user?.name || '----';
+                            const email = row?.user?.email || '----';
+                            return '<span class="fw-semibold">' + userName + '<br/>[' + email +
+                                ']' + '</span>';
                         }
                     },
                     {
@@ -241,7 +242,7 @@
                                 return `<span class="badge bg-warning">Pending</span>`;
                             }
 
-                           return `<span class="badge bg-danger text-capitalize">${data.charAt(0).toUpperCase() + data.slice(1)}</span>`;
+                            return `<span class="badge bg-danger text-capitalize">${data.charAt(0).toUpperCase() + data.slice(1)}</span>`;
                         }
                     },
 
@@ -256,13 +257,12 @@
                         render: function(data) {
                             if (data) {
                                 return `
-                <div class="d-flex align-items-center gap-3">
-                    
-                    <i class="fas fa-eye view-image-btn" 
-                       data-url="${data}" 
-                       style="cursor: pointer; color: #000; font-size: 18px;" 
-                       title="Quick View"></i>
-                </div>`;
+            <div class="d-flex align-items-center gap-3">
+                <i class="fas fa-eye view-image-btn" 
+                   data-url="${data}" 
+                   style="cursor: pointer; color: #000; font-size: 18px;" 
+                   title="Quick View"></i>
+            </div>`;
                             }
                             return '<span class="text-muted">No Image</span>';
                         }
@@ -373,7 +373,7 @@
                         if (xhr.status === 419) {
                             showSwalError('Session Expired',
                                 'Your session has expired. Please refresh the page and try again.'
-                                );
+                            );
                             return;
                         }
                         if (xhr.status === 401) {
