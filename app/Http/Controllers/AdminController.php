@@ -240,7 +240,7 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
@@ -307,7 +307,7 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
@@ -367,7 +367,7 @@ class AdminController extends Controller
             }
 
             $request->validate([
-                'service_name' => 'required|string|max:50|unique:global_services,service_name,'.$serviceId,
+                'service_name' => 'required|string|max:50|unique:global_services,service_name,' . $serviceId,
             ]);
 
             $service = GlobalService::where('id', $serviceId)->first();
@@ -490,7 +490,7 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
 
@@ -540,7 +540,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -551,7 +551,7 @@ class AdminController extends Controller
         $request->validate(
             [
                 'serviceId' => 'required|exists:global_services,id',
-                'providerName' => 'required|string|max:100|unique:providers,provider_name,'.$Id,
+                'providerName' => 'required|string|max:100|unique:providers,provider_name,' . $Id,
             ],
             [
                 'serviceId.required' => 'Please select a service.',
@@ -588,7 +588,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -722,13 +722,13 @@ class AdminController extends Controller
 
                 return response()->json([
                     'status' => false,
-                    'message' => 'Error : '.$e->getMessage(),
+                    'message' => 'Error : ' . $e->getMessage(),
                 ]);
             }
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
@@ -765,7 +765,7 @@ class AdminController extends Controller
         // Validation
         $validator = Validator::make($request->all(), [
 
-            'scheme_name' => 'required|string|max:255|unique:schemes,scheme_name,'.$schemeId,
+            'scheme_name' => 'required|string|max:255|unique:schemes,scheme_name,' . $schemeId,
             'rules' => 'required|array|min:1',
             'rules.*.rule_id' => 'nullable|integer|exists:scheme_rules,id',
             'rules.*.service_id' => 'required|integer|exists:global_services,id',
@@ -898,7 +898,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error: '.$e->getMessage(),
+                'message' => 'Error: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -949,7 +949,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
@@ -984,7 +984,7 @@ class AdminController extends Controller
     public function updateAssignedSchemetoUser(Request $request, $configId)
     {
         $validator = Validator::make($request->all(), [
-            'user_id' => 'required|exists:users,id|unique:user_configs,user_id,'.$configId,
+            'user_id' => 'required|exists:users,id|unique:user_configs,user_id,' . $configId,
             'scheme_id' => 'required|exists:schemes,id',
         ], [
             'user_id.required' => 'User Id is required',
@@ -1058,7 +1058,7 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json(['status' => false, 'message' => 'Error: '.$e->getMessage()], 500);
+            return response()->json(['status' => false, 'message' => 'Error: ' . $e->getMessage()], 500);
         }
     }
 
@@ -1081,7 +1081,7 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json(['status' => false, 'message' => 'Error : '.$e->getMessage()]);
+            return response()->json(['status' => false, 'message' => 'Error : ' . $e->getMessage()]);
         }
     }
 
@@ -1104,7 +1104,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
@@ -1137,7 +1137,7 @@ class AdminController extends Controller
                     'assined_to' => $assignedTo,
                     'updated_by' => $updatedBy,
                 ]);
-                Cache::store('redis')->forget("profile:{$userId}:supportRepresentative");
+                Cache::forget("profile:{$userId}:supportRepresentative");
             }
             DB::commit();
 
@@ -1145,7 +1145,7 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json(['status' => false, 'message' => 'Error: '.$e->getMessage()], 500);
+            return response()->json(['status' => false, 'message' => 'Error: ' . $e->getMessage()], 500);
         }
     }
 
@@ -1161,7 +1161,7 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
@@ -1180,7 +1180,7 @@ class AdminController extends Controller
             }
 
             $userId = $assignment->user_id;
-            Cache::store('redis')->forget("profile:{$userId}:supportRepresentative");
+            Cache::forget("profile:{$userId}:supportRepresentative");
 
             $assignment->delete();
             DB::commit();
@@ -1194,7 +1194,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error: '.$e->getMessage(),
+                'message' => 'Error: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -1259,7 +1259,7 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
@@ -1279,8 +1279,8 @@ class AdminController extends Controller
 
             $request->validate([
                 'name' => 'required|string',
-                'email' => 'required|email|unique:users,email,'.$user_id,
-                'mobile' => 'required|digits:10|unique:users,mobile,'.$user_id,
+                'email' => 'required|email|unique:users,email,' . $user_id,
+                'mobile' => 'required|digits:10|unique:users,mobile,' . $user_id,
 
             ]);
 
@@ -1358,7 +1358,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error: '.$e->getMessage(),
+                'message' => 'Error: ' . $e->getMessage(),
             ]);
         }
     }
@@ -1367,7 +1367,7 @@ class AdminController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            'category_name' => 'required|string|max:50|regex:/^[A-Za-z0-9 _-]+$/|unique:complaints_categories,category_name,'.$Id,
+            'category_name' => 'required|string|max:50|regex:/^[A-Za-z0-9 _-]+$/|unique:complaints_categories,category_name,' . $Id,
         ], [
             'category_name.required' => 'Category name is required.',
             'category_name.string' => 'Category name must be a valid string.',
@@ -1414,7 +1414,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error: '.$e->getMessage(),
+                'message' => 'Error: ' . $e->getMessage(),
             ]);
         }
     }
@@ -1453,7 +1453,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Something went wrong: '.$e->getMessage(),
+                'message' => 'Something went wrong: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -1492,8 +1492,10 @@ class AdminController extends Controller
                 (int) $business->is_bank_details_verify === 1
             ) {
 
+                $status = $business->is_kyc == '1' ? '0' : '1';
+
                 $business->update([
-                    'is_kyc' => '1',
+                    'is_kyc' => $status,
                 ]);
 
                 DB::commit();
@@ -1516,7 +1518,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Something went wrong: '.$e->getMessage(),
+                'message' => 'Something went wrong: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -1560,7 +1562,7 @@ class AdminController extends Controller
             $data = [
                 'service_id' => $request->service_id,
                 'provider_id' => $request->provider_id,
-                'provider_slug' => 'default_'.$provider->provider_slug,
+                'provider_slug' => 'default_' . $provider->provider_slug,
                 'updated_by' => $updatedBy,
             ];
 
@@ -1578,7 +1580,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -1586,7 +1588,7 @@ class AdminController extends Controller
     public function editDefaultProvider(Request $request, $Id)
     {
         $validator = Validator::make($request->all(), [
-            'service_id' => 'required|exists:global_services,id|unique:default_providers,service_id,'.$Id,
+            'service_id' => 'required|exists:global_services,id|unique:default_providers,service_id,' . $Id,
             'provider_id' => 'required|exists:providers,id',
         ]);
 
@@ -1633,7 +1635,7 @@ class AdminController extends Controller
             $data = [
                 'service_id' => $request->service_id,
                 'provider_id' => $request->provider_id,
-                'provider_slug' => 'default_'.$provider->provider_slug,
+                'provider_slug' => 'default_' . $provider->provider_slug,
                 'updated_by' => $updatedBy,
             ];
 
@@ -1651,7 +1653,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
 
             ], 500);
         }
@@ -1666,7 +1668,7 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
@@ -1687,7 +1689,7 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
@@ -1780,7 +1782,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
@@ -1805,7 +1807,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
@@ -1902,7 +1904,7 @@ class AdminController extends Controller
 
         try {
             $file = $request->file('file');
-            $fileName = time().'_'.$file->getClientOriginalName();
+            $fileName = time() . '_' . $file->getClientOriginalName();
             $filePath = $file->storeAs('agreements', $fileName, 'public');
 
             Agreement::create([
@@ -1986,7 +1988,7 @@ class AdminController extends Controller
         try {
             $validated = $request->validate([
                 'category_id' => 'required|exists:business_categories,id',
-                'name' => 'required|string|max:255|unique:business_categories,name,'.$request->category_id,
+                'name' => 'required|string|max:255|unique:business_categories,name,' . $request->category_id,
             ]);
 
             $category = BusinessCategory::findOrFail($validated['category_id']);

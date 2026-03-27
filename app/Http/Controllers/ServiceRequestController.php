@@ -93,7 +93,7 @@ class ServiceRequestController extends Controller
                 'is_active' => '1',
             ]);
 
-            Cache::store('redis')->forget("profile:{$userId}:UserServices");
+            Cache::forget("profile:{$userId}:UserServices");
             DB::commit();
             if ($request->ajax()) {
                 return response()->json([
@@ -137,7 +137,7 @@ class ServiceRequestController extends Controller
 
             $service->status = 'approved';
             $service->save();
-            Cache::store('redis')->forget("profile:{$userId}:UserServices");
+            Cache::forget("profile:{$userId}:UserServices");
 
 
             DB::commit();

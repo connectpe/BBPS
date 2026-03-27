@@ -41,7 +41,7 @@ Route::group(['middleware' => ['logs'], 'prefix' => 'document'], function () {
     // Route::post('verify-gstin',[DocumentVerificationController::class,'verifyGstinNumber'])->name('gstin.verify');
     // Route::post('verify-ifsc',[DocumentVerificationController::class,'verifyIfsc'])->name('verify.ifsc');
     // Route::post('initiate-video-link', [DocumentVerificationController::class, 'initiateVideoKyc'])->name('initiate.video.link');
-    
+
 });
 
 
