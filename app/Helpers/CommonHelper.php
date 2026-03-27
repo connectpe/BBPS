@@ -87,7 +87,7 @@ class CommonHelper
             $token = '';
             if (!$data) {
                 $mobikwikHelper = new MobiKwikHelper();
-                $token = $mobikwikHelper->generateMobikwikToken();
+                $token = $mobikwikHelper->generateToken();
             } else {
                 $token = $data->token;
             }
@@ -184,16 +184,16 @@ class CommonHelper
 
         if ($prefix) {
             if ($separator) {
-                $string = $ts . strtoupper($hash).rand(1,9);
+                $string = $ts . strtoupper($hash) . rand(1, 9);
             } else {
-                $string = $ts . strtoupper($hash).rand(1,9);
+                $string = $ts . strtoupper($hash) . rand(1, 9);
             }
         } else {
             $string = $hash . $ts;
         }
         return $string;
     }
-     
+
     public static function getRandomString($prefix = '', $separator = true, $length = 5)
     {
         $ts = hrtime(true);

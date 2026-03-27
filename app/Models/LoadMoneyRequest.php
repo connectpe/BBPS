@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Facades\FileUpload;
 use Illuminate\Database\Eloquent\Model;
 
 class LoadMoneyRequest extends Model
@@ -17,10 +18,11 @@ class LoadMoneyRequest extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
-
     public function getImageUrlAttribute($value)
     {
-        if (! $value) {return null;}
-        return asset('storage/'.$value);
+        if (! $value) {
+            return null;
+        }
+        return FileUpload::getFilePath($value);
     }
 }

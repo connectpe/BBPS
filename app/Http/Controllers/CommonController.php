@@ -437,7 +437,7 @@ class CommonController extends Controller
                 $request['table'] = '\App\Models\UserAssignedToSupport';
                 $request['searchData'] = ['id'];
                 $request['select'] = 'all';
-                $request['with'] = ['user', 'assigned_support', 'creator'];
+                $request['with'] = ['user','user.business', 'assigned_support', 'creator'];
 
                 $orderIndex = $request->get('order');
 
@@ -972,11 +972,7 @@ class CommonController extends Controller
             print_r($e->getMessage());
             $data = [];
         }
-        if ($request->hasFile('request_image')) {
-            $requestImage = FileUpload::uploadFile($request->request_image, "request_image/$userId", null);
-        } else {
-            $requestImage = null;
-        }
+      
         if ($request->return == 'all' || $returnType == 'all') {
             $json_data = [
                 'draw' => intval($request['draw']),

@@ -516,7 +516,7 @@ class UserController extends Controller
                 'user_id' => $userId,
             ], $data);
 
-            if ($businessData?->is_kyc === '0') {
+            if ($businessData?->is_kyc === '0' || empty($businessData)) {
                 UsersBank::updateOrCreate(
                     [
                         'user_id' => $userId,
@@ -532,9 +532,9 @@ class UserController extends Controller
                 );
             }
 
-            Cache::store('redis')->forget("profile:{$userId}:userdata");
-            Cache::store('redis')->forget("profile:{$userId}:businessInfo");
-            Cache::store('redis')->forget("profile:{$userId}:usersBank");
+            Cache::forget("profile:{$userId}:userdata");
+            Cache::forget("profile:{$userId}:businessInfo");
+            Cache::forget("profile:{$userId}:usersBank");
 
             DB::commit();
 
@@ -614,7 +614,7 @@ class UserController extends Controller
                 'client_secret' => $encryptedSecret,
                 'is_active' => '1',
             ]);
-            Cache::store('redis')->forget("profile:{$userId}:saltKeys");
+            Cache::forget("profile:{$userId}:saltKeys");
             DB::commit();
 
             return response()->json([
@@ -1199,7 +1199,7 @@ class UserController extends Controller
                 ['url' => $request->url, 'updated_by' => $userId]
             );
 
-            Cache::store('redis')->forget("profile:{$userId}:webhookUrl");
+            Cache::forget("profile:{$userId}:webhookUrl");
             DB::commit();
 
             return response()->json([
