@@ -26,6 +26,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Str;
 
 class AdminController extends Controller
@@ -2021,6 +2023,7 @@ class AdminController extends Controller
                 \Storage::disk('public')->delete($agreement->file_path);
             }
             $agreement->delete();
+
             return response()->json([
                 'status' => true,
                 'message' => 'Agreement deleted successfully.',
@@ -2029,6 +2032,30 @@ class AdminController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Failed to delete agreement.',
+            ], 500);
+        }
+    }
+
+    public function clearCache()
+    {
+        try {
+            // Laravel caches
+            Artisan::call('cache:clear');
+            Artisan::call('config:clear');
+            Artisan::call('route:clear');
+            Artisan::call('view:clear');
+
+            // Redis cache
+            Redis::flushall();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'All caches cleared successfully',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
             ], 500);
         }
     }

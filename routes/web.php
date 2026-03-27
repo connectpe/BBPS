@@ -27,7 +27,7 @@ Route::get('test-redis', function () {
 Route::get('/', [HomeController::class, 'loginRedirect'])->name('home');
 Route::get('/dashboard', [AdminController::class, 'dashboard'])->middleware('auth')->name('dashboard');
 
-
+Route::post('/clear-cache', [AdminController::class, 'clearCache'])->name('clear_cache');
 
 
 Route::post('admin/login', [AuthController::class, 'login'])->name('admin.login');

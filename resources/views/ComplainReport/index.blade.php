@@ -329,20 +329,21 @@
                         return formatDateTime(data)
                     }
                 },
-                {
-                    data: 'attachment_file',
-                    render: function(data, type) {
-                        if (type !== 'display' || !data) {
-                            return '----';
-                        }
-                        const src = "{{ asset('storage/') }}/" + data;
-                        return `
-                            <i class="fas fa-eye cursor-pointer"
-                            onclick="showImage('${src}', 'Attachment File')">
-                            </i>
-                        `;
-                    }
-                },
+               {
+    data: 'attachment_file',
+    render: function (data, type) {
+
+        if (type !== 'display' || !data) {
+            return '----';
+        }
+
+        return `
+            <i class="fas fa-eye cursor-pointer"
+            onclick="showImage('${data}', 'Attachment File')">
+            </i>
+        `;
+    }
+},
                 {
                     data: 'status',
                     render: function(data, type, row) {
