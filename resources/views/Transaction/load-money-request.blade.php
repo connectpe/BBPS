@@ -128,19 +128,6 @@
     </div>
 </div>
 
-<div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Image Preview</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-center">
-                <img src="" id="modalPreviewImage" class="img-fluid rounded" alt="Preview">
-            </div>
-        </div>
-    </div>
-</div>
 
 <script>
 
@@ -365,20 +352,20 @@
                 }
             },
             {
-                data: 'image_url',
-                 render: function(data) {
+                        data: 'image_url',
+                        render: function(data) {
                             if (data) {
-                                return `
-            <div class="d-flex align-items-center gap-3">
-                <i class="fas fa-eye view-image-btn" 
-                   data-url="${data}" 
-                   style="cursor: pointer; color: #000; font-size: 18px;" 
-                   title="Quick View"></i>
-            </div>`;
-                            }
+                                    return `
+                                        <div class="d-flex align-items-center gap-3">
+                                            <i class="fas fa-eye" 
+                                            onclick="showImage('${data}','Load Money Image')"  
+                                            style="cursor: pointer; color: #000; font-size: 18px;" 
+                                            title="Load Money Image"></i>
+                                        </div>`;
+                                }
                             return '<span class="text-muted">No Image</span>';
                         }
-            },
+                    },
             {
                 data: 'remark',
                 render: function (data) {
@@ -413,13 +400,6 @@
 
 </script>
 
-<script>
-    $(document).on('click', '.view-image-btn', function () {
-        let imageUrl = $(this).data('url');
-        $('#modalPreviewImage').attr('src', imageUrl);
-        var myModal = new bootstrap.Modal(document.getElementById('imagePreviewModal'));
-        myModal.show();
-    });
-</script>
+
 
 @endsection

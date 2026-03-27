@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Facades\FileUpload;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -48,5 +49,14 @@ class Complaint extends Model
     public function category()
     {
         return $this->belongsTo(ComplaintsCategory::class, 'complaints_category');
+    }
+
+    public function getAttachmentFileAttribute($value)
+    {
+        if (! $value) {
+            return null;
+        }
+
+        return FileUpload::getFilePath($value);
     }
 }
