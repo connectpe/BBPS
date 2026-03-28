@@ -21,13 +21,15 @@
         <h5 class="text-center mb-4">USER PANEL </h5>
     @endif --}}
     @if ($role == 1)
-        <h5 class="text-center mb-4">ADMIN PANEL</h5>
+        <h5 class="text-center">
+            <img src="{{ asset('assets/image/Logo/sidebar-logo.png') }}" alt="Logo" class="img-fluid" >
+        </h5>
     @elseif ($role == 2)
-        <h5 class="text-center mb-4">USER PANEL</h5>
+        <h5 class="text-center"><img src="{{ asset('assets/image/Logo/sidebar-logo.png') }}" alt="Logo" class="img-fluid" ></h5>
     @elseif ($role == 3)
-        <h5 class="text-center mb-4">API PARTNER</h5>
+        <h5 class="text-center"><img src="{{ asset('assets/image/Logo/sidebar-logo.png') }}" alt="Logo" class="img-fluid" ></h5>
     @elseif ($role == 4)
-        <h5 class="text-center mb-4">SUPPORT PANEL</h5>
+        <h5 class="text-center"><img src="{{ asset('assets/image/Logo/sidebar-logo.png') }}" alt="Logo" class="img-fluid" ></h5>
     @endif
 
 
