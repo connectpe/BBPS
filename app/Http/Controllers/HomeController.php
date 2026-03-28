@@ -21,14 +21,26 @@ class HomeController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error : ' . $e->getMessage(),
+                'message' => 'Error : '.$e->getMessage(),
             ]);
         }
     }
 
+    // public function loginRedirect()
+    // {
+    //     if (Auth::check()) {
+    //         return redirect()->route('dashboard');
+    //     }
+    //     return view('Front.user-register');
+    // }
+
     public function loginRedirect()
     {
         if (Auth::check()) {
+            $maintenance = \App\Models\Maintenance::first();
+            if ($maintenance && $maintenance->status == '1') {
+                return redirect()->route('user_maintenance_mode');
+            }
             return redirect()->route('dashboard');
         }
         return view('Front.user-register');

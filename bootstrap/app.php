@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->append(\App\Http\Middleware\MaintenanceMode::class);
         $middleware->alias([
             'auth' => App\Http\Middleware\Authenticate::class,
             'logs' => App\Http\Middleware\ApiActivityLog::class,
@@ -24,6 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'isAdmin' => App\Http\Middleware\IsAdmin::class,
             'isReseller' => \App\Http\Middleware\IsReseller::class,
             'isSupport' => \App\Http\Middleware\IsSupport::class,
+            
 
         ]);
     })
