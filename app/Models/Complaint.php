@@ -56,7 +56,6 @@ class Complaint extends Model
         if (! $value) {
             return null;
         }
-
         return FileUpload::getFilePath($value);
     }
 }

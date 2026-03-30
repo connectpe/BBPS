@@ -22,6 +22,10 @@ class OauthUser extends Model
         return $this->hasOne(GlobalService::class, 'id', 'service_id');
     }
 
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
+
     /**
      * Verify client secret
      * 
