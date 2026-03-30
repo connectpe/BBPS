@@ -425,9 +425,9 @@
                 text: "All cache (Laravel + Redis) will be cleared!",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Yes, clear it!'
+               confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes'
             }).then((result) => {
 
                 if (result.isConfirmed) {

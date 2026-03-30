@@ -2285,12 +2285,6 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                 </div>
 
                 <div class="modal-body">
-                    {{-- <select class="form-select" name="service" id="service" required>
-                        <option value="">-- Select Service --</option>
-                        @foreach ($UserServices as $userService)
-                        <option value="{{ $userService->slug }}">{{ $userService->service_name }}</option>
-                        @endforeach
-                    </select> --}}
                     <select class="form-select form-select2" name="service" id="service" required>
                         <option value="">-- Select Service --</option>
                         @foreach ($UserServices as $userService)
@@ -3273,7 +3267,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, proceed!'
+                confirmButtonText: 'Yes'
             }).then((result) => {
                 if (result.isConfirmed) {
 
@@ -3323,9 +3317,9 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                 text: "This IP will be removed from your whitelist!",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete it!',
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes',
                 cancelButtonText: 'Cancel'
             }).then((result) => {
                 if (result.isConfirmed) {
