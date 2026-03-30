@@ -1712,20 +1712,26 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                         <div class="col-md-6">
                             <label class="form-label">Board Resolution</label>
                             <div class="input-group">
-                                <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                    name="board_resolution" {{$isKyc ? 'disabled' : ''}}>
-                                @if (!empty($businessInfo->board_resoultion_image))
-                                <span class="input-group-text" style="cursor:pointer;">
-                                    <i class="fa-solid fa-eye"
-                                        onclick="showImage('{{ FileUpload::getFilePath($businessInfo->board_resoultion_image) }}','Board Resolution')"></i>
-                                </span>
-                                @else
-                                <span class="input-group-text">
-                                    <i class="fa-solid fa-eye-slash"></i>
-                                </span>
-                                @endif
+                                <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png" name="board_resolution" {{ $isKyc ? 'disabled' : '' }}>
+                                    @if (!empty($businessInfo->board_resoultion_image))
+                                        <span class="input-group-text" style="cursor:pointer;" title="Preview">
+                                            <i class="fa-solid fa-eye"
+                                                onclick="showImage('{{ FileUpload::getFilePath($businessInfo->board_resoultion_image) }}','Board Resolution')"></i>
+                                        </span>
+                                        <a href="{{ FileUpload::getFilePath($businessInfo->board_resoultion_image) }}"
+                                            download="Board_Resolution_{{ $businessInfo->user_id }}"
+                                            class="input-group-text btn-light"
+                                            style="text-decoration: none; color: inherit;" title="Download">
+                                            <i class="fa-solid fa-download"></i>
+                                        </a>
+                                    @else
+                                        <span class="input-group-text">
+                                            <i class="fa-solid fa-eye-slash"></i>
+                                        </span>
+                                    @endif
                             </div>
                         </div>
+                        
 
                         <div class="col-md-6">
                             <label class="form-label">Declaration</label>
@@ -1737,6 +1743,10 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                                     <i class="fa-solid fa-eye"
                                         onclick="showImage('{{ FileUpload::getFilePath($businessInfo->nsdl_declaration_image) }}','Declaration')"></i>
                                 </span>
+                                <a href="{{ FileUpload::getFilePath($businessInfo->nsdl_declaration_image) }}" download="Declaration_{{ $businessInfo->user_id ?? 'file' }}" class="input-group-text btn-light" 
+                                    style="text-decoration: none; color: inherit;" title="Download Declaration">
+                                    <i class="fa-solid fa-download"></i>
+                                </a>
                                 @else
                                 <span class="input-group-text">
                                     <i class="fa-solid fa-eye-slash"></i>

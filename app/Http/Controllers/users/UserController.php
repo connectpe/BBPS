@@ -1496,4 +1496,9 @@ class UserController extends Controller
         $agreements = Agreement::where('status', '1')->latest()->get();
         return view('Agreement.index', compact('agreements'));
     }
+
+    public function userMaintenanceMode()
+    {
+        return view('Maintenance.maintenance');
+    }
 }

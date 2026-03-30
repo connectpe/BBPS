@@ -127,6 +127,9 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/business-category/status', [AdminController::class, 'updateStatus'])->name('business_category.status');
         Route::post('/business-category/update', [AdminController::class, 'updateBusinessCategory'])->name('business_category.update');
 
+        Route::get('/maintenance-mode', [AdminController::class, 'maintenance'])->name('maintenance_mode');
+        Route::post('/maintenance-mode/update', [AdminController::class, 'maintenanceMode'])->name('update_maintenance_mode');
+
 
     });
 });
@@ -183,6 +186,8 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
     // Load Money Request 
     Route::get('/load-money-request', [TransactionController::class, 'userMoneyLoadRequests'])->name('user_load_money_request');
     Route::post('add-load-money-request', [UserController::class, 'addMoneyRequest'])->name('add_load_money_request');
+
+   
 });
 
 
@@ -259,6 +264,8 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'api-partner'], function () 
 Route::group(['middleware' => ['auth', 'isSupport'], 'prefix' => 'support'], function () {
     Route::get('/dashboard', [HomeController::class, 'supportdashboard'])->name('support.dashboard');
 });
+
+ Route::get('/maintenance-mode', [UserController::class, 'userMaintenanceMode'])->name('user_maintenance_mode');
 
 
 Route::prefix('admin', function () {

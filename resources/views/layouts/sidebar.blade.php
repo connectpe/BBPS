@@ -21,13 +21,15 @@
         <h5 class="text-center mb-4">USER PANEL </h5>
     @endif --}}
     @if ($role == 1)
-        <h5 class="text-center mb-4">ADMIN PANEL</h5>
+        <h5 class="text-center">
+            <img src="{{ asset('assets/image/Logo/sidebar-logo.png') }}" alt="Logo" class="img-fluid" >
+        </h5>
     @elseif ($role == 2)
-        <h5 class="text-center mb-4">USER PANEL</h5>
+        <h5 class="text-center"><img src="{{ asset('assets/image/Logo/sidebar-logo.png') }}" alt="Logo" class="img-fluid" ></h5>
     @elseif ($role == 3)
-        <h5 class="text-center mb-4">API PARTNER</h5>
+        <h5 class="text-center"><img src="{{ asset('assets/image/Logo/sidebar-logo.png') }}" alt="Logo" class="img-fluid" ></h5>
     @elseif ($role == 4)
-        <h5 class="text-center mb-4">SUPPORT PANEL</h5>
+        <h5 class="text-center"><img src="{{ asset('assets/image/Logo/sidebar-logo.png') }}" alt="Logo" class="img-fluid" ></h5>
     @endif
 
 
@@ -53,7 +55,13 @@
                 <ul class="nav nav-pills flex-column mb-auto">
 
                     @php
-                        $userRoute = ['users', 'view_user', 'request_services', 'support_details','load_money_request'];
+                        $userRoute = [
+                            'users',
+                            'view_user',
+                            'request_services',
+                            'support_details',
+                            'load_money_request',
+                        ];
                         $userActive = in_array(Route::currentRouteName(), $userRoute);
                     @endphp
 
@@ -119,7 +127,13 @@
                 <ul class="nav nav-pills flex-column mb-auto">
 
                     @php
-                        $transactionRoute = ['reports/recharge', 'reports/utility', 'reports/banking', 'reports','payout_transaction'];
+                        $transactionRoute = [
+                            'reports/recharge',
+                            'reports/utility',
+                            'reports/banking',
+                            'reports',
+                            'payout_transaction',
+                        ];
                         $servicesActive = in_array(Route::currentRouteName(), $transactionRoute);
                     @endphp
 
@@ -212,7 +226,13 @@
             <li class="nav-item mt-2">
                 <ul class="nav nav-pills flex-column mb-auto">
                     @php
-                        $masterRoute = ['our_servicess', 'providers', 'categories.index', 'defaultslug','business_category'];
+                        $masterRoute = [
+                            'our_servicess',
+                            'providers',
+                            'categories.index',
+                            'defaultslug',
+                            'business_category',
+                        ];
                         $masterActive = in_array(Route::currentRouteName(), $masterRoute);
                     @endphp
 
@@ -312,6 +332,13 @@
                     class="nav-link text-white {{ Route::currentRouteName() == 'add_agreement' ? 'sidebar-active' : '' }}">
                     <i class="bi bi-file-earmark-arrow-up me-2"></i>
                     Documents Upload
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('maintenance_mode') }}"
+                    class="nav-link text-white {{ Route::currentRouteName() == 'maintenance_mode' ? 'sidebar-active' : '' }}">
+                    <i class="bi bi-tools me-2"></i>
+                    Maintenance Mode
                 </a>
             </li>
 
