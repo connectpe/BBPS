@@ -3340,7 +3340,6 @@ verified';
                 });
             });
 
-
             $(document).on('change', '.status-toggle', function() {
                 let checkbox = $(this);
                 let id = checkbox.data('id');
@@ -3447,6 +3446,17 @@ verified';
 
     <script>
         $(document).ready(function() {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This IP will be removed from your whitelist!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
 
             if ($('#changeMpinForm').length > 0) {
                 $('#changeMpinForm').on('submit', function(e) {

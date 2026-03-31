@@ -102,20 +102,20 @@
                         <div class="row g-3">
 
                             <div class="col-md-6">
-                                <label class="form-label">Amount</label>
+                                <label class="form-label">Amount<span class="text-danger">*</span></label>
                                 <input type="number" class="form-control" name="amount" id="reqAmount" required
                                     min="1" placeholder="Enter amount">
                             </div>
 
 
                             <div class="col-md-6">
-                                <label class="form-label">UTR No</label>
+                                <label class="form-label">UTR No<span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" name="utr_no" id="reqUtr" required
                                     placeholder="Enter UTR no">
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label">Image</label>
+                                <label class="form-label">Image<span class="text-danger">*</span></label>
                                 <input type="file" class="form-control" name="request_image" id="reqImage"
                                     accept="image/*" required>
                                 <small class="text-muted">jpg, jpeg, png (max 2MB)</small>

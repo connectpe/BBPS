@@ -139,8 +139,8 @@
                 <div class="modal-body">
                     <div class="row g-3">
                         <div class="col-md-12">
-                            <label for="service_name">Service Name</label>
-                            <input type="text" class="form-control" name="service_name" id="service_name"
+                            <label for="service_name">Service Name<span class="text-danger">*</span></label>
+                            <input type="text" class="form-control my-1" name="service_name" id="service_name"
                                 value="{{ old('service_name') }}" placeholder="Service Name">
                         </div>
                     </div>

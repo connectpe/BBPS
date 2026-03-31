@@ -272,8 +272,10 @@
                     text: 'Do you want to change status?',
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonText: 'Yes, change it!',
-                    cancelButtonText: 'Cancel'
+                    confirmButtonText: 'Yes',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({

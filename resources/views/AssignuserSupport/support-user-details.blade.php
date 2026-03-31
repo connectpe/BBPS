@@ -46,20 +46,24 @@
                 </div>
                 <div class="modal-body">
                     <div id="errorBox" class="alert alert-danger" style="display:none;"></div>
-                    <div class="form-group mb-2"><label>Full Name</label><input type="text" name="name"
-                            class="form-control" required placeholder="Full Name"></div>
-                    <div class="form-group mb-2"><label>Email Address</label><input type="email" name="email"
-                            class="form-control" required placeholder="Email Address"></div>
-                    <div class="form-group mb-2"><label>Mobile Number</label><input type="text" name="mobile"
-                            class="form-control" maxlength="10" required placeholder="Mobile Number"></div>
+                    <div class="form-group mb-2"><label>Full Name<span class="text-danger">*</span></label><input
+                            type="text" name="name" class="form-control" required placeholder="Full Name"></div>
+                    <div class="form-group mb-2"><label>Email Address<span class="text-danger">*</span></label><input
+                            type="email" name="email" class="form-control" required placeholder="Email Address"></div>
+                    <div class="form-group mb-2"><label>Mobile Number<span class="text-danger">*</span></label><input
+                            type="text" name="mobile" class="form-control" maxlength="10" required
+                            placeholder="Mobile Number"></div>
                     <div class="row">
                         <div class="col-md-6">
-                            <div class="form-group mb-2"><label>Password</label><input type="password" name="password"
-                                    class="form-control" required placeholder="Password"></div>
+                            <div class="form-group mb-2"><label>Password<span class="text-danger">*</span></label><input
+                                    type="password" name="password" class="form-control" required
+                                    placeholder="Password"></div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group mb-2"><label>Confirm Password</label><input type="password"
-                                    name="password_confirmation" class="form-control" required placeholder="Confirm Password"></div>
+                            <div class="form-group mb-2"><label>Confirm Password<span
+                                        class="text-danger">*</span></label><input type="password"
+                                    name="password_confirmation" class="form-control" required
+                                    placeholder="Confirm Password"></div>
                         </div>
                     </div>
                 </div>
@@ -86,8 +90,8 @@
                 </div>
                 <div class="modal-body">
                     <div id="editErrorBox" class="alert alert-danger" style="display:none;"></div>
-                    <div class="form-group mb-2"><label>Full Name</label><input type="text" name="name"
-                            id="edit_name" class="form-control" required placeholder="Full Name"></div>
+                    <div class="form-group mb-2"><label>Full Name</label><input type="text" name="name" id="edit_name"
+                            class="form-control" required placeholder="Full Name"></div>
                     <div class="form-group mb-2"><label>Email Address</label><input type="email" name="email"
                             id="edit_email" class="form-control" required placeholder="Email Address"></div>
                     <div class="form-group mb-2"><label>Mobile Number</label><input type="text" name="mobile"
@@ -104,7 +108,7 @@
 </div>
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         var table = $('#supportTableServerSide').DataTable({
             processing: true,
             serverSide: true,
@@ -118,60 +122,60 @@
             ajax: {
                 url: "{{ url('fetch/support-user-list-server') }}",
                 type: 'POST',
-                data: function(d) {
+                data: function (d) {
                     d._token = "{{ csrf_token() }}";
                 },
             },
             columns: [{
-                    data: null,
-                    orderable: false,
-                    searchable: false,
-                    render: function(data, type, row, meta) {
-                        return meta.settings._iDisplayStart + meta.row + 1;
-                    }
-                },
-                // {
-                //     data: 'name',
-                //     name: 'name'
-                // },
-                {
-                    data: null,
-                    render: function(data, type, row) {
-                        let url = "{{ route('support_based_user_list', ['id' => ':id']) }}".replace(':id', row.id);
-                        const userName = row?.name;
-                        return `
+                data: null,
+                orderable: false,
+                searchable: false,
+                render: function (data, type, row, meta) {
+                    return meta.settings._iDisplayStart + meta.row + 1;
+                }
+            },
+            // {
+            //     data: 'name',
+            //     name: 'name'
+            // },
+            {
+                data: null,
+                render: function (data, type, row) {
+                    let url = "{{ route('support_based_user_list', ['id' => ':id']) }}".replace(':id', row.id);
+                    const userName = row?.name;
+                    return `
                                 <a href="${url}" class="text-primary fw-semibold text-decoration-none">
                                     ${userName ?? '----'} <br/>
                                 </a>
                             `;
-                    }
-                },
-                {
-                    data: 'email',
-                    name: 'email'
-                },
-                {
-                    data: 'mobile',
-                    name: 'mobile'
-                },
-                {
-                    data: 'created_at',
-                    render: d => formatDateTime(d)
-                },
-                {
-                    data: null,
-                    orderable: false,
-                    render: r =>
-                        `
-                        <button class="btn btn-sm btn-primary editSupport" data-id="${r.id}"><i class="fa fa-edit"></i></button>`
                 }
+            },
+            {
+                data: 'email',
+                name: 'email'
+            },
+            {
+                data: 'mobile',
+                name: 'mobile'
+            },
+            {
+                data: 'created_at',
+                render: d => formatDateTime(d)
+            },
+            {
+                data: null,
+                orderable: false,
+                render: r =>
+                    `
+                        <button class="btn btn-sm btn-primary editSupport" data-id="${r.id}"><i class="fa fa-edit"></i></button>`
+            }
             ]
         });
 
-        $(document).on('click', '.editSupport', function() {
+        $(document).on('click', '.editSupport', function () {
             let id = $(this).data('id');
             $('#editErrorBox').hide();
-            $.get("{{ route('get.support.member',['id' => ':id']) }}".replace(':id', id), function(res) {
+            $.get("{{ route('get.support.member',['id' => ':id']) }}".replace(':id', id), function (res) {
                 if (res.status) {
                     $('#edit_user_id').val(res.data.id);
                     $('#edit_name').val(res.data.name);
@@ -182,7 +186,7 @@
             });
         });
 
-        $('#editSupportForm').on('submit', function(e) {
+        $('#editSupportForm').on('submit', function (e) {
             e.preventDefault();
             let id = $('#edit_user_id').val();
             let $btn = $('#editBtnSubmit');
@@ -197,7 +201,7 @@
                 headers: {
                     'Accept': 'application/json'
                 },
-                success: function(res) {
+                success: function (res) {
                     $btn.prop('disabled', false).text('Update Member');
                     if (res.status) {
                         Swal.fire({
@@ -214,14 +218,14 @@
                         $errorBox.html(res.message).show();
                     }
                 },
-                error: function(xhr) {
+                error: function (xhr) {
                     $btn.prop('disabled', false).text('Update Member');
 
                     if (xhr.status === 422) {
 
                         let errors = xhr.responseJSON.errors;
                         let errorHtml = '<ul>';
-                        $.each(errors, function(key, value) {
+                        $.each(errors, function (key, value) {
                             errorHtml += '<li>' + value[0] + '</li>';
                         });
                         errorHtml += '</ul>';
@@ -234,7 +238,7 @@
             });
         });
 
-        $('#addSupportForm').on('submit', function(e) {
+        $('#addSupportForm').on('submit', function (e) {
             e.preventDefault();
             let $btn = $('#btnSubmit');
             $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Saving...');
@@ -242,7 +246,7 @@
                 url: "{{ route('add.support.member') }}",
                 type: "POST",
                 data: $(this).serialize(),
-                success: function(res) {
+                success: function (res) {
                     $btn.prop('disabled', false).text('Save Support User');
                     if (res.status) {
                         Swal.fire({
@@ -257,7 +261,7 @@
                         table.ajax.reload();
                     }
                 },
-                error: function(xhr) {
+                error: function (xhr) {
                     $btn.prop('disabled', false).text('Save Support User');
                     if (xhr.status === 422) {
                         $('#errorBox').html(Object.values(xhr.responseJSON.errors).flat()

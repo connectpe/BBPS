@@ -242,11 +242,12 @@ class MobiKwikHelper
                 throw new \Exception("Invalid response from wallet debit procedure");
             }
 
-            $response = json_decode($result[0]->response, true);
+            $walletResponse = json_decode($result[0]->response, true);
 
-            if (!$response || !isset($response['opening_balance'], $response['remaining_balance'])) {
-                throw new \Exception("Invalid wallet response structure");
+            if (!$walletResponse || ($walletResponse['success'] ?? false) == false) {
+                throw new \Exception($walletResponse['message'] ?? 'Internal Wallet Error');
             }
+
 
             $ledger = Ladger::create([
                 'reference_no'      => $paymentRefId,
@@ -257,8 +258,8 @@ class MobiKwikHelper
                 'txn_date'          => now(),
                 'txn_type'          => 'dr',
                 'service_id'        => $userService,
-                'opening_balance'   => $response['opening_balance'],
-                'closing_balanace'   => $response['remaining_balance'],
+                'opening_balance'   => $walletResponse['opening_balance'],
+                'closing_balanace'   => $walletResponse['remaining_balance'],
                 'remarks'           => "Payment for mobile recharge of ₹$amount to $mobile (Operator ID: $operatorId, Circle ID: $circleId)",
             ]);
 
@@ -276,6 +277,12 @@ class MobiKwikHelper
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
+
+            Log::error('MPIN Recharge Payment Error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
             return response()->json([
                 'status' => false,
                 'message' => 'Error : ' . $e->getMessage(),

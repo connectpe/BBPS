@@ -32,7 +32,7 @@
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, change it!"
+            confirmButtonText: "Yes"
         }).then((result) => {
             if (result.isConfirmed) {
                 // Backend API Call

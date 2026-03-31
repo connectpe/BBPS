@@ -101,7 +101,7 @@
                     <div class="modal-body">
                         <div class="row mb-4">
                             <div class="col-md-8">
-                                <label class="fw-bold">Scheme Name:</label>
+                                <label class="fw-bold">Scheme Name<span class="text-danger">*</span> :</label>
                                 <input type="text" name="scheme_name" id="scheme_name" class="form-control shadow-none"
                                     placeholder="Enter scheme name" required>
                             </div>
@@ -153,7 +153,7 @@
                     <div class="modal-body">
                         <div class="row mb-3 g-3">
                             <div class="col-md-12">
-                                <label class="fw-bold small">Select User *</label>
+                                <label class="fw-bold small">Select User <span class="text-danger">*</span></label>
                                 <select name="user_id" id="user_search" class="form-control form-select2" required>
                                     <option value="">-- Select User --</option>
                                     @foreach ($users as $user)
@@ -165,7 +165,7 @@
                                 </select>
                             </div>
                             <div class="col-md-12">
-                                <label class="fw-bold small">Select Scheme *</label>
+                                <label class="fw-bold small">Select Scheme <span class="text-danger">*</span></label>
                                 <select name="scheme_id" id="scheme_search" class="form-control form-select2" required>
                                     <option value="">-- Select Scheme --</option>
                                     @foreach ($schemes as $scheme)
@@ -513,7 +513,9 @@
                     title: 'Are you sure?',
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonText: 'Yes, delete it!'
+                    confirmButtonText: 'Yes',
+                    confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
                 }).then((result) => {
                     if (result.isConfirmed) {
 

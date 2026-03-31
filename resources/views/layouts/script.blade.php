@@ -189,7 +189,7 @@
                 text: 'Do you want to raise this service request?',
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonText: 'Yes, Send',
+                confirmButtonText: 'Yes',
                 cancelButtonText: 'Cancel'
             }).then((result) => {
                 if (result.isConfirmed) {
@@ -232,7 +232,7 @@
                 text: 'Do you want to activate this service?',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonText: 'Yes, Activate',
+                confirmButtonText: 'Yes',
                 cancelButtonText: 'Cancel'
             }).then((result) => {
                 if (result.isConfirmed) {
