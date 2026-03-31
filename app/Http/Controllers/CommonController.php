@@ -868,6 +868,61 @@ class CommonController extends Controller
                 $request['parentData'] = 'all';
                 break;
 
+            case 'upi-callback':
+                $request['table'] = '\App\Models\UpiCallback';
+                $request['searchData'] = ['txn_id', 'txn_order_id', 'utr', 'status', 'message', 'amount', 'created_at'];
+                $request['select'] = 'all';
+                $request['with'] = ['user'];
+                $orderIndex = $request->get('order');
+                if (isset($orderIndex) && count($orderIndex)) {
+                    $columnsIndex = $request->get('columns');
+                    $columnIndex = $orderIndex[0]['column'];
+                    $columnName = $columnsIndex[$columnIndex]['data'] ?? 'id';
+                    $columnSortOrder = $orderIndex[0]['dir'] ?? 'DESC';
+                    if ($columnName == '0' || empty($columnName)) {
+                         $columnName = 'id';
+                         $columnSortOrder = 'DESC';
+                    }
+                    $request['order'] = [$columnName, strtoupper($columnSortOrder)];
+                } else {
+                    $request['order'] = ['id', 'DESC'];
+                }
+                if (Auth::user()->role_id == '1') {
+                    $request['parentData'] = 'all';
+                } else {
+                    $request['whereIn'] = 'updated_by';
+                    $request['parentData'] = [Auth::user()->id];
+                }
+            break;
+
+
+            case 'upi-collection':
+                $request['table'] = '\App\Models\UpiCollection';
+                $request['searchData'] = ['cust_txn_id', 'connectpe_order_id', 'cust_name', 'cust_email', 'amount', 'utr', 'status', 'created_at'];
+                $request['select'] = 'all';
+                $request['with'] = ['user'];
+                $orderIndex = $request->get('order');
+                    if (isset($orderIndex) && count($orderIndex)) {
+                        $columnsIndex = $request->get('columns');
+                        $columnIndex = $orderIndex[0]['column'];
+                        $columnName = $columnsIndex[$columnIndex]['data'] ?? 'id';
+                        $columnSortOrder = $orderIndex[0]['dir'] ?? 'DESC';
+                        if ($columnName == '0' || empty($columnName)) {
+                            $columnName = 'id';
+                            $columnSortOrder = 'DESC';
+                        }
+                        $request['order'] = [$columnName, strtoupper($columnSortOrder)];
+                    } else {
+                        $request['order'] = ['id', 'DESC'];
+                    }
+                    if (Auth::user()->role_id == '1') {
+                        $request['parentData'] = 'all';
+                    } else {
+                        $request['whereIn'] = 'user_id';
+                        $request['parentData'] = [Auth::user()->id];
+                    }
+            break;
+
         }
 
         // For filter the Records
@@ -889,6 +944,8 @@ class CommonController extends Controller
             'support-based-user-list' => ['assined_to'],
             'orders' => ['connectpe_id', 'transaction_no', 'client_txn_id', 'utr_no', 'mode', 'status', 'user_id', 'provider_id'],
             'load-money-requests' => ['user_id', 'status', 'utr_no'],
+            'upi-callback' => ['txn_id', 'txn_order_id', 'utr', 'status'],
+            'upi-collection' => ['cust_txn_id', 'connectpe_order_id', 'cust_name', 'cust_email','utr', 'status'],
             // add more types and columns here
         ];
 
@@ -1021,6 +1078,20 @@ class CommonController extends Controller
 
                 if ($column === 'any_key') {
                     $query->where(function ($q) use ($value, $request) {
+                        if ($request['type'] === 'upi-callback') {
+                            $q->where('txn_id', 'LIKE', "%{$value}%")
+                            ->orWhere('txn_order_id', 'LIKE', "%{$value}%")
+                            ->orWhere('utr', 'LIKE', "%{$value}%");
+                            return;
+                        }
+
+                        if ($request['type'] === 'upi-collection') {
+                            $q->where('cust_txn_id', 'LIKE', "%{$value}%")
+                            ->orWhere('connectpe_order_id', 'LIKE', "%{$value}%")
+                            ->orWhere('utr', 'LIKE', "%{$value}%");
+                            return;
+                        }
+
                         if ($request['type'] === 'load-money-requests') {
                             $q->where('request_id', 'LIKE', "%{$value}%")
                                 ->orWhere('utr_no', 'LIKE', "%{$value}%")
