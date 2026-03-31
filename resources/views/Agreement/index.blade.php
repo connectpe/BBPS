@@ -29,7 +29,7 @@ use App\Facades\FileUpload;
 
     @forelse($agreements as $agreement)
     <div class="col-md-4 mb-3">
-        <div class="card shadow-sm border-0 h-100 d-flex flex-column">
+        <div class="card shadow-sm h-100 d-flex flex-column">
             <div class="card-body text-center d-flex flex-column justify-content-between">
 
                 @php
@@ -39,7 +39,7 @@ use App\Facades\FileUpload;
 
                     @if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png']))
                     <img src="{{ FileUpload::getFilePath($agreement->file_path) }}"
-                        style="max-height:100%; max-width:100%; object-fit:cover; border-radius:8px;">
+                        style="max-height:100%; max-width:100%; object-fit:cover; border-radius:8px;" >
                     @elseif($ext == 'pdf')
                     <div class="d-flex flex-column align-items-center justify-content-center">
                         <i class="bi bi-file-earmark-pdf text-danger" style="font-size:60px;"></i>
@@ -224,7 +224,7 @@ use App\Facades\FileUpload;
 
         Swal.fire({
             title: 'Are you sure?',
-            text: "Delete this agreement permanently!",
+            text: "For delete this agreement !",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
@@ -251,7 +251,7 @@ use App\Facades\FileUpload;
                                 'success'
                             );
 
-                            location.reload(); // simple refresh
+                            location.reload(); 
 
                         } else {
                             Swal.fire('Error', response.message, 'error');

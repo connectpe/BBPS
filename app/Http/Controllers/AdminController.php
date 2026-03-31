@@ -103,7 +103,7 @@ class AdminController extends Controller
                 $data['saltKeys'] = Cache::remember("{$cachePrefix}saltKeys", 600, function () use ($userId) {
                     return OauthUser::where('user_id', $userId)
                         ->where('is_active', '1')
-                        ->select('client_id', 'client_secret', 'created_at')
+                        ->select('client_id', 'client_secret', 'service_id', 'is_active', 'created_at')
                         ->get();
                 });
             }
@@ -1884,8 +1884,7 @@ class AdminController extends Controller
 
     public function agreementIndex()
     {
-        $agreements = Agreement::where('status', '1')->latest()->get();
-
+        $agreements = Agreement::where('status', '1')->where('is_deleted', '0')->latest()->get();
         return view('Agreement.index', compact('agreements'));
     }
 
@@ -2020,15 +2019,12 @@ class AdminController extends Controller
     {
         try {
             $agreement = Agreement::findOrFail($request->id);
-            if (\Storage::disk('public')->exists($agreement->file_path)) {
-                \Storage::disk('public')->delete($agreement->file_path);
-            }
-            $agreement->delete();
-
-            return response()->json([
-                'status' => true,
-                'message' => 'Agreement deleted successfully.',
-            ]);
+            $agreement->is_deleted = '1';
+            $agreement->save();
+        return response()->json([
+            'status' => true,
+            'message' => 'Agreement deleted successfully.',
+        ]);
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,
