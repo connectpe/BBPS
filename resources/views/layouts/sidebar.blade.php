@@ -20,7 +20,7 @@
     @else
         <h5 class="text-center mb-4">USER PANEL </h5>
     @endif --}}
-    @if ($role == 1)
+    {{-- @if ($role == 1)
         <h5 class="text-center">
             <img src="{{ asset('assets/image/Logo/sidebar-logo.png') }}" alt="Logo" class="img-fluid" >
         </h5>
@@ -30,8 +30,10 @@
         <h5 class="text-center"><img src="{{ asset('assets/image/Logo/sidebar-logo.png') }}" alt="Logo" class="img-fluid" ></h5>
     @elseif ($role == 4)
         <h5 class="text-center"><img src="{{ asset('assets/image/Logo/sidebar-logo.png') }}" alt="Logo" class="img-fluid" ></h5>
-    @endif
-
+    @endif --}}
+        <h5 class="text-center">
+            <img src="{{ asset('assets/image/Logo/sidebar-logo.png') }}" alt="Logo" class="img-fluid" >
+        </h5>
 
     @if ($role == 1)
         <ul class="nav nav-pills flex-column mb-auto">
@@ -274,7 +276,7 @@
                                     <a href="{{ route('defaultslug') }}"
                                         class="nav-link text-white {{ Route::currentRouteName() == 'defaultslug' ? 'sidebar-active' : '' }}">
                                         <i class="bi bi-link-45deg me-2"></i>
-                                        Switch
+                                        Default Provider
                                     </a>
                                 </li>
                                 <li class="nav-item">

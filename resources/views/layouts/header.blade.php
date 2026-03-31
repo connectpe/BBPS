@@ -27,7 +27,7 @@
                 <i class="bi bi-gear-fill fs-6"></i>
             </button>
         @endif
-        <button class="btn btn-danger ms-2" id="clearCacheBtn">
+        <button class="btn btn-sm btn-danger ms-2" id="clearCacheBtn">
             Clear Cache
         </button>
 
