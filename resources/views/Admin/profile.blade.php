@@ -1147,11 +1147,14 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
             <!-- Key Details  -->
             <div class="tab-pane fade" id="integration" role="tabpanel" aria-labelledby="integration-tab">
 
+                @if($serviceActive)
                 <div class="text-end mb-3">
                     <button class="btn buttonColor" data-bs-toggle="modal" data-bs-target="#serviceModal">
                         Generate Key
                     </button>
                 </div>
+                @endif
+
 
                 <div class="row mb-2">
                     {{-- @foreach ($saltKeys as $key)
@@ -1284,51 +1287,70 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                         </span>
 
                         <button class="btn btn-sm buttonColor shadow-sm" data-bs-toggle="modal"
-                            data-bs-target="#webhookModal">
-                            <i class="bi bi-pencil-square me-1"></i>
+                            data-bs-target="#addWebhookModal">
                             <span id="webhookBtnText">
-                                {{ !empty($webhookUrl?->url) ? 'Update URL' : 'Set URL' }}
+                                <i class="bi bi-plus-circle me-1"></i>
+                                Add URL
                             </span>
                         </button>
+
                     </div>
 
                     <div class="card-body">
-                        <div class="p-3 border rounded bg-light">
-                            <div class="row align-items-center">
-                                <div class="col-md-3 fw-bold text-muted text-uppercase small">
-                                    Callback URL
-                                </div>
-                                <div class="col-md-9">
-                                    <code class="text-primary fw-bold" id="display_webhook_url">
-                                            {{ !empty($webhookUrl?->url) ? $webhookUrl->url : 'Not Set' }}
-                                        </code>
-                                </div>
+                        <div class="row">
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Service Name</th>
+                                            <th>Servie Slug</th>
+                                            <th>Url</th>
+                                            <th>Created At</th>
+                                            <th>Edit</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse ($webhookUrl as $value)
+                                        <tr>
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ $value->service->service_name ?? '' }}</td>
+                                            <td>{{ $value->service->slug ?? '' }}</td>
+                                            <td>{{ $value->url }}</td>
+                                            <td>{{ $value->created_at->format('d M Y, h:i A') }}</td>
+                                            <td>
+                                                <i class="bi bi-pencil-square me-1 text-primary"
+                                                    onclick="editWebHookUrl('{{$value->id}}','{{$value->service_id}}','{{$value->url}}')"></i>
+                                            </td>
+                                        </tr>
+                                        @empty
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted">
+                                                No records found
+                                            </td>
+                                        </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
                             </div>
-
-                            <hr class="my-2">
-
-                            <p class="mb-0 small text-muted">
-                                <i class="bi bi-info-circle me-1"></i>
-                                Real-time transaction status updates will be sent to this URL via POST requests.
-                            </p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {{-- Webhook Modal --}}
-            <div class="modal fade" id="webhookModal" tabindex="-1" aria-hidden="true">
+            {{--Add Webhook Modal --}}
+            <div class="modal fade" id="addWebhookModal" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
 
                         <div class="modal-header">
-                            <h5 class="modal-title" id="webhookModalTitle">
-                                {{ !empty($webhookUrl?->url) ? 'Update Callback URL' : 'Set Callback URL' }}
+                            <h5 class="modal-title">
+                                Add WebHook URL
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
 
-                        <form id="webhookForm">
+                        <form id="addWebhookForm">
                             @csrf
                             <div class="modal-body">
                                 <div class="mb-3">
@@ -1337,16 +1359,15 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                     </label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light"><i class="bi bi-gear"></i></span>
-                                        <select class="form-select" name="service_id" id="modal_service_id" required>
+                                        <select class="form-select" name="service_id" id="service_id" required>
                                             <option value="">--Select Service--</option>
                                             @foreach ($UserServices as $userService)
-                                            <option value="{{ $userService?->service?->slug }}">
+                                            <option value="{{ $userService?->service?->id }}">
                                                 {{ $userService?->service?->service_name }}
                                             </option>
                                             @endforeach
                                         </select>
                                     </div>
-                                    <small class="text-danger d-none" id="err_service_id"></small>
                                 </div>
 
                                 <div class="mb-2">
@@ -1355,17 +1376,15 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                     </label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light"><i class="bi bi-globe"></i></span>
-                                        <input type="url" class="form-control" name="url" id="modal_webhook_url"
-                                            placeholder="https://yourdomain.com/api/callback"
-                                            value="{{ $webhookUrl?->url ?? '' }}" required>
+                                        <input type="url" class="form-control" name="url" id="url"
+                                            placeholder="https://yourdomain.com/api/callback" required>
                                     </div>
-                                    <small class="text-danger d-none" id="err_url"></small>
                                 </div>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button type="submit" id="saveWebhookBtn" class="btn buttonColor">Save
-                                    Changes</button>
+                                <button type="submit" id="addWebhookBtn" class="btn buttonColor">Submit
+                                </button>
                             </div>
                         </form>
 
@@ -1373,7 +1392,60 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                 </div>
             </div>
 
+            {{--Edit Webhook Modal --}}
+            <div class="modal fade" id="editWebhookModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
 
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                Edit WebHook URL
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+
+                        <form id="editWebhookForm">
+                            @csrf
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">
+                                        Select Service <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light"><i class="bi bi-gear"></i></span>
+                                        <select class="form-select" name="edit_service_id" id="edit_service_id"
+                                            required>
+                                            <option value="">--Select Service--</option>
+                                            @foreach ($UserServices as $userService)
+                                            <option value="{{ $userService?->service?->id }}">
+                                                {{ $userService?->service?->service_name }}
+                                            </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="url_id" id="url_id">
+                                <div class="mb-2">
+                                    <label class="form-label fw-semibold">
+                                        Transaction Callback URL <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light"><i class="bi bi-globe"></i></span>
+                                        <input type="url" class="form-control" name="edit_url" id="edit_url"
+                                            placeholder="https://yourdomain.com/api/callback" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" id="editWebhookBtn" class="btn buttonColor">Update
+                                </button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -3501,28 +3573,30 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
 </script>
 
 <script>
+
+        function editWebHookUrl(id, service_id, url) {
+            $("#editWebhookModal").modal('show')
+            $("#url_id").val(id);
+            $("#edit_service_id").val(service_id).trigger('change');
+            $("#edit_url").val(url);
+        }
+
         $(document).ready(function () {
 
-            $('#webhookForm').on('submit', function (e) {
+            $('#addWebhookForm').on('submit', function (e) {
                 e.preventDefault();
 
-                let btn = $('#saveWebhookBtn');
+                let btn = $('#addWebhookBtn');
                 btn.prop('disabled', true).html(
                     '<span class="spinner-border spinner-border-sm me-1"></span> Saving...');
-                $('#err_url').addClass('d-none').text('');
 
                 $.ajax({
-                    url: "{{ route('web_hook_url') }}",
+                    url: "{{ route('add_web_hook_url') }}",
                     type: "POST",
                     data: $(this).serialize(),
                     success: function (res) {
                         if (res.status) {
-                            $('#display_webhook_url').text(res.data.url);
-                            $('#webhookBtnText').text('Update URL');
-                            $('#webhookModalTitle').text('Update Callback URL');
-
-                            $('#webhookModal').modal('hide');
-
+                            $('#addWebhookModal').modal('hide');
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Success',
@@ -3530,6 +3604,9 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                                 timer: 1500,
                                 showConfirmButton: false
                             });
+                            setTimeout(() => {
+                                location.reload();
+                            }, 2000);
                         } else {
                             Swal.fire('Error', res.message || 'Something went wrong', 'error');
                         }
@@ -3537,19 +3614,79 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                     error: function (xhr) {
                         if (xhr.status === 422) {
                             let errors = xhr.responseJSON.errors;
-                            if (errors && errors.url) {
-                                $('#err_url').removeClass('d-none').text(errors.url[0]);
-                            }
+                            let firstErrorMessage = Object.values(errors)[0][0];
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Validation Error',
+                                text: firstErrorMessage,
+                            });
                         } else {
-                            Swal.fire('Error', xhr.responseJSON?.message || 'Server error',
-                                'error');
+                            Swal.fire(
+                                'Error',
+                                xhr.responseJSON?.message || 'Something went wrong on the server.',
+                                'error'
+                            );
                         }
                     },
                     complete: function () {
-                        btn.prop('disabled', false).text('Save Changes');
+                        btn.prop('disabled', false).text('Submit');
                     }
                 });
             });
+
+
+
+            $('#editWebhookForm').on('submit', function (e) {
+                e.preventDefault();
+
+                let btn = $('#editWebhookBtn');
+                btn.prop('disabled', true).html(
+                    '<span class="spinner-border spinner-border-sm me-1"></span> Saving...');
+
+                $.ajax({
+                    url: "{{ route('edit_web_hook_url') }}",
+                    type: "POST",
+                    data: $(this).serialize(),
+                    success: function (res) {
+                        if (res.status) {
+                            $('#editWebhookModal').modal('hide');
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: res.message,
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                            setTimeout(() => {
+                                location.reload();
+                            }, 2000);
+                        } else {
+                            Swal.fire('Error', res.message || 'Something went wrong', 'error');
+                        }
+                    },
+                    error: function (xhr) {
+                        if (xhr.status === 422) {
+                            let errors = xhr.responseJSON.errors;
+                            let firstErrorMessage = Object.values(errors)[0][0];
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Validation Error',
+                                text: firstErrorMessage,
+                            });
+                        } else {
+                            Swal.fire(
+                                'Error',
+                                xhr.responseJSON?.message || 'Something went wrong on the server.',
+                                'error'
+                            );
+                        }
+                    },
+                    complete: function () {
+                        btn.prop('disabled', false).text('Update');
+                    }
+                });
+            });
+
 
         });
 </script>
