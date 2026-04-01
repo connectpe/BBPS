@@ -1241,7 +1241,7 @@ $rechargePlanTypes = [
                 } else {
                     Swal.fire({
                         icon: 'error',
-                        title: 'MPIN Verification Failed',
+                        title: 'Error',
                         html: `<p>${res.message?.text || res.message || 'There was an error verifying your MPIN.'}</p>`,
                         confirmButtonText: 'OK'
                     });

@@ -22,7 +22,7 @@
                         <div class="row g-3 align-items-end">
 
                             <div class="col-5 col-md-5">
-                                <label for="txnid" class="form-label">Payment Ref ID</label>
+                                <label for="txnid" class="form-label">Payment Ref ID<span class="text-danger">*</span></label>
                                 <input type="text" id="txnid" class="form-control" placeholder="Payment Reference ID">
                             </div>
 
@@ -31,7 +31,7 @@
                             </div>
 
                             <div class="col-5 col-md-5">
-                                <label for="mobileNumber" class="form-label">Mobile Number</label>
+                                <label for="mobileNumber" class="form-label">Mobile Number<span class="text-danger">*</span></label>
                                 <input type="number" id="mobileNumber" class="form-control" placeholder="Enter Mobile Number">
                             </div>
 

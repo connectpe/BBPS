@@ -95,7 +95,7 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <label class="form-label small fw-bold mb-0">Select Users (Multiple) *</label>
+                            <label class="form-label small fw-bold mb-0">Select Users (Multiple)<span class="text-danger">*</span></label>
                         </div>
                         <select name="user_id[]" id="user_id" class="form-control form-select2"
                             multiple="multiple" required>
@@ -110,7 +110,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label small fw-bold">Assign To Support</label>
+                        <label class="form-label small fw-bold">Assign To Support<span class="text-danger">*</span></label>
                         <select name="assined_to" id="assined_to" class="form-select form-select2 shadow-none" required>
                             <option value="" selected disabled>-- Select Support --</option>
                             @foreach ($supportStaffs as $staff)

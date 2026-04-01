@@ -146,7 +146,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
             <div class="card-body">
                 <i class="bi bi-currency-rupee fs-4 text-primary mb-2"></i>
                 <h6 class="card-title mb-1">Total Spent</h6>
-                <p class="card-text fs-6 fw-bold">{{ number_format($totalSpent,2) }}</p>
+                <p class="card-text fs-6 fw-bold">{{ number_format($totalSpent, 2) }}</p>
             </div>
         </div>
     </div>
@@ -157,7 +157,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
             <div class="card-body">
                 <i class="bi bi-wallet2 fs-4 text-warning mb-2"></i>
                 <h6 class="card-title mb-1">Wallet Balance</h6>
-                <p class="card-text fs-6 fw-bold">{{ number_format($businessWallet,2) }}</p>
+                <p class="card-text fs-6 fw-bold">{{ number_format($businessWallet, 2) }}</p>
 
             </div>
         </div>
@@ -170,8 +170,9 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
             <div class="card-body">
                 <i class="bi bi-calendar-check fs-4 text-info mb-2"></i>
                 <h6 class="card-title mb-1">Member Since</h6>
-                <p class="card-text fs-6 fw-bold">{{ $userdata->created_at ?
-                    \Carbon\Carbon::parse($userdata->created_at)->format('Y') : ''}}</p>
+                <p class="card-text fs-6 fw-bold">
+                    {{ $userdata->created_at ? \Carbon\Carbon::parse($userdata->created_at)->format('Y') : '' }}
+                </p>
             </div>
         </div>
     </div>
@@ -373,7 +374,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
         <!-- Badges -->
         <div class="mt-2 d-flex gap-2">
             <span class="badge bg-{{ $statusClass[$user->status] ?? 'dark' }}">{{ $statusLabel }}</span>
-            @if(in_array($role, [2, 3]))
+            @if (in_array($role, [2, 3]))
             @php
             // Default values if businessInfo is null or missing 'is_kyc' attribute
             $message = 'KYC Not Verified';
@@ -382,11 +383,11 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
             // Check if $businessInfo exists and has the is_kyc attribute
             if ($businessInfo && isset($businessInfo->is_kyc)) {
-                if ($businessInfo->is_kyc == '1') {
-                    $message = 'KYC Verified';
-                    $badge = 'success';
-                    $isKyc = true;
-                }
+            if ($businessInfo->is_kyc == '1') {
+            $message = 'KYC Verified';
+            $badge = 'success';
+            $isKyc = true;
+            }
             }
             @endphp
             <span class="badge bg-{{ $badge }} text-white" title="{{ $message }}">{{ $message }}</span>
@@ -457,8 +458,9 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
             <div class="card-body">
                 <i class="bi bi-calendar-check fs-4 text-info mb-2"></i>
                 <h6 class="card-title mb-1">Member Since</h6>
-                <p class="card-text fs-6 fw-bold">{{ $userdata->created_at ?
-                    \Carbon\Carbon::parse($userdata->created_at)->format('Y') : ''}}</p>
+                <p class="card-text fs-6 fw-bold">
+                    {{ $userdata->created_at ? \Carbon\Carbon::parse($userdata->created_at)->format('Y') : '' }}
+                </p>
             </div>
         </div>
     </div>
@@ -749,12 +751,14 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                     <div class="col-md-6 mb-3">
                         <div class="row">
                             <div class="col-5 fw-bold">ITR Filled:</div>
-                            <div class="col-7">{{ $businessInfo?->itr_filled == '1' ? 'Yes' :
-                                ($businessInfo?->itr_filled == '0' ? 'No' : '----') }}</div>
+                            <div class="col-7">
+                                {{ $businessInfo?->itr_filled == '1' ? 'Yes' : ($businessInfo?->itr_filled == '0' ? 'No'
+                                : '----') }}
+                            </div>
                         </div>
                     </div>
 
-                    @if($businessInfo?->itr_filled == '0')
+                    @if ($businessInfo?->itr_filled == '0')
                     <div class="col-md-6 mb-3">
                         <div class="row">
                             <div class="col-5 fw-bold">ITR Not Filled Reason:</div>
@@ -1150,7 +1154,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                 </div>
 
                 <div class="row mb-2">
-                    @foreach ($saltKeys as $key)
+                    {{-- @foreach ($saltKeys as $key)
                     <div class="col-md-12 mb-2">
                         <div class="border rounded p-3">
                             <div class="row">
@@ -1161,7 +1165,47 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                             </div>
                         </div>
                     </div>
-                    @endforeach
+                    @endforeach --}}
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead class="">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Service Name</th>
+                                    <th>Client ID</th>
+                                    <th>Client Key</th>
+                                    <th>Status</th>
+                                    <th>Created At</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($saltKeys as $key)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+
+                                    <td>{{ $key->globalServices->service_name ?? 'N/A' }}</td>
+
+                                    <!-- Client ID -->
+                                    <td>{{ $key->client_id }}</td>
+                                    <td>{{ maskValue($key->client_secret) }}</td>
+                                    <td>
+                                        <span class="badge {{ $key->is_active ? 'bg-success' : 'bg-danger' }}">
+                                            {{ $key->is_active ? 'Active' : 'Inactive' }}
+                                        </span>
+                                    </td>
+                                    <td>{{ $key->created_at->format('d M Y, h:i A') }}</td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">
+                                        No records found
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
             </div>
@@ -1256,8 +1300,8 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                                 </div>
                                 <div class="col-md-9">
                                     <code class="text-primary fw-bold" id="display_webhook_url">
-                                        {{ !empty($webhookUrl?->url) ? $webhookUrl->url : 'Not Set' }}
-                                    </code>
+                                            {{ !empty($webhookUrl?->url) ? $webhookUrl->url : 'Not Set' }}
+                                        </code>
                                 </div>
                             </div>
 
@@ -1287,23 +1331,37 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                         <form id="webhookForm">
                             @csrf
                             <div class="modal-body">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">
+                                        Select Service <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light"><i class="bi bi-gear"></i></span>
+                                        <select class="form-select" name="service_id" id="modal_service_id" required>
+                                            <option value="">--Select Service--</option>
+                                            @foreach ($UserServices as $userService)
+                                            <option value="{{ $userService?->service?->slug }}">
+                                                {{ $userService?->service?->service_name }}
+                                            </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <small class="text-danger d-none" id="err_service_id"></small>
+                                </div>
+
                                 <div class="mb-2">
                                     <label class="form-label fw-semibold">
                                         Transaction Callback URL <span class="text-danger">*</span>
                                     </label>
-
                                     <div class="input-group">
                                         <span class="input-group-text bg-light"><i class="bi bi-globe"></i></span>
-
                                         <input type="url" class="form-control" name="url" id="modal_webhook_url"
                                             placeholder="https://yourdomain.com/api/callback"
                                             value="{{ $webhookUrl?->url ?? '' }}" required>
                                     </div>
-
                                     <small class="text-danger d-none" id="err_url"></small>
                                 </div>
                             </div>
-
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                 <button type="submit" id="saveWebhookBtn" class="btn buttonColor">Save
@@ -1322,7 +1380,10 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
 
 @php
 
-$kycMessage = $businessInfo?->is_kyc == '1' ? 'KYC verified' : 'You will not be able to change the details, once KYC
+$kycMessage =
+$businessInfo?->is_kyc == '1'
+? 'KYC verified'
+: 'You will not be able to change the details, once KYC
 verified';
 $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
 
@@ -1334,7 +1395,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
         <div class="modal-content">
 
             <div class="modal-header">
-                <h5 class="modal-title">Complete Your Profile (<small class="{{$kycColor}}">{{$kycMessage}}</small>)
+                <h5 class="modal-title">Complete Your Profile (<small class="{{ $kycColor }}">{{ $kycMessage }}</small>)
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
@@ -1467,7 +1528,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                             <input type="text" class="form-control validate" name="cin_number"
                                 placeholder="e.g. L12345MH2010PLC123456"
                                 pattern="^[LU][0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$" title="Enter valid CIN number"
-                                maxlength="21" value="{{ $businessInfo->cin_no ?? '' }}" {{$isKyc ? 'disabled' : ''}}>
+                                maxlength="21" value="{{ $businessInfo->cin_no ?? '' }}" {{ $isKyc ? 'disabled' : '' }}>
                             <span class="error-text">Invalid CIN number</span>
                         </div>
 
@@ -1478,7 +1539,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                                 placeholder="e.g. 27AAPFU0939F1ZV" maxlength="15"
                                 pattern="^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$"
                                 title="Enter valid GST number" style="text-transform: uppercase;"
-                                value="{{ $businessInfo->gst_number ?? '' }}" {{$isKyc ? 'disabled' : ''}}>
+                                value="{{ $businessInfo->gst_number ?? '' }}" {{ $isKyc ? 'disabled' : '' }}>
                             <span class="error-text">Invalid GST number</span>
                         </div>
 
@@ -1487,7 +1548,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                             <input type="text" class="form-control validate" name="business_pan"
                                 placeholder="e.g. AAACC1234A" maxlength="10" pattern="^[A-Z]{5}[0-9]{4}[A-Z]$"
                                 title="Enter valid PAN (AAAAA9999A)" style="text-transform: uppercase;"
-                                value="{{ $businessInfo->business_pan_number ?? '' }}" {{$isKyc ? 'disabled' : ''}}>
+                                value="{{ $businessInfo->business_pan_number ?? '' }}" {{ $isKyc ? 'disabled' : '' }}>
                             <span class="error-text">Invalid PAN number</span>
                         </div>
 
@@ -1517,8 +1578,8 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                             <select class="form-select form-select2" name="state" id="state">
                                 <option value="">--Select State--</option>
                                 <option value="Uttar Pradesh" value="{{ $businessInfo->state ?? '' }}" {{
-                                    $businessInfo?->state ==
-                                    'Uttar Pradesh' ? 'selected' : '' }}>Uttar Pradesh
+                                    $businessInfo?->state == 'Uttar Pradesh' ? 'selected' : '' }}>
+                                    Uttar Pradesh
                                 </option>
                                 <option value="Bihar">Bihar</option>
                             </select>
@@ -1529,7 +1590,8 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                             <select class="form-select form-select2" name="city" id="city">
                                 <option value="">--Select City--</option>
                                 <option value="Lucknow" value="{{ $businessInfo->city ?? '' }}" {{ $businessInfo?->city
-                                    == 'Lucknow' ? 'selected' : '' }}>Lucknow</option>
+                                    == 'Lucknow' ? 'selected' : '' }}>
+                                    Lucknow</option>
                                 <option value="Kanpur">Kanpur</option>
                             </select>
                         </div>
@@ -1561,7 +1623,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
 
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                    name="business_pan_image" {{$isKyc ? 'disabled' : ''}}>
+                                    name="business_pan_image" {{ $isKyc ? 'disabled' : '' }}>
 
                                 @if (!empty($businessInfo->business_pan_image))
                                 <span class="input-group-text" style="cursor:pointer;">
@@ -1582,7 +1644,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                                     class="text-danger">*</span></label>
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                    name="registration_certificate_image" {{$isKyc ? 'disabled' : ''}}>
+                                    name="registration_certificate_image" {{ $isKyc ? 'disabled' : '' }}>
                                 @if (!empty($businessInfo->registration_certificate_image))
                                 <span class="input-group-text" style="cursor:pointer;">
                                     <i class="fa-solid fa-eye"
@@ -1601,7 +1663,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                                     class="text-danger">*</span></label>
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                    name="gst_registration_certificate_image" {{$isKyc ? 'disabled' : ''}}>
+                                    name="gst_registration_certificate_image" {{ $isKyc ? 'disabled' : '' }}>
                                 @if (!empty($businessInfo->gst_registration_certificate_image))
                                 <span class="input-group-text" style="cursor:pointer;">
                                     <i class="fa-solid fa-eye"
@@ -1622,7 +1684,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                                     class="fas fa-circle-info"></i></label>
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                    name="business_address_proof_image" {{$isKyc ? 'disabled' : ''}}>
+                                    name="business_address_proof_image" {{ $isKyc ? 'disabled' : '' }}>
                                 @if (!empty($businessInfo->business_address_proof_image))
                                 <span class="input-group-text" style="cursor:pointer;">
                                     <i class="fa-solid fa-eye"
@@ -1641,7 +1703,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                             <label class="form-label">Inside Image<span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                    name="inside_image"> 
+                                    name="inside_image">
                                 @if (!empty($businessInfo->inside_image))
                                 <span class="input-group-text" style="cursor:pointer;">
                                     <i class="fa-solid fa-eye"
@@ -1677,7 +1739,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                             <label class="form-label">Signed MOA Image</label>
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                    name="signed_moa_image" {{$isKyc ? 'disabled' : ''}}>
+                                    name="signed_moa_image" {{ $isKyc ? 'disabled' : '' }}>
                                 @if (!empty($businessInfo->signed_moa_image))
                                 <span class="input-group-text" style="cursor:pointer;">
                                     <i class="fa-solid fa-eye"
@@ -1695,7 +1757,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                             <label class="form-label">Signed AOA Image</label>
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                    name="signed_aoa_image" {{$isKyc ? 'disabled' : ''}}>
+                                    name="signed_aoa_image" {{ $isKyc ? 'disabled' : '' }}>
                                 @if (!empty($businessInfo->signed_aoa_image))
                                 <span class="input-group-text" style="cursor:pointer;">
                                     <i class="fa-solid fa-eye"
@@ -1712,39 +1774,42 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                         <div class="col-md-6">
                             <label class="form-label">Board Resolution</label>
                             <div class="input-group">
-                                <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png" name="board_resolution" {{ $isKyc ? 'disabled' : '' }}>
-                                    @if (!empty($businessInfo->board_resoultion_image))
-                                        <span class="input-group-text" style="cursor:pointer;" title="Preview">
-                                            <i class="fa-solid fa-eye"
-                                                onclick="showImage('{{ FileUpload::getFilePath($businessInfo->board_resoultion_image) }}','Board Resolution')"></i>
-                                        </span>
-                                        <a href="{{ FileUpload::getFilePath($businessInfo->board_resoultion_image) }}"
-                                            download="Board_Resolution_{{ $businessInfo->user_id }}"
-                                            class="input-group-text btn-light"
-                                            style="text-decoration: none; color: inherit;" title="Download">
-                                            <i class="fa-solid fa-download"></i>
-                                        </a>
-                                    @else
-                                        <span class="input-group-text">
-                                            <i class="fa-solid fa-eye-slash"></i>
-                                        </span>
-                                    @endif
+                                <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
+                                    name="board_resolution" {{ $isKyc ? 'disabled' : '' }}>
+                                @if (!empty($businessInfo->board_resoultion_image))
+                                <span class="input-group-text" style="cursor:pointer;" title="Preview">
+                                    <i class="fa-solid fa-eye"
+                                        onclick="showImage('{{ FileUpload::getFilePath($businessInfo->board_resoultion_image) }}','Board Resolution')"></i>
+                                </span>
+                                <a href="{{ FileUpload::getFilePath($businessInfo->board_resoultion_image) }}"
+                                    download="Board_Resolution_{{ $businessInfo->user_id }}"
+                                    class="input-group-text btn-light" style="text-decoration: none; color: inherit;"
+                                    title="Download">
+                                    <i class="fa-solid fa-download"></i>
+                                </a>
+                                @else
+                                <span class="input-group-text">
+                                    <i class="fa-solid fa-eye-slash"></i>
+                                </span>
+                                @endif
                             </div>
                         </div>
-                        
+
 
                         <div class="col-md-6">
                             <label class="form-label">Declaration</label>
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                    name="nsdl_declaration" {{$isKyc ? 'disabled' : ''}}> 
+                                    name="nsdl_declaration" {{ $isKyc ? 'disabled' : '' }}>
                                 @if (!empty($businessInfo->nsdl_declaration_image))
                                 <span class="input-group-text" style="cursor:pointer;">
                                     <i class="fa-solid fa-eye"
                                         onclick="showImage('{{ FileUpload::getFilePath($businessInfo->nsdl_declaration_image) }}','Declaration')"></i>
                                 </span>
-                                <a href="{{ FileUpload::getFilePath($businessInfo->nsdl_declaration_image) }}" download="Declaration_{{ $businessInfo->user_id ?? 'file' }}" class="input-group-text btn-light" 
-                                    style="text-decoration: none; color: inherit;" title="Download Declaration">
+                                <a href="{{ FileUpload::getFilePath($businessInfo->nsdl_declaration_image) }}"
+                                    download="Declaration_{{ $businessInfo->user_id ?? 'file' }}"
+                                    class="input-group-text btn-light" style="text-decoration: none; color: inherit;"
+                                    title="Download Declaration">
                                     <i class="fa-solid fa-download"></i>
                                 </a>
                                 @else
@@ -1760,8 +1825,10 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                             <select class="form-select form-select2" name="itr_filled" id="itr_filled"
                                 onchange="showHideITRNotReason(this.value, 'div_itr_not_reason')">
                                 <option value="">--Select State--</option>
-                                <option value="1" {{ $businessInfo?->itr_filled == '1' ? 'selected' : '' }}>Yes</option>
-                                <option value="0" {{ $businessInfo?->itr_filled == '0' ? 'selected' : '' }}>No</option>
+                                <option value="1" {{ $businessInfo?->itr_filled == '1' ? 'selected' : '' }}>Yes
+                                </option>
+                                <option value="0" {{ $businessInfo?->itr_filled == '0' ? 'selected' : '' }}>No
+                                </option>
                             </select>
                         </div>
 
@@ -1787,7 +1854,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                         <div class="col-md-6 d-none" id="div_itr_not_reason">
                             <label class="form-label">ITR Not Filled Reason<span class="text-danger">*</span></label>
                             <textarea class="form-control" placeholder="ITR Not Filled Reason" name="itr_not_reason"
-                                id="itr_not_reason"> {{$businessInfo->itr_not_filed_reason ?? ''}} </textarea>
+                                id="itr_not_reason"> {{ $businessInfo->itr_not_filed_reason ?? '' }} </textarea>
                         </div>
                     </div>
                 </div>
@@ -1807,7 +1874,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                                     placeholder="Enter 12-digit Aadhaar Number" name="adhar_number" maxlength="12"
                                     inputmode="numeric" pattern="[0-9]{12}"
                                     oninput="this.value = this.value.replace(/[^0-9]/g, '')" required
-                                    value="{{ $businessInfo->aadhar_number ?? '' }}" {{$isKyc ? 'disabled' : ''}}>
+                                    value="{{ $businessInfo->aadhar_number ?? '' }}" {{ $isKyc ? 'disabled' : '' }}>
                                 <span class="error-text">Invalid Aadhaar number</span>
                             </div>
 
@@ -1819,7 +1886,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                                     placeholder="Enter PAN Number (ABCDE1234F)" name="pan_number" maxlength="10"
                                     style="text-transform: uppercase;" pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}"
                                     oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '')" required
-                                    value="{{ $businessInfo->pan_number ?? '' }}" {{$isKyc ? 'disabled' : ''}}>
+                                    value="{{ $businessInfo->pan_number ?? '' }}" {{ $isKyc ? 'disabled' : '' }}>
                                 <span class="error-text">Invalid Pan number</span>
                             </div>
 
@@ -1829,7 +1896,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                                         class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                        name="adhar_front_image" {{$isKyc ? 'disabled' : ''}}>
+                                        name="adhar_front_image" {{ $isKyc ? 'disabled' : '' }}>
                                     @if (!empty($businessInfo->aadhar_front_image))
                                     <span class="input-group-text" style="cursor:pointer;">
                                         <i class="fa-solid fa-eye"
@@ -1849,7 +1916,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                                         class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                        name="adhar_back_image" {{$isKyc ? 'disabled' : ''}}>
+                                        name="adhar_back_image" {{ $isKyc ? 'disabled' : '' }}>
                                     @if (!empty($businessInfo->aadhar_back_image))
                                     <span class="input-group-text" style="cursor:pointer;">
                                         <i class="fa-solid fa-eye"
@@ -1867,7 +1934,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                                 <label class="form-label">Individual PAN Card<span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                        name="pan_card_image" {{$isKyc ? 'disabled' : ''}}>
+                                        name="pan_card_image" {{ $isKyc ? 'disabled' : '' }}>
 
                                     @if (!empty($businessInfo->pancard_image))
                                     <span class="input-group-text" style="cursor:pointer;">
@@ -1886,7 +1953,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                                 <label class="form-label">Individual Photo<span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                        name="individual_photo" id="individual_photo" {{$isKyc ? 'disabled' : ''}}>
+                                        name="individual_photo" id="individual_photo" {{ $isKyc ? 'disabled' : '' }}>
                                     @if (!empty($businessInfo->individual_photo))
                                     <span class="input-group-text" style="cursor:pointer;">
                                         <i class="fa-solid fa-eye"
@@ -1912,7 +1979,8 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                         <div class="col-md-6">
                             <label class="form-label">Account Holder Name<span class="text-danger">*</span></label>
                             <input type="text" class="form-control" placeholder="Enter account holder name"
-                                name="account_holder_name" value="{{ $usersBank->benificiary_name ?? '' }}" {{$isKyc ? 'disabled' : ''}}>
+                                name="account_holder_name" value="{{ $usersBank->benificiary_name ?? '' }}" {{ $isKyc
+                                ? 'disabled' : '' }}>
                         </div>
 
                         <div class="col-md-6">
@@ -1920,7 +1988,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                             <input type="text" class="form-control validated" placeholder="Enter Account Number"
                                 name="account_number" maxlength="18" inputmode="numeric" pattern="[0-9]{9,18}"
                                 oninput="this.value = this.value.replace(/[^0-9]/g, '')" required
-                                value="{{ $usersBank->account_number ?? '' }}" {{$isKyc ? 'disabled' : ''}}>
+                                value="{{ $usersBank->account_number ?? '' }}" {{ $isKyc ? 'disabled' : '' }}>
                             <span class="error-text">Invalid Account number</span>
                         </div>
 
@@ -1931,7 +1999,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                                 placeholder="Enter IFSC Code" maxlength="11" style="text-transform: uppercase;"
                                 pattern="[A-Z]{4}0[A-Z0-9]{6}"
                                 oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '')" required
-                                value="{{ $usersBank->ifsc_code ?? '' }}" {{$isKyc ? 'disabled' : ''}}>
+                                value="{{ $usersBank->ifsc_code ?? '' }}" {{ $isKyc ? 'disabled' : '' }}>
                             <span class="invalid-feedback">Invalid IFSC code</span>
 
                         </div>
@@ -1940,7 +2008,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                         <div class="col-md-6">
                             <label class="form-label">Branch Name<span class="text-danger">*</span></label>
                             <input type="text" class="form-control" placeholder="Enter branch name" name="branch_name"
-                                value="{{ $usersBank->branch_name ?? '' }}" {{$isKyc ? 'disabled' : ''}}>
+                                value="{{ $usersBank->branch_name ?? '' }}" {{ $isKyc ? 'disabled' : '' }}>
                         </div>
 
                         <div class="col-md-6">
@@ -1949,7 +2017,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                                     Statement/Verification Letter</small> )</label>
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".pdf,.jpg,.jpeg,.png"
-                                    name="bank_docs" {{$isKyc ? 'disabled' : ''}}>
+                                    name="bank_docs" {{ $isKyc ? 'disabled' : '' }}>
                                 @if (!empty($usersBank->bank_docs))
                                 <span class="input-group-text" style="cursor:pointer;">
                                     <i class="fa-solid fa-eye"
@@ -2372,7 +2440,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                 <div id="emailSection">
                     <p class="text-center">
                         OTP will be sent to<br>
-                        <strong id="maskedEmail">{{$userdata->masked_email}}</strong>
+                        <strong id="maskedEmail">{{ $userdata->masked_email }}</strong>
                     </p>
 
                     <div class="text-center mt-3">
@@ -2444,7 +2512,6 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
 
 
 <script>
-
     document.querySelectorAll('.otp-box').forEach((input, index, inputs) => {
 
         input.addEventListener('keyup', function (e) {
@@ -2466,7 +2533,9 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
 
         let $btn = $(this);
         $btn.prop('disabled', true);
-        $btn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...');
+        $btn.html(
+            '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...'
+        );
 
         $.ajax({
             url: "{{ route('send_otp_forget_mpin') }}",
@@ -2487,7 +2556,8 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                 }
             },
             error: function (xhr, status, error) {
-                Swal.fire('Error', xhr.responseJSON?.message || 'Something went wrong. Please try again.', 'error');
+                Swal.fire('Error', xhr.responseJSON?.message ||
+                    'Something went wrong. Please try again.', 'error');
                 $btn.text($btn.attr('id') === 'sendOtpBtn' ? 'Send OTP' : 'Resend OTP');
                 $btn.prop('disabled', false);
             },
@@ -2513,7 +2583,9 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
         }
 
         $btn.prop('disabled', true);
-        $btn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Verifying...');
+        $btn.html(
+            '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Verifying...'
+        );
 
         $.ajax({
             url: "{{ route('verify_otp_forget_mpin') }}", // Laravel route
@@ -2558,7 +2630,9 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
         const confirmMpin = $("#confirmMpin").val();
 
         $btn.prop('disabled', true);
-        $btn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...');
+        $btn.html(
+            '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...'
+        );
 
         $.ajax({
             url: "{{ route('forget_mpin') }}", // Laravel route
@@ -2571,7 +2645,8 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
             success: function (response) {
                 if (response.status === true) {
                     $("#forgotMpinModal").modal('hide');
-                    Swal.fire('Success', response.message || 'MPIN Changed Successfully', 'success');
+                    Swal.fire('Success', response.message || 'MPIN Changed Successfully',
+                        'success');
                     setTimeout(() => {
                         location.reload();
                     }, 2000);
@@ -2820,7 +2895,6 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
 
 
 <script>
-
     // function for show and hide if itr not filled
     function showHideITRNotReason(value, divId) {
         const isZero = value == 0 || value === '0';
@@ -3055,7 +3129,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
 
         // AJAX request
         $.ajax({
-            url: "{{route('admin.complete_profile',['user_id'=>':userId'])}}".replace(':userId', userId),
+            url: "{{ route('admin.complete_profile', ['user_id' => ':userId']) }}".replace(':userId', userId),
 
             type: 'POST',
             data: formData,
@@ -3153,7 +3227,9 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
             serverSide: true,
             pageLength: 5,
             lengthMenu: [5, 10, 25, 50, 100],
-            order: [[0, 'desc']],
+            order: [
+                [0, 'desc']
+            ],
             ajax: {
                 url: "{{ url('fetch/ip-whitelist/0') }}",
                 type: 'POST',
@@ -3231,7 +3307,8 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
             e.preventDefault();
             const id = $('#ip_id').val();
             const submitBtn = $('#modalSubmitBtn');
-            const targetUrl = id ? "{{ route('update_ip_address',['id' => ':id']) }}".replace(':id', id) : "{{ route('add_ip_address') }}";
+            const targetUrl = id ? "{{ route('update_ip_address', ['id' => ':id']) }}".replace(':id',
+                id) : "{{ route('add_ip_address') }}";
 
             submitBtn.prop('disabled', true).html(
                 '<span class="spinner-border spinner-border-sm"></span> Saving...');
@@ -3259,7 +3336,6 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
             });
         });
 
-
         $(document).on('change', '.status-toggle', function () {
             let checkbox = $(this);
             let id = checkbox.data('id');
@@ -3278,7 +3354,8 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                 if (result.isConfirmed) {
 
                     $.ajax({
-                        url: "{{ route('status_ip_address',['id' => ':id']) }}".replace(':id', id),
+                        url: "{{ route('status_ip_address', ['id' => ':id']) }}"
+                            .replace(':id', id),
                         type: "GET",
                         success: function (res) {
                             if (res.status) {
@@ -3316,7 +3393,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
         $(document).on('click', '.delete-ip', function (e) {
             e.preventDefault();
             let id = $(this).data('id');
-            let deleteUrl = "{{ route('delete_ip_address',['id'=> ':id']) }}".replace(':id', id);
+            let deleteUrl = "{{ route('delete_ip_address', ['id' => ':id']) }}".replace(':id', id);
 
             Swal.fire({
                 title: 'Are you sure?',
@@ -3365,323 +3442,334 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
 
 <script>
     $(document).ready(function () {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This IP will be removed from your whitelist!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
 
-        if ($('#changeMpinForm').length > 0) {
-            $('#changeMpinForm').on('submit', function (e) {
+                if ($('#changeMpinForm').length > 0) {
+                    $('#changeMpinForm').on('submit', function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        $('.text-danger').text('');
+                        let submitBtn = $(this).find('button[type="submit"]');
+                        submitBtn.prop('disabled', true).html(
+                            '<i class="spinner-border spinner-border-sm"></i> Updating...');
+
+                        $.ajax({
+                            url: "{{ route('generate_mpin') }}",
+                            type: "POST",
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                            data: $(this).serialize(),
+                            success: function (response) {
+                                if (response.status) {
+                                    Swal.fire('Success', response.message, 'success');
+                                    $('#changeMpinForm')[0].reset();
+                                } else {
+                                    Swal.fire('Error', response.message, 'error');
+                                }
+                            },
+                            error: function (xhr) {
+                                if (xhr.status === 422) {
+                                    let errors = xhr.responseJSON.errors;
+                                    $.each(errors, function (key, value) {
+                                        $('.error-' + key).text(value[0]);
+                                    });
+                                } else {
+                                    let errorMsg = xhr.responseJSON ? xhr.responseJSON.message :
+                                        "Internal Server Error";
+                                    Swal.fire('Error', errorMsg, 'error');
+                                }
+                            },
+                            complete: function () {
+                                submitBtn.prop('disabled', false).text('Update MPIN');
+                            }
+                        });
+                    });
+                }
+            });
+</script>
+
+<script>
+        $(document).ready(function () {
+
+            $('#webhookForm').on('submit', function (e) {
                 e.preventDefault();
-                e.stopPropagation();
 
-                $('.text-danger').text('');
-                let submitBtn = $(this).find('button[type="submit"]');
-                submitBtn.prop('disabled', true).html(
-                    '<i class="spinner-border spinner-border-sm"></i> Updating...');
+                let btn = $('#saveWebhookBtn');
+                btn.prop('disabled', true).html(
+                    '<span class="spinner-border spinner-border-sm me-1"></span> Saving...');
+                $('#err_url').addClass('d-none').text('');
 
                 $.ajax({
-                    url: "{{ route('generate_mpin') }}",
+                    url: "{{ route('web_hook_url') }}",
                     type: "POST",
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
                     data: $(this).serialize(),
-                    success: function (response) {
-                        if (response.status) {
-                            Swal.fire('Success', response.message, 'success');
-                            $('#changeMpinForm')[0].reset();
+                    success: function (res) {
+                        if (res.status) {
+                            $('#display_webhook_url').text(res.data.url);
+                            $('#webhookBtnText').text('Update URL');
+                            $('#webhookModalTitle').text('Update Callback URL');
+
+                            $('#webhookModal').modal('hide');
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: res.message,
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
                         } else {
-                            Swal.fire('Error', response.message, 'error');
+                            Swal.fire('Error', res.message || 'Something went wrong', 'error');
                         }
                     },
                     error: function (xhr) {
                         if (xhr.status === 422) {
                             let errors = xhr.responseJSON.errors;
-                            $.each(errors, function (key, value) {
-                                $('.error-' + key).text(value[0]);
-                            });
+                            if (errors && errors.url) {
+                                $('#err_url').removeClass('d-none').text(errors.url[0]);
+                            }
                         } else {
-                            let errorMsg = xhr.responseJSON ? xhr.responseJSON.message :
-                                "Internal Server Error";
-                            Swal.fire('Error', errorMsg, 'error');
+                            Swal.fire('Error', xhr.responseJSON?.message || 'Server error',
+                                'error');
                         }
                     },
                     complete: function () {
-                        submitBtn.prop('disabled', false).text('Update MPIN');
+                        btn.prop('disabled', false).text('Save Changes');
                     }
                 });
             });
-        }
-    });
-</script>
 
-<script>
-    $(document).ready(function () {
-
-        $('#webhookForm').on('submit', function (e) {
-            e.preventDefault();
-
-            let btn = $('#saveWebhookBtn');
-            btn.prop('disabled', true).html(
-                '<span class="spinner-border spinner-border-sm me-1"></span> Saving...');
-            $('#err_url').addClass('d-none').text('');
-
-            $.ajax({
-                url: "{{ route('web_hook_url') }}",
-                type: "POST",
-                data: $(this).serialize(),
-                success: function (res) {
-                    if (res.status) {
-                        $('#display_webhook_url').text(res.data.url);
-                        $('#webhookBtnText').text('Update URL');
-                        $('#webhookModalTitle').text('Update Callback URL');
-
-                        $('#webhookModal').modal('hide');
-
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success',
-                            text: res.message,
-                            timer: 1500,
-                            showConfirmButton: false
-                        });
-                    } else {
-                        Swal.fire('Error', res.message || 'Something went wrong', 'error');
-                    }
-                },
-                error: function (xhr) {
-                    if (xhr.status === 422) {
-                        let errors = xhr.responseJSON.errors;
-                        if (errors && errors.url) {
-                            $('#err_url').removeClass('d-none').text(errors.url[0]);
-                        }
-                    } else {
-                        Swal.fire('Error', xhr.responseJSON?.message || 'Server error',
-                            'error');
-                    }
-                },
-                complete: function () {
-                    btn.prop('disabled', false).text('Save Changes');
-                }
-            });
         });
-
-    });
 </script>
 <script>
-    $(function () {
-        const kyc = @json(request('is_kyc') === 'Yes');
+        $(function () {
+            const kyc = @json(request('is_kyc') === 'Yes');
 
-        if (kyc == true || kyc == 1) {
-            $("#completeProfileModal").modal('show');
-        }
-    });
+            if (kyc == true || kyc == 1) {
+                $("#completeProfileModal").modal('show');
+            }
+        });
 </script>
 
 
 
 <!-- For the Save data in local  -->
 <script>
-    const profileExists = @json(!empty($businessInfo));
+        const profileExists = @json(!empty($businessInfo));
 
-    function saveDraft() {
+        function saveDraft() {
 
-        if (profileExists) return;
-        const userId = $('#user_id').val(); // Get the current logged-in user ID
-        const draftData = {
-            user_id: userId
-        };
+            if (profileExists) return;
+            const userId = $('#user_id').val(); // Get the current logged-in user ID
+            const draftData = {
+                user_id: userId
+            };
 
-        $('#completeProfileModal input, #completeProfileModal select, #completeProfileModal textarea').each(function () {
+            $('#completeProfileModal input, #completeProfileModal select, #completeProfileModal textarea').each(function () {
 
-            const name = $(this).attr('name');
-            if (name === '_token') return;
-            if (!name) return;
-            if ($(this).is(':file')) return;
-            if ($(this).is(':disabled')) return;
-            if ($(this).hasClass('skip-draft')) return;
-            draftData[name] = $(this).val();
-        });
+                const name = $(this).attr('name');
+                if (name === '_token') return;
+                if (!name) return;
+                if ($(this).is(':file')) return;
+                if ($(this).is(':disabled')) return;
+                if ($(this).hasClass('skip-draft')) return;
+                draftData[name] = $(this).val();
+            });
 
-        localStorage.setItem('profileDraft', JSON.stringify(draftData));
-    }
+            localStorage.setItem('profileDraft', JSON.stringify(draftData));
+        }
 </script>
 
-@if($role == 2 || $role == 3)
-
+@if ($role == 2 || $role == 3)
 <script>
-    let docVerifyStep = 1;
-    let documentData = {};
+        let docVerifyStep = 1;
+        let documentData = {};
 
-    function getDocStepEl(step) {
-        return document.querySelector('#docVerifyModalBody .doc-step[data-doc-step="' + step + '"]');
-    }
-
-    document.getElementById('documentVerificationModal')
-        .addEventListener('show.bs.modal', function () {
-
-            // Reset to step 1
-            docVerifyStep = 1;
-            document.querySelectorAll('#docVerifyModalBody .doc-step').forEach(el => el.classList.add("d-none"));
-            getDocStepEl(1).classList.remove("d-none");
-            updateDocSteps();
-
-            fetch("{{ route('document.verification.data') }}")
-                .then(res => res.json())
-                .then(data => {
-
-                    if (!data.status) return;
-
-                    documentData = data;
-                    console.log(data);
-
-                    // Fill Numbers
-                    document.getElementById("panNumber").innerText = data.business_pan_number ?? '-';
-                    document.getElementById("gstNumber").innerText = data.gst_number ?? '-';
-                    document.getElementById("cinNumber").innerText = data.cin_no ?? '-';
-                    document.getElementById("bankNumber").innerText = data.account_number ?? '-';
-                    document.getElementById("videoKycName").innerText = data.name ?? '-';
-                    document.getElementById("videoKycEmail").innerText = data.email ?? '-';
-                    document.getElementById("videoKycPhone").innerText = data.phone ?? '-';
-
-                    setDocStatus("pan", data.pan_verified);
-                    setDocStatus("gst", data.is_gstin_verify);
-                    setDocStatus("cin", data.is_cin_verify);
-                    setDocStatus("bank", data.bank_verified);
-                    setDocStatus("videoKyc", data.videokyc_verified);
-                });
-        });
-
-
-    function setDocStatus(type, verified) {
-        let badge = document.getElementById(type + "Badge");
-        let button = document.getElementById(type + "Button");
-        let message = document.getElementById(type + "Message");
-
-        if (verified == 1) {
-            badge.className = "badge bg-success";
-            badge.innerText = "Verified";
-            button.className = "btn btn-success";
-            button.innerText = "Verified";
-            message.innerHTML = `<div class="alert alert-success mb-0">${type.toUpperCase()} verified successfully.</div>`;
-        } else {
-            badge.className = "badge bg-danger";
-            badge.innerText = "Not Verified";
-            button.className = "btn btn-danger";
-            button.innerText = "Verify";
-            message.innerHTML = `<div class="alert alert-danger mb-0">${type.toUpperCase()} not verified.</div>`;
+        function getDocStepEl(step) {
+            return document.querySelector('#docVerifyModalBody .doc-step[data-doc-step="' + step + '"]');
         }
-    }
+
+        document.getElementById('documentVerificationModal')
+            .addEventListener('show.bs.modal', function () {
+
+                // Reset to step 1
+                docVerifyStep = 1;
+                document.querySelectorAll('#docVerifyModalBody .doc-step').forEach(el => el.classList.add("d-none"));
+                getDocStepEl(1).classList.remove("d-none");
+                updateDocSteps();
+
+                fetch("{{ route('document.verification.data') }}")
+                    .then(res => res.json())
+                    .then(data => {
+
+                        if (!data.status) return;
+
+                        documentData = data;
+                        console.log(data);
+
+                        // Fill Numbers
+                        document.getElementById("panNumber").innerText = data.business_pan_number ?? '-';
+                        document.getElementById("gstNumber").innerText = data.gst_number ?? '-';
+                        document.getElementById("cinNumber").innerText = data.cin_no ?? '-';
+                        document.getElementById("bankNumber").innerText = data.account_number ?? '-';
+                        document.getElementById("videoKycName").innerText = data.name ?? '-';
+                        document.getElementById("videoKycEmail").innerText = data.email ?? '-';
+                        document.getElementById("videoKycPhone").innerText = data.phone ?? '-';
+
+                        setDocStatus("pan", data.pan_verified);
+                        setDocStatus("gst", data.is_gstin_verify);
+                        setDocStatus("cin", data.is_cin_verify);
+                        setDocStatus("bank", data.bank_verified);
+                        setDocStatus("videoKyc", data.videokyc_verified);
+                    });
+            });
 
 
-    // Step navigation
-    document.getElementById("nextDocStep").addEventListener("click", function () {
-        if (docVerifyStep < 5) {
-            getDocStepEl(docVerifyStep).classList.add("d-none");
-            docVerifyStep++;
-            getDocStepEl(docVerifyStep).classList.remove("d-none");
-            updateDocSteps();
+        function setDocStatus(type, verified) {
+            let badge = document.getElementById(type + "Badge");
+            let button = document.getElementById(type + "Button");
+            let message = document.getElementById(type + "Message");
+
+            if (verified == 1) {
+                badge.className = "badge bg-success";
+                badge.innerText = "Verified";
+                button.className = "btn btn-success";
+                button.innerText = "Verified";
+                message.innerHTML =
+                    `<div class="alert alert-success mb-0">${type.toUpperCase()} verified successfully.</div>`;
+            } else {
+                badge.className = "badge bg-danger";
+                badge.innerText = "Not Verified";
+                button.className = "btn btn-danger";
+                button.innerText = "Verify";
+                message.innerHTML = `<div class="alert alert-danger mb-0">${type.toUpperCase()} not verified.</div>`;
+            }
         }
-    });
 
-    document.getElementById("prevDocStep").addEventListener("click", function () {
-        if (docVerifyStep > 1) {
-            getDocStepEl(docVerifyStep).classList.add("d-none");
-            docVerifyStep--;
-            getDocStepEl(docVerifyStep).classList.remove("d-none");
-            updateDocSteps();
-        }
-    });
 
-    function updateDocSteps() {
-        // Step indicator active class
-        document.querySelectorAll("#documentVerificationModal .step-item").forEach(item => {
-            item.classList.remove("active");
-            if (item.dataset.step == docVerifyStep) {
-                item.classList.add("active");
+        // Step navigation
+        document.getElementById("nextDocStep").addEventListener("click", function () {
+            if (docVerifyStep < 5) {
+                getDocStepEl(docVerifyStep).classList.add("d-none");
+                docVerifyStep++;
+                getDocStepEl(docVerifyStep).classList.remove("d-none");
+                updateDocSteps();
             }
         });
 
-        // Button control
-        let prevBtn = document.getElementById("prevDocStep");
-        let nextBtn = document.getElementById("nextDocStep");
+        document.getElementById("prevDocStep").addEventListener("click", function () {
+            if (docVerifyStep > 1) {
+                getDocStepEl(docVerifyStep).classList.add("d-none");
+                docVerifyStep--;
+                getDocStepEl(docVerifyStep).classList.remove("d-none");
+                updateDocSteps();
+            }
+        });
 
-        if (docVerifyStep === 1) {
-            prevBtn.classList.add("d-none");
-        } else {
-            prevBtn.classList.remove("d-none");
-        }
-
-        if (docVerifyStep === 5) {
-            nextBtn.classList.add("d-none");
-        } else {
-            nextBtn.classList.remove("d-none");
-        }
-    }
-
-
-    // API integration
-    function verifyDocument(type) {
-        let url = "";
-        let payload = {};
-
-        if (type === "pan") {
-            url = "{{ route('pan.verify') }}";
-            payload = {
-                pan_number: documentData.business_pan_number,
-                pan_name: documentData.business_pan_name
-            };
-        }
-
-        if (type === "gst") {
-            url = "{{ route('gstin.verify') }}";
-            payload = {
-                gst_number: documentData.gst_number
-            };
-        }
-
-        if (type === "cin") {
-            url = "{{ route('cin.verify') }}";
-            payload = {
-                cin_no: documentData.cin_no
-            };
-        }
-
-        if (type === "bank") {
-            url = "{{ route('ifsc.verify') }}";
-            payload = {
-                // account_number: documentData.account_number,
-                // beneficiary_name: documentData.benificiary_name,
-                // phone: documentData.phone,
-                ifsc: documentData.ifsc_code
-            };
-        }
-        if (type === "videokyc") {
-            url = "{{ route('videokyc.verify') }}";
-            payload = {
-                name: documentData.name,
-                email: documentData.email,
-                phone: documentData.phone,
-                address: documentData.address
-            };
-        }
-
-        fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRF-TOKEN": "{{ csrf_token() }}"
-            },
-            body: JSON.stringify(payload)
-        })
-            .then(res => res.json())
-            .then(response => {
-                console.log("Response:", response);
-                if (response.status) {
-                    setDocStatus(type, 1);
-                } else {
-                    setDocStatus(type, 0);
+        function updateDocSteps() {
+            // Step indicator active class
+            document.querySelectorAll("#documentVerificationModal .step-item").forEach(item => {
+                item.classList.remove("active");
+                if (item.dataset.step == docVerifyStep) {
+                    item.classList.add("active");
                 }
+            });
+
+            // Button control
+            let prevBtn = document.getElementById("prevDocStep");
+            let nextBtn = document.getElementById("nextDocStep");
+
+            if (docVerifyStep === 1) {
+                prevBtn.classList.add("d-none");
+            } else {
+                prevBtn.classList.remove("d-none");
+            }
+
+            if (docVerifyStep === 5) {
+                nextBtn.classList.add("d-none");
+            } else {
+                nextBtn.classList.remove("d-none");
+            }
+        }
+
+
+        // API integration
+        function verifyDocument(type) {
+            let url = "";
+            let payload = {};
+
+            if (type === "pan") {
+                url = "{{ route('pan.verify') }}";
+                payload = {
+                    pan_number: documentData.business_pan_number,
+                    pan_name: documentData.business_pan_name
+                };
+            }
+
+            if (type === "gst") {
+                url = "{{ route('gstin.verify') }}";
+                payload = {
+                    gst_number: documentData.gst_number
+                };
+            }
+
+            if (type === "cin") {
+                url = "{{ route('cin.verify') }}";
+                payload = {
+                    cin_no: documentData.cin_no
+                };
+            }
+
+            if (type === "bank") {
+                url = "{{ route('ifsc.verify') }}";
+                payload = {
+                    // account_number: documentData.account_number,
+                    // beneficiary_name: documentData.benificiary_name,
+                    // phone: documentData.phone,
+                    ifsc: documentData.ifsc_code
+                };
+            }
+            if (type === "videokyc") {
+                url = "{{ route('videokyc.verify') }}";
+                payload = {
+                    name: documentData.name,
+                    email: documentData.email,
+                    phone: documentData.phone,
+                    address: documentData.address
+                };
+            }
+
+            fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+                body: JSON.stringify(payload)
             })
-            .catch(err => console.log(err));
-    }
+                .then(res => res.json())
+                .then(response => {
+                    console.log("Response:", response);
+                    if (response.status) {
+                        setDocStatus(type, 1);
+                    } else {
+                        setDocStatus(type, 0);
+                    }
+                })
+                .catch(err => console.log(err));
+        }
 </script>
 @endif
 @endsection

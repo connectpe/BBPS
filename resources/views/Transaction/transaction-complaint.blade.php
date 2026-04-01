@@ -129,7 +129,7 @@
                         <div class="row g-3">
 
                             <div class="col-md-5">
-                                <label class="form-label">TXN Reference Id.</label>
+                                <label class="form-label">TXN Reference Id<span class="text-danger">*</span></label>
                                 <input type="text" name="reference_id" id="reference_id" class="form-control"
                                     placeholder="TXN Reference Id">
                                 <small class="text-danger d-none" id="err_reference_id"></small>
@@ -141,7 +141,7 @@
                             </div>
 
                             <div class="col-md-5">
-                                <label class="form-label">Mobile</label>
+                                <label class="form-label">Mobile<span class="text-danger">*</span></label>
                                 <input type="number" name="mobile" id="mobile" class="form-control"
                                     placeholder="Enter Mobile">
                                 <small class="text-danger d-none" id="err_mobile"></small>

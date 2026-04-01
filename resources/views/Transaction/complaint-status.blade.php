@@ -24,7 +24,7 @@
 
                             {{-- ONLY Reference No --}}
                             <div class="col-lg-6 col-md-6 col-sm-12">
-                                <label class="form-label">Complaint Ticket No</label>
+                                <label class="form-label">Complaint Ticket No<span class="text-danger">*</span></label>
                                 <input type="text"
                                     id="ticket_number"
                                     name="ticket_number"

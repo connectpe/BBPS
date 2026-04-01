@@ -65,28 +65,31 @@ class BbpsRechargeController extends Controller
 
             $mobikwikHelper = new MobiKwikHelper();
             $paymentResponse = $mobikwikHelper->Payment($endpoint, $request->mobile, $request->operator_id, $request->circle_id, $request->plan_id, $request->amount);
-            // dd($paymentResponse);
 
-            if (!empty($paymentResponse)) {
+            // Decode the JsonResponse data
+            $response = $paymentResponse->getData();
+
+            if ($response->status) {
                 return response()->json([
                     'status' => true,
                     'message' => 'Payment request sent successfully',
-                    'data' => $paymentResponse,
+                    'data' => $response->data ?? $response,
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => $response->message ?? 'Internal Error Occurred',
                 ]);
             }
-
-            return response()->json([
-                'status'  => false,
-                'message' => 'Payment response is empty or invalid',
-            ]);
         } catch (\Throwable $e) {
             Log::error('MPIN Recharge Error', [
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return response()->json([
                 'status' => false,
-                'message' => $e->getMessage(),
+                'message' => $e->getMessage() ?: 'Something went wrong',
             ], 500);
         }
     }

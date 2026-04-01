@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class WebHookUrl extends Model
 {
-    protected $fillable = ['user_id', 'url','updated_by'];
+    protected $fillable = ['user_id', 'url', 'updated_by', 'service_id', 'service_slug'];
 }

@@ -35,7 +35,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalTitle">Set Default Provider Slug</h5>
+                <h5 class="modal-title" id="modalTitle">Set Default Provider</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="slugForm">
@@ -43,7 +43,7 @@
                 <input type="hidden" id="default_id" name="id" value="">
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Select Service</label>
+                        <label class="form-label fw-bold">Select Service<span class="text-danger">*</span></label>
                         <select id="modal_service_id" name="service_id" class="form-select form-select2" required>
                             <option value="">-- Choose Service --</option>
                             @foreach ($services as $service)
@@ -52,7 +52,7 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Select Default Provider</label>
+                        <label class="form-label fw-bold">Select Default Provider<span class="text-danger">*</span></label>
                         <select id="modal_provider_id" name="provider_id" class="form-select" disabled required>
                             <option value="">-- Select Service First --</option>
                         </select>
@@ -161,7 +161,7 @@
             $('#default_id').val('');
             $('#slugForm')[0].reset();
             $('#modal_service_id').val('').trigger('change');
-            $('#modalTitle').text('Set Default Provider Slug');
+            $('#modalTitle').text('Set Default Provider');
             $('#saveBtn').text('Save Configuration');
         });
         $(document).on('click', '.editDefaultBtn', function() {

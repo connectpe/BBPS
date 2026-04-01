@@ -22,6 +22,7 @@ use App\Models\UserConfig;
 use App\Models\UsersBank;
 use App\Models\UserService;
 use App\Models\WebHookUrl;
+use App\Models\UpiCollection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
@@ -103,9 +104,11 @@ class AdminController extends Controller
                 $data['saltKeys'] = Cache::remember("{$cachePrefix}saltKeys", 600, function () use ($userId) {
                     return OauthUser::where('user_id', $userId)
                         ->where('is_active', '1')
-                        ->select('client_id', 'client_secret', 'created_at')
+                        ->select('client_id', 'client_secret', 'service_id', 'is_active', 'created_at')
                         ->get();
                 });
+
+                
             }
 
             $data['userdata'] = Cache::remember("{$cachePrefix}userdata", 600, function () use ($userId) {
@@ -1884,8 +1887,7 @@ class AdminController extends Controller
 
     public function agreementIndex()
     {
-        $agreements = Agreement::where('status', '1')->latest()->get();
-
+        $agreements = Agreement::where('status', '1')->where('is_deleted', '0')->latest()->get();
         return view('Agreement.index', compact('agreements'));
     }
 
@@ -2020,15 +2022,12 @@ class AdminController extends Controller
     {
         try {
             $agreement = Agreement::findOrFail($request->id);
-            if (\Storage::disk('public')->exists($agreement->file_path)) {
-                \Storage::disk('public')->delete($agreement->file_path);
-            }
-            $agreement->delete();
-
-            return response()->json([
-                'status' => true,
-                'message' => 'Agreement deleted successfully.',
-            ]);
+            $agreement->is_deleted = '1';
+            $agreement->save();
+        return response()->json([
+            'status' => true,
+            'message' => 'Agreement deleted successfully.',
+        ]);
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,
@@ -2100,4 +2099,32 @@ class AdminController extends Controller
             ], 500);
         }
     }
+
+
+
+
+    public function UpiInitiation(){
+        return view('UpiServices.upi-initiation');
+    }
+
+    public function UpiCollection()
+    {
+        $customers = UpiCollection::select('cust_name')->whereNotNull('cust_name')->distinct()->orderBy('cust_name', 'ASC')->pluck('cust_name');
+        return view('UpiServices.upi-collection', compact('customers'));
+    }
+
+    public function UpiTransaction(){
+        return view('UpiServices.all-upi-transactions');
+    }
+
+    public function UpiCallback(){
+        return view('UpiServices.upi-callback');
+    }
+
+    public function ManualSettlement(){
+        return view('UpiServices.upi-manual-settlement');
+    }
+
+
+
 }
