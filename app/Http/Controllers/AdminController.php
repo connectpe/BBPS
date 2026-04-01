@@ -107,6 +107,8 @@ class AdminController extends Controller
                         ->select('client_id', 'client_secret', 'service_id', 'is_active', 'created_at')
                         ->get();
                 });
+
+                
             }
 
             $data['userdata'] = Cache::remember("{$cachePrefix}userdata", 600, function () use ($userId) {

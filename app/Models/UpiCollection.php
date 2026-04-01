@@ -36,16 +36,8 @@ class UpiCollection extends Model
         'updated_by',
     ];
 
-    protected $casts = [
-        'amount' => 'decimal:2',
-        'net_amount' => 'decimal:2',
-        'response' => 'array',
-        'is_auto_settlement' => 'boolean',
-        'is_webhook_sent' => 'boolean',
-        'is_txn_credited' => 'boolean',
-        'webhook_sent_at' => 'datetime',
-        'txn_credited_at' => 'datetime',
-    ];
+}
+
 
     public function user()
     {
@@ -56,4 +48,5 @@ class UpiCollection extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
-}
+
+
