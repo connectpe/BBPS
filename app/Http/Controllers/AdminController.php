@@ -22,6 +22,7 @@ use App\Models\UserConfig;
 use App\Models\UsersBank;
 use App\Models\UserService;
 use App\Models\WebHookUrl;
+use App\Models\UpiCollection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
@@ -2096,4 +2097,32 @@ class AdminController extends Controller
             ], 500);
         }
     }
+
+
+
+
+    public function UpiInitiation(){
+        return view('UpiServices.upi-initiation');
+    }
+
+    public function UpiCollection()
+    {
+        $customers = UpiCollection::select('cust_name')->whereNotNull('cust_name')->distinct()->orderBy('cust_name', 'ASC')->pluck('cust_name');
+        return view('UpiServices.upi-collection', compact('customers'));
+    }
+
+    public function UpiTransaction(){
+        return view('UpiServices.all-upi-transactions');
+    }
+
+    public function UpiCallback(){
+        return view('UpiServices.upi-callback');
+    }
+
+    public function ManualSettlement(){
+        return view('UpiServices.upi-manual-settlement');
+    }
+
+
+
 }
