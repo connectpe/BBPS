@@ -35,4 +35,18 @@ class UpiCollection extends Model
         'txn_credited_at',
         'updated_by',
     ];
+
 }
+
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
+

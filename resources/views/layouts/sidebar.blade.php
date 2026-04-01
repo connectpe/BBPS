@@ -31,9 +31,9 @@
     @elseif ($role == 4)
         <h5 class="text-center"><img src="{{ asset('assets/image/Logo/sidebar-logo.png') }}" alt="Logo" class="img-fluid" ></h5>
     @endif --}}
-        <h5 class="text-center">
-            <img src="{{ asset('assets/image/Logo/sidebar-logo.png') }}" alt="Logo" class="img-fluid" >
-        </h5>
+    <h5 class="text-center">
+        <img src="{{ asset('assets/image/Logo/sidebar-logo.png') }}" alt="Logo" class="img-fluid">
+    </h5>
 
     @if ($role == 1)
         <ul class="nav nav-pills flex-column mb-auto">
@@ -218,6 +218,76 @@
                                         <i class="bi bi-journal-text me-2"></i> API
                                     </a>
                                 </li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </li>
+
+
+
+            <!-- UPI Services -->
+            <li class="nav-item mt-2">
+                <ul class="nav nav-pills flex-column mb-auto">
+
+                    @php
+                        $upiRoute = [
+                            'upi_initiation',
+                            'upi_collection',
+                            'all_upi_transactions',
+                            'api_callback',
+                            'upi_manual_settlement',
+                        ];
+                        $upiActive = in_array(Route::currentRouteName(), $upiRoute);
+                    @endphp
+
+                    <li class="nav-item">
+                        <a class="nav-link text-white d-flex justify-content-between align-items-center {{ $upiActive ? '' : 'collapsed' }} {{ $upiActive ? 'sidebar-active' : '' }}"
+                            data-bs-toggle="collapse" href="#upiServices" role="button"
+                            aria-expanded="{{ $upiActive ? 'true' : 'false' }}">
+
+                            <span><i class="bi bi-phone me-2"></i> UPI Services</span>
+                            <i class="bi bi-chevron-down small"></i>
+                        </a>
+
+                        <div class="collapse {{ $upiActive ? 'show' : '' }} ms-3" id="upiServices">
+                            <ul class="nav flex-column">
+
+                                <li class="nav-item">
+                                    <a href="{{ route('upi_initiation') }}"
+                                        class="nav-link text-white {{ Route::currentRouteName() == 'upi_initiation' ? 'sidebar-active' : '' }}">
+                                        <i class="bi bi-play-circle me-2"></i> UPI Initiation
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a href="{{ route('upi_collection') }}"
+                                        class="nav-link text-white {{ Route::currentRouteName() == 'upi_collection' ? 'sidebar-active' : '' }}">
+                                        <i class="bi bi-cash me-2"></i> UPI Collection
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a href="{{ route('all_upi_transactions') }}"
+                                        class="nav-link text-white {{ Route::currentRouteName() == 'all_upi_transactions' ? 'sidebar-active' : '' }}">
+                                        <i class="bi bi-list-check me-2"></i> All UPI Transactions
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a href="{{ route('upi_callback') }}"
+                                        class="nav-link text-white {{ Route::currentRouteName() == 'upi_callback' ? 'sidebar-active' : '' }}">
+                                        <i class="bi bi-arrow-repeat me-2"></i> UPI Callback
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a href="{{ route('upi_manual_settlement') }}"
+                                        class="nav-link text-white {{ Route::currentRouteName() == 'upi_manual_settlement' ? 'sidebar-active' : '' }}">
+                                        <i class="bi bi-wallet2 me-2"></i> UPI Manual Settlement
+                                    </a>
+                                </li>
+
                             </ul>
                         </div>
                     </li>
@@ -505,6 +575,55 @@
                 <i class="bi bi-journal-text me-2"></i> Ledger Report
             </a>
         </li> --}}
+
+
+            <!-- UPI Services -->
+            <li class="nav-item mt-2">
+                <ul class="nav nav-pills flex-column mb-auto">
+
+                    @php
+                        $upiRoute = ['upi_initiation', 'upi_collection', 'all_upi_transactions'];
+                        $upiActive = in_array(Route::currentRouteName(), $upiRoute);
+                    @endphp
+
+                    <li class="nav-item">
+                        <a class="nav-link text-white d-flex justify-content-between align-items-center {{ $upiActive ? '' : 'collapsed' }} {{ $upiActive ? 'sidebar-active' : '' }}"
+                            data-bs-toggle="collapse" href="#upiUserServices" role="button"
+                            aria-expanded="{{ $upiActive ? 'true' : 'false' }}">
+
+                            <span><i class="bi bi-phone me-2"></i> UPI Services</span>
+                            <i class="bi bi-chevron-down small"></i>
+                        </a>
+
+                        <div class="collapse {{ $upiActive ? 'show' : '' }} ms-3" id="upiUserServices">
+                            <ul class="nav flex-column">
+
+                                <li class="nav-item">
+                                    <a href="{{ route('upi_initiation') }}"
+                                        class="nav-link text-white {{ Route::currentRouteName() == 'upi_initiation' ? 'sidebar-active' : '' }}">
+                                        <i class="bi bi-play-circle me-2"></i> UPI Initiation
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a href="{{ route('upi_collection') }}"
+                                        class="nav-link text-white {{ Route::currentRouteName() == 'upi_collection' ? 'sidebar-active' : '' }}">
+                                        <i class="bi bi-cash me-2"></i> UPI Collection
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a href="{{ route('all_upi_transactions') }}"
+                                        class="nav-link text-white {{ Route::currentRouteName() == 'all_upi_transactions' ? 'sidebar-active' : '' }}">
+                                        <i class="bi bi-list-check me-2"></i> All UPI Transactions
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </li>
 
             <li class="nav-item">
                 <a href="{{ route('payout_transaction') }}"
