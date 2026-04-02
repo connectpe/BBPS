@@ -7,6 +7,8 @@ use App\Models\IpWhitelist;
 use App\Models\OauthUser;
 use App\Models\MobikwikToken;
 use App\Models\UserRooting;
+use App\Models\UserService;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
@@ -234,5 +236,10 @@ class CommonHelper
         } else {
             return ucfirst($text);
         }
+    }
+
+    public static function checkUserServiceActivate($userId)
+    {
+        return UserService::where('user_id', $userId)->where('status', 'approved')->where('is_active', '1')->exists();
     }
 }
