@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\MobikwikController;
 use App\Http\Controllers\Api\CallbackController;
 use App\Http\Controllers\DocumentVerificationController;
+use App\Http\Controllers\Api\PayinCheckStatusController;
+use App\Http\Controllers\Api\PayinOrdersController;
+use App\Http\Controllers\Api\PayinCallbacksController;
 
 
 Route::get('/user', function (Request $request) {
@@ -31,6 +34,12 @@ Route::group(['middleware' => ['logs']], function () {
     });
 
     Route::post('callback/{type}', [CallbackController::class, 'handle'])->name('api.callback');
+});
+
+Route::prefix('payin')->group(function () {
+    Route::post('/orders', [PayinOrdersController::class, 'createOrders']);
+    Route::post('/callbacks/{type}', [PayinCallbacksController::class, 'callbacks']);
+    Route::post('/checkStatus', [PayinCheckStatusController::class, 'checkStatus']);
 });
 
 
