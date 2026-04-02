@@ -87,6 +87,7 @@
                             <th>Tax</th>
                             <th>Net Amount</th>
                             @if (auth()->user()->role_id != 2)
+                            
                                 <th>Type</th>
                             @endif
                             <th>Status</th>
