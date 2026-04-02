@@ -1132,7 +1132,8 @@ class UserController extends Controller
             'edit_service_id' => [
                 'required',
                 'exists:global_services,id',
-                Rule::unique(WebHookUrl::class,'service_id')->where(function ($query) use ($request, $userId) {
+
+                Rule::unique(WebHookUrl::class, 'service_id')->where(function ($query) use ($request, $userId) {
                     return $query->where('user_id', $userId)
                         ->where('service_id', $request->edit_service_id);
                 })->ignore($request->url_id),

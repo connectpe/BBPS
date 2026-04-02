@@ -166,7 +166,8 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
     Route::post('update-ip-address/{id}', [UserController::class, 'editIpWhiteList'])->name('update_ip_address');
     Route::get('status-ip-address/{id}', [UserController::class, 'statusIpWhiteList'])->name('status_ip_address');
     Route::get('delete-ip-address/{id}', [UserController::class, 'deleteIpWhiteList'])->name('delete_ip_address');
-    Route::post('webhook-url/save', [UserController::class, 'WebHookUrl'])->name('web_hook_url');
+    Route::post('add-webhook-url', [UserController::class, 'addWebHookUrl'])->name('add_web_hook_url');
+    Route::post('edit-webhook-url/', [UserController::class, 'updateWebHookUrl'])->name('edit_web_hook_url');
     Route::post('/complaints', [TransactionController::class, 'store'])->name('complaints.store');
     Route::get('/complete-kyc', [UserController::class, 'redirectToKycPage'])->name('open.kyc.page');
     Route::get('/complaint-status', [TransactionController::class, 'complaintStatus'])->name('complaint_status');

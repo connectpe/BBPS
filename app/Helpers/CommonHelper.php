@@ -7,6 +7,8 @@ use App\Models\IpWhitelist;
 use App\Models\OauthUser;
 use App\Models\MobikwikToken;
 use App\Models\UserRooting;
+use App\Models\UserService;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
@@ -99,6 +101,14 @@ class CommonHelper
                 'line'  => $e->getLine(),
             ]);
         }
+    }
+
+    public static function getUserIdUsingKeyAndSecret($header)
+    {
+        $hash = hash('sha512', $header['php-auth-pw'][0]);
+        $key = $header['php-auth-user'][0];
+        $OauthClient = OauthUser::select('user_id')->where(['client_key' => $key, 'client_secret' => $hash])->first();
+        return $OauthClient->user_id;
     }
 
 
@@ -226,5 +236,10 @@ class CommonHelper
         } else {
             return ucfirst($text);
         }
+    }
+
+    public static function checkUserServiceActivate($userId)
+    {
+        return UserService::where('user_id', $userId)->where('status', 'approved')->where('is_active', '1')->exists();
     }
 }
