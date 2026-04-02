@@ -2099,12 +2099,9 @@ class AdminController extends Controller
         }
     }
 
-
-
-
-    public function UpiInitiation()
-    {
-        return view('UpiServices.upi-initiation');
+    public function UpiInitiation(){
+        $customers = UpiCollection::select('cust_name')->whereNotNull('cust_name')->distinct()->orderBy('cust_name', 'ASC')->pluck('cust_name');
+        return view('UpiServices.upi-initiation', compact('customers'));
     }
 
     public function UpiCollection()
@@ -2113,9 +2110,9 @@ class AdminController extends Controller
         return view('UpiServices.upi-collection', compact('customers'));
     }
 
-    public function UpiTransaction()
-    {
-        return view('UpiServices.all-upi-transactions');
+    public function UpiTransaction(){
+        $customers = UpiCollection::select('cust_name')->whereNotNull('cust_name')->distinct()->orderBy('cust_name', 'ASC')->pluck('cust_name');
+        return view('UpiServices.all-upi-transactions', compact('customers'));
     }
 
     public function UpiCallback()

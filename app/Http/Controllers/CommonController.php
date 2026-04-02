@@ -902,27 +902,39 @@ class CommonController extends Controller
                 $request['select'] = 'all';
                 $request['with'] = ['user'];
                 $orderIndex = $request->get('order');
-                    if (isset($orderIndex) && count($orderIndex)) {
-                        $columnsIndex = $request->get('columns');
-                        $columnIndex = $orderIndex[0]['column'];
-                        $columnName = $columnsIndex[$columnIndex]['data'] ?? 'id';
-                        $columnSortOrder = $orderIndex[0]['dir'] ?? 'DESC';
-                        if ($columnName == '0' || empty($columnName)) {
-                            $columnName = 'id';
-                            $columnSortOrder = 'DESC';
-                        }
-                        $request['order'] = [$columnName, strtoupper($columnSortOrder)];
-                    } else {
-                        $request['order'] = ['id', 'DESC'];
+                if (isset($orderIndex) && count($orderIndex)) {
+                    $columnsIndex = $request->get('columns');
+                    $columnIndex = $orderIndex[0]['column'];
+                    $columnName = $columnsIndex[$columnIndex]['data'] ?? 'id';
+                    $columnSortOrder = $orderIndex[0]['dir'] ?? 'DESC';
+                    if ($columnName == '0' || empty($columnName)) {
+                         $columnName = 'id';
+                         $columnSortOrder = 'DESC';
                     }
-                    if (Auth::user()->role_id == '1') {
-                        $request['parentData'] = 'all';
-                    } else {
-                        $request['whereIn'] = 'user_id';
-                        $request['parentData'] = [Auth::user()->id];
-                    }
+                    $request['order'] = [$columnName, strtoupper($columnSortOrder)];
+                } else {
+                    $request['order'] = ['id', 'DESC'];
+                }
+                if (!isset($request['where']) || !is_array($request['where'])) {
+                    $request['where'] = [];
+                }
+                $where = $request->input('where', []);
+                if (! is_array($where)) {
+                    $where = [];
+                }
+                if ($request->has('page_type') && $request->page_type == 'collection') {
+                    $where[] = ['status', '=', 'success'];
+                } elseif ($request->has('page_type') && $request->page_type == 'initiation') {
+                    $where[] = ['status', '=', 'initiated'];
+                }
+                $request->merge(['where' => $where]);
+                if (Auth::user()->role_id == '1') {
+                    $request['parentData'] = 'all';
+                } else {
+                    $request['whereIn'] = 'user_id';
+                    $request['parentData'] = [Auth::user()->id];
+                }
             break;
-
         }
 
         // For filter the Records
@@ -1050,6 +1062,14 @@ class CommonController extends Controller
 
         // Start query
         $query = $model::query();
+        // Apply custom where conditions
+if (isset($request['where']) && is_array($request['where'])) {
+    foreach ($request['where'] as $condition) {
+        if (count($condition) === 3) {
+            $query->where($condition[0], $condition[1], $condition[2]);
+        }
+    }
+}
 
         if (isset($request['whereIn']) && isset($request['parentData'])) {
             if ($request['parentData'] !== 'all') {
