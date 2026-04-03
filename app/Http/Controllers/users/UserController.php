@@ -28,6 +28,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
@@ -598,10 +599,9 @@ class UserController extends Controller
 
             $secretCount = OauthUser::where('user_id', $userId)
                 ->where('service_id', $service->id)
-                ->count();
+                ->update(['is_active' => '0']);
 
             if ($secretCount > 1) {
-                // If existing credentials found, deactivate them
                 OauthUser::where('user_id', $userId)
                     ->where('service_id', $service->id)
                     ->update(['is_active' => '0']);
@@ -1052,13 +1052,26 @@ class UserController extends Controller
         }
     }
 
+
+
     public function addWebHookUrl(Request $request)
     {
+
+        $userId = Auth::id();
         $validator = Validator::make($request->all(), [
             'url' => 'required|url',
+            'service_id' => [
+                'required',
+                'exists:global_services,id',
+                Rule::unique(WebHookUrl::class)->where(function ($query) use ($request, $userId) {
+                    return $query->where('user_id', $userId)
+                        ->where('service_id', $request->service_id);
+                }),
+            ],
         ], [
-            'url.required' => 'url is required.',
-            'url.url' => 'Please enter a valid url.',
+            'url.required' => 'The URL field is required.',
+            'url.url' => 'Please enter a valid URL.',
+            'service_id.unique' => 'You have already assigned a URL to this service.',
         ]);
 
         if ($validator->fails()) {
@@ -1072,144 +1085,101 @@ class UserController extends Controller
 
         try {
 
-            $userId = Auth::id();
-            $urlCount = WebHookUrl::where('user_id', $userId)->count();
+            $service = GlobalService::find($request->service_id);
 
-            if ($urlCount >= 1) {
+            if (!$service) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Url already added.',
-                ]);
+                    'message' => 'Service not found',
+                ], 404);
             }
 
             $data = [
                 'user_id' => $userId,
                 'url' => $request->url,
+                'service_id' => $request->service_id,
+                'service_slug' =>  $service->slug,
                 'updated_by' => $userId,
             ];
 
-            WebHookUrl::create($data);
 
-            DB::commit();
-
-            return response()->json([
-                'status' => true,
-                'message' => 'Url Added Successfully.',
-            ]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-
-            return response()->json([
-                'status' => false,
-                'message' => 'Error: ' . $e->getMessage(),
-            ], 500);
-        }
-    }
-
-    public function editWebHookUrl(Request $request, $Id)
-    {
-        $validator = Validator::make($request->all(), [
-            'url' => 'required|url',
-        ], [
-            'url.required' => 'url is required.',
-            'url.url' => 'Please enter a valid url.',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
-        DB::beginTransaction();
-
-        try {
-
-            $userId = Auth::id();
-            $url = WebHookUrl::find($Id);
-            $urlCount = WebHookUrl::where('user_id', $userId)->where('id', '!=', $Id)->count();
-
-            if ($urlCount >= 1) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Url already added.',
-                ]);
-            }
-
-            if (! $url) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Url not Found.',
-                ]);
-            }
-
-            if ($userId != $url->user_id) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Invalid Url Updating.',
-                ]);
-            }
-
-            $data = [
-                'url' => $request->url,
-                'updated_by' => $userId,
-            ];
-
-            $url->update($data);
-            DB::commit();
-
-            return response()->json([
-                'status' => true,
-                'message' => 'Url Updated Successfully.',
-            ]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-
-            return response()->json([
-                'status' => false,
-                'message' => 'Error: ' . $e->getMessage(),
-            ], 500);
-        }
-    }
-
-    public function WebHookUrl(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'url' => 'required|url',
-        ], [
-            'url.required' => 'Url is required.',
-            'url.url' => 'Please enter a valid url.',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
-        DB::beginTransaction();
-
-        try {
-            $userId = Auth::id();
-
-            $webhook = WebHookUrl::updateOrCreate(
-                ['user_id' => $userId],
-                ['url' => $request->url, 'updated_by' => $userId]
-            );
+            $webhook = WebHookUrl::create($data);
 
             Cache::forget("profile:{$userId}:webhookUrl");
             DB::commit();
 
             return response()->json([
                 'status' => true,
-                'message' => $webhook->wasRecentlyCreated
-                    ? 'Url Added Successfully.'
-                    : 'Url Updated Successfully.',
-                'data' => [
-                    'url' => $webhook->url,
-                ],
+                'message' => 'Url Added Successfully'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Error: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function updateWebHookUrl(Request $request)
+    {
+        $userId = Auth::id();
+
+        $validator = Validator::make($request->all(), [
+            'edit_url' => 'required|url',
+            'url_id' => 'required',
+            'edit_service_id' => [
+                'required',
+                'exists:global_services,id',
+
+                Rule::unique(WebHookUrl::class, 'service_id')->where(function ($query) use ($request, $userId) {
+                    return $query->where('user_id', $userId)
+                        ->where('service_id', $request->edit_service_id);
+                })->ignore($request->url_id),
+            ],
+        ], [
+            'edit_url.required' => 'The URL field is required.',
+            'edit_url.url' => 'Please enter a valid URL.',
+            'edit_service_id.unique' => 'You have already assigned a URL to this service.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+
+            $webhook = WebHookUrl::where('user_id', $userId)->find($request->url_id);
+
+            if (!$webhook) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Webhook URL not found or unauthorized.',
+                ], 404);
+            }
+
+            $service = GlobalService::find($request->edit_service_id);
+
+            // 3. Update the data
+            $webhook->update([
+                'url'          => $request->edit_url,
+                'service_id'   => $request->edit_service_id,
+                'service_slug' => $service->slug,
+                'updated_by'   => $userId,
+            ]);
+
+            Cache::forget("profile:{$userId}:webhookUrl");
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Url Updated Successfully'
             ]);
         } catch (\Exception $e) {
             DB::rollBack();

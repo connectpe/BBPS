@@ -36,7 +36,7 @@ class UpiCollection extends Model
         'updated_by',
     ];
 
-}
+
 
 
     public function user()
@@ -48,5 +48,6 @@ class UpiCollection extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
+}
 
 
