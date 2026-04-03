@@ -21,6 +21,8 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'transaction_amount',
+        'payin_wallet_amount',
         'mobile',
         'password',
         'forget_password_otp',
