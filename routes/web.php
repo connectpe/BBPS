@@ -130,6 +130,9 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/maintenance-mode', [AdminController::class, 'maintenance'])->name('maintenance_mode');
         Route::post('/maintenance-mode/update', [AdminController::class, 'maintenanceMode'])->name('update_maintenance_mode');
 
+        Route::get('upi-callback', [AdminController::class, 'UpiCallback'])->name('upi_callback');
+        Route::get('upi-manual-settlement', [AdminController::class, 'ManualSettlement'])->name('upi_manual_settlement');
+
 
     });
 });
@@ -163,7 +166,8 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
     Route::post('update-ip-address/{id}', [UserController::class, 'editIpWhiteList'])->name('update_ip_address');
     Route::get('status-ip-address/{id}', [UserController::class, 'statusIpWhiteList'])->name('status_ip_address');
     Route::get('delete-ip-address/{id}', [UserController::class, 'deleteIpWhiteList'])->name('delete_ip_address');
-    Route::post('webhook-url/save', [UserController::class, 'WebHookUrl'])->name('web_hook_url');
+    Route::post('add-webhook-url', [UserController::class, 'addWebHookUrl'])->name('add_web_hook_url');
+    Route::post('edit-webhook-url/', [UserController::class, 'updateWebHookUrl'])->name('edit_web_hook_url');
     Route::post('/complaints', [TransactionController::class, 'store'])->name('complaints.store');
     Route::get('/complete-kyc', [UserController::class, 'redirectToKycPage'])->name('open.kyc.page');
     Route::get('/complaint-status', [TransactionController::class, 'complaintStatus'])->name('complaint_status');
@@ -234,6 +238,15 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('verify-otp-forget-mpin',[UserController::class,'verifyOtpForgetMpin'])->name('verify_otp_forget_mpin');
     Route::post('forget-mpin',[UserController::class,'forgetMPIN'])->name('forget_mpin');
     Route::get('all-agreements', [UserController::class, 'allAgreement'])->name('all_agreements');
+
+
+
+
+
+    Route::get('upi-initiation', [AdminController::class, 'UpiInitiation'])->name('upi_initiation');
+    Route::get('upi-collection', [AdminController::class, 'UpiCollection'])->name('upi_collection');
+    Route::get('all-upi-transactions', [AdminController::class, 'UpiTransaction'])->name('all_upi_transactions');
+   
 });
 
 Route::group(['middleware' => ['logs', 'auth'], 'prefix' => 'document'], function () {

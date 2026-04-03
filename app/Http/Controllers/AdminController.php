@@ -22,6 +22,7 @@ use App\Models\UserConfig;
 use App\Models\UsersBank;
 use App\Models\UserService;
 use App\Models\WebHookUrl;
+use App\Models\UpiCollection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
@@ -108,6 +109,8 @@ class AdminController extends Controller
                 });
             }
 
+            $data['serviceActive'] = CommonHelper::checkUserServiceActivate($userId);
+
             $data['userdata'] = Cache::remember("{$cachePrefix}userdata", 600, function () use ($userId) {
                 return User::where('id', $userId)
                     ->select('name', 'email', 'mobile', 'status', 'role_id', 'profile_image', 'transaction_amount', 'created_at')
@@ -181,7 +184,7 @@ class AdminController extends Controller
             });
 
             $data['webhookUrl'] = Cache::remember("{$cachePrefix}webhookUrl", 18000, function () use ($userId) {
-                return WebHookUrl::select('url')->where('user_id', $userId)->first();
+                return WebHookUrl::with('service')->select('id', 'url', 'service_id', 'service_slug', 'created_at')->where('user_id', $userId)->orderBy('id', 'desc')->get();
             });
 
             $data['txnStats'] = Cache::remember("{$cachePrefix}txnStats", 60, function () use ($userId, $role) {
@@ -196,7 +199,7 @@ class AdminController extends Controller
             $data['walletBalance'] = $data['userdata']->transaction_amount ?? 0;
             $data['completedTxn'] = $data['txnStats']->total_count ?? 0;
             $data['totalSpent'] = $data['txnStats']->total_amount ?? 0;
-
+ 
             return view('Admin.profile')->with($data);
         } catch (\Exception $e) {
             return response()->json([
@@ -241,7 +244,7 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
@@ -308,7 +311,7 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
@@ -368,7 +371,7 @@ class AdminController extends Controller
             }
 
             $request->validate([
-                'service_name' => 'required|string|max:50|unique:global_services,service_name,'.$serviceId,
+                'service_name' => 'required|string|max:50|unique:global_services,service_name,' . $serviceId,
             ]);
 
             $service = GlobalService::where('id', $serviceId)->first();
@@ -491,7 +494,7 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
 
@@ -541,7 +544,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -552,7 +555,7 @@ class AdminController extends Controller
         $request->validate(
             [
                 'serviceId' => 'required|exists:global_services,id',
-                'providerName' => 'required|string|max:100|unique:providers,provider_name,'.$Id,
+                'providerName' => 'required|string|max:100|unique:providers,provider_name,' . $Id,
             ],
             [
                 'serviceId.required' => 'Please select a service.',
@@ -589,7 +592,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -723,13 +726,13 @@ class AdminController extends Controller
 
                 return response()->json([
                     'status' => false,
-                    'message' => 'Error : '.$e->getMessage(),
+                    'message' => 'Error : ' . $e->getMessage(),
                 ]);
             }
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
@@ -766,7 +769,7 @@ class AdminController extends Controller
         // Validation
         $validator = Validator::make($request->all(), [
 
-            'scheme_name' => 'required|string|max:255|unique:schemes,scheme_name,'.$schemeId,
+            'scheme_name' => 'required|string|max:255|unique:schemes,scheme_name,' . $schemeId,
             'rules' => 'required|array|min:1',
             'rules.*.rule_id' => 'nullable|integer|exists:scheme_rules,id',
             'rules.*.service_id' => 'required|integer|exists:global_services,id',
@@ -899,7 +902,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error: '.$e->getMessage(),
+                'message' => 'Error: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -950,7 +953,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
@@ -985,7 +988,7 @@ class AdminController extends Controller
     public function updateAssignedSchemetoUser(Request $request, $configId)
     {
         $validator = Validator::make($request->all(), [
-            'user_id' => 'required|exists:users,id|unique:user_configs,user_id,'.$configId,
+            'user_id' => 'required|exists:users,id|unique:user_configs,user_id,' . $configId,
             'scheme_id' => 'required|exists:schemes,id',
         ], [
             'user_id.required' => 'User Id is required',
@@ -1059,7 +1062,7 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json(['status' => false, 'message' => 'Error: '.$e->getMessage()], 500);
+            return response()->json(['status' => false, 'message' => 'Error: ' . $e->getMessage()], 500);
         }
     }
 
@@ -1082,7 +1085,7 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json(['status' => false, 'message' => 'Error : '.$e->getMessage()]);
+            return response()->json(['status' => false, 'message' => 'Error : ' . $e->getMessage()]);
         }
     }
 
@@ -1105,7 +1108,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
@@ -1146,7 +1149,7 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json(['status' => false, 'message' => 'Error: '.$e->getMessage()], 500);
+            return response()->json(['status' => false, 'message' => 'Error: ' . $e->getMessage()], 500);
         }
     }
 
@@ -1162,7 +1165,7 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
@@ -1195,7 +1198,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error: '.$e->getMessage(),
+                'message' => 'Error: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -1260,7 +1263,7 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
@@ -1280,8 +1283,8 @@ class AdminController extends Controller
 
             $request->validate([
                 'name' => 'required|string',
-                'email' => 'required|email|unique:users,email,'.$user_id,
-                'mobile' => 'required|digits:10|unique:users,mobile,'.$user_id,
+                'email' => 'required|email|unique:users,email,' . $user_id,
+                'mobile' => 'required|digits:10|unique:users,mobile,' . $user_id,
 
             ]);
 
@@ -1359,7 +1362,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error: '.$e->getMessage(),
+                'message' => 'Error: ' . $e->getMessage(),
             ]);
         }
     }
@@ -1368,7 +1371,7 @@ class AdminController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            'category_name' => 'required|string|max:50|regex:/^[A-Za-z0-9 _-]+$/|unique:complaints_categories,category_name,'.$Id,
+            'category_name' => 'required|string|max:50|regex:/^[A-Za-z0-9 _-]+$/|unique:complaints_categories,category_name,' . $Id,
         ], [
             'category_name.required' => 'Category name is required.',
             'category_name.string' => 'Category name must be a valid string.',
@@ -1415,7 +1418,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error: '.$e->getMessage(),
+                'message' => 'Error: ' . $e->getMessage(),
             ]);
         }
     }
@@ -1454,7 +1457,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Something went wrong: '.$e->getMessage(),
+                'message' => 'Something went wrong: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -1519,7 +1522,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Something went wrong: '.$e->getMessage(),
+                'message' => 'Something went wrong: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -1563,7 +1566,7 @@ class AdminController extends Controller
             $data = [
                 'service_id' => $request->service_id,
                 'provider_id' => $request->provider_id,
-                'provider_slug' => 'default_'.$provider->provider_slug,
+                'provider_slug' => 'default_' . $provider->provider_slug,
                 'updated_by' => $updatedBy,
             ];
 
@@ -1581,7 +1584,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -1589,7 +1592,7 @@ class AdminController extends Controller
     public function editDefaultProvider(Request $request, $Id)
     {
         $validator = Validator::make($request->all(), [
-            'service_id' => 'required|exists:global_services,id|unique:default_providers,service_id,'.$Id,
+            'service_id' => 'required|exists:global_services,id|unique:default_providers,service_id,' . $Id,
             'provider_id' => 'required|exists:providers,id',
         ]);
 
@@ -1636,7 +1639,7 @@ class AdminController extends Controller
             $data = [
                 'service_id' => $request->service_id,
                 'provider_id' => $request->provider_id,
-                'provider_slug' => 'default_'.$provider->provider_slug,
+                'provider_slug' => 'default_' . $provider->provider_slug,
                 'updated_by' => $updatedBy,
             ];
 
@@ -1654,7 +1657,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
 
             ], 500);
         }
@@ -1669,7 +1672,7 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
@@ -1690,7 +1693,7 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
@@ -1783,7 +1786,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
@@ -1808,7 +1811,7 @@ class AdminController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
@@ -1904,7 +1907,7 @@ class AdminController extends Controller
 
         try {
             $file = $request->file('file');
-            $fileName = time().'_'.$file->getClientOriginalName();
+            $fileName = time() . '_' . $file->getClientOriginalName();
             $filePath = $file->storeAs('agreements', $fileName, 'public');
 
             Agreement::create([
@@ -1988,7 +1991,7 @@ class AdminController extends Controller
         try {
             $validated = $request->validate([
                 'category_id' => 'required|exists:business_categories,id',
-                'name' => 'required|string|max:255|unique:business_categories,name,'.$request->category_id,
+                'name' => 'required|string|max:255|unique:business_categories,name,' . $request->category_id,
             ]);
 
             $category = BusinessCategory::findOrFail($validated['category_id']);
@@ -2021,10 +2024,10 @@ class AdminController extends Controller
             $agreement = Agreement::findOrFail($request->id);
             $agreement->is_deleted = '1';
             $agreement->save();
-        return response()->json([
-            'status' => true,
-            'message' => 'Agreement deleted successfully.',
-        ]);
+            return response()->json([
+                'status' => true,
+                'message' => 'Agreement deleted successfully.',
+            ]);
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,
@@ -2088,12 +2091,37 @@ class AdminController extends Controller
                 'status' => true,
                 'message' => 'Maintenance mode updated successfully',
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function UpiInitiation(){
+        $customers = UpiCollection::select('cust_name')->whereNotNull('cust_name')->distinct()->orderBy('cust_name', 'ASC')->pluck('cust_name');
+        return view('UpiServices.upi-initiation', compact('customers'));
+    }
+
+    public function UpiCollection()
+    {
+        $customers = UpiCollection::select('cust_name')->whereNotNull('cust_name')->distinct()->orderBy('cust_name', 'ASC')->pluck('cust_name');
+        return view('UpiServices.upi-collection', compact('customers'));
+    }
+
+    public function UpiTransaction(){
+        $customers = UpiCollection::select('cust_name')->whereNotNull('cust_name')->distinct()->orderBy('cust_name', 'ASC')->pluck('cust_name');
+        return view('UpiServices.all-upi-transactions', compact('customers'));
+    }
+
+    public function UpiCallback()
+    {
+        return view('UpiServices.upi-callback');
+    }
+
+    public function ManualSettlement()
+    {
+        return view('UpiServices.upi-manual-settlement');
     }
 }

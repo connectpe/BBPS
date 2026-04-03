@@ -7,6 +7,9 @@ use App\Models\IpWhitelist;
 use App\Models\OauthUser;
 use App\Models\MobikwikToken;
 use App\Models\UserRooting;
+use App\Models\UserService;
+use App\Models\DefaultProvider;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
@@ -98,6 +101,133 @@ class CommonHelper
                 'file'  => $e->getFile(),
                 'line'  => $e->getLine(),
             ]);
+        }
+    }
+
+    public static function getUserIdUsingKeyAndSecret($header)
+    {
+        $hash = hash('sha512', $header['php-auth-pw'][0]);
+        $key = $header['php-auth-user'][0];
+        $OauthClient = OauthUser::select('user_id')->where(['client_key' => $key, 'client_secret' => $hash])->first();
+        return $OauthClient->user_id;
+    }
+
+    public static function getUserIdAndServiceIdUsingKeyAndSecret($header)
+    {
+        if (!isset($header['php-auth-user'][0]) || !isset($header['php-auth-pw'][0])) {
+            return [
+                'status' => false,
+                'message' => 'Authorization headers missing'
+            ];
+        }
+
+        $key = $header['php-auth-user'][0];
+        $password = $header['php-auth-pw'][0];
+
+        $OauthClient = OauthUser::select('user_id', 'service_id')
+            ->where([
+                'client_id' => $key,
+                'client_secret' => $password
+            ])->first();
+
+        if (!$OauthClient) {
+            return [
+                'status' => false,
+                'message' => 'Invalid clientId Or Secret Key'
+            ];
+        }
+        return [
+            'user_id' => $OauthClient->user_id ?? null,
+            'service_id' => $OauthClient->service_id ?? null
+        ];
+    }
+
+    public static function isGlobalServiceActive($serviceId)
+    {
+        $service = GlobalService::where('id', $serviceId)->first();
+
+        if (!$service) {
+            return [
+                'status' => false,
+                'message' => 'Service not found'
+            ];
+        }
+
+        if ($service->is_active != 1) {
+            return [
+                'status' => false,
+                'message' => 'Global Service is currently inactive'
+            ];
+        }
+
+        if ($service->is_activation_allowed != 1) {
+            return [
+                'status' => false,
+                'message' => 'Global service activation is inactive'
+            ];
+        }
+
+        return [
+            'status' => true,
+            'message' => 'Global service is active'
+        ];
+    }
+
+    public static function isUserServiceActiveUsingUserIdAndServiceId($userId, $serviceId)
+    {
+        $userService = UserService::where('user_id', $userId)
+            ->where('service_id', $serviceId)
+            ->first();
+
+        if (!$userService) {
+            return [
+                'status' => false,
+                'message' => 'Service not assigned to this user'
+            ];
+        }
+
+        if ($userService->status !== 'approved') {
+            return [
+                'status' => false,
+                'message' => 'Service is not approved for this user'
+            ];
+        }
+
+        if ($userService->is_active != 1) {
+            return [
+                'status' => false,
+                'message' => 'Service is inactive for this user'
+            ];
+        }
+
+        if ($userService->is_api_enable != 1) {
+            return [
+                'status' => false,
+                'message' => 'API access is disabled for this service'
+            ];
+        }
+
+        return [
+            'status' => true,
+            'message' => 'User service is active'
+        ];
+    }
+
+    public static function getProviderSlug($userId, $serviceId)
+    {
+        $userRooting = UserRooting::select('provider_slug')->where('user_id', $userId)
+            ->where('service_id', $serviceId)->first();
+
+        if ($userRooting) {
+            return [
+                'provider_slug' => $userRooting->provider_slug
+            ];
+        } else {
+
+            $defaultProvider = DefaultProvider::select('provider_slug')->where('service_id', $serviceId)->first();
+            return [
+                'provider_slug' => $defaultProvider->provider_slug
+            ];
         }
     }
 
@@ -226,5 +356,10 @@ class CommonHelper
         } else {
             return ucfirst($text);
         }
+    }
+
+    public static function checkUserServiceActivate($userId)
+    {
+        return UserService::where('user_id', $userId)->where('status', 'approved')->where('is_active', '1')->exists();
     }
 }
