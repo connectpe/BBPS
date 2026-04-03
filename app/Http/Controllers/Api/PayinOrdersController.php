@@ -4,17 +4,84 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Helpers\CommonHelper;
+use App\Models\User;
+use App\Models\BusinessInfo;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Facades\Log;
 
 class PayinOrdersController extends Controller
 {
+
+    private $cashfreePayinUrl;
+    private $cashfreeappid;
+    private $cashfreesecretkey;
+    private $cashfreeapiversion;
+
+    public function __construct()
+    {
+        $this->cashfreePayinUrl = config('payin.cashfree_url');
+        $this->cashfreeappid = config('payin.cashfree_app_id');
+        $this->cashfreesecretkey = config('payin.cashfree_secret_key');
+        $this->cashfreeapiversion = config('payin.cashfree_api_version');
+    }
+
+
+
     public function createOrders(Request $request)
     {
-        $userId = CommonHelper::getUserIdUsingKeyAndSecret($request->header());
-        if (!$userId) {
+        $userIdAndServiceId = CommonHelper::getUserIdAndServiceIdUsingKeyAndSecret($request->header());
+        dd($userIdAndServiceId);
+
+        $userId = $userIdAndServiceId['user_id'] ?? null;
+        $serviceId = $userIdAndServiceId['service_id'] ?? null;
+
+        $activeUser = User::where('id', $userId)->where('status', 1)->first();
+
+        if (!$activeUser) {
             return response()->json([
-                'message' => 'Invalid Credentials'
+                'message' => 'Your are inactive user, Please contact to the administrator'
             ]);
         }
+
+        $isKyc = BusinessInfo::where('user_id', $userId)->where('is_kyc', 1)->first();
+
+        if (!$isKyc) {
+            return response()->json([
+                'message' => 'KYC not completed'
+            ]);
+        }
+
+        $isGlobalServiceActive = CommonHelper::isGlobalServiceActive($serviceId);
+
+        if (!$isGlobalServiceActive['status']) {
+            return response()->json([
+                'status' => false,
+                'message' => $isGlobalServiceActive['message']
+            ], 400);
+        }
+
+        $isUserServiceActive = CommonHelper::isUserServiceActiveUsingUserIdAndServiceId($userId, $serviceId);
+
+        if (!$isGlobalServiceActive['status']) {
+            return response()->json([
+                'status' => false,
+                'message' => $isUserServiceActive['message']
+            ], 400);
+        }
+
+        $getProviderSlug = CommonHelper::getProviderSlug($userId, $serviceId);
+
+        if (!$getProviderSlug) {
+            return response()->json([
+                'message' => 'Provider not found for the user and service'
+            ]);
+        }
+
+        $providerSlug = $getProviderSlug['provider_slug'] ?? null;
+
+        switch ($providerSlug) {
         $data = DB::table('users')->where('id', $userId)->first();
         $findtype = DB::table('global_config')->select('attribute_1')->where('slug', 'default_payin_route')->first();
         // $type = $data->payin_switch ?$data->payin_switch:'rabbitpe';
@@ -163,6 +230,62 @@ class PayinOrdersController extends Controller
                         'message' => $e->getMessage(),
                     ], 500);
                 }
+
+                break;
+
+            case 'cashfree':
+                // Implement Cashfree payment logic here
+                $request->validate([
+                    'name' => 'required|string|max:100',
+                    'email' => 'required|email|max:100',
+                    'mobileNumber' => 'required|digits:10',
+                    'amount' => 'required|numeric|min:100',
+                    'cust_txn_id' => 'required|string|max:100|unique:upi_collections,cust_txn_id',
+                ]);
+
+                $url = $this->cashfreePayinUrl;
+
+                $payload = [
+                    "customer_details" => [
+                        "customer_name" => $request->name,
+                        "customer_email" => $request->email,
+                        "customer_phone" => $request->mobileNumber
+                    ],
+                    "link_amount" => $request->amount,
+                    "link_currency" => "INR",
+                    "link_id" => $request->cust_txn_id,
+                    "link_purpose" => "Payment"
+                ];
+
+                $response = Http::withHeaders([
+                    'x-api-version' => $this->cashfreeapiversion,
+                    'x-client-id' => $this->cashfreeappid,
+                    'x-client-secret' => $this->cashfreesecretkey,
+                    'Content-Type' => 'application/json',
+                ])
+                    ->timeout(40)
+                    ->connectTimeout(30)
+                    ->retry(
+                        3,
+                        2000,
+                        function ($exception, $request) {
+                            return $exception instanceof ConnectionException;
+                        }
+                    )
+                    ->post($url, $payload);
+
+                $result = $response->json();
+
+                Log::info('Cashfree Payin Response', [
+                    'request' => $payload,
+                    'response' => $result,
+                ]);
+
+                return response()->json([
+                    'data' => $result,
+                    'status' => $response->successful(),
+                    'message' => $response->successful() ? 'Payment initiated successfully' : 'API Error',
+                ]);
 
                 break;
 
