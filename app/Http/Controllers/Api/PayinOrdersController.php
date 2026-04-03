@@ -34,12 +34,6 @@ class PayinOrdersController extends Controller
         $userIdAndServiceId = CommonHelper::getUserIdAndServiceIdUsingKeyAndSecret($request->header());
         dd($userIdAndServiceId);
 
-        if (!$userIdAndServiceId) {
-            return response()->json([
-                'message' => 'Invalid Credentials'
-            ]);
-        }
-
         $userId = $userIdAndServiceId['user_id'] ?? null;
         $serviceId = $userIdAndServiceId['service_id'] ?? null;
 
@@ -88,6 +82,52 @@ class PayinOrdersController extends Controller
         $providerSlug = $getProviderSlug['provider_slug'] ?? null;
 
         switch ($providerSlug) {
+        $data = DB::table('users')->where('id', $userId)->first();
+        $findtype = DB::table('global_config')->select('attribute_1')->where('slug', 'default_payin_route')->first();
+        // $type = $data->payin_switch ?$data->payin_switch:'rabbitpe';
+        $type = $findtype->attribute_1;
+
+        $status = CommonHelper::isServiceEnabled($userId, 'srv_162607709190', 'isserviceEnabled');
+        // if(!$status){
+        //     return response()->json([
+        //         'status'=> false,
+        //         'message'=> 'Downtime started now'
+        //     ]);
+        // }
+
+        // return response()->json([
+        //     'status'=> false,
+        //     'message'=> 'Downtime started now'
+        // ]);
+        // if($userId == '554'){
+        //     $type = 'laraware';
+        // } 
+
+        // return response()->json([
+        //     'status' => false,
+        //     'message' => 'Service is under maintenance',
+        // ]);
+
+        $isActive = CommonHelper::isuserActiveServiceAccount($userId);
+
+        if (!$isActive) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Your are inactive user, Please contact to the administrator',
+
+            ]);
+        }
+
+        $isActiveServices = CommonHelper::isServiceEnabled($userId, 'srv_162607709190', 'isserviceEnabled');
+        //  dd($isActiveServices);
+        if (!$isActiveServices) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Service is down Please Contact to the admin',
+
+            ]);
+        }
+        switch ($type) {
             case 'cgpey':
                 try {
                     $rules = [

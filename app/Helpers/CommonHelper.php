@@ -231,7 +231,6 @@ class CommonHelper
         }
     }
 
-
     public static function getUserRouteUsingUserId($userId = '', $service_id, $area)
     {
         $data['slug'] = "no_route_found";
