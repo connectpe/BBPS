@@ -10,6 +10,7 @@ use App\Models\BusinessInfo;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class PayinOrdersController extends Controller
 {
@@ -32,20 +33,20 @@ class PayinOrdersController extends Controller
     public function createOrders(Request $request)
     {
         $userIdAndServiceId = CommonHelper::getUserIdAndServiceIdUsingKeyAndSecret($request->header());
-        dd($userIdAndServiceId);
+        // dd($userIdAndServiceId);
 
         $userId = $userIdAndServiceId['user_id'] ?? null;
         $serviceId = $userIdAndServiceId['service_id'] ?? null;
-
-        $activeUser = User::where('id', $userId)->where('status', 1)->first();
-
+        
+        $activeUser = User::where('id', $userId)->where('status', '1')->first();
+       
         if (!$activeUser) {
             return response()->json([
                 'message' => 'Your are inactive user, Please contact to the administrator'
             ]);
         }
 
-        $isKyc = BusinessInfo::where('user_id', $userId)->where('is_kyc', 1)->first();
+        $isKyc = BusinessInfo::where('user_id', $userId)->where('is_kyc', '1')->first();
 
         if (!$isKyc) {
             return response()->json([
@@ -244,6 +245,7 @@ class PayinOrdersController extends Controller
                 ]);
 
                 $url = $this->cashfreePayinUrl;
+                // dd($url);
 
                 $payload = [
                     "customer_details" => [
@@ -256,6 +258,8 @@ class PayinOrdersController extends Controller
                     "link_id" => $request->cust_txn_id,
                     "link_purpose" => "Payment"
                 ];
+
+                // dd($this->cashfreeapiversion, $this->cashfreeappid, $this->cashfreesecretkey, $payload);
 
                 $response = Http::withHeaders([
                     'x-api-version' => $this->cashfreeapiversion,
@@ -275,6 +279,7 @@ class PayinOrdersController extends Controller
                     ->post($url, $payload);
 
                 $result = $response->json();
+                dd($result);
 
                 Log::info('Cashfree Payin Response', [
                     'request' => $payload,
