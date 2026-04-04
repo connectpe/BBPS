@@ -595,7 +595,7 @@ class UserController extends Controller
             $userId = auth()->id();
             $clientId = 'RAFI' . strtoupper($request->service) . '_' . Str::random(16);
             $plainSecret = Str::random(32);
-            $encryptedSecret = encrypt($plainSecret);
+            $hashedSecret = hash('sha512', $plainSecret);
 
             $secretCount = OauthUser::where('user_id', $userId)
                 ->where('service_id', $service->id)
@@ -611,7 +611,7 @@ class UserController extends Controller
                 'user_id' => $userId,
                 'service_id' => $service->id,
                 'client_id' => $clientId,
-                'client_secret' => $encryptedSecret,
+                'client_secret' =>$hashedSecret,
                 'is_active' => '1',
             ]);
             Cache::forget("profile:{$userId}:saltKeys");

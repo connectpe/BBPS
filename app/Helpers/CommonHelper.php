@@ -122,7 +122,7 @@ class CommonHelper
         }
 
         $key = $header['php-auth-user'][0];
-        $password = $header['php-auth-pw'][0];
+        $password = hash('sha512', $header['php-auth-pw'][0]);
 
         $OauthClient = OauthUser::select('user_id', 'service_id')
             ->where([
@@ -137,6 +137,7 @@ class CommonHelper
             ];
         }
         return [
+            'status' => true,
             'user_id' => $OauthClient->user_id ?? null,
             'service_id' => $OauthClient->service_id ?? null
         ];
