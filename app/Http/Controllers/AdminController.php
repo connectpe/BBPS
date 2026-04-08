@@ -2100,13 +2100,13 @@ class AdminController extends Controller
     }
 
     public function UpiInitiation(){
-        $customers = UpiCollection::select('cust_name')->whereNotNull('cust_name')->distinct()->orderBy('cust_name', 'ASC')->pluck('cust_name');
+        $customers = UpiCollection::select('cust_name')->whereNotNull('cust_name')->where('status', '=', 'initiated')->distinct()->orderBy('cust_name', 'ASC')->pluck('cust_name');
         return view('UpiServices.upi-initiation', compact('customers'));
     }
 
     public function UpiCollection()
     {
-        $customers = UpiCollection::select('cust_name')->whereNotNull('cust_name')->distinct()->orderBy('cust_name', 'ASC')->pluck('cust_name');
+        $customers = UpiCollection::select('cust_name')->whereNotNull('cust_name')->where('status', '=', 'success')->distinct()->orderBy('cust_name', 'ASC')->pluck('cust_name');
         return view('UpiServices.upi-collection', compact('customers'));
     }
 
