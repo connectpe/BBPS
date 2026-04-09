@@ -413,6 +413,40 @@
                     Maintenance Mode
                 </a>
             </li>
+            <li class="nav-item mt-2">
+                <ul class="nav nav-pills flex-column mb-auto">
+
+                    @php
+                        $settingsRoute = ['users_log']; // add more routes if needed
+                        $settingsActive = in_array(Route::currentRouteName(), $settingsRoute);
+                    @endphp
+
+                    <li class="nav-item">
+                        <a class="nav-link text-white d-flex justify-content-between align-items-center {{ $settingsActive ? '' : 'collapsed' }} {{ $settingsActive ? 'sidebar-active' : '' }}"
+                            data-bs-toggle="collapse" href="#settingsMenu" role="button"
+                            aria-expanded="{{ $settingsActive ? 'true' : 'false' }}">
+
+                            <span><i class="bi bi-gear me-2"></i> Settings</span>
+                            <i class="bi bi-chevron-down small"></i>
+                        </a>
+
+                        <div class="collapse {{ $settingsActive ? 'show' : '' }} ms-3" id="settingsMenu">
+                            <ul class="nav flex-column">
+
+                                <!-- Users Log -->
+                                <li class="nav-item">
+                                    <a href="{{ route('users_log') }}"
+                                        class="nav-link text-white {{ Route::currentRouteName() == 'users_log' ? 'sidebar-active' : '' }}">
+                                        <i class="bi bi-clock-history me-2"></i>
+                                        Users Log
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </li>
 
             <!-- Logout -->
             <li class="nav-item">
@@ -426,6 +460,8 @@
                     </button>
                 </form>
             </li>
+
+
         </ul>
     @elseif($role == 2)
         <ul class="nav nav-pills flex-column mb-auto">

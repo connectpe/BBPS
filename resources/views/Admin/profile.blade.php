@@ -1502,12 +1502,12 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                         <div class="step-label">Banking</div>
                     </div>
 
-                    <div class="step-line"></div>
+                    {{-- <div class="step-line"></div>
 
                     <div class="step-item" data-step="5">
                         <span class="step-circle">5</span>
                         <div class="step-label">Transaction</div>
-                    </div>
+                    </div> --}}
 
 
                 </div>
@@ -2106,53 +2106,12 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                     </div>
                 </div>
 
-
                 {{-- <div class="step step-5 d-none">
-                    <h6 class="mb-3">Transaction Details</h6>
-
-                    <form id="nsdlPayForm">
-                        @csrf
-
-                        <div class="row g-2 align-items-end">
-                            <div class="col-md-8">
-                                <label class="form-label">Amount</label>
-                                <input type="number" class="form-control" name="amount" placeholder="Enter amount"
-                                    min="1" required>
-                            </div>
-
-                            <div class="col-md-4 d-grid">
-                                <button type="submit" class="btn buttonColor" id="payNowBtn">
-                                    Pay Now
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-
-                    <div class="mt-3 d-none" id="qrBox">
-                        <div class="alert alert-info mb-2">
-                            <div><b>Txn ID:</b> <span id="txnIdText">-</span></div>
-                            <div><b>Order ID:</b> <span id="orderIdText">-</span></div>
-                        </div>
-
-                        <div class="text-center border rounded p-3">
-                            <img id="qrImg" src="" alt="QR Code" style="max-width:220px; display:none;">
-                            <div id="qrCanvasWrap"></div>
-                            <div class="small text-muted mt-2">Scan this QR to pay</div>
-                        </div>
-                    </div>
-                </div> --}}
-                <div class="step step-5 d-none">
                     <div class="row justify-content-center">
                         <div class="col-lg-7">
                             <div class="card border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
                                 <div class="p-4 text-center"
                                     style="background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%); border-bottom: 1px solid #e2e8f0;">
-
-                                    {{-- <div
-                                        class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-2 shadow-sm"
-                                        style="width:54px; height:54px;">
-                                        <i class="bi bi-shield-lock-fill fs-4"></i>
-                                    </div> --}}
 
                                     <h5 class="fw-bold mb-1" style="color: #1e293b;">Secure Transaction</h5>
 
@@ -2236,7 +2195,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> --}}
 
 
 
@@ -2814,8 +2773,8 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
 
             // progress bar
             const stepNo = next.classList.contains('step-2') ? 2 :
-                next.classList.contains('step-3') ? 3 :
-                    next.classList.contains('step-4') ? 4 : 5;
+               next.classList.contains('step-3') ? 3 :
+               next.classList.contains('step-4') ? 4 : 1;
 
 
             document.querySelectorAll('.step-item').forEach(item => {
@@ -2828,7 +2787,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
 
 <script>
     let currentStep = 1;
-    const totalSteps = 5;
+    const totalSteps = 4;
 
 
     function updateNextButton(step, totalSteps) {
@@ -2859,7 +2818,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
 
         $('#prevStep').toggle(step !== 1);
         $('#nextStep').text(step === totalSteps ? 'Submit' : 'Next');
-        updateNextButton(step, 5);
+        updateNextButton(step, 4);
     }
 
     $('#nextStep').click(function () {
