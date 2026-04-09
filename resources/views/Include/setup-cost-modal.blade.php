@@ -73,7 +73,7 @@
                     Cancel
                 </button>
 
-                <button class="btn buttonColor px-4">
+                <button class="btn buttonColor px-4" id="payNowBtn">
                     Pay Now
                 </button>
             </div>
@@ -81,3 +81,30 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.getElementById("payNowBtn").addEventListener("click", function() {
+
+        let amount = parseInt(document.getElementById("amount").innerText);
+        let gst = parseInt(document.getElementById("gst").innerText);
+        let total = parseInt(document.getElementById("total").innerText);
+
+        let formData = new FormData();
+        formData.append('amount', amount);
+        formData.append('gst', gst);
+        formData.append('total', total);
+
+        fetch("{{ route('payin.orders') }}", {
+                method: "POST",
+                headers: {
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log(data);
+            })
+            .catch(err => console.log(err));
+    });
+</script>
