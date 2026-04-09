@@ -2870,7 +2870,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
     });
 </script>
 
-<script>
+{{-- <script>
     $(document).on('submit', '#nsdlPayForm', function (e) {
         e.preventDefault();
 
@@ -2922,7 +2922,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
             }
         });
     });
-</script>
+</script> --}}
 
 
 <script>
