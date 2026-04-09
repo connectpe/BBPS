@@ -43,8 +43,7 @@ Route::post('forget-password', [AuthController::class, 'forgetPassword'])->name(
 
 
 Route::group(['middleware' => ['auth']], function () {
-    Route::group(['prefix' => 'admin'], function () {
-    });
+    Route::group(['prefix' => 'admin'], function () {});
 
     Route::group(['middleware' => ['isAdmin'], 'prefix' => 'admin'], function () {
         Route::get('/dashboard', function () {
@@ -131,8 +130,6 @@ Route::group(['middleware' => ['auth']], function () {
 
         Route::get('upi-callback', [AdminController::class, 'UpiCallback'])->name('upi_callback');
         Route::get('upi-manual-settlement', [AdminController::class, 'ManualSettlement'])->name('upi_manual_settlement');
-
-
     });
 });
 
@@ -189,8 +186,6 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
     // Load Money Request 
     Route::get('/load-money-request', [TransactionController::class, 'userMoneyLoadRequests'])->name('user_load_money_request');
     Route::post('add-load-money-request', [UserController::class, 'addMoneyRequest'])->name('add_load_money_request');
-
-   
 });
 
 
@@ -233,9 +228,9 @@ Route::group(['middleware' => ['auth']], function () {
 
     // reseller routes
     Route::get('reports', [LadgerController::class, 'reports'])->name('reseller_reports');
-    Route::get('send-otp-forget-mpin',[UserController::class,'sendForgetMpinOtp'])->name('send_otp_forget_mpin');
-    Route::post('verify-otp-forget-mpin',[UserController::class,'verifyOtpForgetMpin'])->name('verify_otp_forget_mpin');
-    Route::post('forget-mpin',[UserController::class,'forgetMPIN'])->name('forget_mpin');
+    Route::get('send-otp-forget-mpin', [UserController::class, 'sendForgetMpinOtp'])->name('send_otp_forget_mpin');
+    Route::post('verify-otp-forget-mpin', [UserController::class, 'verifyOtpForgetMpin'])->name('verify_otp_forget_mpin');
+    Route::post('forget-mpin', [UserController::class, 'forgetMPIN'])->name('forget_mpin');
     Route::get('all-agreements', [UserController::class, 'allAgreement'])->name('all_agreements');
 
 
@@ -245,7 +240,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('upi-initiation', [AdminController::class, 'UpiInitiation'])->name('upi_initiation');
     Route::get('upi-collection', [AdminController::class, 'UpiCollection'])->name('upi_collection');
     Route::get('all-upi-transactions', [AdminController::class, 'UpiTransaction'])->name('all_upi_transactions');
-   
 });
 
 Route::group(['middleware' => ['logs', 'auth'], 'prefix' => 'document'], function () {
@@ -277,7 +271,7 @@ Route::group(['middleware' => ['auth', 'isSupport'], 'prefix' => 'support'], fun
     Route::get('/dashboard', [HomeController::class, 'supportdashboard'])->name('support.dashboard');
 });
 
- Route::get('/maintenance-mode', [UserController::class, 'userMaintenanceMode'])->name('user_maintenance_mode');
+Route::get('/maintenance-mode', [UserController::class, 'userMaintenanceMode'])->name('user_maintenance_mode');
 
 
 Route::prefix('admin', function () {
