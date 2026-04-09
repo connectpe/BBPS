@@ -3514,27 +3514,24 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
 
 <script>
     $(document).ready(function () {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "This IP will be removed from your whitelist!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes',
-            cancelButtonText: 'Cancel'
-        }).then((result) => {
-            if (result.isConfirmed) {
-
-                if ($('#changeMpinForm').length > 0) {
-                    $('#changeMpinForm').on('submit', function (e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-
+        if ($('#changeMpinForm').length > 0) {
+            $('#changeMpinForm').on('submit', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "Do you want to update your MPIN?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, update',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
                         $('.text-danger').text('');
                         let submitBtn = $(this).find('button[type="submit"]');
-                        submitBtn.prop('disabled', true).html(
-                            '<i class="spinner-border spinner-border-sm"></i> Updating...');
+                        submitBtn.prop('disabled', true).html('<i class="spinner-border spinner-border-sm"></i> Updating...');
 
                         $.ajax({
                             url: "{{ route('generate_mpin') }}",
@@ -3558,8 +3555,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                                         $('.error-' + key).text(value[0]);
                                     });
                                 } else {
-                                    let errorMsg = xhr.responseJSON ? xhr.responseJSON.message :
-                                        "Internal Server Error";
+                                    let errorMsg = xhr.responseJSON ? xhr.responseJSON.message : "Internal Server Error";
                                     Swal.fire('Error', errorMsg, 'error');
                                 }
                             },
@@ -3567,9 +3563,11 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                                 submitBtn.prop('disabled', false).text('Update MPIN');
                             }
                         });
-                    });
-                }
+                    }
+                });
             });
+        }
+    });
 </script>
 
 <script>

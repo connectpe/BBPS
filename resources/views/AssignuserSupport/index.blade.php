@@ -288,7 +288,6 @@
                         $('#assignSupportForm')[0].reset();
                         $('#user_id').val(null).trigger('change');
                         supportTable.ajax.reload();
-                        location.reload();
                     } else {
                         Swal.fire('Error!', res.message, 'error');
                     }

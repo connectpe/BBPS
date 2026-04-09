@@ -65,8 +65,8 @@
                 <div class="col-md-4 d-flex align-items-end">
                     <button class="btn buttonColor me-2 px-4 shadow-sm" id="searchBtn">Search</button>
 
-                    <button class="btn btn-secondary text-white px-4 shadow-sm"
-                        onclick="window.location.reload()">Reset</button>
+                    <button id="resetBtn" class="btn btn-secondary text-white px-4 shadow-sm"
+                        >Reset</button>
                 </div>
             </div>
 
@@ -185,8 +185,6 @@
         </div>
     </div>
 
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script>
         $(document).ready(function() {
@@ -325,6 +323,11 @@
                 $('#scheme_id').val('');
                 $('#schemeForm')[0].reset();
                 $('#rulesTable tbody').empty();
+            });
+            $('#resetBtn').on('click', function() {
+                $('#filter_user').val('').trigger('change');
+                $('#filter_scheme').val('').trigger('change');
+                relationTable.ajax.reload();
             });
 
             $(document).on('click', '.edit-scheme-btn', function() {
