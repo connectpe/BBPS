@@ -6,6 +6,8 @@ use App\Models\UserConfig;
 use App\Models\Transaction;
 use App\Models\WebHookUrl;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 
 class TransactionHelper
 {
@@ -14,6 +16,44 @@ class TransactionHelper
     //     $resp['status'] = false;
     //     $resp['message'] = 'Initiate';
     // }
+
+    public static function sendPayinCallback($userId, $orderId, $payload, $serviceSlug)
+    {
+        $getWebhookUrl = WebHookUrl::where('user_id', $userId)->where('service_slug', $serviceSlug)->first();
+
+        if (! $getWebhookUrl) {
+            Log::warning('Webhook Url not found of this userId ' . $userId);
+            return;
+        }
+
+        $url = $getWebhookUrl->url;
+
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+        ])->retry(2, 200)->post($url, $payload);
+
+        if ($response->successful()) {
+            Log::info('Callback sent successfully', [
+                'order_id' => $orderId,
+                'response' => $response->body(),
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Callback sent successfully',
+            ]);
+        } else {
+            Log::error('Callback failed', [
+                'order_id' => $orderId,
+                'status'   => $response->status(),
+                'body'     => $response->body(),
+            ]);
+            return response()->json([
+                'status' => false,
+                'message' => 'Callback failed with status ' . $response->status(),
+            ]);
+        }
+    }
 
     public static function sendCallback($userId, $reqId, $status)
     {
@@ -28,6 +68,7 @@ class TransactionHelper
             \Log::warning('Webhook Url not found of this userId ' . $userId);
         }
     }
+    
     public function sendPaymentCallback($userId, $txnId)
     {
         try {
