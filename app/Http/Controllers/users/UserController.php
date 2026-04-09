@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\users;
 
+use App\Events\UserActivityEvent;
 use App\Facades\FileUpload;
 use App\Helpers\CommonHelper;
 use App\Models\Agreement;
@@ -611,7 +612,7 @@ class UserController extends Controller
                 'user_id' => $userId,
                 'service_id' => $service->id,
                 'client_id' => $clientId,
-                'client_secret' =>$hashedSecret,
+                'client_secret' => $hashedSecret,
                 'is_active' => '1',
             ]);
             Cache::forget("profile:{$userId}:saltKeys");
@@ -1038,6 +1039,7 @@ class UserController extends Controller
             User::where('id', $user->id)->update([
                 'mpin' => Hash::make($request->new_mpin),
             ]);
+            event(new UserActivityEvent(auth()->user(), 'MPIN Changed'));
             DB::commit();
             return response()->json([
                 'status' => true,
