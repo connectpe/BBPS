@@ -199,7 +199,7 @@ class AdminController extends Controller
             $data['walletBalance'] = $data['userdata']->transaction_amount ?? 0;
             $data['completedTxn'] = $data['txnStats']->total_count ?? 0;
             $data['totalSpent'] = $data['txnStats']->total_amount ?? 0;
- 
+
             return view('Admin.profile')->with($data);
         } catch (\Exception $e) {
             return response()->json([
@@ -2099,7 +2099,8 @@ class AdminController extends Controller
         }
     }
 
-    public function UpiInitiation(){
+    public function UpiInitiation()
+    {
         $customers = UpiCollection::select('cust_name')->whereNotNull('cust_name')->where('status', '=', 'initiated')->distinct()->orderBy('cust_name', 'ASC')->pluck('cust_name');
         return view('UpiServices.upi-initiation', compact('customers'));
     }
@@ -2110,7 +2111,8 @@ class AdminController extends Controller
         return view('UpiServices.upi-collection', compact('customers'));
     }
 
-    public function UpiTransaction(){
+    public function UpiTransaction()
+    {
         $customers = UpiCollection::select('cust_name')->whereNotNull('cust_name')->distinct()->orderBy('cust_name', 'ASC')->pluck('cust_name');
         return view('UpiServices.all-upi-transactions', compact('customers'));
     }
@@ -2123,5 +2125,74 @@ class AdminController extends Controller
     public function ManualSettlement()
     {
         return view('UpiServices.upi-manual-settlement');
+    }
+
+    public function usersLog()
+    {
+        $users = \App\Models\UsersLog::with('user:id,name,email')
+            ->select('user_id')
+            ->distinct()
+            ->get();
+
+        return view('Admin.userslog', compact('users'));
+    }
+
+    public function updateSetupCost(Request $request)
+    {
+
+
+        $validator = Validator::make($request->all(), [
+            'setupCost' => 'required|numeric|min:1',
+            'userId'    => 'required|exists:users,id',
+        ], [
+            'setupCost.required' => 'Setup cost is required.',
+            'setupCost.numeric'  => 'Setup cost must be a number.',
+            'setupCost.min'      => 'Setup cost must be at least 1.',
+
+            'userId.required'    => 'User ID is required.',
+            'userId.exists'      => 'Selected user does not exist.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+
+            $user = User::where('id', $request->userId)->where('status', '1')->first();
+
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User not found',
+                ]);
+            }
+
+            if ($user->setup_cost_paid == '1') {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Setup cost already Paid',
+                ]);
+            }
+            $user->setup_cost = $request->setupCost;
+            $user->save();
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Setup cost updated successfully',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 }
