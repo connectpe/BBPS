@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\UserActivityEvent;
 use App\Helpers\SendingMail;
 use App\Models\EmailVerification;
 use App\Models\Role;
@@ -273,7 +274,7 @@ class AuthController extends Controller
             }
 
             $request->session()->regenerate();
-
+            event(new UserActivityEvent(auth()->user(), 'Login'));
             return response()->json([
                 'status' => true,
                 'message' => 'Login successful',
@@ -325,13 +326,16 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+        DB::beginTransaction();
         try {
+            event(new UserActivityEvent(auth()->user(), 'Logout'));
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
+            DB::commit();
             return redirect('/');
         } catch (\Exception $e) {
-
+            DB::rollBack();
             \Log::error('Logout Error: ' . $e->getMessage());
 
             return redirect('/')->with('error', 'Something went wrong while logging out.');
@@ -359,6 +363,7 @@ class AuthController extends Controller
             $user->password = Hash::make($request->new_password);
             $user->updated_at = now();
             $user->save();
+            event(new UserActivityEvent(auth()->user(), 'Password Changed'));
 
             return response()->json([
                 'status' => true,

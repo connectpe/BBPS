@@ -19,7 +19,7 @@ class NSDLHelper
             'transaction_id' => $orderData['transaction_id'],
         ];
 
-        $url = self::$base_url.'/orders';
+        $url = self::$base_url . '/orders';
         $headers = self::getAuthHeaders();
 
         Log::info('NSDL request', $orderPayload);
@@ -38,7 +38,7 @@ class NSDLHelper
     {
         return [
             'Content-Type' => 'application/json',
-            'Authorization' => 'Basic '.base64_encode(self::$username.':'.self::$password),
+            'Authorization' => 'Basic ' . base64_encode(self::$username . ':' . self::$password),
         ];
     }
 }
