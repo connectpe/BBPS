@@ -2124,4 +2124,14 @@ class AdminController extends Controller
     {
         return view('UpiServices.upi-manual-settlement');
     }
+
+   public function usersLog()
+{
+    $users = \App\Models\UsersLog::with('user:id,name,email')
+                ->select('user_id')
+                ->distinct()
+                ->get();
+
+    return view('Admin.userslog', compact('users'));
+}
 }

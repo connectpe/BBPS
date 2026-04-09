@@ -437,7 +437,7 @@ class CommonController extends Controller
                 $request['table'] = '\App\Models\UserAssignedToSupport';
                 $request['searchData'] = ['id'];
                 $request['select'] = 'all';
-                $request['with'] = ['user','user.business', 'assigned_support', 'creator'];
+                $request['with'] = ['user', 'user.business', 'assigned_support', 'creator'];
 
                 $orderIndex = $request->get('order');
 
@@ -880,8 +880,8 @@ class CommonController extends Controller
                     $columnName = $columnsIndex[$columnIndex]['data'] ?? 'id';
                     $columnSortOrder = $orderIndex[0]['dir'] ?? 'DESC';
                     if ($columnName == '0' || empty($columnName)) {
-                         $columnName = 'id';
-                         $columnSortOrder = 'DESC';
+                        $columnName = 'id';
+                        $columnSortOrder = 'DESC';
                     }
                     $request['order'] = [$columnName, strtoupper($columnSortOrder)];
                 } else {
@@ -893,8 +893,7 @@ class CommonController extends Controller
                     $request['whereIn'] = 'updated_by';
                     $request['parentData'] = [Auth::user()->id];
                 }
-            break;
-
+                break;
 
             case 'upi-collection':
                 $request['table'] = '\App\Models\UpiCollection';
@@ -908,14 +907,14 @@ class CommonController extends Controller
                     $columnName = $columnsIndex[$columnIndex]['data'] ?? 'id';
                     $columnSortOrder = $orderIndex[0]['dir'] ?? 'DESC';
                     if ($columnName == '0' || empty($columnName)) {
-                         $columnName = 'id';
-                         $columnSortOrder = 'DESC';
+                        $columnName = 'id';
+                        $columnSortOrder = 'DESC';
                     }
                     $request['order'] = [$columnName, strtoupper($columnSortOrder)];
                 } else {
                     $request['order'] = ['id', 'DESC'];
                 }
-                if (!isset($request['where']) || !is_array($request['where'])) {
+                if (! isset($request['where']) || ! is_array($request['where'])) {
                     $request['where'] = [];
                 }
                 $where = $request->input('where', []);
@@ -934,7 +933,36 @@ class CommonController extends Controller
                     $request['whereIn'] = 'user_id';
                     $request['parentData'] = [Auth::user()->id];
                 }
-            break;
+                break;
+
+            case 'users-log':
+                $request['table'] = '\App\Models\UsersLog';
+                $request['searchData'] = ['user_id', 'action', 'ip_address', 'user_agent', 'time'];
+                $request['select'] = 'all';
+                $request['with'] = ['user'];
+                $orderIndex = $request->get('order');
+                if (isset($orderIndex) && count($orderIndex)) {
+                    $columnsIndex = $request->get('columns');
+                    $columnIndex = $orderIndex[0]['column'];
+                    $columnName = $columnsIndex[$columnIndex]['data'] ?? 'id';
+                    $columnSortOrder = $orderIndex[0]['dir'] ?? 'DESC';
+                    if ($columnName == '0' || empty($columnName)) {
+                        $columnName = 'id';
+                        $columnSortOrder = 'DESC';
+                    }
+                    $request['order'] = [$columnName, strtoupper($columnSortOrder)];
+                } else {
+                    $request['order'] = ['id', 'DESC'];
+                }
+                $request['whereIn'] = 'id';
+                $request['parentData'] = [$request->id];
+                if (Auth::user()->role_id == '1') {
+                    $request['parentData'] = 'all';
+                } else {
+                    $request['whereIn'] = 'user_id';
+                    $request['parentData'] = [Auth::user()->id];
+                }
+                break;
         }
 
         // For filter the Records
@@ -957,7 +985,8 @@ class CommonController extends Controller
             'orders' => ['connectpe_id', 'transaction_no', 'client_txn_id', 'utr_no', 'mode', 'status', 'user_id', 'provider_id'],
             'load-money-requests' => ['user_id', 'status', 'utr_no'],
             'upi-callback' => ['txn_id', 'txn_order_id', 'utr', 'status'],
-            'upi-collection' => ['cust_txn_id', 'connectpe_order_id', 'cust_name', 'cust_email','utr', 'status'],
+            'upi-collection' => ['cust_txn_id', 'connectpe_order_id', 'cust_name', 'cust_email', 'utr', 'status'],
+            'users-log' => ['user_id', 'action', 'ip_address'],
             // add more types and columns here
         ];
 
@@ -1041,7 +1070,7 @@ class CommonController extends Controller
             print_r($e->getMessage());
             $data = [];
         }
-      
+
         if ($request->return == 'all' || $returnType == 'all') {
             $json_data = [
                 'draw' => intval($request['draw']),
@@ -1063,13 +1092,13 @@ class CommonController extends Controller
         // Start query
         $query = $model::query();
         // Apply custom where conditions
-if (isset($request['where']) && is_array($request['where'])) {
-    foreach ($request['where'] as $condition) {
-        if (count($condition) === 3) {
-            $query->where($condition[0], $condition[1], $condition[2]);
+        if (isset($request['where']) && is_array($request['where'])) {
+            foreach ($request['where'] as $condition) {
+                if (count($condition) === 3) {
+                    $query->where($condition[0], $condition[1], $condition[2]);
+                }
+            }
         }
-    }
-}
 
         if (isset($request['whereIn']) && isset($request['parentData'])) {
             if ($request['parentData'] !== 'all') {
@@ -1100,15 +1129,17 @@ if (isset($request['where']) && is_array($request['where'])) {
                     $query->where(function ($q) use ($value, $request) {
                         if ($request['type'] === 'upi-callback') {
                             $q->where('txn_id', 'LIKE', "%{$value}%")
-                            ->orWhere('txn_order_id', 'LIKE', "%{$value}%")
-                            ->orWhere('utr', 'LIKE', "%{$value}%");
+                                ->orWhere('txn_order_id', 'LIKE', "%{$value}%")
+                                ->orWhere('utr', 'LIKE', "%{$value}%");
+
                             return;
                         }
 
                         if ($request['type'] === 'upi-collection') {
                             $q->where('cust_txn_id', 'LIKE', "%{$value}%")
-                            ->orWhere('connectpe_order_id', 'LIKE', "%{$value}%")
-                            ->orWhere('utr', 'LIKE', "%{$value}%");
+                                ->orWhere('connectpe_order_id', 'LIKE', "%{$value}%")
+                                ->orWhere('utr', 'LIKE', "%{$value}%");
+
                             return;
                         }
 

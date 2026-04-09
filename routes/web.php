@@ -132,6 +132,7 @@ Route::group(['middleware' => ['auth']], function () {
 
         Route::get('upi-callback', [AdminController::class, 'UpiCallback'])->name('upi_callback');
         Route::get('upi-manual-settlement', [AdminController::class, 'ManualSettlement'])->name('upi_manual_settlement');
+        Route::get('/users-log', [AdminController::class, 'usersLog'])->name('users_log');
 
 
     });
