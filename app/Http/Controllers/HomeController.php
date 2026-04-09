@@ -21,7 +21,7 @@ class HomeController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
@@ -48,7 +48,10 @@ class HomeController extends Controller
 
     public function apiPartner()
     {
-        return view('Dashboard.api-dashboard');
+        $user = Auth::user();
+        $setupCostAmount = (float) ($user->setup_cost ?? 0);
+        $setupCostPaid = intval($user->setup_cost_paid);
+        return view('Dashboard.api-dashboard', compact('setupCostAmount', 'setupCostPaid'));
     }
 
     public function supportdashboard()

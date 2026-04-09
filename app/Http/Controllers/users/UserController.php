@@ -42,7 +42,10 @@ class UserController extends Controller
 
     public function dashboard()
     {
-        return view('Dashboard.user-dashboard');
+        $user = Auth::user();
+        $setupCostAmount = (float) ($user->setup_cost ?? 0);
+        $setupCostPaid = intval($user->setup_cost_paid);
+        return view('Dashboard.user-dashboard', compact('setupCostAmount', 'setupCostPaid'));
     }
 
 

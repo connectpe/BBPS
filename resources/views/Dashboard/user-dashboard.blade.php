@@ -3,6 +3,12 @@
 @section('title', 'Dashboard')
 @section('page-title', 'Dashboard')
 
+@if(!$setupCostPaid)
+@section('page-button')
+@include('Include.setup-cost-modal', ['amount' => $setupCostAmount])
+@endsection
+@endif
+
 @section('content')
 
 <div class="row g-4">

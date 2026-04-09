@@ -44,7 +44,6 @@ Route::post('forget-password', [AuthController::class, 'forgetPassword'])->name(
 
 Route::group(['middleware' => ['auth']], function () {
     Route::group(['prefix' => 'admin'], function () {
-        // Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     });
 
     Route::group(['middleware' => ['isAdmin'], 'prefix' => 'admin'], function () {

@@ -23,6 +23,8 @@ class User extends Authenticatable
         'email',
         'transaction_amount',
         'payin_wallet_amount',
+        'setup_cost',
+        'setup_cost_paid',
         'mobile',
         'password',
         'forget_password_otp',
