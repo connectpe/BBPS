@@ -220,10 +220,10 @@ $role = Auth::user()->role_id;
                 data: 'txn_type',
                 render: function (data) {
                     if (data === 'dr') {
-                        return `<span class="badge bg-danger">DR</span>`;
+                        return `<span class="badge bg-danger">DEBIT</span>`;
                     } 
                     else if (data === 'cr') {
-                        return `<span class="badge bg-success">CR</span>`;
+                        return `<span class="badge bg-success">CREDIT</span>`;
                     } 
                     else {
                         return `<span class="badge bg-secondary">----</span>`;

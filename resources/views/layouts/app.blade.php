@@ -325,9 +325,8 @@
             <span class="letter">e</span>
         </div>
         <div class="loader-dots">
-            @for ($i = 0; $i < 5; $i++)
-                <span>.</span>
-            @endfor
+            @for ($i = 0; $i < 5; $i++) <span>.</span>
+                @endfor
 
         </div>
     </div>
@@ -371,7 +370,7 @@
     </div>
 
     <script>
-        window.notify = function(message, type = "danger") {
+        window.notify = function (message, type = "danger") {
 
             let toastEl = document.getElementById('globalToast');
             let toastMsg = document.getElementById('globalToastMessage');
@@ -399,7 +398,7 @@
     </script>
 
     <script>
-        window.addEventListener("load", function() {
+        window.addEventListener("load", function () {
             const loader = document.getElementById("page-loader");
             // Add the hidden class to fade it out
             loader.classList.add("loader-hidden");
@@ -411,22 +410,22 @@
         });
 
         // Also handle Laravel-specific actions (like form submissions)
-        window.addEventListener("beforeunload", function() {
+        window.addEventListener("beforeunload", function () {
             document.getElementById("page-loader").classList.remove("loader-hidden");
             document.getElementById("page-loader").style.display = "flex";
         });
     </script>
 
     <script>
-        $('#clearCacheBtn').on('click', function() {
+        $('#clearCacheBtn').on('click', function () {
 
             Swal.fire({
                 title: 'Are you sure?',
                 text: "All cache (Laravel + Redis) will be cleared!",
                 icon: 'warning',
                 showCancelButton: true,
-               confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
                 confirmButtonText: 'Yes'
             }).then((result) => {
 
@@ -438,7 +437,7 @@
                         data: {
                             _token: "{{ csrf_token() }}"
                         },
-                        success: function(res) {
+                        success: function (res) {
 
                             if (res.status) {
                                 Swal.fire({
@@ -458,7 +457,7 @@
                                 Swal.fire('Error', res.message, 'error');
                             }
                         },
-                        error: function() {
+                        error: function () {
                             Swal.fire('Error', 'Something went wrong', 'error');
                         }
                     });
@@ -468,6 +467,33 @@
         });
     </script>
 
+
+    <script>
+        $(document).ready(function () {
+
+            $('.blink-radio').on('click', function () {
+
+                let baseAmount = parseFloat($(this).data('amount')) || 0;
+
+                let gst = baseAmount * 0.18;
+                let total = baseAmount + gst;
+
+                // Optional: format display for user
+                function formatINR(num) {
+                    return new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2 }).format(num);
+                }
+
+                $('#amount').text(formatINR(baseAmount));
+                $('#gst').text(formatINR(gst));
+                $('#total').text(formatINR(total));
+
+                let modal = new bootstrap.Modal(document.getElementById('paymentModal'));
+                modal.show();
+
+            });
+
+        });
+    </script>
 </body>
 
 </html>

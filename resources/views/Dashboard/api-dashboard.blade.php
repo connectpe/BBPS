@@ -3,6 +3,12 @@
 @section('title', 'API Dashboard')
 @section('page-title', 'API Dashboard')
 
+@if(!$setupCostPaid)
+@section('page-button')
+@include('Include.setup-cost-modal', ['amount' => $setupCostAmount])
+@endsection
+@endif
+
 @section('content')
 
 <div class="accordion mb-3" id="filterAccordion">
