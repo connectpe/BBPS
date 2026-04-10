@@ -23,6 +23,7 @@ use App\Models\UsersBank;
 use App\Models\UserService;
 use App\Models\WebHookUrl;
 use App\Models\UpiCollection;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
@@ -2194,6 +2195,13 @@ class AdminController extends Controller
                 'message' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function downloadSlip($id)
+    {
+        $payment = UpiCollection::findOrFail($id);
+        $pdf = Pdf::loadView('UpiServices.upiCollection-payment-slip', compact('payment'));
+        return $pdf->download('payment-slip-'.$payment->id.'.pdf');
     }
     
 }
