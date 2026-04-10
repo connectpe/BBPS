@@ -114,7 +114,6 @@
                             @endif
                             <th>Status</th>
                             <th>Created At</th>
-                            <th>Action</th>
                         </tr>
                     </thead>
                 </table>
@@ -197,14 +196,6 @@
                         data: 'created_at',
                         render: function(data) {
                             return formatDateTime(data);
-                        }
-                    },
-                    {
-                        data: 'id',
-                        orderable: false,
-                        searchable: false,
-                        render: function(data) {
-                            return `<a href="/download-slip/${data}" class="btn btn-sm btn-success" title="Download Slip"> <i class="fa fa-download"></i></a>`;
                         }
                     }
                 ],

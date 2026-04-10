@@ -243,7 +243,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('upi-initiation', [AdminController::class, 'UpiInitiation'])->name('upi_initiation');
     Route::get('upi-collection', [AdminController::class, 'UpiCollection'])->name('upi_collection');
     Route::get('all-upi-transactions', [AdminController::class, 'UpiTransaction'])->name('all_upi_transactions');
-    Route::get('/download-slip/{id}', [AdminController::class, 'downloadSlip']);
 });
 
 Route::group(['middleware' => ['logs', 'auth'], 'prefix' => 'document'], function () {
