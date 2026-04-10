@@ -283,13 +283,11 @@ use App\Facades\FileUpload;
         <div class="card shadow-sm border mb-3">
             <div class="card-body">
                 <div class="d-flex align-items-center mb-3">
-                    <i class="bi bi-gear text-primary fs-5 me-2"></i>
+                    <i class="bi bi-currency-rupee text-primary fs-5 me-2"></i>
                     <h6 class="fw-bold mb-0">Setup Cost</h6>
                 </div>
 
                 <div class="d-flex align-items-center gap-2">
-
-
 
                     @if($userData?->setup_cost_paid == '1')
 
@@ -299,17 +297,34 @@ use App\Facades\FileUpload;
                     </span>
 
                     @else
-                    <span style="width:140px;">Setup Cost:</span>
-                    <div class="d-flex align-items-center gap-2">
+                    <div class="d-flex flex-column gap-1">
 
-                        <input type="number" step="0.01" min="0" class="form-control form-control-sm"
-                            id="setupCostInput" value="{{ $userData->setup_cost ?? 0 }}" style="width:120px;">
+                        <!-- Row 1 -->
+                        <div class="d-flex align-items-center gap-2">
+                            <span style="width:100px;">Status:</span>
 
-                        <button id="submitSetupCost" class="btn btn-sm buttonColor"
-                            onclick="updateSetupCost('{{ $userData->id }}')">
-                            <span class="text">Update</span>
-                            <span class="spinner-border spinner-border-sm d-none"></span>
-                        </button>
+                            <div class="form-check m-0">
+                                <input class="form-check-input" type="checkbox" id="markAsPaid"
+                                    onclick="markAsPaidSetupCost('{{ $userData->id }}', this)">
+                                <label class="form-check-label" for="markAsPaid">
+                                    Mark as Paid
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Row 2 -->
+                        <div class="d-flex align-items-center gap-2">
+                            <span style="width:95px;">Setup Cost:</span>
+
+                            <input type="number" step="0.01" min="0" class="form-control form-control-sm"
+                                id="setupCostInput" value="{{ $userData->setup_cost ?? 0 }}" style="width:90px;">
+
+                            <button id="submitSetupCost" class="btn btn-sm buttonColor"
+                                onclick="updateSetupCost('{{ $userData->id }}')">
+                                <span class="text">Update</span>
+                                <span class="spinner-border spinner-border-sm d-none"></span>
+                            </button>
+                        </div>
 
                     </div>
 
@@ -431,7 +446,7 @@ use App\Facades\FileUpload;
                         </span><br>
 
                         <input class="form-check-input mt-1" type="checkbox" {{ $kyc ? 'checked' : '' }}
-                            onchange="changeKycStatus('{{ $businessInfo?->id }}','{{ $businessInfo?->user_id }}')">
+                            onclick="changeKycStatus('{{ $businessInfo?->id }}','{{ $businessInfo?->user_id }}',this)">
                     </div>
                 </div>
 
@@ -666,17 +681,24 @@ use App\Facades\FileUpload;
     });
 
 
-    function changeKycStatus(id, userId) {
+    function changeKycStatus(id, userId, checkbox) {
+
+        let newState = checkbox.checked;
+        checkbox.checked = !newState;
+
         Swal.fire({
-            title: 'Are you sure to change status of KYC',
+            title: 'Are you sure?',
+            text: "Do you want to change KYC status",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
             confirmButtonText: 'Yes',
-            cancelButtonText: 'No'
+            cancelButtonText: 'Cancel'
         }).then((result) => {
+
             if (result.isConfirmed) {
+
                 $.ajax({
                     url: "{{ route('change_ekyc_status') }}",
                     type: "POST",
@@ -686,64 +708,38 @@ use App\Facades\FileUpload;
                         _token: $('meta[name="csrf-token"]').attr("content"),
                     },
                     success: function (response) {
-
                         if (response.status === true) {
-
+                            checkbox.checked = newState;
                             Swal.fire({
                                 icon: "success",
                                 title: "Success",
                                 text: response.message,
-                            }).then(() => {
-                                location.reload();
                             });
-
                         } else {
-
+                            checkbox.checked = !newState;
                             Swal.fire({
                                 icon: "warning",
                                 title: "Incomplete Verification",
                                 text: response.message,
-                                confirmButtonText: "OK",
-                                confirmButtonColor: "#f59e0b"
-                            }).then(() => {
-                                location.reload();
                             });
-
                         }
                     },
 
-                    error: function (xhr) {
-
-                        let title = "Error";
-                        let message = "Something went wrong!";
-
-                        if (xhr.status === 422) {
-                            title = "Validation Error";
-
-                            if (xhr.responseJSON && xhr.responseJSON.errors) {
-                                let firstKey = Object.keys(xhr.responseJSON.errors)[0];
-                                message = xhr.responseJSON.errors[firstKey][0];
-                            }
-
-                        } else if (xhr.status === 404) {
-                            title = "Not Found";
-                            message = xhr.responseJSON.message;
-
-                        } else if (xhr.status === 500) {
-                            title = "Server Error";
-                            message = xhr.responseJSON.message;
-                        }
+                    error: function () {
+                        checkbox.checked = !newState;
 
                         Swal.fire({
                             icon: "error",
-                            title: title,
-                            text: message,
-                            confirmButtonText: "OK",
-                            confirmButtonColor: "#dc2626"
+                            title: "Error",
+                            text: "Something went wrong!"
                         });
                     }
                 });
+
+            } else {
+                checkbox.checked = !newState;
             }
+
         });
     }
 
@@ -789,7 +785,7 @@ use App\Facades\FileUpload;
                         Swal.fire({
                             icon: 'success',
                             title: 'Success',
-                            text: response.message ?? 'Setup cost updated successfully.'
+                            text: response.message ?? 'Setup cost updated successfully'
                         });
 
                         setTimeout(() => location.reload(), 1500);
@@ -827,6 +823,84 @@ use App\Facades\FileUpload;
                     btn.prop('disabled', false).text('Update');
                 }
             });
+
+        });
+    }
+
+    function markAsPaidSetupCost(userId, checkbox) {
+
+        if (checkbox.checked) {
+            checkbox.checked = false;
+        }
+
+        Swal.fire({
+            title: 'Are you sure to mark as Paid?',
+            text: "Once marked as paid, this cannot be changed",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+
+            if (result.isConfirmed) {
+
+                $.ajax({
+                    url: "{{ route('marked_paid_setup_cost') }}",
+                    type: "POST",
+                    data: {
+                        userId: userId,
+                        _token: $('meta[name="csrf-token"]').attr("content"),
+                    },
+                    success: function (response) {
+
+                        if (response.status) {
+                            checkbox.checked = true;
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: response.message ?? 'Marked as Paid'
+                            });
+
+                            setTimeout(() => location.reload(), 1500);
+
+                        } else {
+                            checkbox.checked = false;
+
+                            Swal.fire({
+                                icon: "error",
+                                title: 'Error',
+                                text: response.message ?? 'Something went wrong'
+                            });
+                        }
+                    },
+                    error: function (xhr) {
+
+                        checkbox.checked = false;
+
+                        let message = "Something went wrong!";
+                        let title = "Error";
+
+                        if (xhr.status === 422 && xhr.responseJSON?.errors) {
+                            title = "Validation Error";
+                            message = Object.values(xhr.responseJSON.errors)[0][0];
+                        } else if (xhr.responseJSON?.message) {
+                            message = xhr.responseJSON.message;
+                        }
+
+                        Swal.fire({
+                            icon: "error",
+                            title: title,
+                            text: message,
+                        });
+                    }
+                });
+
+            } else {
+                checkbox.checked = false;
+            }
 
         });
     }
