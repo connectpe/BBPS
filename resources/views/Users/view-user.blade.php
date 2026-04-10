@@ -130,10 +130,12 @@ use App\Facades\FileUpload;
                     <span class="label">User Id </span>
                     <span class="value">{{ $userData->id ?? '----' }} </span>
                 </div>
+
                 <div class="info-row">
                     <span class="label">Wallet Amount </span>
-                    <span class="value">{{ number_format($userData->transaction_amount ?? 0,2) }} </span>
+                    <span class="value">₹{{ number_format($userData->transaction_amount ?? 0,2) }} </span>
                 </div>
+
                 <div class="info-row mb-3">
                     <span class="label">Status</span>
                     @php
@@ -276,433 +278,224 @@ use App\Facades\FileUpload;
 
 
     <div class="col-lg-6">
-        <div class="card shadow-sm border-0 h-100">
-            <div class="card-body">
 
-                <!-- Enabled Services  -->
+        <!--  Setup Cost -->
+        <div class="card shadow-sm border mb-3">
+            <div class="card-body">
                 <div class="d-flex align-items-center mb-3">
-                    <i class="bi bi-gear text-primary fs-4 me-2"></i>
+                    <i class="bi bi-gear text-primary fs-5 me-2"></i>
+                    <h6 class="fw-bold mb-0">Setup Cost</h6>
+                </div>
+
+                <div class="d-flex align-items-center gap-2">
+
+
+
+                    @if($userData?->setup_cost_paid == '1')
+
+                    <span class="badge bg-success">Paid</span>
+                    <span class="fw-bold text-success">
+                        ₹{{ number_format($userData->setup_cost, 2) }}
+                    </span>
+
+                    @else
+                    <span style="width:140px;">Setup Cost:</span>
+                    <div class="d-flex align-items-center gap-2">
+
+                        <input type="number" step="0.01" min="0" class="form-control form-control-sm"
+                            id="setupCostInput" value="{{ $userData->setup_cost ?? 0 }}" style="width:120px;">
+
+                        <button id="submitSetupCost" class="btn btn-sm buttonColor"
+                            onclick="updateSetupCost('{{ $userData->id }}')">
+                            <span class="text">Update</span>
+                            <span class="spinner-border spinner-border-sm d-none"></span>
+                        </button>
+
+                    </div>
+
+                    @endif
+
+                </div>
+            </div>
+        </div>
+
+
+        <!--  Enabled Services -->
+        <div class="card shadow-sm border mb-3">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="bi bi-gear text-primary fs-5 me-2"></i>
                     <h6 class="fw-bold mb-0">Enabled Services</h6>
                 </div>
 
                 <div class="border rounded p-2">
                     @forelse($serviceEnabled as $service)
-                    <span class="badge buttonColor ms-auto">{{ $service->service?->service_name ?? '----' }}</span>
+                    <span class="badge buttonColor me-1 mb-1">
+                        {{ $service->service?->service_name ?? '----' }}
+                    </span>
                     @empty
-                    <span class="label text-muted">No services found.</span>
+                    <span class="text-muted">No services found.</span>
                     @endforelse
                 </div>
+            </div>
+        </div>
 
-                <hr class="my-4">
+
+        <!--  Route Configuration -->
+        <div class="card shadow-sm border mb-3">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="bi bi-diagram-3 text-primary fs-5 me-2"></i>
+                    <h6 class="fw-bold mb-0">Route Configuration</h6>
+                </div>
 
                 <form id="routingForm">
                     @csrf
                     <input type="hidden" id="userId" value="{{ $userData->id }}">
 
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="bi bi-diagram-3 text-primary fs-4 me-2"></i>
-                        <h6 class="fw-bold mb-0">Route Configuration</h6>
-                    </div>
-
-                    {{-- Service Dropdown --}}
                     <div class="mb-3">
                         <label class="form-label fw-bold">Service Name</label>
                         <select class="form-select form-select2" id="serviceSelect" name="service_id">
                             <option value="">-- Select Service --</option>
                             @foreach ($globalServices as $svc)
-                            <option value="{{ $svc->id }}" data-service-name="{{ $svc->service_name }}">
-                                {{ $svc->service_name }}
-                            </option>
+                            <option value="{{ $svc->id }}">{{ $svc->service_name }}</option>
                             @endforeach
                         </select>
                     </div>
 
-                    {{-- Provider Dropdown --}}
                     <div class="mb-3">
                         <label class="form-label fw-bold">Assign Provider</label>
                         <div class="dropdown">
-                            <button
-                                class="btn btn-outline-secondary dropdown-toggle w-100 text-start d-flex justify-content-between align-items-center"
-                                type="button" id="providerDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button"
+                                data-bs-toggle="dropdown">
                                 Select Provider
                             </button>
-                            <ul class="dropdown-menu w-100 p-3" aria-labelledby="providerDropdown" id="providersList">
+                            <ul class="dropdown-menu w-100 p-2" id="providersList">
                                 <li class="text-muted small">Select a service first</li>
                             </ul>
                         </div>
                     </div>
 
-                    <button type="submit" class="btn buttonColor w-100 mb-3 text-white"
-                        style="background-color: #5e72e4;">Submit</button>
+                    <button type="submit" class="btn text-white w-100" style="background-color:#5e72e4;">
+                        Submit
+                    </button>
 
-                    <div class="card bg-light mb-3">
-                        <div class="card-body py-2">
-                            <p class="mb-1 small text-muted text-uppercase fw-bold">Assignment Summary:</p>
-                            <div id="assignmentSummary">
-                                <span class="text-secondary fst-italic">No providers assigned yet.</span>
-                            </div>
+                    <div class="bg-light mt-3 p-2 rounded">
+                        <small class="text-muted fw-bold">Assignment Summary:</small>
+                        <div id="assignmentSummary">
+                            <span class="text-secondary fst-italic">No providers assigned yet.</span>
                         </div>
                     </div>
                 </form>
+            </div>
+        </div>
 
 
-                <hr class="my-4">
-
-                <!-- Enabled Services  -->
+        <!--  Services Request -->
+        <div class="card shadow-sm border mb-3">
+            <div class="card-body">
                 <div class="d-flex align-items-center mb-3">
-                    <i class="bi bi-gear text-primary fs-4 me-2"></i>
+                    <i class="bi bi-gear text-primary fs-5 me-2"></i>
                     <h6 class="fw-bold mb-0">Services Request</h6>
                 </div>
 
                 @forelse($serviceRequest as $service)
-                <div class="info-row">
-                    <span class="label">{{ $service->service?->service_name ?? '----' }}</span>
-                    <span class="value">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span>{{ $service->service?->service_name ?? '----' }}</span>
 
-                        <!-- Approve Icon -->
-                        <i class="bi bi-check-circle text-success cursor-pointer ms-2"
-                            onclick="handleServiceAction('{{ $service->id }}', 'approve')"></i>
-                    </span>
+                    <i class="bi bi-check-circle text-success cursor-pointer"
+                        onclick="handleServiceAction('{{ $service->id }}','approve')"></i>
                 </div>
                 @empty
-                <div class="info-row">
-                    <span class="label text-muted">No service request found.</span>
-                </div>
+                <span class="text-muted">No service request found.</span>
                 @endforelse
+            </div>
+        </div>
 
 
-                <hr class="m-3">
-                <!-- KYC Info -->
-                <div class="d-flex align-items-center my-3">
-                    <i class="bi bi-shield-check text-primary fs-4 me-2"></i>
+        <!--  KYC Details -->
+        <div class="card shadow-sm border mb-3">
+            <div class="card-body">
+
+                <div class="d-flex align-items-center mb-3">
+                    <i class="bi bi-shield-check text-primary fs-5 me-2"></i>
                     <h6 class="fw-bold mb-0">KYC Details</h6>
 
                     @php
-                    $kyc = $businessInfo?->is_kyc == '1' ? true : false;
+                    $kyc = $businessInfo?->is_kyc == '1';
                     @endphp
 
-                    <div class="ms-auto d-flex flex-column align-items-center">
-                        <span class="fw-semibold mb-1 fs-6 fw-bold badge bg-{{$kyc ? 'success' : 'danger'}}"> {{$kyc ?
-                            'Verified' : 'Not Verified'}} </span>
-                        <input class="form-check-input cursor-pointer fs-3" type="checkbox" {{$kyc ? 'checked' : '' }}
-                            onchange="changeKycStatus('{{$businessInfo?->id}}','{{$businessInfo?->user_id}}')">
+                    <div class="ms-auto text-center">
+                        <span class="badge bg-{{ $kyc ? 'success' : 'danger' }}">
+                            {{ $kyc ? 'Verified' : 'Not Verified' }}
+                        </span><br>
+
+                        <input class="form-check-input mt-1" type="checkbox" {{ $kyc ? 'checked' : '' }}
+                            onchange="changeKycStatus('{{ $businessInfo?->id }}','{{ $businessInfo?->user_id }}')">
                     </div>
                 </div>
 
-                <div class="info-row">
-                    <span class="label">Aadhaar</span>
-                    <span class="value">{{ $businessInfo->aadhar_number ?? '----' }}</span>
+                <div class="mb-2"><strong>Aadhaar:</strong> {{ $businessInfo->aadhar_number ?? '----' }}</div>
+                <div class="mb-2"><strong>Individual PAN:</strong> {{ $businessInfo->pan_number ?? '----' }}</div>
+                <div class="mb-2"><strong>Business PAN:</strong> {{ $businessInfo->business_pan_number ?? '----' }}
                 </div>
+                <div class="mb-2"><strong>GSTIN:</strong> {{ $businessInfo->gst_number ?? '----' }}</div>
 
-                <div class="info-row">
-                    <span class="label">Individual PAN Number</span>
-                    <span class="value"> {{ $businessInfo->pan_number ?? '----' }}</span>
-                </div>
-
-                <div class="info-row">
-                    <span class="label">Business PAN Number</span>
-                    <span class="value"> {{ $businessInfo->business_pan_number ?? '----' }}</span>
-                </div>
-
-                <div class="info-row">
-                    <span class="label">GSTIN</span>
-                    <span class="value"> {{ $businessInfo->gst_number ?? '----' }}</span>
-                </div>
-
-
-                <!-- Documents -->
-                <div class="mt-3">
-                    <div class="row">
-                        <!-- Aadhaar Front -->
-                        <div class="col-md-4 mb-3">
-                            <div class="card shadow-sm">
-                                <div class="card-header text-center">
-                                    Aadhaar Front
-                                    @if (!empty($businessInfo->aadhar_front_image))
-                                    <span style="cursor:pointer;">
-                                        <i class="fa-solid fa-eye"
-                                            onclick="showImage('{{ FileUpload::getFilePath($businessInfo->aadhar_front_image) }}','Aadhaar Front')"></i>
-                                    </span>
-                                    @else
-                                    <span>
-                                        <i class="fa-solid fa-eye-slash"></i>
-                                    </span>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Aadhaar Back -->
-                        <div class="col-md-4 mb-3">
-                            <div class="card shadow-sm">
-                                <div class="card-header text-center">
-                                    Aadhaar Back
-                                    @if (!empty($businessInfo->aadhar_back_image))
-                                    <span style="cursor:pointer;">
-                                        <i class="fa-solid fa-eye"
-                                            onclick="showImage('{{ FileUpload::getFilePath($businessInfo->aadhar_back_image) }}','Aadhaar Back')"></i>
-                                    </span>
-                                    @else
-                                    <span>
-                                        <i class="fa-solid fa-eye-slash"></i>
-                                    </span>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- PAN Card -->
-                        <div class="col-md-4 mb-3">
-                            <div class="card shadow-sm">
-                                <div class="card-header text-center">
-                                    PAN Card
-                                    @if (!empty($businessInfo->pancard_image))
-                                    <span style="cursor:pointer;">
-                                        <i class="fa-solid fa-eye"
-                                            onclick="showImage('{{ FileUpload::getFilePath($businessInfo->pancard_image) }}','PAN Card')"></i>
-                                    </span>
-                                    @else
-                                    <span>
-                                        <i class="fa-solid fa-eye-slash"></i>
-                                    </span>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Individual Photo -->
-                        <div class="col-md-4 mb-3">
-                            <div class="card shadow-sm">
-                                <div class="card-header text-center">
-                                    Individual Photo
-                                    @if (!empty($businessInfo->individual_photo))
-                                    <span style="cursor:pointer;">
-                                        <i class="fa-solid fa-eye"
-                                            onclick="showImage('{{ FileUpload::getFilePath($businessInfo->individual_photo) }}','Individual Photo')"></i>
-                                    </span>
-                                    @else
-                                    <span>
-                                        <i class="fa-solid fa-eye-slash"></i>
-                                    </span>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Business PAN Image -->
-                        <div class="col-md-4 mb-3">
-                            <div class="card shadow-sm">
-                                <div class="card-header text-center">
-                                    Business PAN Image
-                                    @if (!empty($businessInfo->business_pan_image))
-                                    <span style="cursor:pointer;">
-                                        <i class="fa-solid fa-eye"
-                                            onclick="showImage('{{ FileUpload::getFilePath($businessInfo->business_pan_image) }}','Business PAN Image')"></i>
-                                    </span>
-                                    @else
-                                    <span>
-                                        <i class="fa-solid fa-eye-slash"></i>
-                                    </span>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Registration Certificate -->
-                        <div class="col-md-4 mb-3">
-                            <div class="card shadow-sm">
-                                <div class="card-header text-center">
-                                    Registeration Certificate
-                                    @if (!empty($businessInfo->registration_certificate_image))
-                                    <span style="cursor:pointer;">
-                                        <i class="fa-solid fa-eye"
-                                            onclick="showImage('{{ FileUpload::getFilePath($businessInfo->registration_certificate_image) }}','Registeration Certificate')"></i>
-                                    </span>
-                                    @else
-                                    <span>
-                                        <i class="fa-solid fa-eye-slash"></i>
-                                    </span>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- GST Certificate -->
-                        <div class="col-md-4 mb-3">
-                            <div class="card shadow-sm">
-                                <div class="card-header text-center">
-                                    GST Reg. Certificate
-                                    @if (!empty($businessInfo->gst_registration_certificate_image))
-                                    <span style="cursor:pointer;">
-                                        <i class="fa-solid fa-eye"
-                                            onclick="showImage('{{ FileUpload::getFilePath($businessInfo->gst_registration_certificate_image) }}','GST Registeration Certificate')"></i>
-                                    </span>
-                                    @else
-                                    <span>
-                                        <i class="fa-solid fa-eye-slash"></i>
-                                    </span>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Business Address Proof -->
-                        <div class="col-md-4 mb-3">
-                            <div class="card shadow-sm">
-                                <div class="card-header text-center">
-                                    Business Address Proof
-                                    @if (!empty($businessInfo->business_address_proof_image))
-                                    <span style="cursor:pointer;">
-                                        <i class="fa-solid fa-eye"
-                                            onclick="showImage('{{ FileUpload::getFilePath($businessInfo->business_address_proof_image) }}','Business Address Proof Image')"></i>
-                                    </span>
-                                    @else
-                                    <span>
-                                        <i class="fa-solid fa-eye-slash"></i>
-                                    </span>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Inside Image -->
-                        <div class="col-md-4 mb-3">
-                            <div class="card shadow-sm">
-                                <div class="card-header text-center">
-                                    Inside Image
-                                    @if (!empty($businessInfo->inside_image))
-                                    <span style="cursor:pointer;">
-                                        <i class="fa-solid fa-eye"
-                                            onclick="showImage('{{ FileUpload::getFilePath($businessInfo->inside_image) }}','Inside Image')"></i>
-                                    </span>
-                                    @else
-                                    <span>
-                                        <i class="fa-solid fa-eye-slash"></i>
-                                    </span>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Outside Image -->
-                        <div class="col-md-4 mb-3">
-                            <div class="card shadow-sm">
-                                <div class="card-header text-center">
-                                    OutSide Image
-                                    @if (!empty($businessInfo->outside_image))
-                                    <span style="cursor:pointer;">
-                                        <i class="fa-solid fa-eye"
-                                            onclick="showImage('{{ FileUpload::getFilePath($businessInfo->outside_image) }}','OutSide Image')"></i>
-                                    </span>
-                                    @else
-                                    <span>
-                                        <i class="fa-solid fa-eye-slash"></i>
-                                    </span>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Signed MOA -->
-                        <div class="col-md-4 mb-3">
-                            <div class="card shadow-sm">
-                                <div class="card-header text-center">
-                                    Signed MOA Image
-                                    @if (!empty($businessInfo->signed_moa_image))
-                                    <span style="cursor:pointer;">
-                                        <i class="fa-solid fa-eye"
-                                            onclick="showImage('{{ FileUpload::getFilePath($businessInfo->signed_moa_image) }}','Signed MOA Image')"></i>
-                                    </span>
-                                    @else
-                                    <span>
-                                        <i class="fa-solid fa-eye-slash"></i>
-                                    </span>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Signed AOA -->
-                        <div class="col-md-4 mb-3">
-                            <div class="card shadow-sm">
-                                <div class="card-header text-center">
-                                    Signed AOA Image
-                                    @if (!empty($businessInfo->signed_aoa_image))
-                                    <span style="cursor:pointer;">
-                                        <i class="fa-solid fa-eye"
-                                            onclick="showImage('{{ FileUpload::getFilePath($businessInfo->signed_aoa_image) }}','Signed AOA Image')"></i>
-                                    </span>
-                                    @else
-                                    <span>
-                                        <i class="fa-solid fa-eye-slash"></i>
-                                    </span>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Board Resolution -->
-                        <div class="col-md-4 mb-3">
-                            <div class="card shadow-sm">
-                                <div class="card-header text-center">
-                                    Board Resolution
-                                    @if (!empty($businessInfo->board_resoultion_image))
-                                    <span style="cursor:pointer;">
-                                        <i class="fa-solid fa-eye"
-                                            onclick="showImage('{{ FileUpload::getFilePath($businessInfo->board_resoultion_image) }}','Board Resolution')"></i>
-                                    </span>
-                                    @else
-                                    <span>
-                                        <i class="fa-solid fa-eye-slash"></i>
-                                    </span>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-
-                        <!--  Declaration -->
-                        <div class="col-md-4 mb-3">
-                            <div class="card shadow-sm">
-                                <div class="card-header text-center">
-                                     Declaration
-                                    @if (!empty($businessInfo->nsdl_declaration_image))
-                                    <span style="cursor:pointer;">
-                                        <i class="fa-solid fa-eye"
-                                            onclick="showImage('{{ FileUpload::getFilePath($businessInfo->nsdl_declaration_image) }}','Declaration')"></i>
-                                    </span>
-                                    @else
-                                    <span>
-                                        <i class="fa-solid fa-eye-slash"></i>
-                                    </span>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- ITR -->
-                        <div class="col-md-4 mb-3">
-                            <div class="card shadow-sm">
-                                <div class="card-header text-center">
-                                    ITR Filled Image
-                                    @if (!empty($businessInfo->itr_file_image))
-                                    <span style="cursor:pointer;">
-                                        <i class="fa-solid fa-eye"
-                                            onclick="showImage('{{ FileUpload::getFilePath($businessInfo->itr_file_image) }}','ITR Filled Image')"></i>
-                                    </span>
-                                    @else
-                                    <span>
-                                        <i class="fa-solid fa-eye-slash"></i>
-                                    </span>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-
-
-                    </div>
-                </div>
             </div>
         </div>
+
+
+        <!--  Documents -->
+        <div class="card shadow-sm border mb-3">
+            <div class="card-body">
+
+                <div class="d-flex align-items-center mb-3">
+                    <i class="bi bi-file-earmark text-primary fs-5 me-2"></i>
+                    <h6 class="fw-bold mb-0">Documents</h6>
+                </div>
+
+                <div class="row">
+
+                    @php
+                    $docs = [
+                    ['label'=>'Aadhaar Front','file'=>$businessInfo->aadhar_front_image],
+                    ['label'=>'Aadhaar Back','file'=>$businessInfo->aadhar_back_image],
+                    ['label'=>'PAN Card','file'=>$businessInfo->pancard_image],
+                    ['label'=>'Individual Photo','file'=>$businessInfo->individual_photo],
+                    ['label'=>'Business PAN','file'=>$businessInfo->business_pan_image],
+                    ['label'=>'Registration Certificate','file'=>$businessInfo->registration_certificate_image],
+                    ['label'=>'GST Certificate','file'=>$businessInfo->gst_registration_certificate_image],
+                    ['label'=>'Business Address','file'=>$businessInfo->business_address_proof_image],
+                    ['label'=>'Inside Image','file'=>$businessInfo->inside_image],
+                    ['label'=>'Outside Image','file'=>$businessInfo->outside_image],
+                    ['label'=>'Signed MOA','file'=>$businessInfo->signed_moa_image],
+                    ['label'=>'Signed AOA','file'=>$businessInfo->signed_aoa_image],
+                    ['label'=>'Board Resolution','file'=>$businessInfo->board_resoultion_image],
+                    ['label'=>'Declaration','file'=>$businessInfo->nsdl_declaration_image],
+                    ['label'=>'ITR','file'=>$businessInfo->itr_file_image],
+                    ];
+                    @endphp
+
+                    @foreach($docs as $doc)
+                    <div class="col-md-4 mb-2">
+                        <div class="border rounded p-2 text-center small">
+                            {{ $doc['label'] }} <br>
+
+                            @if(!empty($doc['file']))
+                            <i class="fa fa-eye text-primary cursor-pointer"
+                                onclick="showImage('{{ FileUpload::getFilePath($doc['file']) }}','{{ $doc['label'] }}')"></i>
+                            @else
+                            <i class="fa fa-eye-slash text-muted"></i>
+                            @endif
+                        </div>
+                    </div>
+                    @endforeach
+
+                </div>
+
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -714,7 +507,9 @@ use App\Facades\FileUpload;
             icon: 'question',
             showCancelButton: true,
             confirmButtonText: 'Yes',
-            cancelButtonText: 'No',
+            cancelButtonText: 'Cancel',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
             reverseButtons: false
         }).then((result) => {
             if (result.isConfirmed) {
@@ -873,7 +668,7 @@ use App\Facades\FileUpload;
 
     function changeKycStatus(id, userId) {
         Swal.fire({
-            title: 'Are you sure to change status of',
+            title: 'Are you sure to change status of KYC',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
@@ -898,8 +693,6 @@ use App\Facades\FileUpload;
                                 icon: "success",
                                 title: "Success",
                                 text: response.message,
-                                confirmButtonText: "OK",
-                                confirmButtonColor: "#2563eb"
                             }).then(() => {
                                 location.reload();
                             });
@@ -951,6 +744,90 @@ use App\Facades\FileUpload;
                     }
                 });
             }
+        });
+    }
+
+
+    function updateSetupCost(userId) {
+
+        let btn = $('#submitSetupCost');
+        let newAmount = parseFloat($('#setupCostInput').val()) || 0;
+
+        if (newAmount <= 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Invalid Amount',
+                text: 'Please enter a valid setup cost.'
+            });
+            return;
+        }
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to update the setup cost?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Yes',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+        }).then((result) => {
+
+            if (!result.isConfirmed) return;
+            btn.prop('disabled', true).text('Processing...');
+
+            $.ajax({
+                url: "{{route('update_setup_cost')}}",
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    setupCost: newAmount,
+                    userId: userId
+                },
+
+                success: function (response) {
+                    if (response.status) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: response.message ?? 'Setup cost updated successfully.'
+                        });
+
+                        setTimeout(() => location.reload(), 1500);
+
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: 'Error',
+                            text: response.message ?? 'Something went wrong'
+                        });
+                    }
+                },
+
+                error: function (xhr) {
+
+                    let message = "Something went wrong!";
+                    let title = "Error";
+
+                    if (xhr.status === 422 && xhr.responseJSON?.errors) {
+                        title = "Validation Error";
+                        message = Object.values(xhr.responseJSON.errors)[0][0];
+
+                    } else if (xhr.responseJSON?.message) {
+                        message = xhr.responseJSON.message;
+                    }
+
+                    Swal.fire({
+                        icon: "error",
+                        title: title,
+                        text: message,
+                    });
+                },
+
+                complete: function () {
+                    btn.prop('disabled', false).text('Update');
+                }
+            });
+
         });
     }
 </script>

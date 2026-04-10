@@ -662,7 +662,7 @@ class UserController extends Controller
 
 
             $data['userData'] = User::where('id', $userId)
-                ->select('id', 'name', 'email', 'mobile', 'status', 'role_id')
+                ->select('id', 'name', 'email', 'mobile', 'status', 'role_id', 'transaction_amount', 'setup_cost', 'setup_cost_paid')
                 ->firstOrFail();
 
             $data['businessInfo'] = BusinessInfo::where('user_id', $userId)->first();
