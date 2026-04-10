@@ -133,6 +133,12 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('upi-manual-settlement', [AdminController::class, 'ManualSettlement'])->name('upi_manual_settlement');
         Route::get('/users-log', [AdminController::class, 'usersLog'])->name('users_log');
         Route::post('update-setup-cost', [AdminController::class, 'updateSetupCost'])->name('update_setup_cost');
+        Route::post('marked-paid-setup-cost', [AdminController::class, 'markAsPaidSetupCost'])->name('marked_paid_setup_cost');
+
+        // Associates Route 
+        Route::get('associates', [AdminController::class, 'associatesList'])->name('associates');
+        Route::post('add-associates', [AdminController::class, 'addAssociates'])->name('add_associates');
+        Route::get('edit-associates', [AdminController::class, 'editAssociates'])->name('edit_associates');
     });
 });
 
@@ -243,6 +249,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('upi-initiation', [AdminController::class, 'UpiInitiation'])->name('upi_initiation');
     Route::get('upi-collection', [AdminController::class, 'UpiCollection'])->name('upi_collection');
     Route::get('all-upi-transactions', [AdminController::class, 'UpiTransaction'])->name('all_upi_transactions');
+    Route::get('/download-slip/{id}', [AdminController::class, 'downloadSlip']);
 });
 
 Route::group(['middleware' => ['logs', 'auth'], 'prefix' => 'document'], function () {
@@ -280,5 +287,3 @@ Route::get('/maintenance-mode', [UserController::class, 'userMaintenanceMode'])-
 Route::prefix('admin', function () {
     Route::get('me', [AuthController::class, 'me']);
 });
-
-
