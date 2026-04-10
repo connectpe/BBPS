@@ -98,6 +98,7 @@
             let table = $('#usersLogTable').DataTable({
                 processing: true,
                 serverSide: true,
+                order: [[5, 'desc']],
                 ajax: {
                     url: "{{ url('fetch') }}/users-log/0",
                     type: "POST",
@@ -142,7 +143,7 @@
                     {
 
                         data: 'user_agent',
-                        orderable: false,
+                        orderable: true,
                         searchable: false,
                         className: 'text-center align-middle',
                         render: function(data) {
@@ -166,7 +167,8 @@
                         }
                     },
                     {
-                        data: 'time',
+                        data: 'created_at',
+                        name: 'created_at',
                         render: function(data) {
                             return formatDateTime(data);
                         }
