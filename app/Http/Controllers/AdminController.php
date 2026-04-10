@@ -199,7 +199,7 @@ class AdminController extends Controller
             $data['walletBalance'] = $data['userdata']->transaction_amount ?? 0;
             $data['completedTxn'] = $data['txnStats']->total_count ?? 0;
             $data['totalSpent'] = $data['txnStats']->total_amount ?? 0;
- 
+
             return view('Admin.profile')->with($data);
         } catch (\Exception $e) {
             return response()->json([
@@ -2099,7 +2099,8 @@ class AdminController extends Controller
         }
     }
 
-    public function UpiInitiation(){
+    public function UpiInitiation()
+    {
         $customers = UpiCollection::select('cust_name')->whereNotNull('cust_name')->where('status', '=', 'initiated')->distinct()->orderBy('cust_name', 'ASC')->pluck('cust_name');
         return view('UpiServices.upi-initiation', compact('customers'));
     }
@@ -2110,7 +2111,8 @@ class AdminController extends Controller
         return view('UpiServices.upi-collection', compact('customers'));
     }
 
-    public function UpiTransaction(){
+    public function UpiTransaction()
+    {
         $customers = UpiCollection::select('cust_name')->whereNotNull('cust_name')->distinct()->orderBy('cust_name', 'ASC')->pluck('cust_name');
         return view('UpiServices.all-upi-transactions', compact('customers'));
     }
@@ -2125,13 +2127,15 @@ class AdminController extends Controller
         return view('UpiServices.upi-manual-settlement');
     }
 
-   public function usersLog()
-{
-    $users = \App\Models\UsersLog::with('user:id,name,email')
-                ->select('user_id')
-                ->distinct()
-                ->get();
+    public function usersLog()
+    {
+        $users = \App\Models\UsersLog::with('user:id,name,email')
+            ->select('user_id')
+            ->distinct()
+            ->get();
 
-    return view('Admin.userslog', compact('users'));
-}
+        return view('Admin.userslog', compact('users'));
+    }
+    
+
 }
