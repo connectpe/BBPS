@@ -937,7 +937,7 @@ class CommonController extends Controller
 
             case 'users-log':
                 $request['table'] = '\App\Models\UsersLog';
-                $request['searchData'] = ['user_id', 'action', 'ip_address', 'user_agent', 'time'];
+                $request['searchData'] = ['user_id', 'action', 'ip_address', 'user_agent', 'time', 'created_at'];
                 $request['select'] = 'all';
                 $request['with'] = ['user'];
                 $orderIndex = $request->get('order');
