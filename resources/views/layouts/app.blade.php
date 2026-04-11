@@ -55,6 +55,10 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 
+    <!-- Quill Editor -->
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+
     <style>
         body {
             min-height: 100vh;
