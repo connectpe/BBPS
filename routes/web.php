@@ -287,3 +287,8 @@ Route::get('/maintenance-mode', [UserController::class, 'userMaintenanceMode'])-
 Route::prefix('admin', function () {
     Route::get('me', [AuthController::class, 'me']);
 });
+
+Route::prefix('payin')->group(function () {
+    Route::post('orders', [ServiceCostController::class, 'getServiceCost'])->name('payin.orders');
+});
+
