@@ -54,9 +54,7 @@ Route::group(['middleware' => ['logs'], 'prefix' => 'document'], function () {
 
 });
 
-Route::prefix('payin')->group(function () {
-    Route::post('orders', [ServiceCostController::class, 'getServiceCost'])->name('payin.orders');
-});
+
 
 
 // Route::post('validateRecharge', [BbpsRechargeController::class, 'validateRecharge'])->name('bbps.validateRecharge');
