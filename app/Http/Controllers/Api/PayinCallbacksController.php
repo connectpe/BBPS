@@ -11,6 +11,13 @@ use App\Helpers\TransactionHelper;
 
 class PayinCallbacksController extends Controller
 {
+    private $payinServiceSlug;
+
+    public function __construct()
+    {
+        $this->payinServiceSlug = config('constants.PAYIN_SERVICE_SLUG');
+    }
+
     public function callbacks(Request $request, $type)
     {
         switch ($type) {
@@ -57,6 +64,7 @@ class PayinCallbacksController extends Controller
                         'status'          => $data['status'],
                         'updated_by '     => '',
                     ]);
+
 
                     $useridRow = DB::table('kavach_payins')
                         ->where('client_txn_id', $data['order_id'])
@@ -152,33 +160,20 @@ class PayinCallbacksController extends Controller
                     }
 
                     DB::table('upi_callbacks')->insert([
-                        'order_id'        => $data['order_id'] ?? null,
-                        'utr'             => $data['utr'],
-                        'customer_mobile' => $data['customer_mobile'],
+                        'txn_id'          => '',
+                        'txn_order_id'    => $data['order_id'] ?? null,
                         'amount'          => $data['amount'],
+                        'utr'             => $data['utr'],
+                        'root'            => '',
                         'message'         => $data['message'],
+                        'response'        => '',
                         'status'          => $data['status'],
-                        'date'            => $data['date'],
+                        'updated_by '     => '',
                     ]);
 
-                    $useridRow = DB::table('upi_collections')
+                    $userid = DB::table('upi_collections')
                         ->where('client_txn_id', $data['order_id'])
                         ->first(['user_id']);
-
-                    if (! $useridRow) {
-                        Log::error("No user found for order_id: {$data['order_id']}");
-                        return response()->json(['success' => false, 'message' => 'User not found'], 404);
-                    }
-
-
-                    $user = DB::table('web_hook_urls')->where('user_id', $useridRow->user_id)->where('service_slug', 'payin')->first();
-
-                    if (empty($user) || empty($user->url)) {
-                        Log::error("User or webhook URL not found for user_id: {$useridRow->user_id}");
-                        return response()->json(['success' => false, 'message' => 'Webhook URL not found'], 404);
-                    }
-
-                    $callbackUrl = $user->url;
 
                     $payload = [
                         'status'          => $data['status'] ?? 'pending',
@@ -189,32 +184,15 @@ class PayinCallbacksController extends Controller
                         'date'            => $data['updated_at'] ?? now()->toDateTimeString(),
                     ];
 
-                    TransactionHelper::sendPayinCallback($useridRow->user_id, $data['order_id'], $payload, 'payin');
+                    $sendCallback = TransactionHelper::sendPayinCallback($userid->user_id, $data['order_id'], $payload, $this->payinServiceSlug);
 
-                    $response = Http::withHeaders([
-                        'Content-Type' => 'application/json',
-                    ])->retry(2, 200)->post($callbackUrl, $payload);
-
-
-                    if ($response->successful()) {
-                        Log::info('Callback sent successfully', [
-                            'order_id' => $data['order_id'],
-                            'response' => $response->body(),
-                        ]);
-                    } else {
-                        Log::error('Callback failed', [
-                            'order_id' => $data['order_id'],
-                            'status'   => $response->status(),
-                            'body'     => $response->body(),
+                    if ($sendCallback['status']) {
+                        return response()->json([
+                            'success'      => true,
+                            'message'      => 'Callback processed and sent successfully',
+                            'payload'      => $payload,
                         ]);
                     }
-
-                    return response()->json([
-                        'success'      => true,
-                        'message'      => 'Callback processed and sent successfully',
-                        'callback_url' => $callbackUrl,
-                        'payload'      => $payload,
-                    ]);
                 } catch (\Exception $e) {
                     Log::error('Cashfree callback error: ' . $e->getMessage());
                     return response()->json([
