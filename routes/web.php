@@ -139,6 +139,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('associates', [AdminController::class, 'associatesList'])->name('associates');
         Route::post('add-associates', [AdminController::class, 'addAssociates'])->name('add_associates');
         Route::get('edit-associates', [AdminController::class, 'editAssociates'])->name('edit_associates');
+
+        Route::get('/payin-documentation', [AdminController::class, 'payinDocs'])->name('payin_docs');
     });
 });
 
@@ -195,6 +197,8 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
     // Load Money Request 
     Route::get('/load-money-request', [TransactionController::class, 'userMoneyLoadRequests'])->name('user_load_money_request');
     Route::post('add-load-money-request', [UserController::class, 'addMoneyRequest'])->name('add_load_money_request');
+
+    Route::get('/payin-docs', [UserController::class, 'payinDocsUser'])->name('payin_docs_user');
 });
 
 
