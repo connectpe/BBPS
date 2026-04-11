@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Facades\FileUpload;
 use App\Helpers\CommonHelper;
 use App\Models\Agreement;
+use App\Models\AssociatedPartner;
 use App\Models\BusinessCategory;
 use App\Models\BusinessInfo;
 use App\Models\ComplaintsCategory;
@@ -31,6 +33,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class AdminController extends Controller
 {
@@ -2191,9 +2194,180 @@ class AdminController extends Controller
             DB::rollBack();
             return response()->json([
                 'status' => false,
-                'message' => $e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ], 500);
         }
     }
-    
+
+    public function downloadSlip($id)
+    {
+        $payment = UpiCollection::findOrFail($id);
+        $pdf = Pdf::loadView('UpiServices.upiCollection-payment-slip', compact('payment'));
+        return $pdf->download('payment-slip-' . $payment->id . '.pdf');
+    }
+
+    public function markAsPaidSetupCost(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'userId'    => 'required|exists:users,id',
+        ], [
+            'userId.required'    => 'User ID is required.',
+            'userId.exists'      => 'Selected user does not exist.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+
+            $user = User::where('id', $request->userId)->where('status', '1')->first();
+
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User not found',
+                ]);
+            }
+
+            if ($user->setup_cost_paid == '1') {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Already Marked as Paid',
+                ]);
+            }
+
+            $user->setup_cost_paid = '1';
+            $user->save();
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Marked as Paid',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'message' => 'Error : ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    // Associates Related methods
+    public function associatesList()
+    {
+        $associates = AssociatedPartner::where('status', '1')->orderBy('priority', 'asc')->get();
+        return view('Associates.associates-list', compact('associates'));
+    }
+
+
+    public function addAssociates(Request $request)
+    {
+        $id = $request->id;
+
+        $validator = Validator::make($request->all(), [
+            'associates_name' => 'required|string|max:255|unique:associated_partners,name,' . $id,
+            'associates_logo' => $id ? 'nullable|file|mimes:jpg,jpeg,png|max:2048' : 'required|file|mimes:jpg,jpeg,png|max:2048',
+            'referrel_url'    => 'required|url|max:255',
+            'priority'        => 'required|integer|min:1',
+        ], [
+            'associates_name.required' => 'Associate name is required.',
+            'associates_name.string'   => 'Associate name must be valid text.',
+            'associates_name.max'      => 'Name cannot exceed 255 characters.',
+            'associates_name.unique'   => 'Associate name already exists.',
+
+            'associates_logo.required' => 'Logo is required.',
+            'associates_logo.file'     => 'Logo must be a valid file.',
+            'associates_logo.mimes'    => 'Logo must be JPG, JPEG, PNG.',
+            'associates_logo.max'      => 'Logo size must not exceed 2MB.',
+
+            'referrel_url.required' => 'Referral URL is required.',
+            'referrel_url.url'      => 'Enter a valid URL.',
+            'referrel_url.max'      => 'URL cannot exceed 255 characters.',
+
+            'priority.required' => 'Priority is required.',
+            'priority.integer'  => 'Priority must be a number.',
+            'priority.min'      => 'Priority must be at least 1.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+
+            $associate = $id
+                ? AssociatedPartner::findOrFail($id)
+                : new AssociatedPartner();
+
+            if ($request->hasFile('associates_logo')) {
+                $logo = FileUpload::uploadFile($request->associates_logo, "associates", $associate->logo ?? null);
+                $associate->logo = $logo;
+            }
+
+            $associate->name = $request->associates_name;
+            $associate->referell_url = $request->referrel_url;
+            $associate->priority = $request->priority;
+            $associate->updated_by = Auth::id();
+
+            $associate->save();
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => $id
+                    ? 'Associates Updated Successfully'
+                    : 'Associates Added Successfully',
+            ]);
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Error: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function editAssociates(Request $request)
+    {
+        $id = $request->id;
+
+        if (!$id) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Id not found',
+            ], 404);
+        }
+
+        $associates = AssociatedPartner::find($id);
+
+        if (!$associates) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Associated Partner not found',
+            ], 404);
+        }
+
+        $associates->logo = FileUpload::getFilePath($associates->logo);
+
+        return response()->json([
+            'status' => true,
+            'data' => $associates
+        ]);
+    }
 }
