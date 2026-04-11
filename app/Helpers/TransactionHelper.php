@@ -68,7 +68,7 @@ class TransactionHelper
             \Log::warning('Webhook Url not found of this userId ' . $userId);
         }
     }
-    
+
     public function sendPaymentCallback($userId, $txnId)
     {
         try {
