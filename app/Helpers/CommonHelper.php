@@ -216,20 +216,33 @@ class CommonHelper
 
     public static function getProviderSlug($userId, $serviceId)
     {
-        $userRooting = UserRooting::select('provider_slug')->where('user_id', $userId)
-            ->where('service_id', $serviceId)->first();
+        $userRooting = UserRooting::select('provider_slug')
+            ->where('user_id', $userId)
+            ->where('service_id', $serviceId)
+            ->first();
 
         if ($userRooting) {
             return [
+                'status' => true,
                 'provider_slug' => $userRooting->provider_slug
             ];
-        } else {
+        }
 
-            $defaultProvider = DefaultProvider::select('provider_slug')->where('service_id', $serviceId)->first();
+        $defaultProvider = DefaultProvider::select('provider_slug')
+            ->where('service_id', $serviceId)
+            ->first();
+
+        if ($defaultProvider) {
             return [
+                'status' => true,
                 'provider_slug' => $defaultProvider->provider_slug
             ];
         }
+
+        return [
+            'status' => false,
+            'message' => 'No provider found for given user and service'
+        ];
     }
 
     public static function getUserRouteUsingUserId($userId = '', $service_id, $area)

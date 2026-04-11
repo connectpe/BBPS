@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Log;
 use App\Helpers\CommonHelper;
+use App\Models\UpiCollection;
+
 
 class ServiceCostController extends Controller
 {
@@ -16,6 +18,7 @@ class ServiceCostController extends Controller
     private $cashfreeappid;
     private $cashfreesecretkey;
     private $cashfreeapiversion;
+    private $PAYIN_SERVICE_ID;
 
     public function __construct()
     {
@@ -23,33 +26,32 @@ class ServiceCostController extends Controller
         $this->cashfreeappid = config('payin.cashfree_app_id');
         $this->cashfreesecretkey = config('payin.cashfree_secret_key');
         $this->cashfreeapiversion = config('payin.cashfree_api_version');
+        $this->PAYIN_SERVICE_ID = config('constants.PAYIN_SERVICE_ID');
     }
 
     public function getServiceCost(Request $request)
     {
-        // dd($request->all());
         $request->validate([
-            'amount' => 'required|integer|min:1',
+            'amount' => 'required|integer|min:100',
             'gst' => 'required|integer',
             'total' => 'required|integer',
         ]);
 
         $user = Auth::user();
-        dd($user);
-        $userId = Auth::id();
-        dd($userId);
+
+        $userId = $user->id;
         $name = $user->name;
         $mobile = $user->mobile;
         $email = $user->email;
-        dd($userId ,$name,$mobile,$email);
 
         $txnId = CommonHelper::generateTransactionId();
+        $ConnectpeOrderId = CommonHelper::generateConnectPeTransactionId();
 
-        $getProviderSlug = CommonHelper::getProviderSlug($userId, 'PAYIN_SERVICE_ID');
+        $getProviderSlug = CommonHelper::getProviderSlug($userId, $this->PAYIN_SERVICE_ID);
 
-        if (!$getProviderSlug) {
+        if (!$getProviderSlug['status']) {
             return response()->json([
-                'message' => 'Provider not found for the user and service'
+                'message' => $getProviderSlug['message']
             ]);
         }
 
@@ -68,9 +70,9 @@ class ServiceCostController extends Controller
                         "customer_email" => $email,
                         "customer_phone" => $mobile
                     ],
-                    "link_amount" => $request->total_amount,
+                    "link_amount" => $request->total,
                     "link_currency" => "INR",
-                    "link_id" => $request->$txnId,
+                    "link_id" => $txnId,
                     "link_purpose" => "Payment"
                 ];
 
@@ -82,15 +84,7 @@ class ServiceCostController extends Controller
                     'x-client-secret' => $this->cashfreesecretkey,
                     'Content-Type' => 'application/json',
                 ])
-                    ->timeout(40)
-                    ->connectTimeout(30)
-                    ->retry(
-                        3,
-                        2000,
-                        function ($exception, $request) {
-                            return $exception instanceof ConnectionException;
-                        }
-                    )
+                    ->timeout(30)
                     ->post($url, $payload);
 
                 $result = $response->json();
@@ -101,13 +95,52 @@ class ServiceCostController extends Controller
                     'response' => $result,
                 ]);
 
-                return response()->json([
-                    'data' => $result,
-                    'status' => $response->successful(),
-                    'message' => $response->successful() ? 'Payment initiated successfully' : 'API Error',
-                ]);
+                if ($result->successful()) {
+
+                    $upiUrl = $result['data']['link_url'];
+
+                    parse_str(parse_url($upiUrl, PHP_URL_QUERY), $params);
+                    $pa = $params['pa'] ?? null;
+
+                    UpiCollection::create([
+                        'user_id' => $userId,
+                        'cust_name' => $name,
+                        'cust_mobile' => $mobile,
+                        'cust_email' => $email,
+                        'cust_txn_id' => $txnId,
+                        'connectpe_order_id ' => $ConnectpeOrderId,
+                        'amount' => $request->amount,
+                        'tax' => $request->gst,
+                        'net_amount' => $request->total,
+                        'qr_intent' => $upiUrl,
+                        'txn_id' => $result['data']['txnId'],
+                        'txn_order_id' => $orderID,
+                        'type'  => 'setup_cost',
+                        'root' => $pa,
+                        'status' => 'initiated',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+
+                    return response()->json([
+                        'status' => true,
+                        'data' => $result,
+                        'message' => $response->successful() ? 'Payment initiated successfully' : 'API Error',
+                    ]);
+                } else {
+                    return response([
+                        'status' => false,
+                        'message' => 'Cashfree api Error'
+                    ]);
+                }
 
                 break;
+
+            default:
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Invalid payin type.'
+                ], 400);
         }
     }
 }

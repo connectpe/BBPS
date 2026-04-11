@@ -36,26 +36,26 @@ class PayinCallbacksController extends Controller
                         'status'   => $data['status'] ?? 'pending',
                         'utr'      => $data['utr'] ?? null,
                         'order_id' => $data['order_id'] ?? null,
-                        'type'     => $type,
                     ];
 
-                    $updated = DB::table('kavach_payins')
+                    $updated = DB::table('upi_collections')
                         ->where('client_txn_id', $data['order_id'])
                         ->update($updateData);
 
-                    if (! $updated) {
-
+                    if (!$updated) {
                         Log::warning("No record found for order_id: {$data['order_id']}");
                     }
 
-                    DB::table('cgpey_callback')->insert([
-                        'order_id'        => $data['order_id'] ?? null,
-                        'utr'             => $data['utr'],
-                        'customer_mobile' => $data['customer_mobile'],
+                    DB::table('upi_callbacks')->insert([
+                        'txn_id'          => '',
+                        'txn_order_id'    => $data['order_id'] ?? null,
                         'amount'          => $data['amount'],
+                        'utr'             => $data['utr'],
+                        'root'            => '',
                         'message'         => $data['message'],
+                        'response'        => '',
                         'status'          => $data['status'],
-                        'date'            => $data['date'],
+                        'updated_by '     => '',
                     ]);
 
                     $useridRow = DB::table('kavach_payins')
@@ -121,7 +121,7 @@ class PayinCallbacksController extends Controller
                 Log::info('Cashfree callback received:', $request->all());
 
                 try {
-                    
+
                     $data = $request->all();
 
                     if (empty($data)) {
