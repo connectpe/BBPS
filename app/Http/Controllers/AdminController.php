@@ -2370,4 +2370,8 @@ class AdminController extends Controller
             'data' => $associates
         ]);
     }
+
+    public function payinDocs(){
+        return view('Documentation.payin-docs');
+    }
 }

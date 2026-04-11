@@ -1476,4 +1476,8 @@ class UserController extends Controller
     {
         return view('Maintenance.maintenance');
     }
+
+    public function payinDocsUser(){
+        return view('Documentation.payin-docs-user');
+    }
 }
