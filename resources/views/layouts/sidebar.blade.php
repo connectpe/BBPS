@@ -59,6 +59,7 @@
                     @php
                         $userRoute = [
                             'users',
+                            'associates',
                             'view_user',
                             'request_services',
                             'support_details',
@@ -82,6 +83,14 @@
                                         class="nav-link text-white {{ Route::currentRouteName() == 'users' ? 'sidebar-active' : '' }}">
                                         <i class="bi bi-person-lines-fill me-2"></i>
                                         Users
+                                    </a>
+                                </li>
+
+                                 <li class="nav-item">
+                                    <a href="{{ route('associates') }}"
+                                        class="nav-link text-white {{ Route::currentRouteName() == 'associates' ? 'sidebar-active' : '' }}">
+                                        <i class="bi bi-person-lines-fill me-2"></i>
+                                        Associated Partners
                                     </a>
                                 </li>
 

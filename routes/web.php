@@ -291,4 +291,3 @@ Route::prefix('admin', function () {
 Route::prefix('payin')->group(function () {
     Route::post('orders', [ServiceCostController::class, 'getServiceCost'])->name('payin.orders');
 });
-

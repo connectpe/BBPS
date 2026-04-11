@@ -343,7 +343,7 @@
             <div class="d-flex align-items-center justify-content-between mb-4">
                 <h2 class="mb-0">@yield('page-title')</h2>
                 <!-- Button placeholder, will be injected by child if exists -->
-                <div>
+                <div class="ms-lg-0 ms-5">
                     @yield('page-button')
                 </div>
             </div>
