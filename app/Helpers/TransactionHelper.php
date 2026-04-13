@@ -12,46 +12,62 @@ use Illuminate\Support\Facades\Http;
 class TransactionHelper
 {
 
-    // public static function moveOrderToProcessingByOrderId($userId , $reqId){
-    //     $resp['status'] = false;
-    //     $resp['message'] = 'Initiate';
-    // }
-
     public static function sendPayinCallback($userId, $orderId, $payload, $serviceSlug)
     {
-        $getWebhookUrl = WebHookUrl::where('user_id', $userId)->where('service_slug', $serviceSlug)->first();
+        $getWebhookUrl = WebHookUrl::where('user_id', $userId)
+            ->where('service_slug', $serviceSlug)
+            ->first();
 
         if (! $getWebhookUrl) {
-            Log::warning('Webhook Url not found of this userId ' . $userId);
-            return;
+            Log::warning("Webhook URL not found for userId {$userId}");
+
+            return [
+                'status' => false,
+                'message' => 'Webhook URL not found'
+            ];
         }
 
-        $url = $getWebhookUrl->url;
+        try {
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+            ])
+                ->retry(2, 200)
+                ->post($getWebhookUrl->url, $payload);
 
-        $response = Http::withHeaders([
-            'Content-Type' => 'application/json',
-        ])->retry(2, 200)->post($url, $payload);
+            if ($response->successful()) {
 
-        if ($response->successful()) {
-            Log::info('Callback sent successfully', [
-                'order_id' => $orderId,
-                'response' => $response->body(),
-            ]);
+                Log::info('Callback sent successfully', [
+                    'order_id' => $orderId,
+                    'response' => $response->body(),
+                ]);
 
-            return response()->json([
-                'status' => true,
-                'message' => 'Callback sent successfully',
-            ]);
-        } else {
+                return [
+                    'status' => true,
+                    'message' => 'Callback sent successfully'
+                ];
+            }
+
             Log::error('Callback failed', [
                 'order_id' => $orderId,
                 'status'   => $response->status(),
                 'body'     => $response->body(),
             ]);
-            return response()->json([
+
+            return [
                 'status' => false,
-                'message' => 'Callback failed with status ' . $response->status(),
+                'message' => 'Callback failed'
+            ];
+        } catch (\Exception $e) {
+
+            Log::error('Callback exception', [
+                'order_id' => $orderId,
+                'error'    => $e->getMessage()
             ]);
+
+            return [
+                'status' => false,
+                'message' => 'Exception occurred'
+            ];
         }
     }
 
@@ -200,6 +216,71 @@ class TransactionHelper
         $response['total_amount'] = $response['amount'] + $response['fee'] + $response['tax'];
 
         return $response;
+    }
+
+    public static function payinFeeTaxDeduction($userId, $totalAmount, $serviceId)
+    {
+        $schemeId = DB::table("user_configs")
+            ->select("scheme_id")
+            ->where("user_id", $userId)
+            ->first();
+        // dd($totalAmount);
+        if ($schemeId) {
+            $scheme = DB::table("scheme_rules")
+                ->where("service_id", $serviceId)
+                ->where("scheme_id", $schemeId->scheme_id)
+                ->where("is_active", "1")
+                ->where("start_value", "<=", $totalAmount)
+                ->where("end_value", ">=", $totalAmount)
+                ->orderBy("id", "desc")
+                ->first();
+
+            // dd($scheme);
+        } else {
+            return response()->json([
+                "message" => "scheme is not defined yet for user id" . $userId,
+            ]);
+        }
+
+        $feePercent = $scheme->fee;
+        $taxPercent = 18;
+
+        if (!$scheme->fee) {
+            return response()->json([
+                "message" => "fee not deducted",
+            ]);
+        }
+
+        $fee = 0;
+        $tax = 0;
+        $netAmount = 0;
+
+        // dd($scheme->type);
+        if ($scheme->type == "Percentage") {
+            $fee = ($totalAmount * $feePercent) / 100;
+            $tax = ($fee * $taxPercent) / 100;
+            $netAmount = $totalAmount - ($fee + $tax);
+        } elseif ($scheme->type == "Fixed") {
+            $fee = $feePercent;
+            $taxPercentcal = $totalAmount - $fee;
+            $tax = ($fee * $taxPercent) / 100;
+            $netAmount = $totalAmount - ($fee + $tax);
+        } else {
+
+            return response()->json([
+                "status" => false,
+                "message" => "scheme type is not defined",
+            ]);
+        }
+
+
+        $data = [];
+
+        $data['fee'] = $fee;
+        $data['tax'] = $tax;
+        $data['netAmount'] = $netAmount;
+
+        return $data;
     }
 
     public static function moveOrderToProcessingByOrderId($userId, $orderRefId, $integrationId = null)
