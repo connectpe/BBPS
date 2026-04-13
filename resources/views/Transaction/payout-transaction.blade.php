@@ -3,6 +3,10 @@
 @section('title', 'Payout Transaction')
 @section('page-title', 'Payout Transaction')
 
+
+
+@section('content')
+
 <style>
     table.dataTable.dtr-inline.collapsed>tbody>tr>td:first-child:before,
     table.dataTable.dtr-inline.collapsed>tbody>tr>th:first-child:before {
@@ -61,8 +65,6 @@
         display: none !important;
     }
 </style>
-
-@section('content')
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 

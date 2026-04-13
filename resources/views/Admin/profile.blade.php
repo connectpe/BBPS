@@ -2255,6 +2255,13 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
 
                     <div class="step-item" data-step="5">
                         <span class="step-circle">5</span>
+                        <div class="step-label">Aadhaar</div>
+                    </div>
+
+                    <div class="step-line"></div>
+
+                    <div class="step-item" data-step="6">
+                        <span class="step-circle">6</span>
                         <div class="step-label">VideoKyc</div>
                     </div>
 
@@ -2339,6 +2346,24 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
 
                 <!-- STEP 5 -->
                 <div class="doc-step d-none" data-doc-step="5">
+                    <h6 class="mb-3">Aadhaar</h6>
+                    <div class="card border shadow-sm p-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="mb-1"><strong>Aadhaar Number:</strong>
+                                    <span id="aadhaarNumber">-</span>
+                                </p>
+                                <span class="badge" id="aadhaarBadge">Checking...</span>
+                            </div>
+                            <button type="button" class="btn" id="aadhaarButton"
+                                onclick="verifyDocument('aadhaar')">Verify</button>
+                        </div>
+                        <div class="mt-3" id="aadhaarMessage"></div>
+                    </div>
+                </div>
+
+                <!-- STEP 6 -->
+                <div class="doc-step d-none" data-doc-step="6">
                     <h6 class="mb-3">Video KYC</h6>
                     <div class="card border shadow-sm p-3">
                         <div class="d-flex justify-content-between align-items-center">
@@ -2773,8 +2798,8 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
 
             // progress bar
             const stepNo = next.classList.contains('step-2') ? 2 :
-               next.classList.contains('step-3') ? 3 :
-               next.classList.contains('step-4') ? 4 : 1;
+                next.classList.contains('step-3') ? 3 :
+                    next.classList.contains('step-4') ? 4 : 1;
 
 
             document.querySelectorAll('.step-item').forEach(item => {
@@ -2870,7 +2895,8 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
     });
 </script>
 
-{{-- <script>
+{{--
+<script>
     $(document).on('submit', '#nsdlPayForm', function (e) {
         e.preventDefault();
 
@@ -3531,339 +3557,347 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
 
 <script>
 
-        function editWebHookUrl(id, service_id, url) {
-            $("#editWebhookModal").modal('show')
-            $("#url_id").val(id);
-            $("#edit_service_id").val(service_id).trigger('change');
-            $("#edit_url").val(url);
-        }
+    function editWebHookUrl(id, service_id, url) {
+        $("#editWebhookModal").modal('show')
+        $("#url_id").val(id);
+        $("#edit_service_id").val(service_id).trigger('change');
+        $("#edit_url").val(url);
+    }
 
-        $(document).ready(function () {
+    $(document).ready(function () {
 
-            $('#addWebhookForm').on('submit', function (e) {
-                e.preventDefault();
+        $('#addWebhookForm').on('submit', function (e) {
+            e.preventDefault();
 
-                let btn = $('#addWebhookBtn');
-                btn.prop('disabled', true).html(
-                    '<span class="spinner-border spinner-border-sm me-1"></span> Saving...');
+            let btn = $('#addWebhookBtn');
+            btn.prop('disabled', true).html(
+                '<span class="spinner-border spinner-border-sm me-1"></span> Saving...');
 
-                $.ajax({
-                    url: "{{ route('add_web_hook_url') }}",
-                    type: "POST",
-                    data: $(this).serialize(),
-                    success: function (res) {
-                        if (res.status) {
-                            $('#addWebhookModal').modal('hide');
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Success',
-                                text: res.message,
-                                timer: 1500,
-                                showConfirmButton: false
-                            });
-                            setTimeout(() => {
-                                location.reload();
-                            }, 2000);
-                        } else {
-                            Swal.fire('Error', res.message || 'Something went wrong', 'error');
-                        }
-                    },
-                    error: function (xhr) {
-                        if (xhr.status === 422) {
-                            let errors = xhr.responseJSON.errors;
-                            let firstErrorMessage = Object.values(errors)[0][0];
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Validation Error',
-                                text: firstErrorMessage,
-                            });
-                        } else {
-                            Swal.fire(
-                                'Error',
-                                xhr.responseJSON?.message || 'Something went wrong on the server.',
-                                'error'
-                            );
-                        }
-                    },
-                    complete: function () {
-                        btn.prop('disabled', false).text('Submit');
+            $.ajax({
+                url: "{{ route('add_web_hook_url') }}",
+                type: "POST",
+                data: $(this).serialize(),
+                success: function (res) {
+                    if (res.status) {
+                        $('#addWebhookModal').modal('hide');
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: res.message,
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                        setTimeout(() => {
+                            location.reload();
+                        }, 2000);
+                    } else {
+                        Swal.fire('Error', res.message || 'Something went wrong', 'error');
                     }
-                });
-            });
-
-
-
-            $('#editWebhookForm').on('submit', function (e) {
-                e.preventDefault();
-
-                let btn = $('#editWebhookBtn');
-                btn.prop('disabled', true).html(
-                    '<span class="spinner-border spinner-border-sm me-1"></span> Saving...');
-
-                $.ajax({
-                    url: "{{ route('edit_web_hook_url') }}",
-                    type: "POST",
-                    data: $(this).serialize(),
-                    success: function (res) {
-                        if (res.status) {
-                            $('#editWebhookModal').modal('hide');
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Success',
-                                text: res.message,
-                                timer: 1500,
-                                showConfirmButton: false
-                            });
-                            setTimeout(() => {
-                                location.reload();
-                            }, 2000);
-                        } else {
-                            Swal.fire('Error', res.message || 'Something went wrong', 'error');
-                        }
-                    },
-                    error: function (xhr) {
-                        if (xhr.status === 422) {
-                            let errors = xhr.responseJSON.errors;
-                            let firstErrorMessage = Object.values(errors)[0][0];
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Validation Error',
-                                text: firstErrorMessage,
-                            });
-                        } else {
-                            Swal.fire(
-                                'Error',
-                                xhr.responseJSON?.message || 'Something went wrong on the server.',
-                                'error'
-                            );
-                        }
-                    },
-                    complete: function () {
-                        btn.prop('disabled', false).text('Update');
+                },
+                error: function (xhr) {
+                    if (xhr.status === 422) {
+                        let errors = xhr.responseJSON.errors;
+                        let firstErrorMessage = Object.values(errors)[0][0];
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Validation Error',
+                            text: firstErrorMessage,
+                        });
+                    } else {
+                        Swal.fire(
+                            'Error',
+                            xhr.responseJSON?.message || 'Something went wrong on the server.',
+                            'error'
+                        );
                     }
-                });
+                },
+                complete: function () {
+                    btn.prop('disabled', false).text('Submit');
+                }
             });
-
-
         });
+
+
+
+        $('#editWebhookForm').on('submit', function (e) {
+            e.preventDefault();
+
+            let btn = $('#editWebhookBtn');
+            btn.prop('disabled', true).html(
+                '<span class="spinner-border spinner-border-sm me-1"></span> Saving...');
+
+            $.ajax({
+                url: "{{ route('edit_web_hook_url') }}",
+                type: "POST",
+                data: $(this).serialize(),
+                success: function (res) {
+                    if (res.status) {
+                        $('#editWebhookModal').modal('hide');
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: res.message,
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                        setTimeout(() => {
+                            location.reload();
+                        }, 2000);
+                    } else {
+                        Swal.fire('Error', res.message || 'Something went wrong', 'error');
+                    }
+                },
+                error: function (xhr) {
+                    if (xhr.status === 422) {
+                        let errors = xhr.responseJSON.errors;
+                        let firstErrorMessage = Object.values(errors)[0][0];
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Validation Error',
+                            text: firstErrorMessage,
+                        });
+                    } else {
+                        Swal.fire(
+                            'Error',
+                            xhr.responseJSON?.message || 'Something went wrong on the server.',
+                            'error'
+                        );
+                    }
+                },
+                complete: function () {
+                    btn.prop('disabled', false).text('Update');
+                }
+            });
+        });
+
+
+    });
 </script>
 <script>
-        $(function () {
-            const kyc = @json(request('is_kyc') === 'Yes');
+    $(function () {
+        const kyc = @json(request('is_kyc') === 'Yes');
 
-            if (kyc == true || kyc == 1) {
-                $("#completeProfileModal").modal('show');
-            }
-        });
+        if (kyc == true || kyc == 1) {
+            $("#completeProfileModal").modal('show');
+        }
+    });
 </script>
 
 
 
 <!-- For the Save data in local  -->
 <script>
-        const profileExists = @json(!empty($businessInfo));
+    const profileExists = @json(!empty($businessInfo));
 
-        function saveDraft() {
+    function saveDraft() {
 
-            if (profileExists) return;
-            const userId = $('#user_id').val(); // Get the current logged-in user ID
-            const draftData = {
-                user_id: userId
-            };
+        if (profileExists) return;
+        const userId = $('#user_id').val(); // Get the current logged-in user ID
+        const draftData = {
+            user_id: userId
+        };
 
-            $('#completeProfileModal input, #completeProfileModal select, #completeProfileModal textarea').each(function () {
+        $('#completeProfileModal input, #completeProfileModal select, #completeProfileModal textarea').each(function () {
 
-                const name = $(this).attr('name');
-                if (name === '_token') return;
-                if (!name) return;
-                if ($(this).is(':file')) return;
-                if ($(this).is(':disabled')) return;
-                if ($(this).hasClass('skip-draft')) return;
-                draftData[name] = $(this).val();
-            });
+            const name = $(this).attr('name');
+            if (name === '_token') return;
+            if (!name) return;
+            if ($(this).is(':file')) return;
+            if ($(this).is(':disabled')) return;
+            if ($(this).hasClass('skip-draft')) return;
+            draftData[name] = $(this).val();
+        });
 
-            localStorage.setItem('profileDraft', JSON.stringify(draftData));
-        }
+        localStorage.setItem('profileDraft', JSON.stringify(draftData));
+    }
 </script>
 
 @if ($role == 2 || $role == 3)
 <script>
-        let docVerifyStep = 1;
-        let documentData = {};
+    let docVerifyStep = 1;
+    let documentData = {};
 
-        function getDocStepEl(step) {
-            return document.querySelector('#docVerifyModalBody .doc-step[data-doc-step="' + step + '"]');
-        }
+    function getDocStepEl(step) {
+        return document.querySelector('#docVerifyModalBody .doc-step[data-doc-step="' + step + '"]');
+    }
 
-        document.getElementById('documentVerificationModal')
-            .addEventListener('show.bs.modal', function () {
+    document.getElementById('documentVerificationModal')
+        .addEventListener('show.bs.modal', function () {
 
-                // Reset to step 1
-                docVerifyStep = 1;
-                document.querySelectorAll('#docVerifyModalBody .doc-step').forEach(el => el.classList.add("d-none"));
-                getDocStepEl(1).classList.remove("d-none");
-                updateDocSteps();
+            // Reset to step 1
+            docVerifyStep = 1;
+            document.querySelectorAll('#docVerifyModalBody .doc-step').forEach(el => el.classList.add("d-none"));
+            getDocStepEl(1).classList.remove("d-none");
+            updateDocSteps();
 
-                fetch("{{ route('document.verification.data') }}")
-                    .then(res => res.json())
-                    .then(data => {
-
-                        if (!data.status) return;
-
-                        documentData = data;
-                        console.log(data);
-
-                        // Fill Numbers
-                        document.getElementById("panNumber").innerText = data.business_pan_number ?? '-';
-                        document.getElementById("gstNumber").innerText = data.gst_number ?? '-';
-                        document.getElementById("cinNumber").innerText = data.cin_no ?? '-';
-                        document.getElementById("bankNumber").innerText = data.account_number ?? '-';
-                        document.getElementById("videoKycName").innerText = data.name ?? '-';
-                        document.getElementById("videoKycEmail").innerText = data.email ?? '-';
-                        document.getElementById("videoKycPhone").innerText = data.phone ?? '-';
-
-                        setDocStatus("pan", data.pan_verified);
-                        setDocStatus("gst", data.is_gstin_verify);
-                        setDocStatus("cin", data.is_cin_verify);
-                        setDocStatus("bank", data.bank_verified);
-                        setDocStatus("videoKyc", data.videokyc_verified);
-                    });
-            });
-
-
-        function setDocStatus(type, verified) {
-            let badge = document.getElementById(type + "Badge");
-            let button = document.getElementById(type + "Button");
-            let message = document.getElementById(type + "Message");
-
-            if (verified == 1) {
-                badge.className = "badge bg-success";
-                badge.innerText = "Verified";
-                button.className = "btn btn-success";
-                button.innerText = "Verified";
-                message.innerHTML =
-                    `<div class="alert alert-success mb-0">${type.toUpperCase()} verified successfully.</div>`;
-            } else {
-                badge.className = "badge bg-danger";
-                badge.innerText = "Not Verified";
-                button.className = "btn btn-danger";
-                button.innerText = "Verify";
-                message.innerHTML = `<div class="alert alert-danger mb-0">${type.toUpperCase()} not verified.</div>`;
-            }
-        }
-
-
-        // Step navigation
-        document.getElementById("nextDocStep").addEventListener("click", function () {
-            if (docVerifyStep < 5) {
-                getDocStepEl(docVerifyStep).classList.add("d-none");
-                docVerifyStep++;
-                getDocStepEl(docVerifyStep).classList.remove("d-none");
-                updateDocSteps();
-            }
-        });
-
-        document.getElementById("prevDocStep").addEventListener("click", function () {
-            if (docVerifyStep > 1) {
-                getDocStepEl(docVerifyStep).classList.add("d-none");
-                docVerifyStep--;
-                getDocStepEl(docVerifyStep).classList.remove("d-none");
-                updateDocSteps();
-            }
-        });
-
-        function updateDocSteps() {
-            // Step indicator active class
-            document.querySelectorAll("#documentVerificationModal .step-item").forEach(item => {
-                item.classList.remove("active");
-                if (item.dataset.step == docVerifyStep) {
-                    item.classList.add("active");
-                }
-            });
-
-            // Button control
-            let prevBtn = document.getElementById("prevDocStep");
-            let nextBtn = document.getElementById("nextDocStep");
-
-            if (docVerifyStep === 1) {
-                prevBtn.classList.add("d-none");
-            } else {
-                prevBtn.classList.remove("d-none");
-            }
-
-            if (docVerifyStep === 5) {
-                nextBtn.classList.add("d-none");
-            } else {
-                nextBtn.classList.remove("d-none");
-            }
-        }
-
-
-        // API integration
-        function verifyDocument(type) {
-            let url = "";
-            let payload = {};
-
-            if (type === "pan") {
-                url = "{{ route('pan.verify') }}";
-                payload = {
-                    pan_number: documentData.business_pan_number,
-                    pan_name: documentData.business_pan_name
-                };
-            }
-
-            if (type === "gst") {
-                url = "{{ route('gstin.verify') }}";
-                payload = {
-                    gst_number: documentData.gst_number
-                };
-            }
-
-            if (type === "cin") {
-                url = "{{ route('cin.verify') }}";
-                payload = {
-                    cin_no: documentData.cin_no
-                };
-            }
-
-            if (type === "bank") {
-                url = "{{ route('ifsc.verify') }}";
-                payload = {
-                    // account_number: documentData.account_number,
-                    // beneficiary_name: documentData.benificiary_name,
-                    // phone: documentData.phone,
-                    ifsc: documentData.ifsc_code
-                };
-            }
-            if (type === "videokyc") {
-                url = "{{ route('videokyc.verify') }}";
-                payload = {
-                    name: documentData.name,
-                    email: documentData.email,
-                    phone: documentData.phone,
-                    address: documentData.address
-                };
-            }
-
-            fetch(url, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                },
-                body: JSON.stringify(payload)
-            })
+            fetch("{{ route('document.verification.data') }}")
                 .then(res => res.json())
-                .then(response => {
-                    console.log("Response:", response);
-                    if (response.status) {
-                        setDocStatus(type, 1);
-                    } else {
-                        setDocStatus(type, 0);
-                    }
-                })
-                .catch(err => console.log(err));
+                .then(data => {
+
+                    if (!data.status) return;
+
+                    documentData = data;
+                    console.log(data);
+
+                    // Fill Numbers
+                    document.getElementById("panNumber").innerText = data.business_pan_number ?? '-';
+                    document.getElementById("gstNumber").innerText = data.gst_number ?? '-';
+                    document.getElementById("cinNumber").innerText = data.cin_no ?? '-';
+                    document.getElementById("bankNumber").innerText = data.account_number ?? '-';
+                    document.getElementById("videoKycName").innerText = data.name ?? '-';
+                    document.getElementById("videoKycEmail").innerText = data.email ?? '-';
+                    document.getElementById("videoKycPhone").innerText = data.phone ?? '-';
+                    document.getElementById("aadhaarNumber").innerText = data.aadhar_number ?? '-';
+
+                    setDocStatus("pan", data.pan_verified);
+                    setDocStatus("gst", data.is_gstin_verify);
+                    setDocStatus("cin", data.is_cin_verify);
+                    setDocStatus("bank", data.bank_verified);
+                    setDocStatus("videoKyc", data.videokyc_verified);
+                    setDocStatus("aadhaar", data.is_aadhaar_verified);
+                });
+        });
+
+
+    function setDocStatus(type, verified) {
+        let badge = document.getElementById(type + "Badge");
+        let button = document.getElementById(type + "Button");
+        let message = document.getElementById(type + "Message");
+
+        if (verified == 1) {
+            badge.className = "badge bg-success";
+            badge.innerText = "Verified";
+            button.className = "btn btn-success";
+            button.innerText = "Verified";
+            message.innerHTML =
+                `<div class="alert alert-success mb-0">${type.toUpperCase()} verified successfully.</div>`;
+        } else {
+            badge.className = "badge bg-danger";
+            badge.innerText = "Not Verified";
+            button.className = "btn btn-danger";
+            button.innerText = "Verify";
+            message.innerHTML = `<div class="alert alert-danger mb-0">${type.toUpperCase()} not verified.</div>`;
         }
+    }
+
+
+    // Step navigation
+    document.getElementById("nextDocStep").addEventListener("click", function () {
+        if (docVerifyStep < 7) {
+            getDocStepEl(docVerifyStep).classList.add("d-none");
+            docVerifyStep++;
+            getDocStepEl(docVerifyStep).classList.remove("d-none");
+            updateDocSteps();
+        }
+    });
+
+    document.getElementById("prevDocStep").addEventListener("click", function () {
+        if (docVerifyStep > 1) {
+            getDocStepEl(docVerifyStep).classList.add("d-none");
+            docVerifyStep--;
+            getDocStepEl(docVerifyStep).classList.remove("d-none");
+            updateDocSteps();
+        }
+    });
+
+    function updateDocSteps() {
+        // Step indicator active class
+        document.querySelectorAll("#documentVerificationModal .step-item").forEach(item => {
+            item.classList.remove("active");
+            if (item.dataset.step == docVerifyStep) {
+                item.classList.add("active");
+            }
+        });
+
+        // Button control
+        let prevBtn = document.getElementById("prevDocStep");
+        let nextBtn = document.getElementById("nextDocStep");
+
+        if (docVerifyStep === 1) {
+            prevBtn.classList.add("d-none");
+        } else {
+            prevBtn.classList.remove("d-none");
+        }
+
+        if (docVerifyStep === 6) {
+            nextBtn.classList.add("d-none");
+        } else {
+            nextBtn.classList.remove("d-none");
+        }
+    }
+
+
+    // API integration
+    function verifyDocument(type) {
+        let url = "";
+        let payload = {};
+
+        if (type === "pan") {
+            url = "{{ route('pan.verify') }}";
+            payload = {
+                pan_number: documentData.business_pan_number,
+                pan_name: documentData.business_pan_name
+            };
+        }
+
+        if (type === "gst") {
+            url = "{{ route('gstin.verify') }}";
+            payload = {
+                gst_number: documentData.gst_number
+            };
+        }
+
+        if (type === "cin") {
+            url = "{{ route('cin.verify') }}";
+            payload = {
+                cin_no: documentData.cin_no
+            };
+        }
+
+        if (type === "bank") {
+            url = "{{ route('ifsc.verify') }}";
+            payload = {
+                // account_number: documentData.account_number,
+                // beneficiary_name: documentData.benificiary_name,
+                // phone: documentData.phone,
+                ifsc: documentData.ifsc_code
+            };
+        }
+
+        if (type === "aadhaar") {
+            url = "{{ route('verify.aadhaar') }}";
+            payload = {};
+        }
+
+        if (type === "videokyc") {
+            url = "{{ route('videokyc.verify') }}";
+            payload = {
+                name: documentData.name,
+                email: documentData.email,
+                phone: documentData.phone,
+                address: documentData.address
+            };
+        }
+
+        fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+            },
+            body: JSON.stringify(payload)
+        })
+            .then(res => res.json())
+            .then(response => {
+                console.log("Response:", response);
+                if (response.status) {
+                    setDocStatus(type, 1);
+                } else {
+                    setDocStatus(type, 0);
+                }
+            })
+            .catch(err => console.log(err));
+    }
 </script>
 @endif
 @endsection

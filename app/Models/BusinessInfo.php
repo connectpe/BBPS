@@ -48,6 +48,8 @@ class BusinessInfo extends Model
         'is_cin_verify',
         'is_gstin_verify',
         'is_bank_details_verify',
+        'is_aadhaar_verified',
+        'masked_aadhaar_url',
     ];
 
     public function user()

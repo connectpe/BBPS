@@ -266,6 +266,7 @@ Route::group(['middleware' => ['logs', 'auth'], 'prefix' => 'document'], functio
     Route::post('verify-cin', [DocumentVerificationController::class, 'verifyCinNumber'])->name('cin.verify');
     Route::post('verify-gstin', [DocumentVerificationController::class, 'verifyGstinNumber'])->name('gstin.verify');
     Route::post('verify-ifsc', [DocumentVerificationController::class, 'verifyIfsc'])->name('ifsc.verify');
+    Route::post('verify-aadhaar', [DocumentVerificationController::class, 'verifyAadhaar'])->name('verify.aadhaar');
     Route::post('initiate-video-link', [DocumentVerificationController::class, 'initiateVideoKyc'])->name('videokyc.verify');
 });
 
