@@ -381,7 +381,7 @@ use App\Facades\FileUpload;
                     <div class="mb-3">
                         <label class="form-label fw-bold">Assign Provider</label>
                         <div class="dropdown">
-                            <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button"
+                            <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="providerDropdown"
                                 data-bs-toggle="dropdown">
                                 Select Provider
                             </button>
@@ -638,6 +638,7 @@ use App\Facades\FileUpload;
 
         $(document).on("change", ".provider-chk", function () {
             $("#providerDropdown").text($(this).data('name'));
+            $(this).closest('.dropdown').removeClass('show');
         });
 
         $("#routingForm").on("submit", function (e) {

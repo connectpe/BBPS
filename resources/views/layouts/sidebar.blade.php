@@ -265,14 +265,14 @@
                                 <li class="nav-item">
                                     <a href="{{ route('upi_initiation') }}"
                                         class="nav-link text-white {{ Route::currentRouteName() == 'upi_initiation' ? 'sidebar-active' : '' }}">
-                                        <i class="bi bi-play-circle me-2"></i> UPI Initiation
+                                         <i class="bi bi-arrow-up-right-circle me-2"></i> UPI Initiation
                                     </a>
                                 </li>
 
                                 <li class="nav-item">
                                     <a href="{{ route('upi_collection') }}"
                                         class="nav-link text-white {{ Route::currentRouteName() == 'upi_collection' ? 'sidebar-active' : '' }}">
-                                        <i class="bi bi-cash me-2"></i> UPI Collection
+                                       <i class="bi bi-plus-circle me-2"></i> UPI Collection
                                     </a>
                                 </li>
 
@@ -443,7 +443,7 @@
                                 <li class="nav-item">
                                     <a href="{{ route('payin_docs') }}"
                                         class="nav-link text-white {{ Route::currentRouteName() == 'payin_docs' ? 'sidebar-active' : '' }}">
-                                        <i class="bi bi-cash-stack me-2"></i> Payin
+                                        <i class="bi bi-wallet-fill me-2"></i> Payin
                                     </a>
                                 </li>
                             </ul>
@@ -476,7 +476,7 @@
                                 <li class="nav-item">
                                     <a href="{{ route('users_log') }}"
                                         class="nav-link text-white {{ Route::currentRouteName() == 'users_log' ? 'sidebar-active' : '' }}">
-                                        <i class="bi bi-clock-history me-2"></i>
+                                       <i class="fa-solid fa-user-clock"></i>
                                         Users Log
                                     </a>
                                 </li>
@@ -676,14 +676,14 @@
                                 <li class="nav-item">
                                     <a href="{{ route('upi_initiation') }}"
                                         class="nav-link text-white {{ Route::currentRouteName() == 'upi_initiation' ? 'sidebar-active' : '' }}">
-                                        <i class="bi bi-play-circle me-2"></i> UPI Initiation
+                                         <i class="bi bi-arrow-up-right-circle me-2"></i> UPI Initiation
                                     </a>
                                 </li>
 
                                 <li class="nav-item">
                                     <a href="{{ route('upi_collection') }}"
                                         class="nav-link text-white {{ Route::currentRouteName() == 'upi_collection' ? 'sidebar-active' : '' }}">
-                                        <i class="bi bi-cash me-2"></i> UPI Collection
+                                        <i class="bi bi-plus-circle me-2"></i> UPI Collection
                                     </a>
                                 </li>
 
@@ -736,7 +736,7 @@
                                 <li class="nav-item">
                                     <a href="{{ route('payin_docs_user') }}"
                                         class="nav-link text-white {{ Route::currentRouteName() == 'payin_docs_user' ? 'sidebar-active' : '' }}">
-                                        <i class="bi bi-cash-stack me-2"></i> Payin
+                                      <i class="bi bi-wallet-fill me-2"></i> Payin
                                     </a>
                                 </li>
                             </ul>

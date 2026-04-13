@@ -154,6 +154,7 @@
                 processing: true,
                 serverSide: true,
                 responsive: false,
+                order: [[9, 'desc']],
                 pageLength: 10,
                 lengthMenu: [5, 10, 25, 50],
                 dom: "<'row mb-2'<'col-sm-4'l><'col-sm-4'f><'col-sm-4 text-end'B>>" +

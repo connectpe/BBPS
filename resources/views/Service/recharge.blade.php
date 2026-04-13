@@ -2,6 +2,7 @@
 
 @section('title', 'Recharge Services')
 @section('page-title', 'Recharge Services')
+@section('content')
 <style>
     .card-height {
         height: 400px;
@@ -273,7 +274,8 @@
     }
 </style>
 
-@section('content')
+
+
 <div class="row g-4 mb-3">
     <div class="col-12">
         <div class="banner position-relative overflow-hidden rounded" style="height: 250px;">
