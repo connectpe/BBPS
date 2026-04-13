@@ -473,21 +473,21 @@ use App\Facades\FileUpload;
 
                     @php
                     $docs = [
-                    ['label'=>'Aadhaar Front','file'=>$businessInfo->aadhar_front_image],
-                    ['label'=>'Aadhaar Back','file'=>$businessInfo->aadhar_back_image],
-                    ['label'=>'PAN Card','file'=>$businessInfo->pancard_image],
-                    ['label'=>'Individual Photo','file'=>$businessInfo->individual_photo],
-                    ['label'=>'Business PAN','file'=>$businessInfo->business_pan_image],
-                    ['label'=>'Registration Certificate','file'=>$businessInfo->registration_certificate_image],
-                    ['label'=>'GST Certificate','file'=>$businessInfo->gst_registration_certificate_image],
-                    ['label'=>'Business Address','file'=>$businessInfo->business_address_proof_image],
-                    ['label'=>'Inside Image','file'=>$businessInfo->inside_image],
-                    ['label'=>'Outside Image','file'=>$businessInfo->outside_image],
-                    ['label'=>'Signed MOA','file'=>$businessInfo->signed_moa_image],
-                    ['label'=>'Signed AOA','file'=>$businessInfo->signed_aoa_image],
-                    ['label'=>'Board Resolution','file'=>$businessInfo->board_resoultion_image],
-                    ['label'=>'Declaration','file'=>$businessInfo->nsdl_declaration_image],
-                    ['label'=>'ITR','file'=>$businessInfo->itr_file_image],
+                    ['label'=>'Aadhaar Front','file'=>$businessInfo->aadhar_front_image ?? ''],
+                    ['label'=>'Aadhaar Back','file'=>$businessInfo->aadhar_back_image ?? ''],
+                    ['label'=>'PAN Card','file'=>$businessInfo->pancard_image ?? ''],
+                    ['label'=>'Individual Photo','file'=>$businessInfo->individual_photo ?? ''],
+                    ['label'=>'Business PAN','file'=>$businessInfo->business_pan_image ?? ''],
+                    ['label'=>'Registration Certificate','file'=>$businessInfo->registration_certificate_image ?? ''],
+                    ['label'=>'GST Certificate','file'=>$businessInfo->gst_registration_certificate_image ?? ''],
+                    ['label'=>'Business Address','file'=>$businessInfo->business_address_proof_image ?? ''],
+                    ['label'=>'Inside Image','file'=>$businessInfo->inside_image ?? ''],
+                    ['label'=>'Outside Image','file'=>$businessInfo->outside_image ?? ''],
+                    ['label'=>'Signed MOA','file'=>$businessInfo->signed_moa_image ?? ''],
+                    ['label'=>'Signed AOA','file'=>$businessInfo->signed_aoa_image ?? ''],
+                    ['label'=>'Board Resolution','file'=>$businessInfo->board_resoultion_image ?? ''],
+                    ['label'=>'Declaration','file'=>$businessInfo->nsdl_declaration_image ?? ''],
+                    ['label'=>'ITR','file'=>$businessInfo->itr_file_image ?? ''],
                     ];
                     @endphp
 
