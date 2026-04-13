@@ -140,7 +140,9 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('add-associates', [AdminController::class, 'addAssociates'])->name('add_associates');
         Route::get('edit-associates', [AdminController::class, 'editAssociates'])->name('edit_associates');
 
+        // API Doc Route 
         Route::get('/payin-documentation', [AdminController::class, 'payinDocs'])->name('payin_docs');
+        Route::post('/save-payin-documentation', [AdminController::class, 'savePayinApiDocumentation'])->name('save_payin_documentation');
     });
 });
 

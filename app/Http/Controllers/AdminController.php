@@ -14,6 +14,7 @@ use App\Models\GlobalService;
 use App\Models\LoadMoneyRequest;
 use App\Models\Maintenance;
 use App\Models\OauthUser;
+use App\Models\PayinApiDocumentation;
 use App\Models\Provider;
 use App\Models\Scheme;
 use App\Models\SchemeRule;
@@ -1470,6 +1471,13 @@ class AdminController extends Controller
         $validator = Validator::make($request->all(), [
             'id' => 'required|exists:business_infos,id',
             'userId' => 'required|exists:users,id',
+        ], [
+            'id.required' => 'Business ID is missing or business details are not filled.',
+            'id.exists' => 'Selected business ID does not exist.',
+
+            // userId messages
+            'userId.required' => 'The user ID is required.',
+            'userId.exists' => 'The selected user does not exist.',
         ]);
 
         if ($validator->fails()) {
@@ -2172,7 +2180,7 @@ class AdminController extends Controller
             if (!$user) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'User not found',
+                    'message' => 'User are not in Active state',
                 ]);
             }
 
@@ -2371,7 +2379,53 @@ class AdminController extends Controller
         ]);
     }
 
-    public function payinDocs(){
-        return view('Documentation.payin-docs');
+    public function payinDocs()
+    {
+        $data = PayinApiDocumentation::first();
+        return view('Documentation.payin-docs', compact('data'));
+    }
+
+    // Api doc validation method
+    private function quillRequiredRule()
+    {
+        return function ($attribute, $value, $fail) {
+            if (trim(strip_tags($value)) === '') {
+                $fail("The {$attribute} field is required.");
+            }
+        };
+    }
+
+    public function savePayinApiDocumentation(Request $request)
+    {
+
+        $request->validate([
+            'header' => ['required', $this->quillRequiredRule()],
+            'authorization' => ['required', $this->quillRequiredRule()],
+            'generate_payment_response' => ['required', $this->quillRequiredRule()],
+            'generate_payment_description' => ['required', $this->quillRequiredRule()],
+            'check_status_response' => ['required', $this->quillRequiredRule()],
+            'check_status_description' => ['required', $this->quillRequiredRule()],
+            'callback_example_response' => ['required', $this->quillRequiredRule()],
+            'callback_example_description' => ['required', $this->quillRequiredRule()],
+        ]);
+
+
+
+        PayinApiDocumentation::updateOrCreate(
+            ['id' => 1],
+            [
+                'request_header' => $request->header,
+                'authorization' => $request->authorization,
+                'generate_payment_response' => $request->generate_payment_response,
+                'generate_payment_description' => $request->generate_payment_description,
+                'check_status_response' => $request->check_status_response,
+                'check_status_description' => $request->check_status_description,
+                'callback_examples_response' => $request->callback_example_response,
+                'callback_examples_description' => $request->callback_example_description,
+                'updated_by' => Auth::id(),
+            ]
+        );
+
+        return back()->with('success', 'Documentation Updated Successfully');
     }
 }

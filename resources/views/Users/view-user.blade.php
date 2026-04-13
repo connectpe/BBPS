@@ -725,15 +725,25 @@ use App\Facades\FileUpload;
                         }
                     },
 
-                    error: function () {
+                    error: function (xhr) {
                         checkbox.checked = !newState;
+                        let message = "Something went wrong!";
+                        let title = "Error";
+
+                        if (xhr.status === 422 && xhr.responseJSON?.errors) {
+                            title = "Validation Error";
+                            message = Object.values(xhr.responseJSON.errors)[0][0];
+
+                        } else if (xhr.responseJSON?.message) {
+                            message = xhr.responseJSON.message;
+                        }
 
                         Swal.fire({
                             icon: "error",
-                            title: "Error",
-                            text: "Something went wrong!"
+                            title: title,
+                            text: message,
                         });
-                    }
+                    },
                 });
 
             } else {
