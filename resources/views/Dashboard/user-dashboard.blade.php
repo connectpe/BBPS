@@ -3,6 +3,18 @@
 @section('title', 'Dashboard')
 @section('page-title', 'Dashboard')
 
+@section('page-button')
+
+@if($setupCostPaid)
+<span class="badge bg-success">Setup Cost Paid</span>
+<span class="fw-bold text-success">
+    ₹{{ number_format($setupCostAmount, 2) }}
+</span>
+@else
+@include('Include.setup-cost-modal', ['amount' => $setupCostAmount])
+@endif
+@endsection
+
 @section('content')
 
 <div class="row g-4">
@@ -19,10 +31,8 @@
                 <h3 class="fw-bold mb-3">Our Services</h6>
 
                     <!-- Top-right images container -->
-                    <div class="position-absolute end-0 me-3 d-flex"
-                        style="top: 1px; gap: 0.5rem;">
-                        <img src="{{ asset('assets/image/Logo/b-mnemonic-logo.jpg') }}"
-                            alt="" style="width: 50px;">
+                    <div class="position-absolute end-0 me-3 d-flex" style="top: 1px; gap: 0.5rem;">
+                        <img src="{{ asset('assets/image/Logo/b-mnemonic-logo.jpg') }}" alt="" style="width: 50px;">
                     </div>
 
 
@@ -37,7 +47,8 @@
                         ['name' => 'OTH Recharge', 'icon' => 'bi-phone'],
                         ];
 
-                        $colors = ['#f94144','#f3722c','#f8961e','#f9c74f','#90be6d','#43aa8b','#577590','#277da1','#9d4edd','#ff6d00','#1982c4','#6a4c93'];
+                        $colors =
+                        ['#f94144','#f3722c','#f8961e','#f9c74f','#90be6d','#43aa8b','#577590','#277da1','#9d4edd','#ff6d00','#1982c4','#6a4c93'];
                         @endphp
 
                         @foreach($services as $service)
@@ -77,11 +88,11 @@
                 <div></div>
 
                 <!-- Heading -->
-                <h5 class="fw-bold mb-4 text-center">Welcome <strong style="color:rgb(124 255 241)">{{$user->name}}</strong></h5>
+                <h5 class="fw-bold mb-4 text-center">Welcome <strong
+                        style="color:rgb(124 255 241)">{{$user->name}}</strong></h5>
 
                 <!-- User Profile Image -->
-                <img src="{{asset('assets\image\user.jpg')}}" alt="User Profile"
-                    class="rounded-circle mb-3"
+                <img src="{{asset('assets\image\user.jpg')}}" alt="User Profile" class="rounded-circle mb-3"
                     style="width:75px; height:75px; object-fit:cover;">
 
                 <!-- Profile Details -->
@@ -112,17 +123,13 @@
     <!-- From Date -->
     <div class="col-md-2">
         <label class="form-label small">From Date</label>
-        <input type="date" class="form-control"
-            value="{{ now()->format('Y-m-d') }}"
-            max="{{ now()->format('Y-m-d') }}">
+        <input type="date" class="form-control" value="{{ now()->format('Y-m-d') }}" max="{{ now()->format('Y-m-d') }}">
     </div>
 
     <!-- To Date -->
     <div class="col-md-2">
         <label class="form-label small">To Date</label>
-        <input type="date" class="form-control"
-            value="{{ now()->format('Y-m-d') }}"
-            max="{{ now()->format('Y-m-d') }}">
+        <input type="date" class="form-control" value="{{ now()->format('Y-m-d') }}" max="{{ now()->format('Y-m-d') }}">
     </div>
 
 
@@ -229,15 +236,15 @@
 <script>
     let chartInstance = null;
 
-    $(document).ready(function() {
+    $(document).ready(function () {
 
         filterTransaction();
 
-        $('#applyFilter').on('click', function() {
+        $('#applyFilter').on('click', function () {
             filterTransaction();
         });
 
-        $('#resetFilter').on('click', function() {
+        $('#resetFilter').on('click', function () {
             $('#fromDate').val('{{now()->toDateString()}}');
             $('#toDate').val('{{now()->toDateString()}}');
             $('#filterreferenceId').val('');
@@ -303,7 +310,7 @@
                 plugins: {
                     tooltip: {
                         enabled: false, // disable default tooltip
-                        external: function(context) {
+                        external: function (context) {
                             const tooltipModel = context.tooltip;
                             const tooltipEl = document.getElementById('customTooltip');
                             if (!tooltipModel.opacity) {
@@ -351,21 +358,21 @@
 
         const labels = Object.keys(statusMap);
         const columns = [{
-                key: 'reference',
-                label: 'Reference ID'
-            },
-            {
-                key: 'date',
-                label: 'Date'
-            },
-            {
-                key: 'status',
-                label: 'Status'
-            },
-            {
-                key: 'amount',
-                label: 'Amount'
-            }
+            key: 'reference',
+            label: 'Reference ID'
+        },
+        {
+            key: 'date',
+            label: 'Date'
+        },
+        {
+            key: 'status',
+            label: 'Status'
+        },
+        {
+            key: 'amount',
+            label: 'Amount'
+        }
         ];
 
         return createChartWithTooltip(labels, statusMap, ['#FFA500', '#007BFF', '#28A745', '#DC3545', '#6C757D'], columns);
@@ -383,25 +390,25 @@
 
         const labels = Object.keys(serviceMap);
         const columns = [{
-                key: 'reference',
-                label: 'Reference ID'
-            },
-            {
-                key: 'date',
-                label: 'Date'
-            },
-            {
-                key: 'status',
-                label: 'Status'
-            },
-            {
-                key: 'service_name',
-                label: 'Service Name'
-            },
-            {
-                key: 'amount',
-                label: 'Amount'
-            }
+            key: 'reference',
+            label: 'Reference ID'
+        },
+        {
+            key: 'date',
+            label: 'Date'
+        },
+        {
+            key: 'status',
+            label: 'Status'
+        },
+        {
+            key: 'service_name',
+            label: 'Service Name'
+        },
+        {
+            key: 'amount',
+            label: 'Amount'
+        }
         ];
 
         return createChartWithTooltip(labels, serviceMap, ['#0d6efd', '#6610f2', '#20c997', '#ffc107', '#dc3545'], columns);
@@ -421,25 +428,25 @@
 
         const labels = Object.keys(apiMap);
         const columns = [{
-                key: 'reference',
-                label: 'Reference ID'
-            },
-            {
-                key: 'date',
-                label: 'Date'
-            },
-            {
-                key: 'status',
-                label: 'Status'
-            },
-            {
-                key: 'is_api_enable',
-                label: 'API Enabled'
-            },
-            {
-                key: 'amount',
-                label: 'Amount'
-            }
+            key: 'reference',
+            label: 'Reference ID'
+        },
+        {
+            key: 'date',
+            label: 'Date'
+        },
+        {
+            key: 'status',
+            label: 'Status'
+        },
+        {
+            key: 'is_api_enable',
+            label: 'API Enabled'
+        },
+        {
+            key: 'amount',
+            label: 'Amount'
+        }
         ];
 
         return createChartWithTooltip(labels, apiMap, ['#198754', '#dc3545'], columns);
@@ -460,25 +467,25 @@
 
         const labels = Object.keys(activeMap);
         const columns = [{
-                key: 'reference',
-                label: 'Reference ID'
-            },
-            {
-                key: 'date',
-                label: 'Date'
-            },
-            {
-                key: 'status',
-                label: 'Status'
-            },
-            {
-                key: 'is_active',
-                label: 'Active'
-            },
-            {
-                key: 'amount',
-                label: 'Amount'
-            }
+            key: 'reference',
+            label: 'Reference ID'
+        },
+        {
+            key: 'date',
+            label: 'Date'
+        },
+        {
+            key: 'status',
+            label: 'Status'
+        },
+        {
+            key: 'is_active',
+            label: 'Active'
+        },
+        {
+            key: 'amount',
+            label: 'Amount'
+        }
         ];
 
         return createChartWithTooltip(labels, activeMap, ['#0dcaf0', '#adb5bd'], columns);
@@ -553,7 +560,7 @@
                 reference_number: referenceNumber,
                 status: status
             },
-            success: function(response) {
+            success: function (response) {
                 console.log('Full response:', response);
                 // renderChartByType('recharge', response.data);
                 renderChartByType(reportType, response.data);

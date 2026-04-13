@@ -10,6 +10,7 @@ use App\Models\BusinessInfo;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class PayinOrdersController extends Controller
 {
@@ -32,12 +33,18 @@ class PayinOrdersController extends Controller
     public function createOrders(Request $request)
     {
         $userIdAndServiceId = CommonHelper::getUserIdAndServiceIdUsingKeyAndSecret($request->header());
-        dd($userIdAndServiceId);
+
+        if (!$userIdAndServiceId['status']) {
+            return response()->json([
+                'status' => false,
+                'message' => $userIdAndServiceId['message'] ?? 'Unauthorized'
+            ], 401);
+        }
 
         $userId = $userIdAndServiceId['user_id'] ?? null;
         $serviceId = $userIdAndServiceId['service_id'] ?? null;
 
-        $activeUser = User::where('id', $userId)->where('status', 1)->first();
+        $activeUser = User::where('id', $userId)->where('status', '1')->first();
 
         if (!$activeUser) {
             return response()->json([
@@ -45,7 +52,7 @@ class PayinOrdersController extends Controller
             ]);
         }
 
-        $isKyc = BusinessInfo::where('user_id', $userId)->where('is_kyc', 1)->first();
+        $isKyc = BusinessInfo::where('user_id', $userId)->where('is_kyc', '1')->first();
 
         if (!$isKyc) {
             return response()->json([
@@ -82,52 +89,6 @@ class PayinOrdersController extends Controller
         $providerSlug = $getProviderSlug['provider_slug'] ?? null;
 
         switch ($providerSlug) {
-        $data = DB::table('users')->where('id', $userId)->first();
-        $findtype = DB::table('global_config')->select('attribute_1')->where('slug', 'default_payin_route')->first();
-        // $type = $data->payin_switch ?$data->payin_switch:'rabbitpe';
-        $type = $findtype->attribute_1;
-
-        $status = CommonHelper::isServiceEnabled($userId, 'srv_162607709190', 'isserviceEnabled');
-        // if(!$status){
-        //     return response()->json([
-        //         'status'=> false,
-        //         'message'=> 'Downtime started now'
-        //     ]);
-        // }
-
-        // return response()->json([
-        //     'status'=> false,
-        //     'message'=> 'Downtime started now'
-        // ]);
-        // if($userId == '554'){
-        //     $type = 'laraware';
-        // } 
-
-        // return response()->json([
-        //     'status' => false,
-        //     'message' => 'Service is under maintenance',
-        // ]);
-
-        $isActive = CommonHelper::isuserActiveServiceAccount($userId);
-
-        if (!$isActive) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Your are inactive user, Please contact to the administrator',
-
-            ]);
-        }
-
-        $isActiveServices = CommonHelper::isServiceEnabled($userId, 'srv_162607709190', 'isserviceEnabled');
-        //  dd($isActiveServices);
-        if (!$isActiveServices) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Service is down Please Contact to the admin',
-
-            ]);
-        }
-        switch ($type) {
             case 'cgpey':
                 try {
                     $rules = [
@@ -244,6 +205,7 @@ class PayinOrdersController extends Controller
                 ]);
 
                 $url = $this->cashfreePayinUrl;
+                // dd($url);
 
                 $payload = [
                     "customer_details" => [
@@ -256,6 +218,8 @@ class PayinOrdersController extends Controller
                     "link_id" => $request->cust_txn_id,
                     "link_purpose" => "Payment"
                 ];
+
+                // dd($this->cashfreeapiversion, $this->cashfreeappid, $this->cashfreesecretkey, $payload);
 
                 $response = Http::withHeaders([
                     'x-api-version' => $this->cashfreeapiversion,
@@ -275,6 +239,7 @@ class PayinOrdersController extends Controller
                     ->post($url, $payload);
 
                 $result = $response->json();
+                dd($result);
 
                 Log::info('Cashfree Payin Response', [
                     'request' => $payload,

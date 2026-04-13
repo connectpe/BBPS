@@ -11,6 +11,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LadgerController;
 use App\Http\Controllers\SchemeController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\ServiceCostController;
 use App\Http\Controllers\ServiceRequestController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\users\ReportController;
@@ -43,9 +44,7 @@ Route::post('forget-password', [AuthController::class, 'forgetPassword'])->name(
 
 
 Route::group(['middleware' => ['auth']], function () {
-    Route::group(['prefix' => 'admin'], function () {
-        // Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-    });
+    Route::group(['prefix' => 'admin'], function () {});
 
     Route::group(['middleware' => ['isAdmin'], 'prefix' => 'admin'], function () {
         Route::get('/dashboard', function () {
@@ -132,8 +131,18 @@ Route::group(['middleware' => ['auth']], function () {
 
         Route::get('upi-callback', [AdminController::class, 'UpiCallback'])->name('upi_callback');
         Route::get('upi-manual-settlement', [AdminController::class, 'ManualSettlement'])->name('upi_manual_settlement');
+        Route::get('/users-log', [AdminController::class, 'usersLog'])->name('users_log');
+        Route::post('update-setup-cost', [AdminController::class, 'updateSetupCost'])->name('update_setup_cost');
+        Route::post('marked-paid-setup-cost', [AdminController::class, 'markAsPaidSetupCost'])->name('marked_paid_setup_cost');
 
+        // Associates Route 
+        Route::get('associates', [AdminController::class, 'associatesList'])->name('associates');
+        Route::post('add-associates', [AdminController::class, 'addAssociates'])->name('add_associates');
+        Route::get('edit-associates', [AdminController::class, 'editAssociates'])->name('edit_associates');
 
+        // API Doc Route 
+        Route::get('/payin-documentation', [AdminController::class, 'payinDocs'])->name('payin_docs');
+        Route::post('/save-payin-documentation', [AdminController::class, 'savePayinApiDocumentation'])->name('save_payin_documentation');
     });
 });
 
@@ -191,7 +200,7 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
     Route::get('/load-money-request', [TransactionController::class, 'userMoneyLoadRequests'])->name('user_load_money_request');
     Route::post('add-load-money-request', [UserController::class, 'addMoneyRequest'])->name('add_load_money_request');
 
-   
+    Route::get('/payin-docs', [UserController::class, 'payinDocsUser'])->name('payin_docs_user');
 });
 
 
@@ -234,9 +243,9 @@ Route::group(['middleware' => ['auth']], function () {
 
     // reseller routes
     Route::get('reports', [LadgerController::class, 'reports'])->name('reseller_reports');
-    Route::get('send-otp-forget-mpin',[UserController::class,'sendForgetMpinOtp'])->name('send_otp_forget_mpin');
-    Route::post('verify-otp-forget-mpin',[UserController::class,'verifyOtpForgetMpin'])->name('verify_otp_forget_mpin');
-    Route::post('forget-mpin',[UserController::class,'forgetMPIN'])->name('forget_mpin');
+    Route::get('send-otp-forget-mpin', [UserController::class, 'sendForgetMpinOtp'])->name('send_otp_forget_mpin');
+    Route::post('verify-otp-forget-mpin', [UserController::class, 'verifyOtpForgetMpin'])->name('verify_otp_forget_mpin');
+    Route::post('forget-mpin', [UserController::class, 'forgetMPIN'])->name('forget_mpin');
     Route::get('all-agreements', [UserController::class, 'allAgreement'])->name('all_agreements');
 
 
@@ -246,7 +255,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('upi-initiation', [AdminController::class, 'UpiInitiation'])->name('upi_initiation');
     Route::get('upi-collection', [AdminController::class, 'UpiCollection'])->name('upi_collection');
     Route::get('all-upi-transactions', [AdminController::class, 'UpiTransaction'])->name('all_upi_transactions');
-   
+    Route::get('/download-slip/{id}', [AdminController::class, 'downloadSlip']);
 });
 
 Route::group(['middleware' => ['logs', 'auth'], 'prefix' => 'document'], function () {
@@ -278,9 +287,13 @@ Route::group(['middleware' => ['auth', 'isSupport'], 'prefix' => 'support'], fun
     Route::get('/dashboard', [HomeController::class, 'supportdashboard'])->name('support.dashboard');
 });
 
- Route::get('/maintenance-mode', [UserController::class, 'userMaintenanceMode'])->name('user_maintenance_mode');
+Route::get('/maintenance-mode', [UserController::class, 'userMaintenanceMode'])->name('user_maintenance_mode');
 
 
 Route::prefix('admin', function () {
     Route::get('me', [AuthController::class, 'me']);
+});
+
+Route::prefix('payin')->group(function () {
+    Route::post('orders', [ServiceCostController::class, 'getServiceCost'])->name('payin.orders');
 });

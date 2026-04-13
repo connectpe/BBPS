@@ -4,9 +4,20 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use App\Helpers\TransactionHelper;
 
 class PayinCallbacksController extends Controller
 {
+    private $payinServiceSlug;
+
+    public function __construct()
+    {
+        $this->payinServiceSlug = config('constants.PAYIN_SERVICE_SLUG');
+    }
+
     public function callbacks(Request $request, $type)
     {
         switch ($type) {
@@ -32,27 +43,28 @@ class PayinCallbacksController extends Controller
                         'status'   => $data['status'] ?? 'pending',
                         'utr'      => $data['utr'] ?? null,
                         'order_id' => $data['order_id'] ?? null,
-                        'type'     => $type,
                     ];
 
-                    $updated = DB::table('kavach_payins')
+                    $updated = DB::table('upi_collections')
                         ->where('client_txn_id', $data['order_id'])
                         ->update($updateData);
 
-                    if (! $updated) {
-
+                    if (!$updated) {
                         Log::warning("No record found for order_id: {$data['order_id']}");
                     }
 
-                    DB::table('cgpey_callback')->insert([
-                        'order_id'        => $data['order_id'] ?? null,
-                        'utr'             => $data['utr'],
-                        'customer_mobile' => $data['customer_mobile'],
+                    DB::table('upi_callbacks')->insert([
+                        'txn_id'          => '',
+                        'txn_order_id'    => $data['order_id'] ?? null,
                         'amount'          => $data['amount'],
+                        'utr'             => $data['utr'],
+                        'root'            => '',
                         'message'         => $data['message'],
+                        'response'        => '',
                         'status'          => $data['status'],
-                        'date'            => $data['date'],
+                        'updated_by '     => '',
                     ]);
+
 
                     $useridRow = DB::table('kavach_payins')
                         ->where('client_txn_id', $data['order_id'])
@@ -108,6 +120,108 @@ class PayinCallbacksController extends Controller
                     return response()->json([
                         'success' => false,
                         'message' => 'Server error: ' . $e->getMessage(),
+                    ], 500);
+                }
+
+                break;
+
+            case 'cashfree':
+
+                Log::info('Cashfree callback received', $request->all());
+
+                try {
+
+                    $data = $request->all();
+
+                    if (empty($data) || empty($data['order_id'])) {
+                        Log::error('Invalid Cashfree callback data', $data);
+
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Invalid data or missing order_id'
+                        ], 400);
+                    }
+
+                    $orderId = $data['order_id'];
+
+                    // Fetch record first
+                    $collection = DB::table('upi_collections')
+                        ->where('client_txn_id', $orderId)
+                        ->first();
+
+                    if (! $collection) {
+                        Log::warning("No record found for order_id: {$orderId}");
+
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Order not found'
+                        ], 404);
+                    }
+
+                    // Normalize status
+                    $status = strtolower($data['status'] ?? 'pending');
+
+                    if (! in_array($status, ['success', 'failed', 'pending'])) {
+                        $status = 'pending';
+                    }
+
+                    // Update main table
+                    DB::table('upi_collections')
+                        ->where('client_txn_id', $orderId)
+                        ->update([
+                            'status'   => $status,
+                            'utr'      => $data['utr'] ?? null,
+                            'order_id' => $orderId,
+                            'type'     => $type,
+                            'updated_at' => now()
+                        ]);
+
+                    // Store callback log
+                    DB::table('upi_callbacks')->insert([
+                        'txn_id'       => '',
+                        'txn_order_id' => $orderId,
+                        'amount'       => $data['amount'] ?? 0,
+                        'utr'          => $data['utr'] ?? null,
+                        'root'         => '',
+                        'message'      => $data['message'] ?? null,
+                        'response'     => json_encode($data),
+                        'status'       => $status,
+                        'updated_by'   => '',
+                        'created_at'   => now(),
+                    ]);
+
+                    // Prepare payload
+                    $payload = [
+                        'status'          => $status,
+                        'order_id'        => $orderId,
+                        'utr'             => $data['utr'] ?? '',
+                        'customer_mobile' => $data['customer_mobile'] ?? '',
+                        'amount'          => $data['amount'] ?? 0,
+                        'date'            => now()->toDateTimeString(),
+                    ];
+
+                    //  Send callback to client
+                    $sendCallback = TransactionHelper::sendPayinCallback(
+                        $collection->user_id,
+                        $orderId,
+                        $payload,
+                        $this->payinServiceSlug
+                    );
+
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Callback processed',
+                        'callback_status' => $sendCallback
+                    ]);
+                } catch (\Exception $e) {
+
+                    Log::error('Cashfree callback error', [
+                        'error' => $e->getMessage(),
+                    ]);
+
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Server error'
                     ], 500);
                 }
 

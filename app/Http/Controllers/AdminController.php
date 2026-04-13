@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Facades\FileUpload;
 use App\Helpers\CommonHelper;
 use App\Models\Agreement;
+use App\Models\AssociatedPartner;
 use App\Models\BusinessCategory;
 use App\Models\BusinessInfo;
 use App\Models\ComplaintsCategory;
@@ -12,6 +14,7 @@ use App\Models\GlobalService;
 use App\Models\LoadMoneyRequest;
 use App\Models\Maintenance;
 use App\Models\OauthUser;
+use App\Models\PayinApiDocumentation;
 use App\Models\Provider;
 use App\Models\Scheme;
 use App\Models\SchemeRule;
@@ -31,6 +34,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class AdminController extends Controller
 {
@@ -199,7 +203,7 @@ class AdminController extends Controller
             $data['walletBalance'] = $data['userdata']->transaction_amount ?? 0;
             $data['completedTxn'] = $data['txnStats']->total_count ?? 0;
             $data['totalSpent'] = $data['txnStats']->total_amount ?? 0;
- 
+
             return view('Admin.profile')->with($data);
         } catch (\Exception $e) {
             return response()->json([
@@ -1467,6 +1471,13 @@ class AdminController extends Controller
         $validator = Validator::make($request->all(), [
             'id' => 'required|exists:business_infos,id',
             'userId' => 'required|exists:users,id',
+        ], [
+            'id.required' => 'Business ID is missing or business details are not filled.',
+            'id.exists' => 'Selected business ID does not exist.',
+
+            // userId messages
+            'userId.required' => 'The user ID is required.',
+            'userId.exists' => 'The selected user does not exist.',
         ]);
 
         if ($validator->fails()) {
@@ -2099,18 +2110,20 @@ class AdminController extends Controller
         }
     }
 
-    public function UpiInitiation(){
-        $customers = UpiCollection::select('cust_name')->whereNotNull('cust_name')->distinct()->orderBy('cust_name', 'ASC')->pluck('cust_name');
+    public function UpiInitiation()
+    {
+        $customers = UpiCollection::select('cust_name')->whereNotNull('cust_name')->where('status', '=', 'initiated')->distinct()->orderBy('cust_name', 'ASC')->pluck('cust_name');
         return view('UpiServices.upi-initiation', compact('customers'));
     }
 
     public function UpiCollection()
     {
-        $customers = UpiCollection::select('cust_name')->whereNotNull('cust_name')->distinct()->orderBy('cust_name', 'ASC')->pluck('cust_name');
+        $customers = UpiCollection::select('cust_name')->whereNotNull('cust_name')->where('status', '=', 'success')->distinct()->orderBy('cust_name', 'ASC')->pluck('cust_name');
         return view('UpiServices.upi-collection', compact('customers'));
     }
 
-    public function UpiTransaction(){
+    public function UpiTransaction()
+    {
         $customers = UpiCollection::select('cust_name')->whereNotNull('cust_name')->distinct()->orderBy('cust_name', 'ASC')->pluck('cust_name');
         return view('UpiServices.all-upi-transactions', compact('customers'));
     }
@@ -2123,5 +2136,296 @@ class AdminController extends Controller
     public function ManualSettlement()
     {
         return view('UpiServices.upi-manual-settlement');
+    }
+
+    public function usersLog()
+    {
+        $users = \App\Models\UsersLog::with('user:id,name,email')
+            ->select('user_id')
+            ->distinct()
+            ->get();
+
+        return view('Admin.userslog', compact('users'));
+    }
+
+    public function updateSetupCost(Request $request)
+    {
+
+
+        $validator = Validator::make($request->all(), [
+            'setupCost' => 'required|numeric|min:1',
+            'userId'    => 'required|exists:users,id',
+        ], [
+            'setupCost.required' => 'Setup cost is required.',
+            'setupCost.numeric'  => 'Setup cost must be a number.',
+            'setupCost.min'      => 'Setup cost must be at least 1.',
+
+            'userId.required'    => 'User ID is required.',
+            'userId.exists'      => 'Selected user does not exist.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+
+            $user = User::where('id', $request->userId)->where('status', '1')->first();
+
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User are not in Active state',
+                ]);
+            }
+
+            if ($user->setup_cost_paid == '1') {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Setup cost already Paid',
+                ]);
+            }
+            $user->setup_cost = $request->setupCost;
+            $user->save();
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Setup cost updated successfully',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'message' => 'Error : ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function downloadSlip($id)
+    {
+        $payment = UpiCollection::findOrFail($id);
+        $pdf = Pdf::loadView('UpiServices.upiCollection-payment-slip', compact('payment'));
+        return $pdf->download('payment-slip-' . $payment->id . '.pdf');
+    }
+
+    public function markAsPaidSetupCost(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'userId'    => 'required|exists:users,id',
+        ], [
+            'userId.required'    => 'User ID is required.',
+            'userId.exists'      => 'Selected user does not exist.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+
+            $user = User::where('id', $request->userId)->where('status', '1')->first();
+
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User not found',
+                ]);
+            }
+
+            if ($user->setup_cost_paid == '1') {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Already Marked as Paid',
+                ]);
+            }
+
+            $user->setup_cost_paid = '1';
+            $user->save();
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Marked as Paid',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'message' => 'Error : ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    // Associates Related methods
+    public function associatesList()
+    {
+        $associates = AssociatedPartner::where('status', '1')->orderBy('priority', 'asc')->get();
+        return view('Associates.associates-list', compact('associates'));
+    }
+
+
+    public function addAssociates(Request $request)
+    {
+        $id = $request->id;
+
+        $validator = Validator::make($request->all(), [
+            'associates_name' => 'required|string|max:255|unique:associated_partners,name,' . $id,
+            'associates_logo' => $id ? 'nullable|file|mimes:jpg,jpeg,png|max:2048' : 'required|file|mimes:jpg,jpeg,png|max:2048',
+            'referrel_url'    => 'required|url|max:255',
+            'priority'        => 'required|integer|min:1',
+        ], [
+            'associates_name.required' => 'Associate name is required.',
+            'associates_name.string'   => 'Associate name must be valid text.',
+            'associates_name.max'      => 'Name cannot exceed 255 characters.',
+            'associates_name.unique'   => 'Associate name already exists.',
+
+            'associates_logo.required' => 'Logo is required.',
+            'associates_logo.file'     => 'Logo must be a valid file.',
+            'associates_logo.mimes'    => 'Logo must be JPG, JPEG, PNG.',
+            'associates_logo.max'      => 'Logo size must not exceed 2MB.',
+
+            'referrel_url.required' => 'Referral URL is required.',
+            'referrel_url.url'      => 'Enter a valid URL.',
+            'referrel_url.max'      => 'URL cannot exceed 255 characters.',
+
+            'priority.required' => 'Priority is required.',
+            'priority.integer'  => 'Priority must be a number.',
+            'priority.min'      => 'Priority must be at least 1.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+
+            $associate = $id
+                ? AssociatedPartner::findOrFail($id)
+                : new AssociatedPartner();
+
+            if ($request->hasFile('associates_logo')) {
+                $logo = FileUpload::uploadFile($request->associates_logo, "associates", $associate->logo ?? null);
+                $associate->logo = $logo;
+            }
+
+            $associate->name = $request->associates_name;
+            $associate->referell_url = $request->referrel_url;
+            $associate->priority = $request->priority;
+            $associate->updated_by = Auth::id();
+
+            $associate->save();
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => $id
+                    ? 'Associates Updated Successfully'
+                    : 'Associates Added Successfully',
+            ]);
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Error: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function editAssociates(Request $request)
+    {
+        $id = $request->id;
+
+        if (!$id) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Id not found',
+            ], 404);
+        }
+
+        $associates = AssociatedPartner::find($id);
+
+        if (!$associates) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Associated Partner not found',
+            ], 404);
+        }
+
+        $associates->logo = FileUpload::getFilePath($associates->logo);
+
+        return response()->json([
+            'status' => true,
+            'data' => $associates
+        ]);
+    }
+
+    public function payinDocs()
+    {
+        $data = PayinApiDocumentation::first();
+        return view('Documentation.payin-docs', compact('data'));
+    }
+
+    // Api doc validation method
+    private function quillRequiredRule()
+    {
+        return function ($attribute, $value, $fail) {
+            if (trim(strip_tags($value)) === '') {
+                $fail("The {$attribute} field is required.");
+            }
+        };
+    }
+
+    public function savePayinApiDocumentation(Request $request)
+    {
+
+        $request->validate([
+            'header' => ['required', $this->quillRequiredRule()],
+            'authorization' => ['required', $this->quillRequiredRule()],
+            'generate_payment_response' => ['required', $this->quillRequiredRule()],
+            'generate_payment_description' => ['required', $this->quillRequiredRule()],
+            'check_status_response' => ['required', $this->quillRequiredRule()],
+            'check_status_description' => ['required', $this->quillRequiredRule()],
+            'callback_example_response' => ['required', $this->quillRequiredRule()],
+            'callback_example_description' => ['required', $this->quillRequiredRule()],
+        ]);
+
+
+
+        PayinApiDocumentation::updateOrCreate(
+            ['id' => 1],
+            [
+                'request_header' => $request->header,
+                'authorization' => $request->authorization,
+                'generate_payment_response' => $request->generate_payment_response,
+                'generate_payment_description' => $request->generate_payment_description,
+                'check_status_response' => $request->check_status_response,
+                'check_status_description' => $request->check_status_description,
+                'callback_examples_response' => $request->callback_example_response,
+                'callback_examples_description' => $request->callback_example_description,
+                'updated_by' => Auth::id(),
+            ]
+        );
+
+        return back()->with('success', 'Documentation Updated Successfully');
     }
 }

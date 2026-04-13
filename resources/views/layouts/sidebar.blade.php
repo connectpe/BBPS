@@ -59,6 +59,7 @@
                     @php
                         $userRoute = [
                             'users',
+                            'associates',
                             'view_user',
                             'request_services',
                             'support_details',
@@ -82,6 +83,14 @@
                                         class="nav-link text-white {{ Route::currentRouteName() == 'users' ? 'sidebar-active' : '' }}">
                                         <i class="bi bi-person-lines-fill me-2"></i>
                                         Users
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a href="{{ route('associates') }}"
+                                        class="nav-link text-white {{ Route::currentRouteName() == 'associates' ? 'sidebar-active' : '' }}">
+                                        <i class="fa-solid fa-handshake me-2"></i>
+                                        Associated Partners
                                     </a>
                                 </li>
 
@@ -413,6 +422,70 @@
                     Maintenance Mode
                 </a>
             </li>
+            <li class="nav-item mt-2">
+                <ul class="nav nav-pills flex-column mb-auto">
+                    @php
+                        $apiRoute = ['payin_docs'];
+                        $apiActive = in_array(Route::currentRouteName(), $apiRoute);
+                    @endphp
+
+                    <li class="nav-item mt-2">
+                        <a class="nav-link text-white d-flex justify-content-between align-items-center {{ $apiActive ? '' : 'collapsed' }} {{ $apiActive ? 'sidebar-active' : '' }}"
+                            data-bs-toggle="collapse" href="#apiDocsAdmin" role="button"
+                            aria-expanded="{{ $apiActive ? 'true' : 'false' }}">
+
+                            <span><i class="bi bi-code-slash me-2"></i> API Documentation</span>
+                            <i class="bi bi-chevron-down small"></i>
+                        </a>
+
+                        <div class="collapse {{ $apiActive ? 'show' : '' }} ms-3" id="apiDocsAdmin">
+                            <ul class="nav flex-column">
+                                <li class="nav-item">
+                                    <a href="{{ route('payin_docs') }}"
+                                        class="nav-link text-white {{ Route::currentRouteName() == 'payin_docs' ? 'sidebar-active' : '' }}">
+                                        <i class="bi bi-cash-stack me-2"></i> Payin
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="nav-item mt-2">
+                <ul class="nav nav-pills flex-column mb-auto">
+
+                    @php
+                        $settingsRoute = ['users_log']; // add more routes if needed
+                        $settingsActive = in_array(Route::currentRouteName(), $settingsRoute);
+                    @endphp
+
+                    <li class="nav-item">
+                        <a class="nav-link text-white d-flex justify-content-between align-items-center {{ $settingsActive ? '' : 'collapsed' }} {{ $settingsActive ? 'sidebar-active' : '' }}"
+                            data-bs-toggle="collapse" href="#settingsMenu" role="button"
+                            aria-expanded="{{ $settingsActive ? 'true' : 'false' }}">
+
+                            <span><i class="bi bi-gear me-2"></i> Settings</span>
+                            <i class="bi bi-chevron-down small"></i>
+                        </a>
+
+                        <div class="collapse {{ $settingsActive ? 'show' : '' }} ms-3" id="settingsMenu">
+                            <ul class="nav flex-column">
+
+                                <!-- Users Log -->
+                                <li class="nav-item">
+                                    <a href="{{ route('users_log') }}"
+                                        class="nav-link text-white {{ Route::currentRouteName() == 'users_log' ? 'sidebar-active' : '' }}">
+                                        <i class="bi bi-clock-history me-2"></i>
+                                        Users Log
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </li>
 
             <!-- Logout -->
             <li class="nav-item">
@@ -426,6 +499,8 @@
                     </button>
                 </form>
             </li>
+
+
         </ul>
     @elseif($role == 2)
         <ul class="nav nav-pills flex-column mb-auto">
@@ -638,6 +713,36 @@
                     <i class="bi bi-wallet2 me-2"></i>
                     Load Money Request
                 </a>
+            </li>
+
+            <li class="nav-item mt-2">
+                <ul class="nav nav-pills flex-column mb-auto">
+                    @php
+                        $apiRoute = ['payin_docs_user'];
+                        $apiActive = in_array(Route::currentRouteName(), $apiRoute);
+                    @endphp
+
+                    <li class="nav-item mt-2">
+                        <a class="nav-link text-white d-flex justify-content-between align-items-center {{ $apiActive ? '' : 'collapsed' }} {{ $apiActive ? 'sidebar-active' : '' }}"
+                            data-bs-toggle="collapse" href="#apiDocsUser" role="button"
+                            aria-expanded="{{ $apiActive ? 'true' : 'false' }}">
+
+                            <span><i class="bi bi-code-slash me-2"></i> API Documentation</span>
+                            <i class="bi bi-chevron-down small"></i>
+                        </a>
+
+                        <div class="collapse {{ $apiActive ? 'show' : '' }} ms-3" id="apiDocsUser">
+                            <ul class="nav flex-column">
+                                <li class="nav-item">
+                                    <a href="{{ route('payin_docs_user') }}"
+                                        class="nav-link text-white {{ Route::currentRouteName() == 'payin_docs_user' ? 'sidebar-active' : '' }}">
+                                        <i class="bi bi-cash-stack me-2"></i> Payin
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
             </li>
 
             <li class="nav-item">

@@ -27,6 +27,9 @@
             'postpaid-recharge' => 'fa-solid fa-mobile-screen-button',
             'prepaid-recharge' => 'fa-solid fa-sim-card',
             'testing' => 'fa-solid fa-flask',
+            'mobile-recharge' => 'fa-solid fa-mobile-screen-button',
+            'upi-payments' => 'fa-solid fa-qrcode',
+            'dth-recharge' => 'fa-solid fa-satellite-dish',
         ];
 
         $serviceDescriptions = [
@@ -40,6 +43,8 @@
             'postpaid-recharge' => 'Recharge postpaid mobile numbers with instant bill payment confirmation.',
             'prepaid-recharge' => 'Recharge prepaid mobile numbers with fast and reliable API integration.',
             'testing' => 'Sandbox testing service for API validation and safe environment verification.',
+            'mobile-recharge' => 'Recharge any prepaid mobile number instantly with fast and reliable service.',
+            'upi-payments' => 'Make secure and instant UPI payments using QR or UPI ID anytime.','dth-recharge' => 'Recharge your DTH connection quickly with best available plans and offers.',
         ];
 
         $defaultIcon = 'fa-solid fa-layer-group';

@@ -9,6 +9,7 @@ use App\Http\Controllers\DocumentVerificationController;
 use App\Http\Controllers\Api\PayinCheckStatusController;
 use App\Http\Controllers\Api\PayinOrdersController;
 use App\Http\Controllers\Api\PayinCallbacksController;
+use App\Http\Controllers\ServiceCostController;
 
 
 Route::get('/user', function (Request $request) {

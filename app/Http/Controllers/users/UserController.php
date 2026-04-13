@@ -2,18 +2,20 @@
 
 namespace App\Http\Controllers\users;
 
+use App\Events\UserActivityEvent;
 use App\Facades\FileUpload;
 use App\Helpers\CommonHelper;
-use App\Models\Agreement;
 use App\Helpers\NSDLHelper;
 use App\Helpers\SendingMail;
 use App\Http\Controllers\Controller;
+use App\Models\Agreement;
 use App\Models\BusinessInfo;
 use App\Models\GlobalService;
 use App\Models\IpWhitelist;
 use App\Models\LoadMoneyRequest;
 use App\Models\NsdlPayment;
 use App\Models\OauthUser;
+use App\Models\PayinApiDocumentation;
 use App\Models\Provider;
 use App\Models\User;
 use App\Models\UserRooting;
@@ -41,15 +43,17 @@ class UserController extends Controller
 
     public function dashboard()
     {
-        return view('Dashboard.user-dashboard');
-    }
+        $user = Auth::user();
+        $setupCostAmount = (float) ($user->setup_cost ?? 0);
+        $setupCostPaid = intval($user->setup_cost_paid);
 
+        return view('Dashboard.user-dashboard', compact('setupCostAmount', 'setupCostPaid'));
+    }
 
     public function redirectToKycPage()
     {
         return view('Users.kyc-page');
     }
-
 
     public function redirectTounauthrized()
     {
@@ -79,13 +83,13 @@ class UserController extends Controller
         }
 
         if (! empty($request->name)) {
-            $users = array_filter($users, fn($u) => str_contains(strtolower($u['name']), strtolower($request->name)));
+            $users = array_filter($users, fn ($u) => str_contains(strtolower($u['name']), strtolower($request->name)));
         }
         if (! empty($request->email)) {
-            $users = array_filter($users, fn($u) => str_contains(strtolower($u['email']), strtolower($request->email)));
+            $users = array_filter($users, fn ($u) => str_contains(strtolower($u['email']), strtolower($request->email)));
         }
         if (! empty($request->status)) {
-            $users = array_filter($users, fn($u) => $u['status'] == $request->status);
+            $users = array_filter($users, fn ($u) => $u['status'] == $request->status);
         }
 
         $filteredCount = count($users);
@@ -107,15 +111,14 @@ class UserController extends Controller
         DB::beginTransaction();
         try {
 
-
             $businessData = BusinessInfo::where('user_id', $userId)->first();
             $bankDetail = UsersBank::where('user_id', $userId)->first();
             $user = User::find($userId);
 
-            // short function for the image validation check 
-            $requiredBasedOnKyc = fn($existing) => $existing === '1' ? 'nullable|' : 'required|';   // check if kyc verified then nullable othewise required,
-            $requiredIfMissing = fn($existing) => empty($existing) ? 'required|' : 'nullable|';    // check if value exists then nullable othewise required,
-            $requiredIfMissingOrCondition = fn($existing, $condition) => (empty($existing) && $condition) ? 'required|' : 'nullable|';   // this is for the condtional based
+            // short function for the image validation check
+            $requiredBasedOnKyc = fn ($existing) => $existing === '1' ? 'nullable|' : 'required|';   // check if kyc verified then nullable othewise required,
+            $requiredIfMissing = fn ($existing) => empty($existing) ? 'required|' : 'nullable|';    // check if value exists then nullable othewise required,
+            $requiredIfMissingOrCondition = fn ($existing, $condition) => (empty($existing) && $condition) ? 'required|' : 'nullable|';   // this is for the condtional based
 
             $validator = Validator::make(
                 $request->all(),
@@ -125,43 +128,43 @@ class UserController extends Controller
                     'business_category' => 'required|exists:business_categories,id',
                     'business_type' => 'required|string|max:255|regex:/^(?!.*([.,@-])\1{2,}).*$/|regex:/^[a-zA-Z0-9\s&.,-]+$/',
 
-                    'cin_number' => $requiredBasedOnKyc($businessData->is_kyc ?? '0') . 'string|max:50|unique:business_infos,cin_no,' . ($businessData->id ?? 'NULL') . ',id|regex:/^[A-Z]{1}[0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$/i',
-                    'gst_number' => $requiredBasedOnKyc($businessData->is_kyc ?? '0') . 'string|max:50|unique:business_infos,gst_number,' . ($businessData->id ?? 'NULL') . ',id|regex:/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/i',
-                    'business_pan' => $requiredBasedOnKyc($businessData->is_kyc ?? '0') . 'string|max:50|unique:business_infos,business_pan_number,' . ($businessData->id ?? 'NULL') . ',id|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i',
-                    'business_email' => 'required|email|max:255|unique:business_infos,business_email,' . ($businessData->id ?? 'NULL') . ',id',
-                    'business_phone' => 'required|string|max:20|unique:business_infos,business_phone,' . ($businessData->id ?? 'NULL') . ',id|regex:/^[6-9]\d{9}$/',
+                    'cin_number' => $requiredBasedOnKyc($businessData->is_kyc ?? '0').'string|max:50|unique:business_infos,cin_no,'.($businessData->id ?? 'NULL').',id|regex:/^[A-Z]{1}[0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$/i',
+                    'gst_number' => $requiredBasedOnKyc($businessData->is_kyc ?? '0').'string|max:50|unique:business_infos,gst_number,'.($businessData->id ?? 'NULL').',id|regex:/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/i',
+                    'business_pan' => $requiredBasedOnKyc($businessData->is_kyc ?? '0').'string|max:50|unique:business_infos,business_pan_number,'.($businessData->id ?? 'NULL').',id|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i',
+                    'business_email' => 'required|email|max:255|unique:business_infos,business_email,'.($businessData->id ?? 'NULL').',id',
+                    'business_phone' => 'required|string|max:20|unique:business_infos,business_phone,'.($businessData->id ?? 'NULL').',id|regex:/^[6-9]\d{9}$/',
 
                     'state' => 'required|string|max:255',
                     'city' => 'required|string|max:255',
                     'pincode' => 'required|string|max:10',
                     'business_address' => 'required|string|max:500|regex:/^(?!.*([.,@-])\1{2,}).*$/|regex:/^[a-zA-Z0-9\s&.,-]+$/',
 
-                    'adhar_number' => $requiredBasedOnKyc($businessData->is_kyc ?? '0') . 'string|max:20|regex:/^\d{12}$/|unique:business_infos,aadhar_number,' . ($businessData->id ?? 'NULL') . ',id',
-                    'pan_number' => $requiredBasedOnKyc($businessData->is_kyc ?? '0') . 'string|max:20|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i|unique:business_infos,pan_number,' . ($businessData->id ?? 'NULL') . ',id',
-                    'adhar_front_image' => $requiredIfMissing($businessData->aadhar_front_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
-                    'adhar_back_image' => $requiredIfMissing($businessData->aadhar_back_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
-                    'pan_card_image' => $requiredIfMissing($businessData->pancard_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
+                    'adhar_number' => $requiredBasedOnKyc($businessData->is_kyc ?? '0').'string|max:20|regex:/^\d{12}$/|unique:business_infos,aadhar_number,'.($businessData->id ?? 'NULL').',id',
+                    'pan_number' => $requiredBasedOnKyc($businessData->is_kyc ?? '0').'string|max:20|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i|unique:business_infos,pan_number,'.($businessData->id ?? 'NULL').',id',
+                    'adhar_front_image' => $requiredIfMissing($businessData->aadhar_front_image ?? null).'file|mimes:jpg,jpeg,png|max:2048',
+                    'adhar_back_image' => $requiredIfMissing($businessData->aadhar_back_image ?? null).'file|mimes:jpg,jpeg,png|max:2048',
+                    'pan_card_image' => $requiredIfMissing($businessData->pancard_image ?? null).'file|mimes:jpg,jpeg,png|max:2048',
 
-                    'account_holder_name' => $requiredBasedOnKyc($businessData->is_kyc ?? '0') . 'string|max:255|regex:/^(?!.*([.,@-])\1{2,}).*$/|regex:/^[a-zA-Z0-9\s&.,-]+$/',
-                    'account_number' => $requiredBasedOnKyc($businessData->is_kyc ?? '0') . 'string|max:30|unique:users_banks,account_number,' . ($bankDetail->id ?? 'NULL') . ',id',
-                    'ifsc_code' => $requiredBasedOnKyc($businessData->is_kyc ?? '0') . 'string|max:20',
-                    'branch_name' => $requiredBasedOnKyc($businessData->is_kyc ?? '0') . 'string|max:255',
-                    'bank_docs' => $requiredIfMissing($bankDetail->bank_docs ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
+                    'account_holder_name' => $requiredBasedOnKyc($businessData->is_kyc ?? '0').'string|max:255|regex:/^(?!.*([.,@-])\1{2,}).*$/|regex:/^[a-zA-Z0-9\s&.,-]+$/',
+                    'account_number' => $requiredBasedOnKyc($businessData->is_kyc ?? '0').'string|max:30|unique:users_banks,account_number,'.($bankDetail->id ?? 'NULL').',id',
+                    'ifsc_code' => $requiredBasedOnKyc($businessData->is_kyc ?? '0').'string|max:20',
+                    'branch_name' => $requiredBasedOnKyc($businessData->is_kyc ?? '0').'string|max:255',
+                    'bank_docs' => $requiredIfMissing($bankDetail->bank_docs ?? null).'file|mimes:jpg,jpeg,png|max:2048',
 
                     // Added in Later
                     'itr_filled' => 'required|in:1,0',
                     'itr_not_reason' => 'required_if:itr_filled,0|max:300',
                     'itr_filled_image' => $requiredIfMissingOrCondition($businessData->itr_file_image ?? null, $request->itr_filled === '1')
-                        . 'file|mimes:jpg,jpeg,png|max:2048',
+                        .'file|mimes:jpg,jpeg,png|max:2048',
 
-                    'individual_photo' => $requiredIfMissing($businessData->individual_photo ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
-                    'business_pan_image' => $requiredIfMissing($businessData->business_pan_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
-                    'registration_certificate_image' => $requiredIfMissing($businessData->registration_certificate_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
+                    'individual_photo' => $requiredIfMissing($businessData->individual_photo ?? null).'file|mimes:jpg,jpeg,png|max:2048',
+                    'business_pan_image' => $requiredIfMissing($businessData->business_pan_image ?? null).'file|mimes:jpg,jpeg,png|max:2048',
+                    'registration_certificate_image' => $requiredIfMissing($businessData->registration_certificate_image ?? null).'file|mimes:jpg,jpeg,png|max:2048',
 
-                    'gst_registration_certificate_image' => $requiredIfMissing($businessData->gst_registration_certificate_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
-                    'inside_image' => $requiredIfMissing($businessData->inside_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
-                    'outside_image' => $requiredIfMissing($businessData->outside_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
-                    'business_address_proof_image' => $requiredIfMissing($businessData->outside_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
+                    'gst_registration_certificate_image' => $requiredIfMissing($businessData->gst_registration_certificate_image ?? null).'file|mimes:jpg,jpeg,png|max:2048',
+                    'inside_image' => $requiredIfMissing($businessData->inside_image ?? null).'file|mimes:jpg,jpeg,png|max:2048',
+                    'outside_image' => $requiredIfMissing($businessData->outside_image ?? null).'file|mimes:jpg,jpeg,png|max:2048',
+                    'business_address_proof_image' => $requiredIfMissing($businessData->outside_image ?? null).'file|mimes:jpg,jpeg,png|max:2048',
                     'signed_moa_image' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
                     'signed_aoa_image' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
                     'board_resolution' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
@@ -363,7 +366,6 @@ class UserController extends Controller
                 User::where('id', $userId)->update(['profile_image' => $profilePicPath]);
             }
 
-
             $adharFrontPath = $businessData->aadhar_front_image ?? null;
             if ($request->hasFile('adhar_front_image')) {
                 $adharFrontPath = FileUpload::uploadFile($request->adhar_front_image, "kyc_documents/$userId", $businessData->aadhar_front_image ?? null);
@@ -446,7 +448,6 @@ class UserController extends Controller
                 $itrFilledImage = FileUpload::uploadFile($request->itr_filled_image, "kyc_documents/$userId", $businessData->itr_file_image ?? null);
             }
 
-
             // Added in Lated
 
             $data = [
@@ -470,9 +471,9 @@ class UserController extends Controller
                 'aadhar_back_image' => $adharBackPath,
                 'pancard_image' => $panCardPath,
 
-                // Added in Lated 
+                // Added in Lated
                 'itr_filled' => $request->itr_filled,
-                'itr_not_reason' => $request->itr_filled == 0 ? $request->itr_not_reason : NULL,
+                'itr_not_reason' => $request->itr_filled == 0 ? $request->itr_not_reason : null,
 
                 'individual_photo' => $individualPhoto,
                 'business_pan_image' => $businessPanImage,
@@ -512,7 +513,6 @@ class UserController extends Controller
                 $data = array_diff_key($data, array_flip($removedToElements));
             }
 
-
             $businessInfo = BusinessInfo::updateOrCreate([
                 'user_id' => $userId,
             ], $data);
@@ -549,7 +549,7 @@ class UserController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error: ' . $e->getMessage(),
+                'message' => 'Error: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -585,7 +585,7 @@ class UserController extends Controller
         if (! $isEnableService) {
             return response()->json([
                 'status' => false,
-                'message' => $request->service . 'is not enable or approved by the admin',
+                'message' => $request->service.'is not enable or approved by the admin',
             ], 401);
         }
         // dd($service);
@@ -593,9 +593,9 @@ class UserController extends Controller
         try {
 
             $userId = auth()->id();
-            $clientId = 'RAFI' . strtoupper($request->service) . '_' . Str::random(16);
+            $clientId = 'RAFI'.strtoupper($request->service).'_'.Str::random(16);
             $plainSecret = Str::random(32);
-            $encryptedSecret = encrypt($plainSecret);
+            $hashedSecret = hash('sha512', $plainSecret);
 
             $secretCount = OauthUser::where('user_id', $userId)
                 ->where('service_id', $service->id)
@@ -611,7 +611,7 @@ class UserController extends Controller
                 'user_id' => $userId,
                 'service_id' => $service->id,
                 'client_id' => $clientId,
-                'client_secret' => $encryptedSecret,
+                'client_secret' => $hashedSecret,
                 'is_active' => '1',
             ]);
             Cache::forget("profile:{$userId}:saltKeys");
@@ -645,7 +645,7 @@ class UserController extends Controller
     {
         try {
 
-            if (!auth()->check() || (!in_array(auth()->user()->role_id, [1, 4]))) {
+            if (! auth()->check() || (! in_array(auth()->user()->role_id, [1, 4]))) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Unauthorized',
@@ -655,10 +655,8 @@ class UserController extends Controller
             CommonHelper::checkAuthUser();
             $userId = $Id;
 
-
-
             $data['userData'] = User::where('id', $userId)
-                ->select('id', 'name', 'email', 'mobile', 'status', 'role_id')
+                ->select('id', 'name', 'email', 'mobile', 'status', 'role_id', 'transaction_amount', 'setup_cost', 'setup_cost_paid')
                 ->firstOrFail();
 
             $data['businessInfo'] = BusinessInfo::where('user_id', $userId)->first();
@@ -745,7 +743,7 @@ class UserController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error: ' . $e->getMessage(),
+                'message' => 'Error: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -759,6 +757,7 @@ class UserController extends Controller
                 ->select('id', 'provider_name as name', 'provider_slug as slug')
                 ->orderBy('provider_name')
                 ->get();
+
             // dd($providers);
             return response()->json([
                 'status' => true,
@@ -772,7 +771,7 @@ class UserController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error fetching providers: ' . $e->getMessage(),
+                'message' => 'Error fetching providers: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -852,7 +851,7 @@ class UserController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'System Error: ' . $e->getMessage(),
+                'message' => 'System Error: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -890,7 +889,7 @@ class UserController extends Controller
             if ($duplicateIp > 0) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Duplicate Ip for selected Service'
+                    'message' => 'Duplicate Ip for selected Service',
                 ]);
             }
 
@@ -954,7 +953,7 @@ class UserController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error: ' . $e->getMessage(),
+                'message' => 'Error: '.$e->getMessage(),
             ]);
         }
     }
@@ -1001,7 +1000,7 @@ class UserController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error: ' . $e->getMessage(),
+                'message' => 'Error: '.$e->getMessage(),
             ]);
         }
     }
@@ -1024,8 +1023,6 @@ class UserController extends Controller
                 'new_mpin_confirmation' => ['required', 'same:new_mpin'],
             ]);
 
-
-
             $user = Auth::user();
 
             if (! Hash::check($request->current_mpin, $user->mpin)) {
@@ -1038,21 +1035,22 @@ class UserController extends Controller
             User::where('id', $user->id)->update([
                 'mpin' => Hash::make($request->new_mpin),
             ]);
+            event(new UserActivityEvent(auth()->user(), 'MPIN Changed'));
             DB::commit();
+
             return response()->json([
                 'status' => true,
                 'message' => 'MPIN updated successfully',
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
             ], 500);
         }
     }
-
-
 
     public function addWebHookUrl(Request $request)
     {
@@ -1087,7 +1085,7 @@ class UserController extends Controller
 
             $service = GlobalService::find($request->service_id);
 
-            if (!$service) {
+            if (! $service) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Service not found',
@@ -1098,10 +1096,9 @@ class UserController extends Controller
                 'user_id' => $userId,
                 'url' => $request->url,
                 'service_id' => $request->service_id,
-                'service_slug' =>  $service->slug,
+                'service_slug' => $service->slug,
                 'updated_by' => $userId,
             ];
-
 
             $webhook = WebHookUrl::create($data);
 
@@ -1110,14 +1107,14 @@ class UserController extends Controller
 
             return response()->json([
                 'status' => true,
-                'message' => 'Url Added Successfully'
+                'message' => 'Url Added Successfully',
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error: ' . $e->getMessage(),
+                'message' => 'Error: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -1157,7 +1154,7 @@ class UserController extends Controller
 
             $webhook = WebHookUrl::where('user_id', $userId)->find($request->url_id);
 
-            if (!$webhook) {
+            if (! $webhook) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Webhook URL not found or unauthorized.',
@@ -1168,10 +1165,10 @@ class UserController extends Controller
 
             // 3. Update the data
             $webhook->update([
-                'url'          => $request->edit_url,
-                'service_id'   => $request->edit_service_id,
+                'url' => $request->edit_url,
+                'service_id' => $request->edit_service_id,
                 'service_slug' => $service->slug,
-                'updated_by'   => $userId,
+                'updated_by' => $userId,
             ]);
 
             Cache::forget("profile:{$userId}:webhookUrl");
@@ -1179,14 +1176,14 @@ class UserController extends Controller
 
             return response()->json([
                 'status' => true,
-                'message' => 'Url Updated Successfully'
+                'message' => 'Url Updated Successfully',
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error: ' . $e->getMessage(),
+                'message' => 'Error: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -1198,9 +1195,9 @@ class UserController extends Controller
                 'amount' => 'required|numeric|min:1',
             ]);
             $user = auth()->user();
-            $txnId = 'PAY' . time() . rand(1000, 9999);
+            $txnId = 'PAY'.time().rand(1000, 9999);
             $payload = [
-                'name' => $user->name . ' Chauhan',
+                'name' => $user->name.' Chauhan',
                 'amount' => $request->amount,
                 'mobile' => $user->mobile,
                 'transaction_id' => $txnId,
@@ -1240,15 +1237,13 @@ class UserController extends Controller
         }
     }
 
-
-
     public function addMoneyRequest(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'amount' => 'required|numeric|min:1',
             'utr_no' => 'required|alpha_num|min:10|max:20',
             'request_image' => 'required|file|mimes:jpg,jpeg,png|max:2048',
-            'remark' => 'nullable|regex:/^[\w\s\p{P}\-]+$/u|max:300'
+            'remark' => 'nullable|regex:/^[\w\s\p{P}\-]+$/u|max:300',
         ], [
             'amount.required' => 'Amount is required.',
             'amount.numeric' => 'Amount must be a valid number.',
@@ -1301,14 +1296,14 @@ class UserController extends Controller
 
             return response()->json([
                 'status' => true,
-                'message' => 'Request added Successfully '
+                'message' => 'Request added Successfully ',
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error: ' . $e->getMessage(),
+                'message' => 'Error: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -1331,8 +1326,8 @@ class UserController extends Controller
             $otp = rand(1000, 9999);
             $expiresAt = Carbon::now()->addMinutes(10);
 
-            $user->forget_mpin_otp =  $otp;
-            $user->mpin_otp_expires_at =  $expiresAt;
+            $user->forget_mpin_otp = $otp;
+            $user->mpin_otp_expires_at = $expiresAt;
             $user->save();
 
             try {
@@ -1344,7 +1339,8 @@ class UserController extends Controller
                 ]);
             } catch (\Exception $e) {
                 DB::rollBack();
-                \Log::error('Mail sending failed: ' . $e->getMessage());
+                \Log::error('Mail sending failed: '.$e->getMessage());
+
                 return response()->json([
                     'status' => false,
                     'message' => 'Failed to send OTP. Please try again.',
@@ -1355,18 +1351,17 @@ class UserController extends Controller
 
             return response()->json([
                 'status' => true,
-                'message' => 'OTP sent to your Email adress, Please verify OTP'
+                'message' => 'OTP sent to your Email adress, Please verify OTP',
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error: ' . $e->getMessage(),
+                'message' => 'Error: '.$e->getMessage(),
             ], 500);
         }
     }
-
 
     public function verifyOtpForgetMpin(Request $request)
     {
@@ -1387,7 +1382,7 @@ class UserController extends Controller
                 ], 404);
             }
 
-            if (!$user->forget_mpin_otp || $user->forget_mpin_otp != $request->otp) {
+            if (! $user->forget_mpin_otp || $user->forget_mpin_otp != $request->otp) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Invalid OTP',
@@ -1401,26 +1396,26 @@ class UserController extends Controller
                 ], 401);
             }
 
-            $user->forget_mpin_otp = NULL;
-            $user->mpin_otp_expires_at = NULL;
+            $user->forget_mpin_otp = null;
+            $user->mpin_otp_expires_at = null;
             $user->save();
 
             DB::commit();
+
             return response()->json([
                 'status' => true,
                 'message' => 'OTP Verified Successfully',
             ]);
         } catch (\Throwable $e) {
             DB::rollBack();
-            \Log::error('Verify OTP Error: ' . $e->getMessage());
+            \Log::error('Verify OTP Error: '.$e->getMessage());
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : ' . $e->getMessage(),
+                'message' => 'Error : '.$e->getMessage(),
             ], 500);
         }
     }
-
 
     public function forgetMPIN(Request $request)
     {
@@ -1452,11 +1447,11 @@ class UserController extends Controller
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Verify OTP Error: ' . $e->getMessage());
+            \Log::error('Verify OTP Error: '.$e->getMessage());
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : ' . $e->getMessage(),
+                'message' => 'Error : '.$e->getMessage(),
             ], 500);
         }
     }
@@ -1464,11 +1459,35 @@ class UserController extends Controller
     public function allAgreement()
     {
         $agreements = Agreement::where('status', '1')->latest()->get();
+
         return view('Agreement.index', compact('agreements'));
     }
 
     public function userMaintenanceMode()
     {
         return view('Maintenance.maintenance');
+    }
+
+    public function payinDocsUser()
+    {
+        $docs = PayinApiDocumentation::latest()->first();
+        if ($docs) {
+            $docs->request_header = $this->formatContent($docs->request_header);
+            $docs->authorization = $this->formatContent($docs->authorization);
+            $docs->generate_payment_response = $this->formatContent($docs->generate_payment_response);
+            $docs->check_status_response = $this->formatContent($docs->check_status_response);
+            $docs->callback_examples_response = $this->formatContent($docs->callback_examples_response);
+        }
+        return view('Documentation.payin-docs-user', compact('docs'));
+    }
+
+    private function formatContent($data)
+    {
+        if (! $data) {
+            return '';
+        }
+        $data = str_replace(['</p>', '<br>', '<br/>'], "\n", $data);
+        $data = strip_tags($data);
+        return trim($data);
     }
 }

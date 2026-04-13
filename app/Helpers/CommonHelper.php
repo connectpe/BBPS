@@ -122,7 +122,7 @@ class CommonHelper
         }
 
         $key = $header['php-auth-user'][0];
-        $password = $header['php-auth-pw'][0];
+        $password = hash('sha512', $header['php-auth-pw'][0]);
 
         $OauthClient = OauthUser::select('user_id', 'service_id')
             ->where([
@@ -137,6 +137,7 @@ class CommonHelper
             ];
         }
         return [
+            'status' => true,
             'user_id' => $OauthClient->user_id ?? null,
             'service_id' => $OauthClient->service_id ?? null
         ];
@@ -215,20 +216,33 @@ class CommonHelper
 
     public static function getProviderSlug($userId, $serviceId)
     {
-        $userRooting = UserRooting::select('provider_slug')->where('user_id', $userId)
-            ->where('service_id', $serviceId)->first();
+        $userRooting = UserRooting::select('provider_slug')
+            ->where('user_id', $userId)
+            ->where('service_id', $serviceId)
+            ->first();
 
         if ($userRooting) {
             return [
+                'status' => true,
                 'provider_slug' => $userRooting->provider_slug
             ];
-        } else {
+        }
 
-            $defaultProvider = DefaultProvider::select('provider_slug')->where('service_id', $serviceId)->first();
+        $defaultProvider = DefaultProvider::select('provider_slug')
+            ->where('service_id', $serviceId)
+            ->first();
+
+        if ($defaultProvider) {
             return [
+                'status' => true,
                 'provider_slug' => $defaultProvider->provider_slug
             ];
         }
+
+        return [
+            'status' => false,
+            'message' => 'No provider found for given user and service'
+        ];
     }
 
     public static function getUserRouteUsingUserId($userId = '', $service_id, $area)
