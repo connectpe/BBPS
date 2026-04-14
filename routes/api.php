@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\PayinCheckStatusController;
 use App\Http\Controllers\Api\PayinOrdersController;
 use App\Http\Controllers\Api\PayinCallbacksController;
 use App\Http\Controllers\ServiceCostController;
+use App\Http\Controllers\Api\ContactController;
 
 
 Route::get('/user', function (Request $request) {
@@ -41,6 +42,10 @@ Route::prefix('payin')->group(function () {
     Route::post('/orders', [PayinOrdersController::class, 'createOrders']);
     Route::post('/callbacks/{type}', [PayinCallbacksController::class, 'callbacks']);
     Route::post('/checkStatus', [PayinCheckStatusController::class, 'checkStatus']);
+});
+
+Route::prefix('payout')->group(function () {
+    Route::post('/contacts', [ContactController::class, 'createContact']);
 });
 
 
