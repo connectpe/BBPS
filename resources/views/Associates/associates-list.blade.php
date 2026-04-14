@@ -28,7 +28,12 @@ use App\Facades\FileUpload;
     <div class="col-xl-3 col-lg-4 col-md-6">
 
         <div class="card border shadow-sm h-100">
-
+            <div class="position-absolute top-0 start-0 m-2">
+                <div title="Priority" class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center"
+                    style="width:20px; height:20px; font-size:10px;">
+                    {{ $associate->priority ?? 0 }}
+                </div>
+            </div>
             <!-- Image -->
             <div class="p-2 text-center">
                 <img src="{{ FileUpload::getFilePath($associate->logo) }}"
