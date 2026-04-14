@@ -20,7 +20,7 @@
 
                         <div class="col-md-3">
                             <label for="filterName" class="form-label">Service</label>
-                            <select name="service_id" id="service" class="form-control">
+                            <select name="service_id" id="service" class="form-control form-select form-select2">
                                 <option value="">--Select Service--</option>
                                 @foreach ($services as $userService)
                                     <option value="{{ $userService->service_id }}">
@@ -32,7 +32,7 @@
 
                         <div class="col-md-3">
                             <label for="filterName" class="form-label">Status</label>
-                            <select name="status" id="status" class="form-control">
+                            <select name="status" id="status" class="form-control form-select form-select2">
                                 <option value="">--Selecte Status--</option>
                                 <option value="pending">Pending</option>
                                 <option value="approved">Approved</option>

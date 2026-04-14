@@ -50,7 +50,7 @@ pre {
 {{ $docs->request_header ?? '' }}
                 </pre>
 
-                <button class="btn btn-sm btn-primary mt-2" onclick="copyCode('headerCode')">
+                <button class="btn btn-sm buttonColor mt-2" onclick="copyCode('headerCode')">
                     Copy Code
                 </button>
             </div>
@@ -65,7 +65,7 @@ pre {
 {!! $docs->authorization ?? '' !!}
                 </pre>
 
-                <button class="btn btn-sm btn-primary mt-2" onclick="copyCode('authCode')">
+                <button class="btn btn-sm buttonColor mt-2" onclick="copyCode('authCode')">
                     Copy Code
                 </button>
             </div>
@@ -91,7 +91,7 @@ pre {
 {!! $docs->generate_payment_response ?? '' !!}
                     </pre>
 
-                    <button class="btn btn-sm btn-primary mt-2 mb-3" onclick="copyCode('genRes')">Copy Code</button>
+                    <button class="btn btn-sm buttonColor mt-2 mb-3" onclick="copyCode('genRes')">Copy Code</button>
 
                     <h6>Description</h6>
                     <p class="text-muted">
@@ -107,7 +107,7 @@ pre {
 {!! $docs->check_status_response ?? '' !!}
                     </pre>
 
-                    <button class="btn btn-sm btn-primary mt-2 mb-3" onclick="copyCode('statusRes')">Copy Code</button>
+                    <button class="btn btn-sm buttonColor mt-2 mb-3" onclick="copyCode('statusRes')">Copy Code</button>
 
                     <h6>Description</h6>
                     <p class="text-muted">
@@ -123,7 +123,7 @@ pre {
 {!! $docs->callback_examples_response ?? '' !!}
                     </pre>
 
-                    <button class="btn btn-sm btn-primary mt-2 mb-3" onclick="copyCode('callbackRes')">Copy Code</button>
+                    <button class="btn btn-sm buttonColor mt-2 mb-3" onclick="copyCode('callbackRes')">Copy Code</button>
 
                     <h6>Description</h6>
                     <p class="text-muted">
