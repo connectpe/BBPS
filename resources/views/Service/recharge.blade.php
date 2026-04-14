@@ -839,7 +839,7 @@ $rechargePlanTypes = [
 
         if (step === "FETCH_BILL") {
             $('#nextBtn').text('Fetching...').prop('disabled', true).show();
-            $('#modalBody').html(loader("Fetching bill details..."));
+            $('#modalBody').html(spinLoader("Fetching bill details..."));
 
             setTimeout(() => {
                 selectedAmount = 399;
@@ -859,7 +859,7 @@ $rechargePlanTypes = [
 
             $('#modalBody').html(`
                     ${renderMetaHeader(selectedMeta)}
-                    ${loader("Fetching recharge plans...")}
+                    ${spinLoader("Fetching recharge plans...")}
                 `);
             return;
         }
@@ -1030,7 +1030,7 @@ $rechargePlanTypes = [
     });
 
 
-    function loader(text) {
+    function spinLoader(text) {
         return `
                 <div class="text-center my-4">
                     <div class="spinner-border text-primary"></div>

@@ -302,7 +302,7 @@
         }
 
         if (step === "FETCH") {
-            $('#utilityModalBody').html(loader("Fetching details..."));
+            $('#utilityModalBody').html(spinLoader("Fetching details..."));
             setTimeout(() => {
                 utilityStepIndex++;
                 loadUtilityStep();
@@ -342,9 +342,9 @@
     }
 
     /* ===============================
-       HELPER LOADER
+       HELPER spinLoader
     ================================ */
-    function loader(text) {
+    function spinLoader(text) {
         return `
         <div class="text-center my-4">
             <div class="spinner-border text-primary"></div>

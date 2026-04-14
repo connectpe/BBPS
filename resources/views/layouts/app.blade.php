@@ -295,6 +295,14 @@
             animation-delay: 0.4s;
         }
 
+        .loader-dots span:nth-child(4) {
+            animation-delay: 0.6s;
+        }
+
+        .loader-dots span:nth-child(5) {
+            animation-delay: 0.8s;
+        }
+
         @keyframes dots {
 
             0%,
@@ -402,21 +410,60 @@
     </script>
 
     <script>
-        window.addEventListener("load", function () {
-            const loader = document.getElementById("page-loader");
-            // Add the hidden class to fade it out
-            loader.classList.add("loader-hidden");
+        const loader = document.getElementById("page-loader");
 
-            // Optional: Remove from DOM after transition for performance
+        const hideLoader = () => {
+            loader.classList.add("loader-hidden");
             setTimeout(() => {
                 loader.style.display = "none";
             }, 500);
+        };
+
+        const showLoader = () => {
+            loader.classList.remove("loader-hidden");
+            loader.style.display = "flex";
+        };
+
+        // 1. Hide on page show (fixes Back button)
+        window.addEventListener("pageshow", hideLoader);
+
+        // 2. The Logic to show loader
+        window.addEventListener("beforeunload", function (e) {
+            const activeEl = document.activeElement;
+
+            // Check if the clicked element is likely a download
+            const isDownload = activeEl && (
+                activeEl.hasAttribute('download') ||
+                activeEl.target === '_blank' ||
+                activeEl.href?.includes('download') ||
+                activeEl.href?.includes('invoice') // Added specific check for your invoices
+            );
+
+            if (!isDownload) {
+                showLoader();
+            }
         });
 
-        // Also handle Laravel-specific actions (like form submissions)
-        window.addEventListener("beforeunload", function () {
-            document.getElementById("page-loader").classList.remove("loader-hidden");
-            document.getElementById("page-loader").style.display = "flex";
+        // 3. THE FIX: Hide loader when window regains focus
+        // When the "Save As" dialog appears or a download starts, 
+        // the window focus changes. When you "return" to the page, this hides the loader.
+        window.addEventListener("focus", function () {
+            if (loader.style.display !== "none") {
+                hideLoader();
+            }
+        });
+
+        // 4. Global click listener for specific "Invoice" buttons
+        document.addEventListener('click', function (e) {
+            const btn = e.target.closest('a, button');
+            if (btn) {
+                const text = btn.innerText.toLowerCase();
+                if (text.includes('invoice') || text.includes('download')) {
+                    // If it's a download, we wait a tiny bit and then hide 
+                    // just in case the beforeunload triggered it anyway
+                    setTimeout(hideLoader, 500);
+                }
+            }
         });
     </script>
 
