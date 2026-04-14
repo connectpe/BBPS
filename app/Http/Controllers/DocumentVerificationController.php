@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Facades\FileUpload;
 use App\Models\BusinessInfo;
 use App\Models\UsersBank;
 use Illuminate\Http\Request;
@@ -34,7 +35,7 @@ class DocumentVerificationController extends Controller
             // dd($user);
             $businessInfo = $user->business;
 
-            $businessInfo = BusinessInfo::select('address', 'business_pan_number', 'business_pan_name', 'is_pan_verify', 'gst_number', 'is_gstin_verify', 'cin_no', 'is_cin_verify', 'is_bank_details_verify')->where('user_id', $this->userId)->first();
+            $businessInfo = BusinessInfo::select('address', 'business_pan_number', 'aadhar_number', 'business_pan_name', 'is_pan_verify', 'gst_number', 'is_gstin_verify', 'cin_no', 'is_cin_verify', 'is_bank_details_verify', 'is_aadhaar_verified')->where('user_id', $this->userId)->first();
 
 
             if (!$businessInfo) {
@@ -43,6 +44,7 @@ class DocumentVerificationController extends Controller
                     'message' => 'Business information not found for the user.'
                 ]);
             }
+
 
             $usersBank = UsersBank::select('account_number', 'ifsc_code', 'benificiary_name')->where('user_id', $this->userId)->first();
 
@@ -76,6 +78,9 @@ class DocumentVerificationController extends Controller
                 'ifsc_code' => $usersBank->ifsc_code ?? '-',
                 'benificiary_name' => $usersBank->benificiary_name ?? '-',
                 'bank_verified' => $businessInfo->is_bank_details_verify ?? 0,
+
+                'aadhar_number' => $businessInfo->aadhar_number ?? '-',
+                'is_aadhaar_verify' => $businessInfo->is_aadhaar_verify ?? 0
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -383,6 +388,72 @@ class DocumentVerificationController extends Controller
                 'status' => false,
                 'message' => $e->getMessage()
             ]);
+        }
+    }
+
+    public function verifyAadhaar(Request $request)
+    {
+        try {
+
+            $userId = $this->userId;
+
+            $businessInfo = BusinessInfo::select('aadhar_front_image')
+                ->where('user_id', $userId)
+                ->first();
+
+            if (!$businessInfo) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Business Details are not completed'
+                ]);
+            }
+
+            if (!$businessInfo->aadhar_front_image) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Aadhaar image is not uploaded'
+                ]);
+            }
+
+
+            $relativePath = $businessInfo->aadhar_front_image;
+            $path = storage_path('app/public/' . $relativePath);
+
+            $imageContent = file_get_contents($path);
+
+            if ($imageContent === false) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unable to read Aadhaar image'
+                ]);
+            }
+
+            $verificationId = 'AADHAAR_' . time();
+            $endpoint = "https://api.cashfree.com/verification/aadhaar-masking";
+
+
+            $response = Http::withHeaders([
+                'x-client-id' => $this->clientID,
+                'x-client-secret' => $this->clientSecret,
+            ])
+                ->attach(
+                    'image',
+                    $imageContent,
+                    'aadhaar.jpg'
+                )
+                ->post($endpoint, [
+                    'verification_id' => $verificationId,
+                ]);
+            dd($response, $response->json());
+            return response()->json([
+                'status' => true,
+                'data' => $response->json(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 }
