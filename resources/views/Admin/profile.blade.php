@@ -1600,7 +1600,8 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                             <input type="text" class="form-control validate" name="cin_number"
                                 placeholder="e.g. L12345MH2010PLC123456"
                                 pattern="^[LU][0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$" title="Enter valid CIN number"
-                                maxlength="21" value="{{ $businessInfo->cin_no ?? '' }}" {{ $isKyc ? 'disabled' : '' }}>
+                                maxlength="21" value="{{ $businessInfo->cin_no ?? '' }}" {{ ($isKyc ?? 0) ? 'disabled'
+                                : '' }}>
                             <span class="error-text">Invalid CIN number</span>
                         </div>
 
@@ -1611,7 +1612,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                                 placeholder="e.g. 27AAPFU0939F1ZV" maxlength="15"
                                 pattern="^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$"
                                 title="Enter valid GST number" style="text-transform: uppercase;"
-                                value="{{ $businessInfo->gst_number ?? '' }}" {{ $isKyc ? 'disabled' : '' }}>
+                                value="{{ $businessInfo->gst_number ?? '' }}" {{ ($isKyc ?? 0) ? 'disabled' : '' }}>
                             <span class="error-text">Invalid GST number</span>
                         </div>
 
@@ -1620,7 +1621,8 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                             <input type="text" class="form-control validate" name="business_pan"
                                 placeholder="e.g. AAACC1234A" maxlength="10" pattern="^[A-Z]{5}[0-9]{4}[A-Z]$"
                                 title="Enter valid PAN (AAAAA9999A)" style="text-transform: uppercase;"
-                                value="{{ $businessInfo->business_pan_number ?? '' }}" {{ $isKyc ? 'disabled' : '' }}>
+                                value="{{ $businessInfo->business_pan_number ?? '' }}" {{ ($isKyc ?? 0) ? 'disabled'
+                                : '' }}>
                             <span class="error-text">Invalid PAN number</span>
                         </div>
 
@@ -1695,7 +1697,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
 
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                    name="business_pan_image" {{ $isKyc ? 'disabled' : '' }}>
+                                    name="business_pan_image" {{ ($isKyc ?? 0) ? 'disabled' : '' }}>
 
                                 @if (!empty($businessInfo->business_pan_image))
                                 <span class="input-group-text" style="cursor:pointer;">
@@ -1716,7 +1718,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                                     class="text-danger">*</span></label>
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                    name="registration_certificate_image" {{ $isKyc ? 'disabled' : '' }}>
+                                    name="registration_certificate_image" {{ ($isKyc ?? 0) ? 'disabled' : '' }}>
                                 @if (!empty($businessInfo->registration_certificate_image))
                                 <span class="input-group-text" style="cursor:pointer;">
                                     <i class="fa-solid fa-eye"
@@ -1735,7 +1737,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                                     class="text-danger">*</span></label>
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                    name="gst_registration_certificate_image" {{ $isKyc ? 'disabled' : '' }}>
+                                    name="gst_registration_certificate_image" {{ ($isKyc ?? 0) ? 'disabled' : '' }}>
                                 @if (!empty($businessInfo->gst_registration_certificate_image))
                                 <span class="input-group-text" style="cursor:pointer;">
                                     <i class="fa-solid fa-eye"
@@ -1756,7 +1758,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                                     class="fas fa-circle-info"></i></label>
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                    name="business_address_proof_image" {{ $isKyc ? 'disabled' : '' }}>
+                                    name="business_address_proof_image" {{ ($isKyc ?? 0) ? 'disabled' : '' }}>
                                 @if (!empty($businessInfo->business_address_proof_image))
                                 <span class="input-group-text" style="cursor:pointer;">
                                     <i class="fa-solid fa-eye"
@@ -1811,7 +1813,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                             <label class="form-label">Signed MOA Image</label>
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                    name="signed_moa_image" {{ $isKyc ? 'disabled' : '' }}>
+                                    name="signed_moa_image" {{ ($isKyc ?? 0) ? 'disabled' : '' }}>
                                 @if (!empty($businessInfo->signed_moa_image))
                                 <span class="input-group-text" style="cursor:pointer;">
                                     <i class="fa-solid fa-eye"
@@ -1829,7 +1831,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                             <label class="form-label">Signed AOA Image</label>
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                    name="signed_aoa_image" {{ $isKyc ? 'disabled' : '' }}>
+                                    name="signed_aoa_image" {{ ($isKyc ?? 0) ? 'disabled' : '' }}>
                                 @if (!empty($businessInfo->signed_aoa_image))
                                 <span class="input-group-text" style="cursor:pointer;">
                                     <i class="fa-solid fa-eye"
@@ -1847,7 +1849,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                             <label class="form-label">Board Resolution</label>
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                    name="board_resolution" {{ $isKyc ? 'disabled' : '' }}>
+                                    name="board_resolution" {{ ($isKyc ?? 0) ? 'disabled' : '' }}>
                                 @if (!empty($businessInfo->board_resoultion_image))
                                 <span class="input-group-text" style="cursor:pointer;" title="Preview">
                                     <i class="fa-solid fa-eye"
@@ -1872,7 +1874,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                             <label class="form-label">Declaration</label>
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                    name="nsdl_declaration" {{ $isKyc ? 'disabled' : '' }}>
+                                    name="nsdl_declaration" {{ ($isKyc ?? 0) ? 'disabled' : '' }}>
                                 @if (!empty($businessInfo->nsdl_declaration_image))
                                 <span class="input-group-text" style="cursor:pointer;">
                                     <i class="fa-solid fa-eye"
@@ -1946,7 +1948,8 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                                     placeholder="Enter 12-digit Aadhaar Number" name="adhar_number" maxlength="12"
                                     inputmode="numeric" pattern="[0-9]{12}"
                                     oninput="this.value = this.value.replace(/[^0-9]/g, '')" required
-                                    value="{{ $businessInfo->aadhar_number ?? '' }}" {{ $isKyc ? 'disabled' : '' }}>
+                                    value="{{ $businessInfo->aadhar_number ?? '' }}" {{ ($isKyc ?? 0) ? 'disabled' : ''
+                                    }}>
                                 <span class="error-text">Invalid Aadhaar number</span>
                             </div>
 
@@ -1958,7 +1961,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                                     placeholder="Enter PAN Number (ABCDE1234F)" name="pan_number" maxlength="10"
                                     style="text-transform: uppercase;" pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}"
                                     oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '')" required
-                                    value="{{ $businessInfo->pan_number ?? '' }}" {{ $isKyc ? 'disabled' : '' }}>
+                                    value="{{ $businessInfo->pan_number ?? '' }}" {{ ($isKyc ?? 0) ? 'disabled' : '' }}>
                                 <span class="error-text">Invalid Pan number</span>
                             </div>
 
@@ -1968,7 +1971,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                                         class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                        name="adhar_front_image" {{ $isKyc ? 'disabled' : '' }}>
+                                        name="adhar_front_image" {{ ($isKyc ?? 0) ? 'disabled' : '' }}>
                                     @if (!empty($businessInfo->aadhar_front_image))
                                     <span class="input-group-text" style="cursor:pointer;">
                                         <i class="fa-solid fa-eye"
@@ -1988,7 +1991,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                                         class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                        name="adhar_back_image" {{ $isKyc ? 'disabled' : '' }}>
+                                        name="adhar_back_image" {{ ($isKyc ?? 0) ? 'disabled' : '' }}>
                                     @if (!empty($businessInfo->aadhar_back_image))
                                     <span class="input-group-text" style="cursor:pointer;">
                                         <i class="fa-solid fa-eye"
@@ -2006,7 +2009,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                                 <label class="form-label">Individual PAN Card<span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                        name="pan_card_image" {{ $isKyc ? 'disabled' : '' }}>
+                                        name="pan_card_image" {{ ($isKyc ?? 0) ? 'disabled' : '' }}>
 
                                     @if (!empty($businessInfo->pancard_image))
                                     <span class="input-group-text" style="cursor:pointer;">
@@ -2025,7 +2028,8 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                                 <label class="form-label">Individual Photo<span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <input type="file" class="form-control skip-draft" accept=".jpg,.jpeg,.png"
-                                        name="individual_photo" id="individual_photo" {{ $isKyc ? 'disabled' : '' }}>
+                                        name="individual_photo" id="individual_photo" {{ ($isKyc ?? 0) ? 'disabled' : ''
+                                        }}>
                                     @if (!empty($businessInfo->individual_photo))
                                     <span class="input-group-text" style="cursor:pointer;">
                                         <i class="fa-solid fa-eye"
@@ -2060,7 +2064,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                             <input type="text" class="form-control validated" placeholder="Enter Account Number"
                                 name="account_number" maxlength="18" inputmode="numeric" pattern="[0-9]{9,18}"
                                 oninput="this.value = this.value.replace(/[^0-9]/g, '')" required
-                                value="{{ $usersBank->account_number ?? '' }}" {{ $isKyc ? 'disabled' : '' }}>
+                                value="{{ $usersBank->account_number ?? '' }}" {{ ($isKyc ?? 0) ? 'disabled' : '' }}>
                             <span class="error-text">Invalid Account number</span>
                         </div>
 
@@ -2071,7 +2075,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                                 placeholder="Enter IFSC Code" maxlength="11" style="text-transform: uppercase;"
                                 pattern="[A-Z]{4}0[A-Z0-9]{6}"
                                 oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '')" required
-                                value="{{ $usersBank->ifsc_code ?? '' }}" {{ $isKyc ? 'disabled' : '' }}>
+                                value="{{ $usersBank->ifsc_code ?? '' }}" {{ ($isKyc ?? 0) ? 'disabled' : '' }}>
                             <span class="invalid-feedback">Invalid IFSC code</span>
 
                         </div>
@@ -2080,7 +2084,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                         <div class="col-md-6">
                             <label class="form-label">Branch Name<span class="text-danger">*</span></label>
                             <input type="text" class="form-control" placeholder="Enter branch name" name="branch_name"
-                                value="{{ $usersBank->branch_name ?? '' }}" {{ $isKyc ? 'disabled' : '' }}>
+                                value="{{ $usersBank->branch_name ?? '' }}" {{ ($isKyc ?? 0) ? 'disabled' : '' }}>
                         </div>
 
                         <div class="col-md-6">
@@ -2089,7 +2093,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                                     Statement/Verification Letter</small> )</label>
                             <div class="input-group">
                                 <input type="file" class="form-control skip-draft" accept=".pdf,.jpg,.jpeg,.png"
-                                    name="bank_docs" {{ $isKyc ? 'disabled' : '' }}>
+                                    name="bank_docs" {{ ($isKyc ?? 0) ? 'disabled' : '' }}>
                                 @if (!empty($usersBank->bank_docs))
                                 <span class="input-group-text" style="cursor:pointer;">
                                     <i class="fa-solid fa-eye"
@@ -2211,9 +2215,22 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
     </div>
 </div>
 
-<!-- Document verification modal -->
+<style>
+    .verify-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 2px 12px;
+        /* border: 1px solid #eee; */
+        border-radius: 6px;
+        margin-bottom: 10px;
+        background: #fff;
+    }
+</style>
+
+
 <div class="modal fade" id="documentVerificationModal" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-dialog modal-md modal-dialog-centered">
         <div class="modal-content">
 
             <div class="modal-header">
@@ -2221,178 +2238,102 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
-            <!-- STEP PROGRESS -->
-            <div class="step-progress px-4 pt-3">
-                <div class="d-flex justify-content-between text-center">
+            <div class="modal-body">
 
-                    <div class="step-item active" data-step="1">
-                        <span class="step-circle">1</span>
-                        <div class="step-label">PAN</div>
+                <!-- PAN -->
+                <div class="verify-row">
+                    <div>
+                        <strong>Individual PAN Number:</strong>
+                        <span id="individualPanNumber">-</span>
                     </div>
+                    <div id="panAction">
+                        <span class="btn btn-sm btn-danger" id="individualPanBadge"
+                            onclick="verifyDocument('individualPan')">
+                            Verify
+                        </span>
 
-                    <div class="step-line"></div>
-
-                    <div class="step-item" data-step="2">
-                        <span class="step-circle">2</span>
-                        <div class="step-label">GSTIN</div>
                     </div>
+                </div>
 
-                    <div class="step-line"></div>
-
-                    <div class="step-item" data-step="3">
-                        <span class="step-circle">3</span>
-                        <div class="step-label">CIN</div>
+                <!-- Business PAN -->
+                <div class="verify-row">
+                    <div>
+                        <strong>Business PAN:</strong>
+                        <span id="businessPanNumber">-</span>
                     </div>
+                    <div id="businessPanAction">
+                        <span class="btn btn-sm btn-danger" id="businessPanBadge"
+                            onclick="verifyDocument('businessPan')">
+                            Verify
+                        </span>
 
-                    <div class="step-line"></div>
-
-                    <div class="step-item" data-step="4">
-                        <span class="step-circle">4</span>
-                        <div class="step-label">Bank</div>
                     </div>
+                </div>
 
-                    <div class="step-line"></div>
-
-                    <div class="step-item" data-step="5">
-                        <span class="step-circle">5</span>
-                        <div class="step-label">Aadhaar</div>
+                <!-- GST -->
+                <div class="verify-row">
+                    <div>
+                        <strong>GSTIN:</strong>
+                        <span id="gstNumber">-</span>
                     </div>
-
-                    <div class="step-line"></div>
-
-                    <div class="step-item" data-step="6">
-                        <span class="step-circle">6</span>
-                        <div class="step-label">VideoKyc</div>
+                    <div id="gstAction">
+                        <span class="btn btn-sm btn-danger" id="gstBadge" onclick="verifyDocument('gst')">
+                            Verify
+                        </span>
                     </div>
+                </div>
 
+                <!-- CIN -->
+                <div class="verify-row">
+                    <div>
+                        <strong>CIN:</strong>
+                        <span id="cinNumber">-</span>
+                    </div>
+                    <div id="cinAction">
+                        <span class="btn btn-sm btn-danger" id="cinBadge" onclick="verifyDocument('cin')">
+                            Verify
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Bank -->
+                <div class="verify-row">
+                    <div>
+                        <strong>Bank Account:</strong>
+                        <span id="bankNumber">-</span>
+                    </div>
+                    <div id="bankAction">
+                        <span class="btn btn-sm btn-danger" id="bankBadge" onclick="verifyDocument('bank')">
+                            Verify
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Aadhaar -->
+                <div class="verify-row">
+                    <div>
+                        <strong>Aadhaar:</strong>
+                        <span id="aadhaarNumber">-</span>
+                    </div>
+                    <div id="aadhaarAction">
+                        <span class="btn btn-sm btn-danger" id="aadhaarBadge" onclick="verifyDocument('aadhaar')">
+                            Verify
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Video KYC -->
+                <div class="verify-row">
+                    <div>
+                        <strong>Video KYC</strong>
+                    </div>
+                    <div id="videoKycAction">
+                        <span class="btn btn-sm btn-danger" id="videoKycBadge" onclick="verifyDocument('videokyc')">
+                            Verify
+                        </span>
+                    </div>
                 </div>
             </div>
-
-            <hr class="mt-2">
-
-            <div class="modal-body" id="docVerifyModalBody">
-
-                <!-- STEP 1 -->
-                <div class="doc-step" data-doc-step="1">
-                    <h6 class="mb-3">PAN Verification</h6>
-                    <div class="card border shadow-sm p-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <p class="mb-1"><strong>PAN Number:</strong>
-                                    <span id="panNumber">-</span>
-                                </p>
-                                <span class="badge" id="panBadge">Checking...</span>
-                            </div>
-                            <button type="button" class="btn" id="panButton"
-                                onclick="verifyDocument('pan')">Verify</button>
-                        </div>
-                        <div class="mt-3" id="panMessage"></div>
-                    </div>
-                </div>
-
-                <!-- STEP 2 -->
-                <div class="doc-step d-none" data-doc-step="2">
-                    <h6 class="mb-3">GSTIN Verification</h6>
-                    <div class="card border shadow-sm p-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <p class="mb-1"><strong>GST Number:</strong>
-                                    <span id="gstNumber">-</span>
-                                </p>
-                                <span class="badge" id="gstBadge">Checking...</span>
-                            </div>
-                            <button type="button" class="btn" id="gstButton"
-                                onclick="verifyDocument('gst')">Verify</button>
-                        </div>
-                        <div class="mt-3" id="gstMessage"></div>
-                    </div>
-                </div>
-
-                <!-- STEP 3 -->
-                <div class="doc-step d-none" data-doc-step="3">
-                    <h6 class="mb-3">CIN Verification</h6>
-                    <div class="card border shadow-sm p-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <p class="mb-1"><strong>CIN:</strong>
-                                    <span id="cinNumber">-</span>
-                                </p>
-                                <span class="badge" id="cinBadge">Checking...</span>
-                            </div>
-                            <button type="button" class="btn" id="cinButton"
-                                onclick="verifyDocument('cin')">Verify</button>
-                        </div>
-                        <div class="mt-3" id="cinMessage"></div>
-                    </div>
-                </div>
-
-                <!-- STEP 4 -->
-                <div class="doc-step d-none" data-doc-step="4">
-                    <h6 class="mb-3">Bank Verification</h6>
-                    <div class="card border shadow-sm p-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <p class="mb-1"><strong>Account Number:</strong>
-                                    <span id="bankNumber">-</span>
-                                </p>
-                                <span class="badge" id="bankBadge">Checking...</span>
-                            </div>
-                            <button type="button" class="btn" id="bankButton"
-                                onclick="verifyDocument('bank')">Verify</button>
-                        </div>
-                        <div class="mt-3" id="bankMessage"></div>
-                    </div>
-                </div>
-
-                <!-- STEP 5 -->
-                <div class="doc-step d-none" data-doc-step="5">
-                    <h6 class="mb-3">Aadhaar</h6>
-                    <div class="card border shadow-sm p-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <p class="mb-1"><strong>Aadhaar Number:</strong>
-                                    <span id="aadhaarNumber">-</span>
-                                </p>
-                                <span class="badge" id="aadhaarBadge">Checking...</span>
-                            </div>
-                            <button type="button" class="btn" id="aadhaarButton"
-                                onclick="verifyDocument('aadhaar')">Verify</button>
-                        </div>
-                        <div class="mt-3" id="aadhaarMessage"></div>
-                    </div>
-                </div>
-
-                <!-- STEP 6 -->
-                <div class="doc-step d-none" data-doc-step="6">
-                    <h6 class="mb-3">Video KYC</h6>
-                    <div class="card border shadow-sm p-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <p class="mb-1"><strong>Name:</strong>
-                                    <span id="videoKycName">-</span>
-                                </p>
-                                <p class="mb-1"><strong>Email:</strong>
-                                    <span id="videoKycEmail">-</span>
-                                </p>
-                                <p class="mb-1"><strong>Phone:</strong>
-                                    <span id="videoKycPhone">-</span>
-                                </p>
-                                <span class="badge" id="videoKycBadge">Checking...</span>
-                            </div>
-                            <button type="button" class="btn" id="videoKycButton"
-                                onclick="verifyDocument('videokyc')">Verify</button>
-                        </div>
-                        <div class="mt-3" id="videoKycMessage"></div>
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="modal-footer d-flex justify-content-between">
-                <button class="btn btn-secondary" id="prevDocStep">Previous</button>
-                <button class="btn buttonColor" id="nextDocStep">Next</button>
-            </div>
-
         </div>
     </div>
 </div>
@@ -3714,189 +3655,128 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
 
 @if ($role == 2 || $role == 3)
 <script>
-    let docVerifyStep = 1;
-    let documentData = {};
 
-    function getDocStepEl(step) {
-        return document.querySelector('#docVerifyModalBody .doc-step[data-doc-step="' + step + '"]');
-    }
+    $('#documentVerificationModal').on('show.bs.modal', function () {
 
-    document.getElementById('documentVerificationModal')
-        .addEventListener('show.bs.modal', function () {
+        $.ajax({
+            url: "{{ route('document.verification.data') }}",
+            type: "GET",
+            success: function (data) {
+                if (!data.status) return;
+                console.log(data);
+                $('#individualPanNumber').text(data.pan_number ?? '-');
+                $('#businessPanNumber').text(data.business_pan_number ?? '-');
+                $('#gstNumber').text(data.gst_number ?? '-');
+                $('#cinNumber').text(data.cin_no ?? '-');
+                $('#bankNumber').text(data.account_number ?? '-');
+                $('#aadhaarNumber').text(data.aadhar_number ?? '-');
 
-            // Reset to step 1
-            docVerifyStep = 1;
-            document.querySelectorAll('#docVerifyModalBody .doc-step').forEach(el => el.classList.add("d-none"));
-            getDocStepEl(1).classList.remove("d-none");
-            updateDocSteps();
+                // Set Status
+                setDocStatus("individualPan", data.individual_pan_verified);
+                setDocStatus("businessPan", data.business_pan_verified);
+                setDocStatus("gst", data.is_gstin_verify);
+                setDocStatus("cin", data.is_cin_verify);
+                setDocStatus("bank", data.bank_verified);
+                setDocStatus("videoKyc", data.videokyc_verified);
+                setDocStatus("aadhaar", data.is_aadhaar_verified);
+            },
+            error: function (xhr) {
+                console.log(xhr);
 
-            fetch("{{ route('document.verification.data') }}")
-                .then(res => res.json())
-                .then(data => {
-
-                    if (!data.status) return;
-
-                    documentData = data;
-                    console.log(data);
-
-                    // Fill Numbers
-                    document.getElementById("panNumber").innerText = data.business_pan_number ?? '-';
-                    document.getElementById("gstNumber").innerText = data.gst_number ?? '-';
-                    document.getElementById("cinNumber").innerText = data.cin_no ?? '-';
-                    document.getElementById("bankNumber").innerText = data.account_number ?? '-';
-                    document.getElementById("videoKycName").innerText = data.name ?? '-';
-                    document.getElementById("videoKycEmail").innerText = data.email ?? '-';
-                    document.getElementById("videoKycPhone").innerText = data.phone ?? '-';
-                    document.getElementById("aadhaarNumber").innerText = data.aadhar_number ?? '-';
-
-                    setDocStatus("pan", data.pan_verified);
-                    setDocStatus("gst", data.is_gstin_verify);
-                    setDocStatus("cin", data.is_cin_verify);
-                    setDocStatus("bank", data.bank_verified);
-                    setDocStatus("videoKyc", data.videokyc_verified);
-                    setDocStatus("aadhaar", data.is_aadhaar_verified);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: xhr.responseJSON?.message || 'Failed to load data'
                 });
-        });
-
-
-    function setDocStatus(type, verified) {
-        let badge = document.getElementById(type + "Badge");
-        let button = document.getElementById(type + "Button");
-        let message = document.getElementById(type + "Message");
-
-        if (verified == 1) {
-            badge.className = "badge bg-success";
-            badge.innerText = "Verified";
-            button.className = "btn btn-success";
-            button.innerText = "Verified";
-            message.innerHTML =
-                `<div class="alert alert-success mb-0">${type.toUpperCase()} verified successfully.</div>`;
-        } else {
-            badge.className = "badge bg-danger";
-            badge.innerText = "Not Verified";
-            button.className = "btn btn-danger";
-            button.innerText = "Verify";
-            message.innerHTML = `<div class="alert alert-danger mb-0">${type.toUpperCase()} not verified.</div>`;
-        }
-    }
-
-
-    // Step navigation
-    document.getElementById("nextDocStep").addEventListener("click", function () {
-        if (docVerifyStep < 7) {
-            getDocStepEl(docVerifyStep).classList.add("d-none");
-            docVerifyStep++;
-            getDocStepEl(docVerifyStep).classList.remove("d-none");
-            updateDocSteps();
-        }
-    });
-
-    document.getElementById("prevDocStep").addEventListener("click", function () {
-        if (docVerifyStep > 1) {
-            getDocStepEl(docVerifyStep).classList.add("d-none");
-            docVerifyStep--;
-            getDocStepEl(docVerifyStep).classList.remove("d-none");
-            updateDocSteps();
-        }
-    });
-
-    function updateDocSteps() {
-        // Step indicator active class
-        document.querySelectorAll("#documentVerificationModal .step-item").forEach(item => {
-            item.classList.remove("active");
-            if (item.dataset.step == docVerifyStep) {
-                item.classList.add("active");
             }
         });
 
-        // Button control
-        let prevBtn = document.getElementById("prevDocStep");
-        let nextBtn = document.getElementById("nextDocStep");
+    });
 
-        if (docVerifyStep === 1) {
-            prevBtn.classList.add("d-none");
-        } else {
-            prevBtn.classList.remove("d-none");
-        }
+    function setDocStatus(type, verified) {
 
-        if (docVerifyStep === 6) {
-            nextBtn.classList.add("d-none");
+        let el = $('#' + type + 'Badge');
+        let message = $('#' + type + 'Message');
+
+        if (!el.length) return;
+
+        if (verified == 1) {
+            el.removeClass('btn btn-sm btn-primary btn-danger')
+                .addClass('badge bg-success')
+                .text('Verified')
+                .off('click');
+            message.html(
+                `<div class="alert alert-success mb-0">
+                ${type.toUpperCase()} verified successfully.
+            </div>`
+            );
         } else {
-            nextBtn.classList.remove("d-none");
+            el.removeClass('badge bg-success')
+                .addClass('btn btn-sm btn-danger')
+                .text('Verify')
+                .off('click')
+                .on('click', function () {
+                    verifyDocument(type);
+                });
+            message.html('');
         }
     }
 
-
     // API integration
     function verifyDocument(type) {
-        let url = "";
-        let payload = {};
 
-        if (type === "pan") {
-            url = "{{ route('pan.verify') }}";
-            payload = {
-                pan_number: documentData.business_pan_number,
-                pan_name: documentData.business_pan_name
-            };
+        const urlMap = {
+            individualPan: "{{ route('individual.pan.verify') }}",
+            businessPan: "{{ route('business.pan.verify') }}",
+            gst: "{{ route('gstin.verify') }}",
+            cin: "{{ route('cin.verify') }}",
+            bank: "{{ route('ifsc.verify') }}",
+            aadhaar: "{{ route('verify.aadhaar') }}",
+            videokyc: "{{ route('videokyc.verify') }}"
+        };
+
+        let url = urlMap[type] || "";
+
+        if (!url) {
+            console.warn("Unknown type:", type);
         }
 
-        if (type === "gst") {
-            url = "{{ route('gstin.verify') }}";
-            payload = {
-                gst_number: documentData.gst_number
-            };
-        }
-
-        if (type === "cin") {
-            url = "{{ route('cin.verify') }}";
-            payload = {
-                cin_no: documentData.cin_no
-            };
-        }
-
-        if (type === "bank") {
-            url = "{{ route('ifsc.verify') }}";
-            payload = {
-                // account_number: documentData.account_number,
-                // beneficiary_name: documentData.benificiary_name,
-                // phone: documentData.phone,
-                ifsc: documentData.ifsc_code
-            };
-        }
-
-        if (type === "aadhaar") {
-            url = "{{ route('verify.aadhaar') }}";
-            payload = {};
-        }
-
-        if (type === "videokyc") {
-            url = "{{ route('videokyc.verify') }}";
-            payload = {
-                name: documentData.name,
-                email: documentData.email,
-                phone: documentData.phone,
-                address: documentData.address
-            };
-        }
-
-        fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: {
+                _token: "{{ csrf_token() }}"
             },
-            body: JSON.stringify(payload)
-        })
-            .then(res => res.json())
-            .then(response => {
-                console.log("Response:", response);
+            success: function (response) {
                 if (response.status) {
                     setDocStatus(type, 1);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: response.message || 'Operation successful'
+                    });
                 } else {
-                    setDocStatus(type, 0);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.message || 'Something went wrong'
+                    });
                 }
-            })
-            .catch(err => console.log(err));
+            },
+            error: function (xhr) {
+                let errorMessage = 'Request failed. Please try again.';
+                if (xhr.responseJSON) {
+                    if (xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
+                }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: errorMessage
+                });
+            }
+        });
     }
 </script>
 @endif

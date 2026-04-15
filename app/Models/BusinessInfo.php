@@ -50,6 +50,7 @@ class BusinessInfo extends Model
         'is_bank_details_verify',
         'is_aadhaar_verified',
         'masked_aadhaar_url',
+        'is_business_pan_verified'
     ];
 
     public function user()

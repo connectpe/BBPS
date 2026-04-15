@@ -261,7 +261,8 @@ Route::group(['middleware' => ['auth']], function () {
 Route::group(['middleware' => ['logs', 'auth'], 'prefix' => 'document'], function () {
     Route::get('get-document-data', [DocumentVerificationController::class, 'getDocumentData'])->name('document.verification.data');
 
-    Route::post('verify-pan', [DocumentVerificationController::class, 'panVerify'])->name('pan.verify');
+    Route::post('individual-verify-pan', [DocumentVerificationController::class, 'individualPanVerify'])->name('individual.pan.verify');
+    Route::post('business-verify-pan', [DocumentVerificationController::class, 'businessPanVerify'])->name('business.pan.verify');
     Route::post('verify-account', [DocumentVerificationController::class, 'VerifyAccountDetails'])->name('bank.account.verify');
     Route::post('verify-cin', [DocumentVerificationController::class, 'verifyCinNumber'])->name('cin.verify');
     Route::post('verify-gstin', [DocumentVerificationController::class, 'verifyGstinNumber'])->name('gstin.verify');
