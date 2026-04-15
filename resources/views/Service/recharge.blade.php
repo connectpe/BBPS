@@ -289,21 +289,28 @@
     </div>
 
     @php
-    $services = [
+   $services = [
+
     ['name' => 'Mobile Postpaid', 'icon' => 'bi-phone'],
     ['name' => 'Mobile Prepaid', 'icon' => 'bi-phone'],
     ['name' => 'Landline Postpaid', 'icon' => 'bi-telephone'],
     ['name' => 'Broadband Postpaid', 'icon' => 'bi-wifi'],
     ['name' => 'Cable TV', 'icon' => 'bi-tv'],
-    ['name' => 'DTH', 'icon' => 'bi-building'],
+    ['name' => 'DTH', 'icon' => 'bi-display'],
+
     ['name' => 'Fastag', 'icon' => 'bi-signpost'],
-    ['name' => 'Subscription', 'icon' => 'bi-journal-text'],
+    ['name' => 'Fleet Card Recharge', 'icon' => 'bi-truck'],
+    ['name' => 'EV Recharge', 'icon' => 'bi-ev-station'],
     ['name' => 'NCMC Recharge', 'icon' => 'bi-wallet2'],
-    ['name' => 'Bill Pay', 'icon' => 'bi-receipt'] ?? null,
-    ['name' => 'Scan Pay', 'icon' => 'bi-qr-code-scan'] ?? null,
-    ];
-    $colors = ['#f94144','#f3722c','#f8961e','#f9c74f','#90be6d','#43aa8b','#577590','#277da1','#9d4edd','#ff6d00','#1982c4','#6a4c93'];
-    @endphp
+
+    ['name' => 'Subscription', 'icon' => 'bi-journal-text'],
+];
+    $colors = [
+    '#f94144','#f3722c','#f8961e','#f9c74f',
+    '#90be6d','#43aa8b','#577590','#277da1',
+    '#9d4edd','#ff6d00','#1982c4','#6a4c93'
+     ];
+@endphp
 
     <div class="col-md-12">
         <div class="card shadow-sm h-100 position-relative">
