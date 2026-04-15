@@ -6,7 +6,7 @@
 <div class="row align-items-center mb-2">
     <div class="col-auto ms-auto">
         <button type="button" class="btn buttonColor" data-toggle="modal" data-target="#addSupportModal"
-            data-bs-toggle="modal" data-bs-target="#addSupportModal">
+            data-bs-toggle="modal" data-bs-target="#addSupportModal" style="font-size: 12px;">
             <i class="fa fa-plus"></i> Add Support
         </button>
     </div>

@@ -56,8 +56,12 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" id="modalSubmitBtn" class="btn buttonColor">Save Category</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="font-size: 12px;">
+                        Close
+                    </button>
+                    <button type="submit" id="modalSubmitBtn" class="btn buttonColor" style="font-size: 12px;">
+                        Save Category
+                    </button>
                 </div>
             </form>
         </div>

@@ -1504,7 +1504,8 @@ class AdminController extends Controller
                 (int) $business->is_pan_verify === 1 &&
                 (int) $business->is_gstin_verify === 1 &&
                 (int) $business->is_cin_verify === 1 &&
-                (int) $business->is_bank_details_verify === 1
+                (int) $business->is_bank_details_verify === 1 &&
+                (int) $business->is_aadhaar_verified === 1
             ) {
 
                 $status = $business->is_kyc == '1' ? '0' : '1';

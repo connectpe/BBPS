@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Payin API Documentation - User')
-@section('page-title', 'Payin API Documentation - User')
+@section('title', 'Payin API Documentation')
+@section('page-title', 'Payin API Documentation')
 
 @section('content')
 
@@ -75,9 +75,9 @@ pre {
         <h6 class="fw-bold mb-3">API Endpoints</h6>
 
         <div class="mb-3">
-            <button class="btn btn-primary me-2 tab-btn active" data-tab="generate">Generate Payment</button>
-            <button class="btn btn-outline-secondary me-2 tab-btn" data-tab="status">Check Status</button>
-            <button class="btn btn-outline-secondary tab-btn" data-tab="callback">Callback</button>
+            <button class="btn btn-primary me-2 tab-btn active mb-lg-0 mb-3" data-tab="generate">Generate Payment</button>
+            <button class="btn btn-outline-secondary me-2 mb-lg-0 mb-3 tab-btn" data-tab="status">Check Status</button>
+            <button class="btn btn-outline-secondary mb-lg-0 mb-3 tab-btn" data-tab="callback">Callback</button>
         </div>
 
         <div class="card bg-light border-0">

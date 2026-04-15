@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\PayinOrdersController;
 use App\Http\Controllers\Api\PayinCallbacksController;
 use App\Http\Controllers\ServiceCostController;
 use App\Http\Controllers\Api\ContactController;
+use App\Http\Controllers\Api\PayoutOrderController;
 
 
 Route::get('/user', function (Request $request) {
@@ -44,10 +45,13 @@ Route::prefix('payin')->group(function () {
     Route::post('/checkStatus', [PayinCheckStatusController::class, 'checkStatus']);
 });
 
-Route::prefix('payout')->group(function () {
-    Route::post('/contacts', [ContactController::class, 'createContact']);
-});
 
+Route::group(['middleware' => ['logs', 'basicAuth']], function () {
+    Route::prefix('payout')->group(function () {
+        Route::post('/contacts', [ContactController::class, 'createContact']);
+        Route::post('/orders', [PayoutOrderController::class, 'createOrder']);
+    });
+});
 
 Route::group(['middleware' => ['logs'], 'prefix' => 'document'], function () {
     // Route::post('verify-pan',[DocumentVerificationController::class,'panVerify'])->name('pan.verify');

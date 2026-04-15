@@ -35,7 +35,7 @@
         <div class="card-header d-flex justify-content-between align-items-center bg-white">
             <h5 class="mb-0 text-dark font-weight-bold">Scheme and User Relations</h5>
             <button class="btn buttonColor btn-sm btn-assign-new" data-bs-toggle="modal" data-bs-target="#assignUserModal">
-                <i class="fa fa-plus"></i> Assign Scheme to User
+                <i class="fa fa-plus"></i> Assign Scheme
             </button>
         </div>
         <div class="card-body">

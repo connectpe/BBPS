@@ -259,6 +259,10 @@ use App\Facades\FileUpload;
                     <span class="value">{{ $usersBank->ifsc_code ?? '----' }}</span>
                 </div>
                 <div class="info-row">
+                    <span class="label">Account Mobile Number</span>
+                    <span class="value">{{ $usersBank->account_mobile_number ?? '----' }}</span>
+                </div>
+                <div class="info-row">
                     <span class="label">Account Holder</span>
                     <span class="value">{{ $usersBank->benificiary_name ?? '----' }}</span>
                 </div>
