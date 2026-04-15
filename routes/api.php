@@ -44,10 +44,12 @@ Route::prefix('payin')->group(function () {
     Route::post('/checkStatus', [PayinCheckStatusController::class, 'checkStatus']);
 });
 
-Route::prefix('payout')->group(function () {
-    Route::post('/contacts', [ContactController::class, 'createContact']);
-});
 
+Route::group(['middleware' => ['logs', 'basicAuth']], function () {
+    Route::prefix('payout')->group(function () {
+        Route::post('/contacts', [ContactController::class, 'createContact']);
+    });
+});
 
 Route::group(['middleware' => ['logs'], 'prefix' => 'document'], function () {
     // Route::post('verify-pan',[DocumentVerificationController::class,'panVerify'])->name('pan.verify');

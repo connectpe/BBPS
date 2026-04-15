@@ -4,21 +4,26 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Helpers\HashHelper;
 
 class ContactController extends Controller
 {
     public function createContact(Request $request)
     {
-        dd($request->all(),$request->header());
+        // dd($request->all(), $request->header());
         $header      = $request->header();
-        $userSaltKey = CommonHelper::getUserSalt($request["auth_data"]['user_id']);
+        $client_id = $request->getUser();
+        $client_secret = hash('sha512', $request->getPassword());
+        // dd($client_id, $client_secret);
+        // $userSaltKey = CommonHelper::getUserSalt($request["auth_data"]['user_id']);
 
         //making hash
-        $hash = HashHelper::init()->generate(HashHelper::CREATE_CONTACT, $header['php-auth-user'][0], $userSaltKey, $request->all());
-
+        $hash = HashHelper::generate(HashHelper::CREATE_CONTACT, $client_id, $client_secret, $request->all());
+        // dd($hash);
         //Storage::put('contactSignatureCreate'.time().'.txt', print_r($hash, true));
         //user signature
         $signature = isset($header['signature'][0]) ? $header['signature'][0] : '';
+        dd($signature);
         $aaray     = ['user_id' => $request["auth_data"]['user_id'], 'rafifintech' => $hash, 'client' => $signature];
         //Storage::put('contactSignatureStore'.$request["auth_data"]['user_id'].'_'.time().'.txt', print_r($aaray, true));
 
