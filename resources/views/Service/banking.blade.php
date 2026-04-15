@@ -243,7 +243,7 @@
         }
 
         if (step === "AUTH") {
-            $('#modalBody').html(loader("Capturing biometric..."));
+            $('#modalBody').html(spinLoader("Capturing biometric..."));
             setTimeout(() => {
                 stepIndex++;
                 loadStep();
@@ -252,11 +252,12 @@
         }
 
         if (step === "FETCH") {
-            $('#modalBody').html(loader("Fetching details..."));
+            $('#modalBody').html(spinLoader("Fetching details..."));
             setTimeout(() => {
                 stepIndex++;
                 loadStep();
             }, 1200);
+            
             return;
         }
 
@@ -309,7 +310,7 @@
     /* ===============================
        HELPERS
     ================================ */
-    function loader(text) {
+    function spinLoader(text) {
         return `
         <div class="text-center my-4">
             <div class="spinner-border text-primary"></div>
