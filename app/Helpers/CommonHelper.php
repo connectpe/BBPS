@@ -261,37 +261,6 @@ class CommonHelper
     }
 
 
-    //     public static function isIpWhitelisted($userId, $serviceId, $ipAddress): array{
-    //         try{
-    //             $exists = IpWhitelist::where('user_id', $userId)->where('service_id', $serviceId)
-    //             ->where('ip_address', $ipAddress) ->where('is_active', 1)->where('is_deleted', 0)
-    //             ->exists();
-    //             if ($exists) {
-    //                 return [
-    //                     'status' => true,
-    //                     'message' => 'IP is whitelisted.'
-    //                 ];
-    //             } else {
-    //                 return [
-    //                     'status' => false,
-    //                     'message' => 'IP is not whitelisted.'
-    //                 ];
-    //             }
-
-    //         } catch (\Throwable $e) {
-    //             Log::error('IP Whitelist Check Error', [
-    //                 'error' => $e->getMessage(),
-    //                 'file'  => $e->getFile(),
-    //                 'line'  => $e->getLine(),
-    //             ]);
-    //             return [
-    //                 'status'  => false,
-    //                 'message' => 'Unable to verify IP whitelist.'
-    //             ];
-    //         }
-    //     }
-
-
     public static function checkIpWhiteList($userId, $serviceId, $ip)
     {
         try {
@@ -374,5 +343,18 @@ class CommonHelper
     public static function checkUserServiceActivate($userId)
     {
         return UserService::where('user_id', $userId)->where('status', 'approved')->where('is_active', '1')->exists();
+    }
+
+    public static function caseConversion($text, $type = '')
+    {
+        if ($type == 'l') {
+            return strtolower($text);
+        } elseif ($type == 'u') {
+            return strtoupper($text);
+        } elseif ($type == 'uw') {
+            return ucwords($text);
+        } else {
+            return ucfirst($text);
+        }
     }
 }
