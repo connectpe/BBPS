@@ -645,7 +645,7 @@ class UserController extends Controller
     {
         try {
 
-            if (! auth()->check() || (! in_array(auth()->user()->role_id, [1, 4]))) {
+            if (! auth()->check() || (! in_array(auth()->user()->role_id, [1]))) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Unauthorized',

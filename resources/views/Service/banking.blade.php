@@ -92,7 +92,7 @@
                     Banking
                 </h5>
                 <img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}" alt="" class="position-absolute" style="top: 10px; right: 50px; width: 70px;">
-                <button type="button" class="btn-close position-absolute bg-light" data-bs-dismiss="modal" style="top: -15px; right: -15px;"></button>
+                <button type="button" class="btn-close position-absolute bg-light" data-bs-dismiss="modal" style="right: 18px;"></button>
             </div>
 
             <div class="modal-body" id="modalBody"></div>

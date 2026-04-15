@@ -350,7 +350,7 @@
                 <button type="button"
                     class="btn-close position-absolute bg-light"
                     data-bs-dismiss="modal"
-                    style="top: -15px; right: -15px; z-index: 1061;">
+                    style="right: 18px; z-index: 1061;">
                 </button>
             </div>
 

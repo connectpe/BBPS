@@ -7,7 +7,7 @@
 <div class="row align-items-center mb-2">
     <div class="col-auto ms-auto">
         <button class="btn buttonColor btn-sm" id="openCreateModal" data-bs-toggle="modal" data-bs-target="#slugModal">
-            <i class="fa fa-plus"></i> Configure Default Provider
+            <i class="fa fa-plus"></i> Default Provider
         </button>
     </div>
 </div>
