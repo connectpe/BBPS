@@ -7,8 +7,9 @@
 
     {{-- TOP SUMMARY BOXES --}}
     <div class="row mb-3 g-3">
+
         <div class="col-12 col-sm-6 col-lg-3">
-            <div class="card border-0 shadow-sm text-center h-100">
+            <div class="card border-0 shadow-sm text-center h-100 bg-primary-subtle">
                 <div class="card-body">
                     <h6 class="text-muted">Current Balance</h6>
                     <h4 class="fw-bold mb-0">₹ 0.00</h4>
@@ -17,7 +18,7 @@
         </div>
 
         <div class="col-12 col-sm-6 col-lg-3">
-            <div class="card border-0 shadow-sm text-center h-100">
+            <div class="card border-0 shadow-sm text-center h-100 bg-success-subtle">
                 <div class="card-body">
                     <h6 class="text-muted">Settlement Due Today</h6>
                     <h4 class="fw-bold mb-0">₹ 0.00</h4>
@@ -26,7 +27,7 @@
         </div>
 
         <div class="col-12 col-sm-6 col-lg-3">
-            <div class="card border-0 shadow-sm text-center h-100">
+            <div class="card border-0 shadow-sm text-center h-100 bg-warning-subtle">
                 <div class="card-body">
                     <h6 class="text-muted">Previous Settlement</h6>
                     <h4 class="fw-bold mb-0">₹ 0.00</h4>
@@ -35,13 +36,14 @@
         </div>
 
         <div class="col-12 col-sm-6 col-lg-3">
-            <div class="card border-0 shadow-sm text-center h-100">
+            <div class="card border-0 shadow-sm text-center h-100 bg-info-subtle">
                 <div class="card-body">
                     <h6 class="text-muted">Upcoming Settlement</h6>
                     <h4 class="fw-bold mb-0">₹ 0.00</h4>
                 </div>
             </div>
         </div>
+
     </div>
 
     {{-- FILTER --}}

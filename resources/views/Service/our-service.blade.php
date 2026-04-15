@@ -6,7 +6,7 @@
 @section('page-button')
 <div class="row align-items-center mb-2">
     <div class="col-auto ms-auto">
-        <button type="button" class="btn buttonColor text-nowrap" data-bs-toggle="modal" data-bs-target="#serviceModal">
+        <button type="button" class="btn buttonColor text-nowrap" data-bs-toggle="modal" data-bs-target="#serviceModal" style="font-size: 12px;">
             <i class="fa fa-plus"></i> Service
         </button>
     </div>
