@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\PayinOrdersController;
 use App\Http\Controllers\Api\PayinCallbacksController;
 use App\Http\Controllers\ServiceCostController;
 use App\Http\Controllers\Api\ContactController;
+use App\Http\Controllers\Api\PayoutOrderController;
 
 
 Route::get('/user', function (Request $request) {
@@ -48,6 +49,7 @@ Route::prefix('payin')->group(function () {
 Route::group(['middleware' => ['logs', 'basicAuth']], function () {
     Route::prefix('payout')->group(function () {
         Route::post('/contacts', [ContactController::class, 'createContact']);
+        Route::post('/orders', [PayoutOrderController::class, 'createOrder']);
     });
 });
 

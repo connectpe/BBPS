@@ -6,6 +6,7 @@ namespace App\Helpers;
 class HashHelper
 {
     const CREATE_CONTACT = 'create_contact';
+    const CREATE_ORDER = 'create_order';
 
 
     public static function generate($reqType, $clientKey, $salt, $params = null)
@@ -46,6 +47,23 @@ class HashHelper
 
                 break;
 
+            case self::CREATE_ORDER:
+
+                $arr = [
+                    'contactId' => isset($params['contactId']) ? $params['contactId'] : '',
+                    'amount' => isset($params['amount']) ? $params['amount'] : '',
+                    'purpose' => isset($params['purpose']) ? $params['purpose'] : '',
+                    'mode' => isset($params['mode']) ? $params['mode'] : '',
+                    'narration' => isset($params['narration']) ? $params['narration'] : '',
+                    'remark' => isset($params['remark']) ? $params['remark'] : '',
+                    'clientRefId' => isset($params['clientRefId']) ? $params['clientRefId'] : ''
+                ];
+
+                $str = base64_encode(json_encode($arr));
+
+                $str .= "/v1/service/payout/orders";
+
+                break;
             default:
                 $str = "";
                 break;
