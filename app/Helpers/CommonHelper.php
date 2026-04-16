@@ -2,65 +2,61 @@
 
 namespace App\Helpers;
 
+use App\Models\DefaultProvider;
 use App\Models\GlobalService;
 use App\Models\IpWhitelist;
-use App\Models\OauthUser;
 use App\Models\MobikwikToken;
+use App\Models\OauthUser;
 use App\Models\UserRooting;
 use App\Models\UserService;
-use App\Models\DefaultProvider;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
-
 
 class CommonHelper
 {
-
     public static function validateClient(string $clientId, string $clientSecret): array
     {
         $credential = OauthUser::where('client_id', $clientId)->where('is_active', '1')->first();
 
         // dd($credential);
 
-        if (!$credential) {
+        if (! $credential) {
             return [
-                'status'  => false,
+                'status' => false,
                 'message' => 'Invalid client_id',
             ];
         }
 
-        if (!$credential->verifyClientSecret($clientSecret)) {
+        if (! $credential->verifyClientSecret($clientSecret)) {
             return [
-                'status'  => false,
+                'status' => false,
                 'message' => 'Invalid client_secret',
             ];
         }
 
         $serviceSlug = GlobalService::where('id', $credential->service_id)->select('id as service')->first();
 
-        if (!$serviceSlug) {
+        if (! $serviceSlug) {
             return [
-                'status'  => false,
+                'status' => false,
                 'message' => 'Service not found',
             ];
         }
 
         // $credential->service = $serviceSlug->service;
         return [
-            'status'   => true,
-            'user_id'  => $credential->user_id,
-            'service'  => $serviceSlug->service,
+            'status' => true,
+            'user_id' => $credential->user_id,
+            'service' => $serviceSlug->service,
         ];
     }
 
     public static function checkAuthUser()
     {
 
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             return response()->json([
                 'status' => false,
-                'message' => 'Unauthorized'
+                'message' => 'Unauthorized',
             ], 401);
         }
         //  else {
@@ -70,36 +66,37 @@ class CommonHelper
 
     public static function generateTransactionId()
     {
-        return 'TXN' . time() . rand(100, 999);
+        return 'TXN'.time().rand(100, 999);
     }
 
     public static function generatePaymentRefId()
     {
-        return 'PAY' . time() . rand(100, 999);
+        return 'PAY'.time().rand(100, 999);
     }
 
     public static function generateConnectPeTransactionId()
     {
-        return "CPE" . time() . rand(100, 999);
+        return 'CPE'.time().rand(100, 999);
     }
 
     public static function isTokenPresent()
     {
         try {
-            $data =  MobikwikToken::whereDate('created_at', today())->select('token')->first();
+            $data = MobikwikToken::whereDate('created_at', today())->select('token')->first();
             $token = '';
-            if (!$data) {
-                $mobikwikHelper = new MobiKwikHelper();
+            if (! $data) {
+                $mobikwikHelper = new MobiKwikHelper;
                 $token = $mobikwikHelper->generateToken();
             } else {
                 $token = $data->token;
             }
+
             return $token;
         } catch (\Exception $e) {
             Log::error('Mobikwik Token Present Exception', [
                 'error' => $e->getMessage(),
-                'file'  => $e->getFile(),
-                'line'  => $e->getLine(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
             ]);
         }
     }
@@ -109,15 +106,16 @@ class CommonHelper
         $hash = hash('sha512', $header['php-auth-pw'][0]);
         $key = $header['php-auth-user'][0];
         $OauthClient = OauthUser::select('user_id')->where(['client_key' => $key, 'client_secret' => $hash])->first();
+
         return $OauthClient->user_id;
     }
 
     public static function getUserIdAndServiceIdUsingKeyAndSecret($header)
     {
-        if (!isset($header['php-auth-user'][0]) || !isset($header['php-auth-pw'][0])) {
+        if (! isset($header['php-auth-user'][0]) || ! isset($header['php-auth-pw'][0])) {
             return [
                 'status' => false,
-                'message' => 'Authorization headers missing'
+                'message' => 'Authorization headers missing',
             ];
         }
 
@@ -127,19 +125,20 @@ class CommonHelper
         $OauthClient = OauthUser::select('user_id', 'service_id')
             ->where([
                 'client_id' => $key,
-                'client_secret' => $password
+                'client_secret' => $password,
             ])->first();
 
-        if (!$OauthClient) {
+        if (! $OauthClient) {
             return [
                 'status' => false,
-                'message' => 'Invalid clientId Or Secret Key'
+                'message' => 'Invalid clientId Or Secret Key',
             ];
         }
+
         return [
             'status' => true,
             'user_id' => $OauthClient->user_id ?? null,
-            'service_id' => $OauthClient->service_id ?? null
+            'service_id' => $OauthClient->service_id ?? null,
         ];
     }
 
@@ -147,30 +146,30 @@ class CommonHelper
     {
         $service = GlobalService::where('id', $serviceId)->first();
 
-        if (!$service) {
+        if (! $service) {
             return [
                 'status' => false,
-                'message' => 'Service not found'
+                'message' => 'Service not found',
             ];
         }
 
         if ($service->is_active != 1) {
             return [
                 'status' => false,
-                'message' => 'Global Service is currently inactive'
+                'message' => 'Global Service is currently inactive',
             ];
         }
 
         if ($service->is_activation_allowed != 1) {
             return [
                 'status' => false,
-                'message' => 'Global service activation is inactive'
+                'message' => 'Global service activation is inactive',
             ];
         }
 
         return [
             'status' => true,
-            'message' => 'Global service is active'
+            'message' => 'Global service is active',
         ];
     }
 
@@ -180,37 +179,37 @@ class CommonHelper
             ->where('service_id', $serviceId)
             ->first();
 
-        if (!$userService) {
+        if (! $userService) {
             return [
                 'status' => false,
-                'message' => 'Service not assigned to this user'
+                'message' => 'Service not assigned to this user',
             ];
         }
 
         if ($userService->status !== 'approved') {
             return [
                 'status' => false,
-                'message' => 'Service is not approved for this user'
+                'message' => 'Service is not approved for this user',
             ];
         }
 
         if ($userService->is_active != 1) {
             return [
                 'status' => false,
-                'message' => 'Service is inactive for this user'
+                'message' => 'Service is inactive for this user',
             ];
         }
 
         if ($userService->is_api_enable != 1) {
             return [
                 'status' => false,
-                'message' => 'API access is disabled for this service'
+                'message' => 'API access is disabled for this service',
             ];
         }
 
         return [
             'status' => true,
-            'message' => 'User service is active'
+            'message' => 'User service is active',
         ];
     }
 
@@ -224,7 +223,7 @@ class CommonHelper
         if ($userRooting) {
             return [
                 'status' => true,
-                'provider_slug' => $userRooting->provider_slug
+                'provider_slug' => $userRooting->provider_slug,
             ];
         }
 
@@ -235,19 +234,19 @@ class CommonHelper
         if ($defaultProvider) {
             return [
                 'status' => true,
-                'provider_slug' => $defaultProvider->provider_slug
+                'provider_slug' => $defaultProvider->provider_slug,
             ];
         }
 
         return [
             'status' => false,
-            'message' => 'No provider found for given user and service'
+            'message' => 'No provider found for given user and service',
         ];
     }
 
-    public static function getUserRouteUsingUserId($userId = '', $service_id, $area)
+    public static function getUserRouteUsingUserId($userId, $service_id, $area)
     {
-        $data['slug'] = "no_route_found";
+        $data['slug'] = 'no_route_found';
         $data['status'] = false;
 
         $userRooting = UserRooting::select('provider_slug')->where('user_id', $userId)
@@ -257,9 +256,9 @@ class CommonHelper
             $data['slug'] = $userRooting;
             $data['status'] = true;
         }
+
         return $data;
     }
-
 
     public static function checkIpWhiteList($userId, $serviceId, $ip)
     {
@@ -296,13 +295,14 @@ class CommonHelper
 
         if ($prefix) {
             if ($separator) {
-                $string = $ts . strtoupper($hash) . rand(1, 9);
+                $string = $ts.strtoupper($hash).rand(1, 9);
             } else {
-                $string = $ts . strtoupper($hash) . rand(1, 9);
+                $string = $ts.strtoupper($hash).rand(1, 9);
             }
         } else {
-            $string = $hash . $ts;
+            $string = $hash.$ts;
         }
+
         return $string;
     }
 
@@ -317,13 +317,14 @@ class CommonHelper
 
         if ($prefix) {
             if ($separator) {
-                $string = $ts . strtoupper($hash);
+                $string = $ts.strtoupper($hash);
             } else {
-                $string = $ts . strtoupper($hash);
+                $string = $ts.strtoupper($hash);
             }
         } else {
-            $string = $hash . $ts;
+            $string = $hash.$ts;
         }
+
         return $string;
     }
 
@@ -356,5 +357,15 @@ class CommonHelper
         } else {
             return ucfirst($text);
         }
+    }
+
+    public static function generateModeId()
+    {
+        do {
+            $randomNumber = random_int(100000000, 999999999);
+            $modeId = 'md_'.$randomNumber;
+        } while (\App\Models\PaymentMode::where('mode_id', $modeId)->exists());
+
+        return $modeId;
     }
 }
