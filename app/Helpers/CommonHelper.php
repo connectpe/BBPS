@@ -354,7 +354,7 @@ class CommonHelper
         } while (\App\Models\PaymentMode::where('mode_id', $modeId)->exists());
 
         return $modeId;
-
+    }
     public static function getModeId($mode, $serviceId)
     {
         $mode    = self::caseConversion($mode, 'l');
