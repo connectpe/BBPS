@@ -327,19 +327,6 @@ class CommonHelper
         return $string;
     }
 
-    public static function case($text, $type = '')
-    {
-        if ($type == 'l') {
-            return strtolower($text);
-        } elseif ($type == 'u') {
-            return strtoupper($text);
-        } elseif ($type == 'uw') {
-            return ucwords($text);
-        } else {
-            return ucfirst($text);
-        }
-    }
-
     public static function checkUserServiceActivate($userId)
     {
         return UserService::where('user_id', $userId)->where('status', 'approved')->where('is_active', '1')->exists();
@@ -356,5 +343,21 @@ class CommonHelper
         } else {
             return ucfirst($text);
         }
+    }
+
+    public static function getModeId($mode, $serviceId)
+    {
+        $mode    = self::caseConversion($mode, 'l');
+        $modeData = Product::where('mode_slug', $mode)->where('service_id', $serviceId)->where('is_active', '1')->first();
+        if (isset($modeData)) {
+            $response['status']  = true;
+            $response['message'] = 'Product available for transactions';
+            $response['data']    = $modeData;
+        } else {
+            $response['status']  = false;
+            $response['message'] = 'Product not found or inactive';
+        }
+
+        return $response;
     }
 }
