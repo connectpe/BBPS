@@ -7,12 +7,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class SchemeRule extends Model
 {
     protected $fillable = [
-        'scheme_id', 'service_id', 'start_value', 'end_value', 
+        'scheme_id', 'service_id', 'payment_mode_id', 'start_value', 'end_value', 
         'type', 'fee', 'min_fee', 'max_fee', 'is_active', 'updated_by'
     ];
 
     public function scheme(): BelongsTo
     {
         return $this->belongsTo(Scheme::class, 'scheme_id');
+    }
+
+    public function paymentMode(): BelongsTo
+    {
+        return $this->belongsTo(PaymentMode::class, 'payment_mode_id');
     }
 }
