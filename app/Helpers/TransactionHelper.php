@@ -106,118 +106,6 @@ class TransactionHelper
         }
     }
 
-    public static function getFeesAndTaxes($provider_id, $amount, $userId = null)
-    {
-        $response['amount'] = $amount;
-        $response['fee'] = 0;
-        $response['tax'] = 0;
-        $response['margin'] = '';
-        $response['total_amount'] = 0;
-        $response['scheme'] = '';
-
-        $globalConfig = UserConfig::where('user_id', $userId)->select('scheme_id')->where('is_active', '1')->first();
-        $is_custom_fee_active = empty($globalConfig) ? '0' : $globalConfig->scheme_id;
-
-        if ($userId !== null && $is_custom_fee_active === '1') {
-
-            $fee = DB::table('user_config as uc')
-                ->select('fee', 'type', 'is_active')
-                ->leftJoin('scheme_rules as sr', 'sr.scheme_id', 'uc.scheme_id')
-                ->leftJoin('providers as p', 'p.service_id', 'sr.service_id')
-                ->leftJoin('schemes', 'uc.scheme_id', 'schemes.id')
-                ->where('p.id', $provider_id)
-                ->where('sr.start_value', '<=', $amount)
-                ->where('sr.end_value', '>=', $amount)
-                ->where('sr.is_active', '1')
-                ->where('schemes.is_active', '1')
-                ->whereNotNull('uc.scheme_id')
-                ->where('uc.user_id', $userId)
-                ->first();
-
-            if (empty($fee)) {
-                $fee = DB::table('user_config as uc')
-                    ->select('sr.*')
-                    ->leftJoin('scheme_rules as sr', 'sr.scheme_id', 'uc.scheme_id')
-                    ->leftJoin('providers as p', 'p.service_id', 'sr.service_id')
-                    ->leftJoin('schemes', 'uc.scheme_id', 'schemes.id')
-                    ->where('p.id', $provider_id)
-                    ->whereNull('sr.start_value')
-                    ->whereNull('sr.end_value')
-                    ->where('sr.is_active', '1')
-                    ->where('schemes.is_active', '1')
-                    ->whereNotNull('uc.scheme_id')
-                    ->where('uc.user_id', $userId)
-                    ->first();
-            }
-
-            $response['scheme'] = 'custom';
-        }
-
-
-        //fetch info from global
-        // if (empty($fee)) {
-        //     $fee = DB::table('global_product_fees as gpf')
-        //         ->select('gpf.*', 'gp.tax_value')
-        //         ->leftJoin('global_products as gp', 'gp.product_id', 'gpf.product_id')
-        //         ->where('gpf.product_id', $product_id)
-        //         ->where('gpf.start_value', '<=', $amount)
-        //         ->where('gpf.end_value', '>=', $amount)
-        //         ->where('gpf.is_active', '1')
-        //         ->first();
-
-        //     $response['scheme'] = 'global';
-        // }
-
-        // if (empty($fee)) {
-
-        //     $fee = DB::table('global_product_fees as gpf')
-        //         ->select('gpf.*', 'gp.tax_value')
-        //         ->leftJoin('global_products as gp', 'gp.product_id', 'gpf.product_id')
-        //         ->where('gpf.product_id', $product_id)
-        //         ->whereNull('gpf.start_value')
-        //         ->whereNull('gpf.end_value')
-        //         ->where('gpf.is_active', '1')
-        //         ->first();
-
-        //     $response['scheme'] = 'global';
-        // }
-
-
-        if (!empty($fee)) {
-            if ($fee->type == 'percent') {
-                // $response['fee'] = round(((float) $amount) * $fee->fee / 100, 4, PHP_ROUND_HALF_EVEN);
-
-                $calculatedFee = round(((float) $amount) * (float) $fee->fee / 100, 4, PHP_ROUND_HALF_EVEN);
-
-                if ((float) $calculatedFee < (float) $fee->min_fee && !empty($fee->min_fee)) {
-                    $response['fee'] = (float) $fee->min_fee;
-                    $response['margin'] =  'fixed' . '@' . $response['fee'];
-                } elseif ((float) $calculatedFee > (float) $fee->max_fee && !empty($fee->max_fee)) {
-                    $response['fee'] = (float) $fee->max_fee;
-                    $response['margin'] =  'fixed' . '@' . $response['fee'];
-                } else {
-                    $response['fee'] = (float) $calculatedFee;
-                    $response['margin'] = $fee->type . '@' . $fee->fee;
-                }
-            } else if ($fee->type == 'fixed') {
-                $response['fee'] = $fee->fee;
-                $response['margin'] = $fee->type . '@' . $fee->fee;
-            }
-
-            $fee->tax_value = !empty($fee->tax_value) ? $fee->tax_value : 18;
-
-            $response['amount'] = $amount;
-            $response['tax'] = round($response['fee'] * $fee->tax_value / 100, 4, PHP_ROUND_HALF_EVEN);
-            // $response['margin'] = $fee->type . '@' . $fee->fee;
-        }
-
-
-
-        $response['total_amount'] = $response['amount'] + $response['fee'] + $response['tax'];
-
-        return $response;
-    }
-
     public static function payinFeeTaxDeduction($userId, $totalAmount, $serviceId)
     {
         $schemeId = DB::table("user_configs")
@@ -281,6 +169,174 @@ class TransactionHelper
         $data['netAmount'] = $netAmount;
 
         return $data;
+    }
+
+    public static function getFeesAndTaxes($amount, $serviceId, $userId = null)
+    {
+        $response = [
+            'amount' => (float) $amount,
+            'fee' => 0,
+            'tax' => 0,
+            'margin' => '',
+            'total_amount' => 0,
+            'scheme' => ''
+        ];
+
+        if (!$userId) {
+            return [
+                "status" => false,
+                "message" => "User ID is required"
+            ];
+        }
+
+        // Get scheme id
+        $schemeData = DB::table("user_configs")
+            ->select("scheme_id")
+            ->where("user_id", $userId)
+            ->first();
+
+        if (!$schemeData) {
+            return [
+                "status" => false,
+                "message" => "Scheme is not defined for user id: " . $userId
+            ];
+        }
+
+        // Get scheme rule
+        $scheme = DB::table("scheme_rules")
+            ->where("service_id", $serviceId)
+            ->where("scheme_id", $schemeData->scheme_id)
+            ->where("is_active", 1)
+            ->where("start_value", "<=", $amount)
+            ->where("end_value", ">=", $amount)
+            ->orderByDesc("id")
+            ->first();
+
+        if (!$scheme) {
+            return [
+                "status" => false,
+                "message" => "No scheme rule found for this amount range"
+            ];
+        }
+
+        $response['scheme'] = $scheme->scheme_id ?? '';
+
+        // Calculate fee
+        if ($scheme->type == 'Percentage') {
+
+            $calculatedFee = round(($amount * $scheme->fee) / 100, 4, PHP_ROUND_HALF_EVEN);
+
+            if (!empty($scheme->min_fee) && $calculatedFee < $scheme->min_fee) {
+                $response['fee'] = (float) $scheme->min_fee;
+                $response['margin'] = 'fixed@' . $response['fee'];
+            } elseif (!empty($scheme->max_fee) && $calculatedFee > $scheme->max_fee) {
+                $response['fee'] = (float) $scheme->max_fee;
+                $response['margin'] = 'fixed@' . $response['fee'];
+            } else {
+                $response['fee'] = (float) $calculatedFee;
+                $response['margin'] = 'percentage@' . $scheme->fee;
+            }
+        } elseif ($scheme->type == 'Fixed') {
+
+            $response['fee'] = (float) $scheme->fee;
+            $response['margin'] = 'fixed@' . $scheme->fee;
+        }
+
+        // Tax calculation (GST 18%)
+        $taxPercent = 18;
+        $response['tax'] = round(($response['fee'] * $taxPercent) / 100, 4, PHP_ROUND_HALF_EVEN);
+
+        // Total amount
+        $response['total_amount'] = round(
+            $response['amount'] + $response['fee'] + $response['tax'],
+            4,
+            PHP_ROUND_HALF_EVEN
+        );
+
+        return $response;
+    }
+
+    public static function createTransactionAndOrder($orderRefId, $userId, $serviceId, $modeId, $orderArray)
+    {
+        $response['status']  = false;
+        $response['message'] = 'Order Not created';
+        DB::beginTransaction();
+        try {
+            $totalAmount       = $orderArray['charges']['amount'] + $orderArray['charges']['fee'] + $orderArray['charges']['tax'];
+            $amountPositiveInt = self::intPositive($totalAmount);
+            if ($amountPositiveInt['status']) {
+                if (empty($orderArray['remark'])) {
+                    $businessInfo = DB::table('business_infos')->where('user_id', $userId)->first();
+                    if (! empty($businessInfo) && ! empty($businessInfo->business_name)) {
+                        $remarksData = "Fund Transfer";
+                    } else {
+                        $remarksData = "Fund Transfer";
+                    }
+                } else {
+                    $remarksData = $orderArray['remark'];
+                }
+                // Transaction Create
+                $orderData = [
+                    'contact_id'    => $orderArray['contactId'],
+                    'product_id'    => $modeId,
+                    'service_id'    => $serviceId,
+                    'client_ref_id' => $orderArray['clientRefId'],
+                    'narration'     => isset($orderArray['narration']) ? $orderArray['narration'] : "",
+                    'user_id'       => $userId,
+                    'order_ref_id'  => $orderRefId,
+                    'currency'      => 'INR',
+                    'amount'        => $orderArray['charges']['amount'],
+                    'fee'           => $orderArray['charges']['fee'],
+                    'tax'           => $orderArray['charges']['tax'],
+                    'mode'          => CommonHelper::case($orderArray['mode'], 'u'),
+                    'purpose'       => CommonHelper::case($orderArray['purpose'], 'u'),
+                    'remark'        => $remarksData,
+                    'mode'          => CommonHelper::case($orderArray['mode'], 'u'),
+                    'txt_3'         => $orderArray['charges']['margin'],
+                    'ip'            => $orderArray['agent']['ip'],
+                    'area'          => '11',
+                    'user_agent'    => $orderArray['agent']['userAgent'],
+                    'status'        => 'queued',
+                ];
+                if (isset($orderArray['udf1'])) {
+                    $orderData = array_merge($orderData, ['udf1' => $orderArray['udf1']]);
+                }
+                if (isset($orderArray['udf2'])) {
+                    $orderData = array_merge($orderData, ['udf2' => $orderArray['udf2']]);
+                }
+
+                $createTransaction = DB::table('orders')->insert($orderData);
+                if ($createTransaction) {
+                    DB::commit();
+                    $response['status']  = true;
+                    $response['message'] = 'Order created successfully.';
+                } else {
+                    $response['status']  = false;
+                    $response['message'] = 'Order not created.';
+                }
+            } else {
+                $response['status']  = false;
+                $response['message'] = 'Invalid transaction amount';
+            }
+        } catch (\Exception $e) {
+            DB::rollback();
+            // something went wrong
+            $response['status']  = false;
+            $response['message'] = 'something went wrong : ' . $e->getMessage();
+        }
+        return $response;
+    }
+
+    public static function intPositive($num)
+    {
+        if ($num < 0) {
+            $response['status']  = false;
+            $response['message'] = 'Negative integer value';
+        } else {
+            $response['status']  = true;
+            $response['message'] = 'Positive integer value';
+        }
+        return $response;
     }
 
     public static function moveOrderToProcessingByOrderId($userId, $orderRefId, $integrationId = null)

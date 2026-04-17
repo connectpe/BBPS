@@ -7,6 +7,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Helpers\HashHelper;
 use App\Helpers\CommonHelper;
+use App\Helpers\TransactionHelper;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use App\Validation\OrderValidation;
+use App\Models\User;
 
 class PayoutOrderController extends Controller
 {
@@ -29,15 +34,15 @@ class PayoutOrderController extends Controller
         $serviceId = $request["auth_data"]['service_id'];
 
         $status = CommonHelper::isGlobalServiceActive($serviceId);
-        // dd($status);
 
-        if (!$status) {
+        if (!$status['status']) {
             return response()->json([
                 'status' => false,
-                'message' => 'Downtime started now'
+                'message' => $status['message']
             ]);
         }
-        $validation = new Validations($request);
+
+        $validation = new OrderValidation($request);
         $validator = $validation->addOrder();
 
         $validator->after(function ($validator) use ($request, $userId, $hash, $signature) {
@@ -49,28 +54,14 @@ class PayoutOrderController extends Controller
                 }
             }
 
-
-
             $User = User::where('id', $userId)->where('is_active', '1')->first();
             if (empty($User)) {
                 $validator->errors()->add('userId', 'User Account disabled');
             } else {
-                $isAvailable = DB::table('user_services')
-                    ->where(['user_id' => $userId, 'service_id' => PAYOUT_SERVICE_ID])
-                    ->select('is_active', 'transaction_amount')->first();
-                if (isset($isAvailable) && $isAvailable->is_active == '1') {
-
-                    $totalAmount =  $request->amount;
-                    if ($totalAmount >= $isAvailable->transaction_amount) {
-                        $validator->errors()->add('amount', 'Insufficient funds.');
-                    }
-
-                    // if ($totalAmount < 100) {
-                    //   $validator->errors()->add('amount', 'Total amount should be at least 100.');
-                    // }
-
-                } else {
-                    $validator->errors()->add('userId', 'Your payout service is disabled.');
+                $totalAmount = $User->transaction_amount;
+                $amount = $request->amount;
+                if ($amount > $totalAmount) {
+                    $validator->errors()->add('amount', 'Insufficient funds.');
                 }
             }
 
@@ -94,53 +85,34 @@ class PayoutOrderController extends Controller
                     }
                 }
             }
+
             $Order = Order::where('client_ref_id', $request->clientRefId)->count();
             if ($Order) {
                 $validator->errors()->add('clientRefId', 'Client Ref Id all ready exists.');
             }
         });
+
         if ($validator->fails()) {
             $errors = $validator->errors()->first();
             return ApiResponseHelper::missing($errors);
         } else {
 
-            $UConfig = UserConfig::where(['user_id' => $userId, 'api_integration_id' => 'int_1654155017'])
-                ->count();
-            if ($UConfig == 1) {
-                $GlobalConfig = GlobalConfig::select('attribute_1', 'attribute_2', 'attribute_3', 'attribute_4')
-                    ->where(['slug' => 'partner_account_balance', 'attribute_4' => '1'])
-                    ->first();
-                if (isset($GlobalConfig) && !empty($GlobalConfig)) {
-                    if ($GlobalConfig->attribute_3 < $request->amount) {
-                        return ResponseHelper::failed('E40321:Something went wrong, please try after some time.');
-                    }
-                }
-            }
-
             $data = $request->all();
-            $getProductId = CommonHelper::getProductId($data['mode'], 'payout');
-            $productId = '';
-            $serviceId = '';
-            if ($getProductId) {
-                $productId = $getProductId->product_id;
-                $serviceId = $getProductId->service_id;
-            }
+            $getModeId = CommonHelper::getModeId($data['mode'], $serviceId);
 
-            $getProductConfig = TransactionHelper::getProductConfig($data['mode'], $serviceId);
-            if ($getProductConfig['status']) {
-                if ($getProductConfig['data']['min_order_value'] <= $data['amount'] && $getProductConfig['data']['max_order_value'] >= $data['amount']) {
-                    // Get Total Amount Fee and Tax Amount
-                    $orderLastWitoutProcess = DB::table('orders')->select('created_at')
-                        ->where('user_id', $userId)
-                        ->orderBy('id', 'desc')->first();
+            // $getProductConfig = TransactionHelper::getProductConfig($data['mode'], $serviceId);
+            if ($getModeId['status']) {
+                if ($getModeId['data']->min_order_value <= $data['amount'] && $getModeId['data']->max_order_value >= $data['amount']) {
+
+                    $modeId = $getModeId['data']->mode_id;
                     $orderRefId = CommonHelper::getRandomString2('REF', false);
-                    $getFeesAndTaxes = TransactionHelper::getFeesAndTaxes($productId, $data['amount'], $userId);
+                    $getFeesAndTaxes = TransactionHelper::getFeesAndTaxes($data['amount'],  $serviceId ,$userId);
                     $header = $request->header();
                     $data['agent']['ip'] = isset($header["cf-connecting-ip"][0]) ? $header["cf-connecting-ip"][0] : $request->ip();
                     $data['agent']['userAgent'] = isset($header["user-agent"][0]) ? $header["user-agent"][0] : "";
                     $data['charges'] = $getFeesAndTaxes;
 
-                    $orderCreate = TransactionHelper::createTransactionAndOrder($orderRefId, $userId, $serviceId, $productId, $data);
+                    $orderCreate = TransactionHelper::createTransactionAndOrder($orderRefId, $userId, $serviceId, $modeId, $data);
                     if ($orderCreate['status']) {
 
                         dispatch(new \App\Jobs\PayoutBalanceDebitAndStatusUpdateJob($orderRefId, $userId, 'balance_debit', '', '', '', '', ''))->onQueue('payout_debit_queue');
