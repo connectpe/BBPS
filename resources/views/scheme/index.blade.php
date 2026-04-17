@@ -57,44 +57,6 @@
                     <option value="{{ $s->id }}">{{ $s->scheme_name }}</option>
                     @endforeach
                 </select>
-
-    <div class="card shadow-sm mt-4">
-        <div class="card-header d-flex justify-content-between align-items-center bg-white">
-            <h5 class="mb-0 text-dark font-weight-bold">Scheme and User Relations</h5>
-            <button class="btn buttonColor btn-sm btn-assign-new" data-bs-toggle="modal" data-bs-target="#assignUserModal">
-                <i class="fa fa-plus"></i> Assign Scheme
-            </button>
-        </div>
-        <div class="card-body">
-            <div class="row mb-4 g-3">
-                <div class="col-md-4">
-                    <label class="form-label small fw-bold">User:</label>
-                    <select class="form-control form-select shadow-none form-select2" id="filter_user">
-                        <option value="">-- Select user --</option>
-                        @foreach ($assignedUsers as $u)
-                            <option value="{{ $u->id }}">{{ $u->name }} ({{ $u->email }})</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label small fw-bold">Scheme Name:</label>
-                    <select class="form-control form-select shadow-none form-select2" id="filter_scheme">
-                        <option value="">-- Select --</option>
-                        @foreach ($assignedSchemes as $s)
-                            <option value="{{ $s->id }}">{{ $s->scheme_name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                {{-- <div class="col-md-4 d-flex align-items-end">
-                        <button class="btn btn-primary me-2 px-4 shadow-sm" id="searchBtn">Search</button>
-                        <button class="btn btn-warning text-white px-4 shadow-sm" onclick="location.reload()">Reset</button>
-                    </div> --}}
-                <div class="col-md-4 d-flex align-items-end">
-                    <button class="btn buttonColor me-2 px-4 shadow-sm" id="searchBtn">Search</button>
-
-                    <button id="resetBtn" class="btn btn-secondary text-white px-4 shadow-sm"
-                        >Reset</button>
-                </div>
             </div>
             {{-- <div class="col-md-4 d-flex align-items-end">
                 <button class="btn btn-primary me-2 px-4 shadow-sm" id="searchBtn">Search</button>
