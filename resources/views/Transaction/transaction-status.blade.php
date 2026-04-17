@@ -9,72 +9,86 @@
 
     <div class="row g-4">
 
-        <!-- Search Form -->
-        <div class="col-12 px-0">
-            <div class="card border shadow-sm">
-                <div class="card-header position-relative">
-                    <h5 class="mb-0 t-status">Check Status</h5>
-                    <img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}" alt="logo" style="position:absolute; top:3px; right:10px; width:60px; height:auto;">
-                </div>
+    <!-- Search Form -->
+    <div class="col-12 px-0">
+        <div class="card border shadow-sm">
+            <div class="card-header position-relative">
+                <h5 class="mb-0 t-status">Check Status</h5>
 
-                <div class="card-body">
-                    <form id="transactionForm">
-                        <div class="row g-3 align-items-end">
+                <!-- Responsive Logo -->
+                <img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}"
+                    alt="logo"
+                    class="d-none d-md-block"
+                    style="position:absolute; top:3px; right:10px; width:60px; height:auto;">
+            </div>
 
-                            <div class="col-5 col-md-5">
-                                <label for="txnid" class="form-label">Payment Ref ID<span class="text-danger">*</span></label>
-                                <input type="text" id="txnid" class="form-control" placeholder="Payment Reference ID">
-                            </div>
+            <div class="card-body">
+                <form id="transactionForm">
+                    <div class="row g-3">
 
-                            <div class="col-2 col-md-2 text-center">
-                                <span class="d-block fw-bold">OR</span>
-                            </div>
+                        <!-- Payment Ref ID -->
+                        <div class="col-12 col-md-5">
+                            <label for="txnid" class="form-label">
+                                Payment Ref ID<span class="text-danger">*</span>
+                            </label>
+                            <input type="text" id="txnid" class="form-control"
+                                placeholder="Payment Reference ID">
+                        </div>
 
-                            <div class="col-5 col-md-5">
-                                <label for="mobileNumber" class="form-label">Mobile Number<span class="text-danger">*</span></label>
-                                <input type="number" id="mobileNumber" class="form-control" placeholder="Enter Mobile Number">
-                            </div>
+                        <!-- OR -->
+                        <div class="col-12 col-md-2 text-center d-flex align-items-center justify-content-center">
+                            <span class="fw-bold my-2 my-md-0">OR</span>
+                        </div>
 
-                            <div class="col-6 col-md-6">
-                                <label for="fromDate" class="form-label">From Date</label>
-                                <input type="date" id="fromDate" class="form-control">
-                            </div>
+                        <!-- Mobile Number -->
+                        <div class="col-12 col-md-5">
+                            <label for="mobileNumber" class="form-label">
+                                Mobile Number<span class="text-danger">*</span>
+                            </label>
+                            <input type="number" id="mobileNumber" class="form-control"
+                                placeholder="Enter Mobile Number">
+                        </div>
 
-                            <div class="col-6 col-md-6">
-                                <label for="toDate" class="form-label">To Date</label>
-                                <input type="date" id="toDate" class="form-control">
-                            </div>
+                        <!-- From Date -->
+                        <div class="col-12 col-md-6">
+                            <label for="fromDate" class="form-label">From Date</label>
+                            <input type="date" id="fromDate" class="form-control">
+                        </div>
 
-                            <div class="col-12 mt-3">
-                                <div class="row">
-                                    <div class="col-6">
-                                        <button type="submit" class="btn buttonColor w-100">
-                                            Check Status
-                                        </button>
-                                    </div>
+                        <!-- To Date -->
+                        <div class="col-12 col-md-6">
+                            <label for="toDate" class="form-label">To Date</label>
+                            <input type="date" id="toDate" class="form-control">
+                        </div>
 
-                                    <div class="col-6">
-                                        <button type="reset" class="btn btn-secondary w-100">
-                                            Reset
-                                        </button>
-                                    </div>
+                        <!-- Buttons -->
+                        <div class="col-12 mt-3">
+                            <div class="row g-2">
+                                <div class="col-12 col-md-6">
+                                    <button type="submit" class="btn buttonColor w-100">
+                                        Check Status
+                                    </button>
+                                </div>
+
+                                <div class="col-12 col-md-6">
+                                    <button type="reset" class="btn btn-secondary w-100">
+                                        Reset
+                                    </button>
                                 </div>
                             </div>
-
-
                         </div>
-                    </form>
-                </div>
 
+                    </div>
+                </form>
             </div>
-        </div>
-
-        <!-- Transaction Result -->
-        <div class="col-12" id="resultArea">
 
         </div>
-
     </div>
+
+    <!-- Transaction Result -->
+    <div class="col-12" id="resultArea"></div>
+
+</div>
 
 </div>
 

@@ -117,7 +117,7 @@
                         class="position-absolute" style="top: 10px; right: 50px; width: 70px; z-index: 1060;">
 
                     <button type="button" class="btn-close position-absolute bg-light" data-bs-dismiss="modal"
-                        style="top: -15px; right: -15px; z-index: 1061;">
+                        style="right: 18px; z-index: 1061;">
                     </button>
                 </div>
 
