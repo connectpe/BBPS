@@ -28,7 +28,7 @@
 
     ['name' => 'Education Fees', 'icon' => 'bi-mortarboard'],
     ['name' => 'Clubs and Associations', 'icon' => 'bi-people'],
-    ['name' => 'Donation', 'icon' => 'bi-hand-heart'],
+   ['name' => 'Donation', 'icon' => 'bi-gift'],
 
     ['name' => 'eChallan', 'icon' => 'bi-receipt'],
     ['name' => 'Prepaid Meter', 'icon' => 'bi-speedometer2'],

@@ -15,6 +15,7 @@ use App\Models\LoadMoneyRequest;
 use App\Models\Maintenance;
 use App\Models\OauthUser;
 use App\Models\PayinApiDocumentation;
+use App\Models\PaymentMode;
 use App\Models\Provider;
 use App\Models\Scheme;
 use App\Models\SchemeRule;
@@ -634,11 +635,13 @@ class AdminController extends Controller
 
     public function addSchemeAndRule(Request $request)
     {
+
         try {
             $validator = Validator::make($request->all(), [
                 'scheme_name' => 'required|string|max:255|unique:schemes,scheme_name',
                 'rules' => 'required|array|min:1',
                 'rules.*.service_id' => 'required|integer|exists:global_services,id',
+                'rules.*.mode_id' => 'required|exists:payment_modes,mode_id',
                 'rules.*.start_value' => 'required|numeric|min:0',
                 'rules.*.end_value' => 'required|numeric|gte:rules.*.start_value',
                 'rules.*.type' => 'required|in:Percentage,Fixed',
@@ -660,6 +663,9 @@ class AdminController extends Controller
                 'rules.*.service_id.required' => 'Service ID is required.',
                 'rules.*.service_id.integer' => 'Service ID must be a number.',
                 'rules.*.service_id.exists' => 'Selected service does not exist.',
+
+                'rules.*.mode_id.required' => 'Mode is required.',
+                'rules.*.mode_id.exists' => 'Selected mode does not exist.',
 
                 'rules.*.start_value.required' => 'Start value is required.',
                 'rules.*.start_value.numeric' => 'Start value must be a number.',
@@ -709,6 +715,7 @@ class AdminController extends Controller
                     SchemeRule::create([
                         'scheme_id' => $scheme->id,
                         'service_id' => $rule['service_id'],
+                        'payment_mode_id' => $rule['mode_id'],
                         'start_value' => $rule['start_value'],
                         'end_value' => $rule['end_value'],
                         'type' => $rule['type'],
@@ -777,6 +784,7 @@ class AdminController extends Controller
             'rules' => 'required|array|min:1',
             'rules.*.rule_id' => 'nullable|integer|exists:scheme_rules,id',
             'rules.*.service_id' => 'required|integer|exists:global_services,id',
+            'rules.*.mode_id' => 'required|exists:payment_modes,mode_id',
             'rules.*.start_value' => 'required|numeric|min:0',
             'rules.*.end_value' => 'required|numeric|gte:rules.*.start_value',
             'rules.*.type' => 'required|in:Percentage,Fixed',
@@ -796,6 +804,9 @@ class AdminController extends Controller
             'rules.*.service_id.required' => 'Service ID is required.',
             'rules.*.service_id.integer' => 'Service ID must be a number.',
             'rules.*.service_id.exists' => 'Selected service does not exist.',
+
+            'rules.*.mode_id.required' => 'Mode is required.',
+            'rules.*.mode_id.exists' => 'Selected mode does not exist.',
 
             'rules.*.start_value.required' => 'Start value is required.',
             'rules.*.start_value.numeric' => 'Start value must be a number.',
@@ -861,6 +872,7 @@ class AdminController extends Controller
                     $rule = SchemeRule::findOrFail($ruleData['rule_id']);
                     $rule->update([
                         'service_id' => $ruleData['service_id'],
+                        'payment_mode_id' => $ruleData['mode_id'],
                         'start_value' => (float) $ruleData['start_value'],
                         'end_value' => (float) $ruleData['end_value'],
                         'type' => $ruleData['type'],
@@ -876,6 +888,7 @@ class AdminController extends Controller
                     $newRule = SchemeRule::create([
                         'scheme_id' => $scheme->id,
                         'service_id' => $ruleData['service_id'],
+                        'payment_mode_id' => $ruleData['mode_id'],
                         'start_value' => (float) $ruleData['start_value'],
                         'end_value' => (float) $ruleData['end_value'],
                         'type' => $ruleData['type'],
@@ -2428,5 +2441,76 @@ class AdminController extends Controller
         );
 
         return back()->with('success', 'Documentation Updated Successfully');
+    }
+
+    public function getPaymentModes($serviceId)
+    {
+        $products = PaymentMode::where('service_id', $serviceId)->get();
+
+        return response()->json([
+            'products' => $products,
+        ]);
+    }
+
+    public function savePaymentModes(Request $request)
+    {
+        $request->validate([
+            'products.*.mode_name' => 'required',
+            'products.*.mode_slug' => 'required',
+        ], [
+            'products.*.mode_name.required' => 'Mode name is required.',
+            'products.*.mode_slug.required' => 'Mode slug is required.',
+        ]);
+
+        $serviceId = $request->service_id;
+
+        foreach ($request->products as $product) {
+            $existingMode = ! empty($product['id'])
+                ? PaymentMode::find($product['id'])
+                : null;
+
+            PaymentMode::updateOrCreate(
+                ['id' => $product['id'] ?? null],
+                [
+                    'mode_id' => $existingMode?->mode_id ?? CommonHelper::generateModeId(),
+                    'service_id' => $serviceId,
+                    'mode_name' => $product['mode_name'],
+                    'mode_slug' => $product['mode_slug'],
+                    'min_order_value' => $product['min_order_value'] ?? 0,
+                    'max_order_value' => $product['max_order_value'] ?? 0,
+                    'tax_value' => $product['tax_value'] ?? 0,
+                    'updated_by' => auth()->id(),
+                ]
+            );
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Payment modes saved successfully',
+        ]);
+    }
+
+    public function updatePaymentModeStatus(Request $request, $id)
+    {
+        $mode = PaymentMode::find($id);
+
+        if (! $mode) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Payment mode not found',
+            ], 404);
+        }
+
+        // Toggle status
+        $mode->is_active = $mode->is_active == '1' ? '0' : '1';
+        $mode->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => $mode->is_active == '1'
+                ? 'Payment mode activated successfully'
+                : 'Payment mode deactivated successfully',
+            'is_active' => $mode->is_active,
+        ]);
     }
 }
