@@ -762,8 +762,17 @@ class CommonController extends Controller
                         $columnSortOrder = 'DESC';
                     }
                     $allowedOrderColumns = [
-                        'id', 'connectpe_id', 'transaction_no', 'client_txn_id', 'utr_no',
-                        'mode', 'amount', 'total_amount', 'status', 'status_code', 'created_at',
+                        'id',
+                        'connectpe_id',
+                        'transaction_no',
+                        'client_txn_id',
+                        'utr_no',
+                        'mode',
+                        'amount',
+                        'total_amount',
+                        'status',
+                        'status_code',
+                        'created_at',
                     ];
                     if (! in_array($columnName, $allowedOrderColumns)) {
                         $columnName = 'id';
@@ -1176,53 +1185,53 @@ class CommonController extends Controller
         if (isset($request['where']) && $request['where'] == 1 && isset($request->searchText) && ! empty($request->searchText)) {
             $query->where(function ($q) use ($request) {
                 foreach ($request['searchData'] as $column) {
-                    $q->orWhere($column, 'LIKE', '%'.$request->searchText.'%');
+                    $q->orWhere($column, 'LIKE', '%' . $request->searchText . '%');
                 }
                 if ($request['type'] == 'enabled-services') {
                     $q->orWhereHas('user', function ($u) use ($request) {
-                        $u->where('name', 'LIKE', '%'.$request->searchText.'%');
+                        $u->where('name', 'LIKE', '%' . $request->searchText . '%');
                     })->orWhereHas('service', function ($s) use ($request) {
-                        $s->where('service_name', 'LIKE', '%'.$request->searchText.'%');
+                        $s->where('service_name', 'LIKE', '%' . $request->searchText . '%');
                     });
                 }
                 if ($request['type'] == 'default-slug') {
                     $q->orWhereHas('service', function ($s) use ($request) {
-                        $s->where('service_name', 'LIKE', '%'.$request->searchText.'%');
+                        $s->where('service_name', 'LIKE', '%' . $request->searchText . '%');
                     })->orWhereHas('provider', function ($p) use ($request) {
-                        $p->where('provider_name', 'LIKE', '%'.$request->searchText.'%');
+                        $p->where('provider_name', 'LIKE', '%' . $request->searchText . '%');
                     });
                 }
                 if ($request['type'] == 'ledger') {
                     $q->orWhereHas('user', function ($u) use ($request) {
-                        $u->where('name', 'LIKE', '%'.$request->searchText.'%');
+                        $u->where('name', 'LIKE', '%' . $request->searchText . '%');
                     })->orWhereHas('service', function ($s) use ($request) {
-                        $s->where('service_name', 'LIKE', '%'.$request->searchText.'%');
+                        $s->where('service_name', 'LIKE', '%' . $request->searchText . '%');
                     });
                 }
                 if ($request['type'] == 'support-user-list') {
                     $q->orWhereHas('user', function ($u) use ($request) {
-                        $u->where('name', 'LIKE', '%'.$request->searchText.'%')
-                            ->orWhere('email', 'LIKE', '%'.$request->searchText.'%')
-                            ->orWhere('mobile', 'LIKE', '%'.$request->searchText.'%')
+                        $u->where('name', 'LIKE', '%' . $request->searchText . '%')
+                            ->orWhere('email', 'LIKE', '%' . $request->searchText . '%')
+                            ->orWhere('mobile', 'LIKE', '%' . $request->searchText . '%')
                             ->orWhereHas('business', function ($b) use ($request) {
-                                $b->where('business_name', 'LIKE', '%'.$request->searchText.'%');
+                                $b->where('business_name', 'LIKE', '%' . $request->searchText . '%');
                             });
                     });
                 }
 
                 if ($request['type'] == 'support-assignments') {
                     $q->orWhereHas('user', function ($u) use ($request) {
-                        $u->where('name', 'LIKE', '%'.$request->searchText.'%');
+                        $u->where('name', 'LIKE', '%' . $request->searchText . '%');
                     })->orWhereHas('assigned_support', function ($s) use ($request) {
-                        $s->where('name', 'LIKE', '%'.$request->searchText.'%');
+                        $s->where('name', 'LIKE', '%' . $request->searchText . '%');
                     });
                 }
 
                 if ($request['type'] == 'serviceRequest') {
                     $q->orWhereHas('user', function ($u) use ($request) {
-                        $u->where('name', 'LIKE', '%'.$request->searchText.'%');
+                        $u->where('name', 'LIKE', '%' . $request->searchText . '%');
                     })->orWhereHas('service', function ($s) use ($request) {
-                        $s->where('service_name', 'LIKE', '%'.$request->searchText.'%');
+                        $s->where('service_name', 'LIKE', '%' . $request->searchText . '%');
                     });
                 }
             });

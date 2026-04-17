@@ -143,6 +143,12 @@ Route::group(['middleware' => ['auth']], function () {
         // API Doc Route 
         Route::get('/payin-documentation', [AdminController::class, 'payinDocs'])->name('payin_docs');
         Route::post('/save-payin-documentation', [AdminController::class, 'savePayinApiDocumentation'])->name('save_payin_documentation');
+
+        Route::post('get-modeId-based-on-serviceId/{id}', [SchemeController::class, 'getModeIdBasedOnServiceId'])->name('get_modeId_based_on_serviceId');
+        // Payment Mode Route
+        Route::get('/payment-modes/{serviceId}', [AdminController::class, 'getPaymentModes']);
+        Route::post('/payment-modes/save/{serviceId}', [AdminController::class, 'savePaymentModes']);
+        Route::post('/payment-modes/status/{id}', [AdminController::class, 'updatePaymentModeStatus']);
     });
 });
 
