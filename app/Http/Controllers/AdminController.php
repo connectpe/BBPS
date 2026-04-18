@@ -1505,6 +1505,14 @@ class AdminController extends Controller
         try {
 
             $business = BusinessInfo::where('id', $request->id)->where('user_id', $request->userId)->first();
+            $user = User::where('id', $request->userId)->where('status', '1')->first();
+
+            if (! $user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User Not Found',
+                ], 404);
+            }
 
             if (! $business) {
                 return response()->json([
@@ -1513,12 +1521,15 @@ class AdminController extends Controller
                 ], 404);
             }
 
+
             if (
                 (int) $business->is_pan_verify === 1 &&
+                (int) $business->is_business_pan_verified === 1 &&
                 (int) $business->is_gstin_verify === 1 &&
                 (int) $business->is_cin_verify === 1 &&
                 (int) $business->is_bank_details_verify === 1 &&
-                (int) $business->is_aadhaar_verified === 1
+                (int) $business->is_aadhaar_verified === 1 &&
+                (int)  $user->setup_cost_paid === 1
             ) {
 
                 $status = $business->is_kyc == '1' ? '0' : '1';
@@ -1539,7 +1550,7 @@ class AdminController extends Controller
 
                 return response()->json([
                     'status' => false,
-                    'message' => 'Your documents are not fully verified. Please complete document verification to proceed with KYC.',
+                    'message' => 'KYC not Updated : Make sure your document are verified and Setup cost is paid successfully.',
                 ]);
             }
         } catch (\Exception $e) {

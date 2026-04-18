@@ -405,8 +405,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
                 <i class="bi bi-pencil-square me-1"></i> Complete Profile
             </button>
 
-            <button type="button" class="btn buttonColor" data-bs-toggle="modal"
-                data-bs-target="#documentVerificationModal">
+            <button type="button" class="btn buttonColor" onclick="openDocumentVerificationModal()">
                 <i class="bi bi-file-earmark-check me-1"></i> Documents Verification
             </button>
 
@@ -3656,14 +3655,13 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
 @if ($role == 2 || $role == 3)
 <script>
 
-    $('#documentVerificationModal').on('show.bs.modal', function () {
+    function openDocumentVerificationModal() {
 
         $.ajax({
             url: "{{ route('document.verification.data') }}",
             type: "GET",
             success: function (data) {
                 if (!data.status) return;
-                console.log(data);
                 $('#individualPanNumber').text(data.pan_number ?? '-');
                 $('#businessPanNumber').text(data.business_pan_number ?? '-');
                 $('#gstNumber').text(data.gst_number ?? '-');
@@ -3671,7 +3669,6 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                 $('#bankNumber').text(data.account_number ?? '-');
                 $('#aadhaarNumber').text(data.aadhar_number ?? '-');
 
-                // Set Status
                 setDocStatus("individualPan", data.individual_pan_verified);
                 setDocStatus("businessPan", data.business_pan_verified);
                 setDocStatus("gst", data.is_gstin_verify);
@@ -3679,6 +3676,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                 setDocStatus("bank", data.bank_verified);
                 setDocStatus("videoKyc", data.videokyc_verified);
                 setDocStatus("aadhaar", data.is_aadhaar_verified);
+                $('#documentVerificationModal').modal('show');
             },
             error: function (xhr) {
                 console.log(xhr);
@@ -3690,8 +3688,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                 });
             }
         });
-
-    });
+    }
 
     function setDocStatus(type, verified) {
 
@@ -3701,23 +3698,15 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
         if (!el.length) return;
 
         if (verified == 1) {
-            el.removeClass('btn btn-sm btn-primary btn-danger')
-                .addClass('badge bg-success')
-                .text('Verified')
-                .off('click');
-            message.html(
-                `<div class="alert alert-success mb-0">
-                ${type.toUpperCase()} verified successfully.
-            </div>`
-            );
+            el.replaceWith(`
+        <span class="verified-badge d-inline-block">
+            <img src="{{ asset('assets/image/verified-icon.png') }}" 
+                 alt="Verified" 
+                 style="width:25px; height:25px;">
+        </span>
+    `);
         } else {
-            el.removeClass('badge bg-success')
-                .addClass('btn btn-sm btn-danger')
-                .text('Verify')
-                .off('click')
-                .on('click', function () {
-                    verifyDocument(type);
-                });
+            el.removeClass('badge bg-success').addClass('btn btn-sm btn-danger').text('Verify').off('click')
             message.html('');
         }
     }
