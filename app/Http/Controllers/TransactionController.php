@@ -319,7 +319,7 @@ class TransactionController extends Controller
         try {
             $order = Order::with(['user', 'user.business', 'provider'])
                 ->where('id', $id)
-                ->where('status', 'processed')
+                ->where('status', 'success')
                 ->firstOrFail();
 
             $pdf = Pdf::loadView('Transaction.payout-transaction-invoice', compact('order'));

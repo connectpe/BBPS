@@ -1591,7 +1591,7 @@ class AdminController extends Controller
             $data = [
                 'service_id' => $request->service_id,
                 'provider_id' => $request->provider_id,
-                'provider_slug' => 'default_' . $provider->provider_slug,
+                'provider_slug' => $provider->provider_slug,
                 'updated_by' => $updatedBy,
             ];
 
