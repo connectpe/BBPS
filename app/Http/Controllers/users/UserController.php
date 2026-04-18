@@ -147,6 +147,7 @@ class UserController extends Controller
 
                     'account_holder_name' => $requiredBasedOnKyc($businessData->is_kyc ?? '0').'string|max:255|regex:/^(?!.*([.,@-])\1{2,}).*$/|regex:/^[a-zA-Z0-9\s&.,-]+$/',
                     'account_number' => $requiredBasedOnKyc($businessData->is_kyc ?? '0').'string|max:30|unique:users_banks,account_number,'.($bankDetail->id ?? 'NULL').',id',
+                    'account_mobile_number' => $requiredBasedOnKyc($businessData->is_kyc ?? '0').'digits:10',
                     'ifsc_code' => $requiredBasedOnKyc($businessData->is_kyc ?? '0').'string|max:20',
                     'branch_name' => $requiredBasedOnKyc($businessData->is_kyc ?? '0').'string|max:255',
                     'bank_docs' => $requiredIfMissing($bankDetail->bank_docs ?? null).'file|mimes:jpg,jpeg,png|max:2048',
@@ -262,6 +263,8 @@ class UserController extends Controller
 
                     'account_number.required' => 'Account number is required.',
                     'account_number.string' => 'Account number must be a valid string.',
+                    'account_mobile_number.required' => 'Account mobile number is required.',
+                    'account_mobile_number.digits' => 'Account mobile number must be 10 digits.',
                     'account_number.max' => 'Account number must not exceed 30 characters.',
                     'account_number.unique' => 'This Account number has already been taken.',
 
@@ -527,6 +530,7 @@ class UserController extends Controller
                         'benificiary_name' => $request->account_holder_name,
                         'branch_name' => $request->branch_name,
                         'account_number' => $request->account_number,
+                        'account_mobile_number' => $request->account_mobile_number,
                         'ifsc_code' => $request->ifsc_code,
                         'bank_docs' => $bankDocsPath,
                     ]

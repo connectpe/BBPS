@@ -2085,6 +2085,11 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                             <input type="text" class="form-control" placeholder="Enter branch name" name="branch_name"
                                 value="{{ $usersBank->branch_name ?? '' }}" {{ ($isKyc ?? 0) ? 'disabled' : '' }}>
                         </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Account Mobile Number<span class="text-danger">*</span></label>
+                            <input type="text" class="form-control validated" placeholder="Enter account mobile number" name="account_mobile_number"
+                             maxlength="10" inputmode="numeric" pattern="[0-9]{10}" oninput="this.value = this.value.replace(/[^0-9]/g, '')" value="{{ $usersBank->account_mobile_number ?? '' }}" {{ ($isKyc ?? 0) ? 'disabled' : '' }}>
+                        </div>
 
                         <div class="col-md-6">
                             <label class="form-label">Bank Proof Documents<span class="text-danger">*</span>
@@ -2104,6 +2109,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                                 </span>
                                 @endif
                             </div>
+                            
                             <small class="text-muted">Upload cheque / passbook copy (Max 2MB each)</small>
                         </div>
                     </div>

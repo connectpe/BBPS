@@ -175,7 +175,7 @@ class AdminController extends Controller
             });
 
             $data['usersBank'] = Cache::remember("{$cachePrefix}usersBank", 18000, function () use ($userId) {
-                return UsersBank::select('account_number', 'ifsc_code', 'branch_name', 'bank_docs', 'benificiary_name')
+                return UsersBank::select('account_number', 'account_mobile_number', 'ifsc_code', 'branch_name', 'bank_docs', 'benificiary_name')
                     ->where('user_id', $userId)
                     ->first();
             });
