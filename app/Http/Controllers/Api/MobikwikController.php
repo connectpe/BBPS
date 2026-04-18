@@ -86,11 +86,12 @@ class MobikwikController extends Controller
         }
     }
 
-    public function getPlans(Request $request, $provider, $circle_id, $operator_id, $plan_type = null)
+    public function getPlans(Request $request, $circle_id, $operator_id, $plan_type = null)
     {
         try {
 
             $data = $this->ValidateUsers($request);
+            // dd($data);
             $userId = $data['user_id'];
             $serviceId = $data['service'];
             $ip = $request->ip();
@@ -103,16 +104,17 @@ class MobikwikController extends Controller
                 ]);
             }
 
+            $providerSlug = CommonHelper::getProviderSlug($userId, $serviceId);
+
             $opId = $operator_id;
             $cirId = $circle_id;
             $planType = $plan_type;
-            $ProviderName = $provider;
-            // dd($ProviderName);
-            switch ($ProviderName) {
-                case 'mobikwik-plans':
+
+            switch ($providerSlug['provider_slug']) {
+                case 'mobikwik':
                     try {
                         $endpoint = "/recharge/v1/rechargePlansAPI/{$opId}/{$cirId}";
-
+                        // dd($endpoint);
                         // Append planType ONLY if provided
                         if (! empty($planType)) {
                             $endpoint .= "/{$planType}";
@@ -229,7 +231,7 @@ class MobikwikController extends Controller
         }
     }
 
-    public function getBalance(Request $request, $type)
+    public function getBalance(Request $request)
     {
         $data = $this->ValidateUsers($request);
         $userId = $data['user_id'];
@@ -244,9 +246,11 @@ class MobikwikController extends Controller
             ]);
         }
 
-        switch ($type) {
+        $providerSlug = CommonHelper::getProviderSlug($userId, $serviceId);
 
-            case 'mobikwik-balance':
+        switch ($providerSlug['provider_slug']) {
+
+            case 'mobikwik':
                 try {
                     $request->validate([
                         'memberId' => 'required|string',
@@ -374,7 +378,7 @@ class MobikwikController extends Controller
     //     }
     // }
 
-    public function validateRecharge(Request $request, $type)
+    public function validateRecharge(Request $request)
     {
         $data = $this->ValidateUsers($request);
         $userId = $data['user_id'];
@@ -389,6 +393,8 @@ class MobikwikController extends Controller
             ]);
         }
 
+        $providerSlug = CommonHelper::getProviderSlug($userId, $serviceId);
+        // dd($providerSlug);
         $request->validate([
             'amount' => 'required|string',
             'connectionNumber' => 'required',
@@ -398,8 +404,8 @@ class MobikwikController extends Controller
             'adParams' => [],
         ]);
 
-        switch ($type) {
-            case 'mobiwik-recharge-validation':
+        switch ($providerSlug['provider_slug']) {
+            case 'mobikwik':
                 try {
                     $payload = [
                         'amt' => $request->amount,
@@ -409,7 +415,7 @@ class MobikwikController extends Controller
                         'planCode' => $request->planCode,
                         'adParams' => (object) [],
                     ];
-
+                    // dd($payload);
                     $mobikwikHelper = new MobiKwikHelper;
                     $token = $mobikwikHelper->isTokenPresent();
                     dd($token);

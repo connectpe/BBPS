@@ -39,8 +39,8 @@ class MobiKwikHelper
                     'Content-Type' => 'application/json',
                 ])
                 ->post($this->baseUrl . '/recharge/v1/verify/retailer', [
-                    'clientId' => $this->clientId,
-                    'clientSecret' => $this->clientSecret,
+                    'clientId' => trim($this->clientId),
+                    'clientSecret' => trim($this->clientSecret),
                 ]);
 
             // dd($this->clientId,$this->clientSecret);
@@ -55,8 +55,9 @@ class MobiKwikHelper
             }
 
             $data = $response->json();
+            dd($data);
             $token = $data['data']['token'];
-
+            dd($data);
             //  OLD TOKEN HANDLE (rotation rule)
             MobikwikToken::where('is_active', true)
                 ->update([

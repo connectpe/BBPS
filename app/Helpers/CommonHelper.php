@@ -17,16 +17,17 @@ class CommonHelper
     {
         $credential = OauthUser::where('client_id', $clientId)->where('is_active', '1')->first();
 
+        $hashSecret = hash('sha512', $clientSecret);
         // dd($credential);
 
-        if (! $credential) {
+        if (!$credential) {
             return [
                 'status' => false,
                 'message' => 'Invalid client_id',
             ];
         }
 
-        if (! $credential->verifyClientSecret($clientSecret)) {
+        if ($hashSecret !== $credential->client_secret) {
             return [
                 'status' => false,
                 'message' => 'Invalid client_secret',
@@ -66,17 +67,17 @@ class CommonHelper
 
     public static function generateTransactionId()
     {
-        return 'TXN'.time().rand(100, 999);
+        return 'TXN' . time() . rand(100, 999);
     }
 
     public static function generatePaymentRefId()
     {
-        return 'PAY'.time().rand(100, 999);
+        return 'PAY' . time() . rand(100, 999);
     }
 
     public static function generateConnectPeTransactionId()
     {
-        return 'CPE'.time().rand(100, 999);
+        return 'CPE' . time() . rand(100, 999);
     }
 
     public static function isTokenPresent()
@@ -295,12 +296,12 @@ class CommonHelper
 
         if ($prefix) {
             if ($separator) {
-                $string = $ts.strtoupper($hash).rand(1, 9);
+                $string = $ts . strtoupper($hash) . rand(1, 9);
             } else {
-                $string = $ts.strtoupper($hash).rand(1, 9);
+                $string = $ts . strtoupper($hash) . rand(1, 9);
             }
         } else {
-            $string = $hash.$ts;
+            $string = $hash . $ts;
         }
 
         return $string;
@@ -317,12 +318,12 @@ class CommonHelper
 
         if ($prefix) {
             if ($separator) {
-                $string = $ts.strtoupper($hash);
+                $string = $ts . strtoupper($hash);
             } else {
-                $string = $ts.strtoupper($hash);
+                $string = $ts . strtoupper($hash);
             }
         } else {
-            $string = $hash.$ts;
+            $string = $hash . $ts;
         }
 
         return $string;
@@ -350,7 +351,7 @@ class CommonHelper
     {
         do {
             $randomNumber = random_int(100000000, 999999999);
-            $modeId = 'md_'.$randomNumber;
+            $modeId = 'md_' . $randomNumber;
         } while (\App\Models\PaymentMode::where('mode_id', $modeId)->exists());
 
         return $modeId;
