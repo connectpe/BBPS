@@ -173,15 +173,6 @@ class TransactionHelper
 
     public static function getFeesAndTaxes($amount, $serviceId, $userId = null)
     {
-        $response = [
-            'amount' => (float) $amount,
-            'fee' => 0,
-            'tax' => 0,
-            'margin' => '',
-            'total_amount' => 0,
-            'scheme' => ''
-        ];
-
         if (!$userId) {
             return [
                 "status" => false,
@@ -189,7 +180,6 @@ class TransactionHelper
             ];
         }
 
-        // Get scheme id
         $schemeData = DB::table("user_configs")
             ->select("scheme_id")
             ->where("user_id", $userId)
@@ -202,16 +192,16 @@ class TransactionHelper
             ];
         }
 
-        // Get scheme rule
         $scheme = DB::table("scheme_rules")
             ->where("service_id", $serviceId)
             ->where("scheme_id", $schemeData->scheme_id)
-            ->where("is_active", 1)
+            ->where("is_active", '1')
             ->where("start_value", "<=", $amount)
             ->where("end_value", ">=", $amount)
             ->orderByDesc("id")
             ->first();
 
+        // dd($scheme);
         if (!$scheme) {
             return [
                 "status" => false,
@@ -219,9 +209,18 @@ class TransactionHelper
             ];
         }
 
-        $response['scheme'] = $scheme->scheme_id ?? '';
+        //success response start
+        $response = [
+            "status" => true,
+            "amount" => (float) $amount,
+            "fee" => 0,
+            "tax" => 0,
+            "margin" => '',
+            "total_amount" => 0,
+            "scheme" => $scheme->scheme_id ?? ''
+        ];
 
-        // Calculate fee
+        // Fee calculation
         if ($scheme->type == 'Percentage') {
 
             $calculatedFee = round(($amount * $scheme->fee) / 100, 4, PHP_ROUND_HALF_EVEN);
@@ -236,17 +235,15 @@ class TransactionHelper
                 $response['fee'] = (float) $calculatedFee;
                 $response['margin'] = 'percentage@' . $scheme->fee;
             }
-        } elseif ($scheme->type == 'Fixed') {
-
+        } else {
             $response['fee'] = (float) $scheme->fee;
             $response['margin'] = 'fixed@' . $scheme->fee;
         }
 
-        // Tax calculation (GST 18%)
-        $taxPercent = 18;
-        $response['tax'] = round(($response['fee'] * $taxPercent) / 100, 4, PHP_ROUND_HALF_EVEN);
+        // Tax
+        $response['tax'] = round(($response['fee'] * 18) / 100, 4, PHP_ROUND_HALF_EVEN);
 
-        // Total amount
+        // Total
         $response['total_amount'] = round(
             $response['amount'] + $response['fee'] + $response['tax'],
             4,
@@ -256,75 +253,76 @@ class TransactionHelper
         return $response;
     }
 
-    public static function createTransactionAndOrder($orderRefId, $userId, $serviceId, $modeId, $orderArray)
+    public static function createTransactionAndOrder($orderRefId, $userId, $serviceId, $modeId, $providerId, $orderArray)
     {
-        $response['status']  = false;
-        $response['message'] = 'Order Not created';
         DB::beginTransaction();
-        try {
-            $totalAmount       = $orderArray['charges']['amount'] + $orderArray['charges']['fee'] + $orderArray['charges']['tax'];
-            $amountPositiveInt = self::intPositive($totalAmount);
-            if ($amountPositiveInt['status']) {
-                if (empty($orderArray['remark'])) {
-                    $businessInfo = DB::table('business_infos')->where('user_id', $userId)->first();
-                    if (! empty($businessInfo) && ! empty($businessInfo->business_name)) {
-                        $remarksData = "Fund Transfer";
-                    } else {
-                        $remarksData = "Fund Transfer";
-                    }
-                } else {
-                    $remarksData = $orderArray['remark'];
-                }
-                // Transaction Create
-                $orderData = [
-                    'contact_id'    => $orderArray['contactId'],
-                    'product_id'    => $modeId,
-                    'service_id'    => $serviceId,
-                    'client_ref_id' => $orderArray['clientRefId'],
-                    'narration'     => isset($orderArray['narration']) ? $orderArray['narration'] : "",
-                    'user_id'       => $userId,
-                    'order_ref_id'  => $orderRefId,
-                    'currency'      => 'INR',
-                    'amount'        => $orderArray['charges']['amount'],
-                    'fee'           => $orderArray['charges']['fee'],
-                    'tax'           => $orderArray['charges']['tax'],
-                    'mode'          => CommonHelper::case($orderArray['mode'], 'u'),
-                    'purpose'       => CommonHelper::case($orderArray['purpose'], 'u'),
-                    'remark'        => $remarksData,
-                    'mode'          => CommonHelper::case($orderArray['mode'], 'u'),
-                    'txt_3'         => $orderArray['charges']['margin'],
-                    'ip'            => $orderArray['agent']['ip'],
-                    'area'          => '11',
-                    'user_agent'    => $orderArray['agent']['userAgent'],
-                    'status'        => 'queued',
-                ];
-                if (isset($orderArray['udf1'])) {
-                    $orderData = array_merge($orderData, ['udf1' => $orderArray['udf1']]);
-                }
-                if (isset($orderArray['udf2'])) {
-                    $orderData = array_merge($orderData, ['udf2' => $orderArray['udf2']]);
-                }
 
-                $createTransaction = DB::table('orders')->insert($orderData);
-                if ($createTransaction) {
-                    DB::commit();
-                    $response['status']  = true;
-                    $response['message'] = 'Order created successfully.';
-                } else {
-                    $response['status']  = false;
-                    $response['message'] = 'Order not created.';
-                }
-            } else {
-                $response['status']  = false;
-                $response['message'] = 'Invalid transaction amount';
+        try {
+            $charges = $orderArray['charges'];
+
+            $totalAmount = $charges['amount'] + $charges['fee'] + $charges['tax'];
+
+            $amountPositiveInt = self::intPositive($totalAmount);
+            if (! $amountPositiveInt['status']) {
+                return [
+                    'status'  => false,
+                    'message' => 'Invalid transaction amount'
+                ];
             }
+
+
+
+            // Remark handling
+            $remarksData = $orderArray['remark'] ?? 'Fund Transfer';
+
+            // Narration (fixed concatenation)
+            $narration = $charges['amount'] . '+' . $charges['fee'] . '+' . $charges['tax'] . '+' . ($charges['margin'] ?? 0);
+
+            $connectpeId = CommonHelper::generateConnectPeTransactionId();
+
+            $orderData = [
+                'contact_id'    => $orderArray['contactId'],
+                'connectpe_id'  => $connectpeId,
+                'mode_id'       => $modeId,
+                'service_id'    => $serviceId,
+                'provider_id'   => $providerId,
+                'client_ref_id' => $orderArray['clientRefId'],
+                'narration'     => $narration,
+                'user_id'       => $userId,
+                'order_ref_id'  => $orderRefId,
+                'currency'      => 'INR',
+                'amount'        => $charges['amount'],
+                'fee'           => $charges['fee'],
+                'tax'           => $charges['tax'],
+                'total_amount'  =>  $totalAmount,
+                'mode'          => CommonHelper::caseConversion($orderArray['mode'], 'u'),
+                'purpose'       => CommonHelper::caseConversion($orderArray['purpose'], 'u'),
+                'remark'        => $remarksData,
+                'ip'            => $orderArray['agent']['ip'] ?? null,
+                'user_agent'    => $orderArray['agent']['userAgent'] ?? null,
+                'status'        => 'queued',
+                'updated_by'    => $userId,
+                'created_at'    => now(),
+                'updated_at'    => now(),
+            ];
+
+            $orderId = DB::table('orders')->insertGetId($orderData);
+
+            DB::commit();
+
+            return [
+                'status'  => true,
+                'message' => 'Order created successfully.',
+                'order_id' => $orderId
+            ];
         } catch (\Exception $e) {
-            DB::rollback();
-            // something went wrong
-            $response['status']  = false;
-            $response['message'] = 'something went wrong : ' . $e->getMessage();
+            DB::rollBack();
+
+            return [
+                'status'  => false,
+                'message' => 'Something went wrong: ' . $e->getMessage()
+            ];
         }
-        return $response;
     }
 
     public static function intPositive($num)
