@@ -7,6 +7,7 @@ use App\Models\GlobalService;
 use App\Models\IpWhitelist;
 use App\Models\MobikwikToken;
 use App\Models\OauthUser;
+use App\Models\PaymentMode;
 use App\Models\UserRooting;
 use App\Models\UserService;
 use Illuminate\Support\Facades\Log;
@@ -216,25 +217,27 @@ class CommonHelper
 
     public static function getProviderSlug($userId, $serviceId)
     {
-        $userRooting = UserRooting::select('provider_slug')
-            ->where('user_id', $userId)
-            ->where('service_id', $serviceId)
-            ->first();
+        // $userRooting = UserRooting::select('provider_slug', 'provider_id')
+        //     ->where('user_id', $userId)
+        //     ->where('service_id', $serviceId)
+        //     ->first();
 
-        if ($userRooting) {
-            return [
-                'status' => true,
-                'provider_slug' => $userRooting->provider_slug,
-            ];
-        }
+        // if ($userRooting) {
+        //     return [
+        //         'status' => true,
+        //         'provider_id' => $userRooting->provider_id,
+        //         'provider_slug' => $userRooting->provider_slug,
+        //     ];
+        // }
 
-        $defaultProvider = DefaultProvider::select('provider_slug')
+        $defaultProvider = DefaultProvider::select('provider_id', 'provider_slug')
             ->where('service_id', $serviceId)
             ->first();
 
         if ($defaultProvider) {
             return [
                 'status' => true,
+                'provider_id' => $defaultProvider->provider_id,
                 'provider_slug' => $defaultProvider->provider_slug,
             ];
         }
@@ -359,14 +362,14 @@ class CommonHelper
     public static function getModeId($mode, $serviceId)
     {
         $mode    = self::caseConversion($mode, 'l');
-        $modeData = Product::where('mode_slug', $mode)->where('service_id', $serviceId)->where('is_active', '1')->first();
+        $modeData = PaymentMode::where('mode_slug', $mode)->where('service_id', $serviceId)->where('is_active', '1')->first();
         if (isset($modeData)) {
             $response['status']  = true;
-            $response['message'] = 'Product available for transactions';
+            $response['message'] = 'Payment mode available for transactions';
             $response['data']    = $modeData;
         } else {
             $response['status']  = false;
-            $response['message'] = 'Product not found or inactive';
+            $response['message'] = 'Payment mode not found or inactive';
         }
 
         return $response;
