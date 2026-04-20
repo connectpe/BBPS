@@ -118,6 +118,47 @@
             ]
         });
 
+        function loadProviders(serviceId, selectedProviderId = null) {
+    let providerSelect = $('#modal_provider_id');
+
+    providerSelect.prop('disabled', true).html(
+        '<option value="">Loading providers...</option>'
+    );
+
+    if (!serviceId) {
+        providerSelect.html('<option value="">-- Select Service First --</option>');
+        return;
+    }
+
+    $.ajax({
+        url: "{{ route('providers_by_service', ['serviceId' => ':id']) }}".replace(':id', serviceId),
+        type: "GET",
+        dataType: "json",
+        success: function(res) {
+            providerSelect.empty().append('<option value="">-- Choose Provider --</option>');
+
+            if (res.status && res.data.length > 0) {
+                $.each(res.data, function(key, provider) {
+                    providerSelect.append(
+                        `<option value="${provider.id}">${provider.provider_name}</option>`
+                    );
+                });
+
+                providerSelect.prop('disabled', false);
+
+                if (selectedProviderId) {
+                    providerSelect.val(selectedProviderId).trigger('change');
+                }
+            } else {
+                providerSelect.html('<option value="">No Active Providers found</option>');
+            }
+        },
+        error: function() {
+            providerSelect.html('<option value="">Error fetching providers</option>');
+        }
+    });
+}
+
         $('#modal_service_id').on('change', function() {
             let serviceId = $(this).val();
             let providerSelect = $('#modal_provider_id');
