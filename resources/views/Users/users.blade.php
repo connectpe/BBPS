@@ -259,6 +259,7 @@
             $('#filterName').val('').trigger('change');
             $('#filterEmail').val('');
             $('#filterStatus').val('').trigger('change');
+            $('#filterDateFrom').val('').removeAttr('max');
             $('#filterDateTo').val('').removeAttr('min');
             table.ajax.reload();
         });
