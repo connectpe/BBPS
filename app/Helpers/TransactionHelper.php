@@ -276,7 +276,10 @@ class TransactionHelper
             $remarksData = $orderArray['remark'] ?? 'Fund Transfer';
 
             // Narration (fixed concatenation)
-            $narration = $charges['amount'] . '+' . $charges['fee'] . '+' . $charges['tax'] . '+' . ($charges['margin'] ?? 0);
+            $narration = 'amount : ' . $charges['amount'] .
+                ' , charge : ' . $charges['fee'] .
+                ' , tax : ' . $charges['tax'] .
+                (isset($charges['margin']) ? ' , margin : ' . $charges['margin'] : '');
 
             $connectpeId = CommonHelper::generateConnectPeTransactionId();
 
@@ -307,7 +310,7 @@ class TransactionHelper
             ];
 
             $orderId = DB::table('orders')->insertGetId($orderData);
-
+        
             DB::commit();
 
             return [

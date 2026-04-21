@@ -34,14 +34,17 @@ class MobiKwikHelper
     public function generateToken()
     {
         try {
+            $payload = [
+                'clientId'     => trim($this->clientId),
+                'clientSecret' => trim($this->clientSecret),
+            ];
+
+            // dd($payload);
             $response = Http::timeout(15)
                 ->withHeaders([
                     'Content-Type' => 'application/json',
                 ])
-                ->post($this->baseUrl . '/recharge/v1/verify/retailer', [
-                    'clientId' => trim($this->clientId),
-                    'clientSecret' => trim($this->clientSecret),
-                ]);
+                ->post($this->baseUrl . '/recharge/v1/verify/retailer', $payload);
 
             // dd($this->clientId,$this->clientSecret);
 
