@@ -709,6 +709,7 @@ class UserController extends Controller
     {
         $request->validate([
             'service_id' => 'required|exists:global_services,id',
+            'provider_id'  => 'required|exists:providers,id',
             'provider_slug' => 'required|string|max:255',
         ]);
 
@@ -720,8 +721,8 @@ class UserController extends Controller
                     'service_id' => $request->service_id,
                 ],
                 [
+                    'provider_id' => $request->provider_id,
                     'provider_slug' => $request->provider_slug,
-                    'service_unique_id' => null,
                     'updated_at' => now(),
                 ]
             );
@@ -729,6 +730,7 @@ class UserController extends Controller
             \Log::info('UserRouting saved', [
                 'user_id' => $userId,
                 'service_id' => $request->service_id,
+                'provider_id' => $request->provider_id,
                 'provider_slug' => $request->provider_slug,
                 'created' => $userRouting->wasRecentlyCreated,
             ]);
