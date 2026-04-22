@@ -10,6 +10,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Helpers\ApiResponseHelper;
+use App\Models\BusinessInfo;
 
 class BasicAuth
 {
@@ -81,6 +82,13 @@ class BasicAuth
             return ApiResponseHelper::apiError("Unauthorized IP used", [
                 "ip" => $ip,
             ]);
+        }
+
+        $businessInfo = BusinessInfo::where('user_id', $client->user_id)->first();
+        $kcy = $businessInfo->is_kyc;
+
+        if (!$businessInfo || $businessInfo->is_kyc != '1') {
+            return ApiResponseHelper::apiError("Kyc not completed");
         }
 
         // Attach auth data

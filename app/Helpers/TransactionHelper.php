@@ -310,7 +310,7 @@ class TransactionHelper
             ];
 
             $orderId = DB::table('orders')->insertGetId($orderData);
-        
+
             DB::commit();
 
             return [
@@ -340,13 +340,13 @@ class TransactionHelper
         return $response;
     }
 
-    public static function moveOrderToProcessingByOrderId($userId, $orderRefId, $providerId)
+    public static function moveOrderToProcessingByOrderId($userId, $orderRefId, $connectpeId, $providerId)
     {
         $resp['status'] = false;
         $resp['message'] = 'Initiate';
         try {
             $txn = CommonHelper::getRandomString('txn', false);
-            DB::select("CALL debitPayoutBalanceOrder($userId, '" . $orderRefId . "', '" . $providerId . "', '" . $txn . "', @json)");
+            DB::select("CALL debitPayoutBalanceOrder($userId, '" . $orderRefId . "',  '" . $connectpeId . "','" . $providerId . "', '" . $txn . "', @json)");
             $results = DB::select('select @json as json');
             $response = json_decode($results[0]->json, true);
             if ($response['status'] == '1') {
