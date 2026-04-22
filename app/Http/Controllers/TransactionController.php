@@ -13,6 +13,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Helpers\CommonHelper;
 
 class TransactionController extends Controller
 {
@@ -48,8 +49,8 @@ class TransactionController extends Controller
             // Date range filter
             if ($request->from_date && $request->to_date) {
                 $query->whereBetween('created_at', [
-                    $request->from_date.' 00:00:00',
-                    $request->to_date.' 23:59:59',
+                    $request->from_date . ' 00:00:00',
+                    $request->to_date . ' 23:59:59',
                 ]);
             }
 
@@ -83,7 +84,7 @@ class TransactionController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error'.$e->getMessage(),
+                'message' => 'Error' . $e->getMessage(),
             ]);
         }
     }
@@ -106,7 +107,7 @@ class TransactionController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error'.$e->getMessage(),
+                'message' => 'Error' . $e->getMessage(),
             ]);
         }
     }
@@ -165,7 +166,7 @@ class TransactionController extends Controller
             }
 
             do {
-                $ticketId = '#'.strtoupper(rand(000000000000, 111111111111));
+                $ticketId = '#' . strtoupper(rand(000000000000, 111111111111));
             } while (Complaint::where('ticket_number', $ticketId)->exists());
 
             $userId = Auth::user()->id;
@@ -196,7 +197,7 @@ class TransactionController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : '.$e->getMessage(),
+                'message' => 'Error : ' . $e->getMessage(),
             ]);
         }
     }
@@ -216,7 +217,7 @@ class TransactionController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error'.$e->getMessage(),
+                'message' => 'Error' . $e->getMessage(),
             ]);
         }
     }
@@ -256,7 +257,7 @@ class TransactionController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error'.$e->getMessage(),
+                'message' => 'Error' . $e->getMessage(),
             ]);
         }
     }
@@ -280,13 +281,13 @@ class TransactionController extends Controller
             $fileRef = $txn->payment_ref_id ?? $txn->connectpe_id ?? $txn->request_id ?? $txn->id;
             DB::commit();
 
-            return $pdf->download('Invoice_'.$fileRef.'.pdf');
+            return $pdf->download('Invoice_' . $fileRef . '.pdf');
         } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error'.$e->getMessage(),
+                'message' => 'Error' . $e->getMessage(),
             ]);
         }
     }
@@ -312,7 +313,7 @@ class TransactionController extends Controller
 
         return view('Transaction.user-money-load-requests', compact('users'));
     }
-    
+
     public function downloadPayoutInvoice($id)
     {
         DB::beginTransaction();
@@ -329,12 +330,34 @@ class TransactionController extends Controller
             $fileName = $order->transaction_no ?? $order->connectpe_id ?? $order->id;
             DB::commit();
 
-            return $pdf->download('Payout_Receipt_'.$fileName.'.pdf');
-
+            return $pdf->download('Payout_Receipt_' . $fileName . '.pdf');
         } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json(['status' => false, 'message' => $e->getMessage()]);
         }
+    }
+
+    public static function moveOrderToProcessingByOrderId($userId, $orderRefId, $providerId)
+    {
+        $resp['status'] = false;
+        $resp['message'] = 'Initiate';
+        try {
+            $txn = CommonHelper::getRandomString('txn', false);
+            DB::select("CALL debitPayoutBalanceOrder($userId, '" . $orderRefId . "', '" . $txn . "', @json)");
+            $results = DB::select('select @json as json');
+            $response = json_decode($results[0]->json, true);
+            if ($response['status'] == '1') {
+                $resp['status'] = true;
+                $resp['message'] = 'Order processing successfully.';
+            } else {
+                $resp['status'] = false;
+                $resp['message'] = $response['message'];
+            }
+        } catch (\Exception $e) {
+            $resp['status'] = false;
+            $resp['message'] = 'Some errors : ' . $e->getMessage();
+        }
+        return $resp;
     }
 }

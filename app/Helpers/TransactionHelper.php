@@ -340,13 +340,13 @@ class TransactionHelper
         return $response;
     }
 
-    public static function moveOrderToProcessingByOrderId($userId, $orderRefId, $integrationId = null)
+    public static function moveOrderToProcessingByOrderId($userId, $orderRefId, $providerId)
     {
         $resp['status'] = false;
         $resp['message'] = 'Initiate';
         try {
             $txn = CommonHelper::getRandomString('txn', false);
-            DB::select("CALL debitPayoutBalanceOrder($userId, '" . $orderRefId . "', '" . $integrationId . "', '" . $txn . "', @json)");
+            DB::select("CALL debitPayoutBalanceOrder($userId, '" . $orderRefId . "', '" . $providerId . "', '" . $txn . "', @json)");
             $results = DB::select('select @json as json');
             $response = json_decode($results[0]->json, true);
             if ($response['status'] == '1') {

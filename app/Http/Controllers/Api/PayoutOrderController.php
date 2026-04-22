@@ -181,13 +181,7 @@ class PayoutOrderController extends Controller
         }
 
         // Dispatch Job
-        dispatch(
-            new \App\Jobs\PayoutBalanceDebitAndStatusUpdateJob(
-                $orderRefId,
-                $userId,
-                'balance_debit'
-            )
-        )->onQueue('payout_debit_queue');
+        dispatch(new \App\Jobs\PayoutBalanceDebitAndStatusUpdateJob($orderRefId, $userId, 'balance_debit', '', '', '', '', ''))->onQueue('payout_debit_queue');
 
         // Response
         return ApiResponseHelper::success(
