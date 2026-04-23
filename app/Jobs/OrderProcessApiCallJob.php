@@ -2,15 +2,21 @@
 
 namespace App\Jobs;
 
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use APp\Models\Order;
 
 class OrderProcessApiCallJob implements ShouldQueue
 {
-   use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-   /**
+    /**
      * The number of times the job may be attempted.
      *
      * @var int
@@ -25,7 +31,7 @@ class OrderProcessApiCallJob implements ShouldQueue
     public $timeout = 14400;
 
 
-  /**
+    /**
      * Indicate if the job should be marked as failed on timeout.
      *
      * @var bool
@@ -38,13 +44,14 @@ class OrderProcessApiCallJob implements ShouldQueue
      *
      * */
 
-    private $orderRefId,$userId,$types,$integrationId;
-    public function __construct()
+    private $orderRefId, $userId, $providerSlug, $providerId;
+
+    public function __construct($orderRefId, $userId, $providerSlug, $providerId)
     {
         $this->orderRefId = $orderRefId;
         $this->userId = $userId;
-        $this->types = $types;
-        $this->integrationId = $integrationId;
+        $this->providerSlug = $providerSlug;
+        $this->providerId = $providerId;
     }
 
     /**
@@ -53,36 +60,38 @@ class OrderProcessApiCallJob implements ShouldQueue
     public function handle(): void
     {
         try {
+            Log::info('Enter in OrderProcessApiCallJob');
 
             $orderCount = 0;
-            $types = $this->types;
-            $integrationId = $this->integrationId;
-            // $Order = Order::select('*')
-            //     ->join('contacts', 'contacts.contact_id', 'orders.contact_id')
-            //     ->whereIn('orders.area', ['11', '22'])
-            //     ->where('orders.cron_status', '1')
-            //     ->where('orders.is_api_call', '0')
-            //     ->where('orders.user_id', $this->userId)
-            //     ->where('orders.order_ref_id', $this->orderRefId)
-            //     ->orderBy('orders.id', 'asc')
-            //     ->first();
+            $providerSlug = $this->providerSlug;
+            $providerId = $this->providerId;
+
+            $Order = Order::select('*')
+                ->join('contacts', 'contacts.contact_id', 'orders.contact_id')
+                ->where('orders.is_cron', '1')
+                ->where('orders.is_api_call', '0')
+                ->where('orders.user_id', $this->userId)
+                ->where('orders.order_ref_id', $this->orderRefId)
+                ->orderBy('orders.id', 'asc')
+                ->first();
 
             $orderUpdate = DB::table('orders')
                 ->where('user_id', $this->userId)
-                ->where('transaction_no', $this->orderRefId)
-                ->where('cron_status', '1')
+                ->where('order_ref_id', $this->orderRefId)
+                ->where('is_cron', '1')
                 ->update(['is_api_call' => '1', 'cron_date' => date('Y-m-d H:i:s')]);
 
             if (isset($Order) && ! empty($Order) && isset($orderUpdate) && ! empty($orderUpdate)) {
 
-                switch ($types) {
+                switch ($providerSlug) {
 
-                    case 'idfcpayout':
+                    case 'razorpay':
+                        Log::info('Enter in case.');
                         $orderCount += 1;
                         $idfcPayout = app(\App\Helpers\IdfcPayoutHelper::class);
 
                         $requestTransfer = $idfcPayout->fundTransfer($Order);
-                        \Log::info('response of idfc', [$requestTransfer]);
+                        Log::info('response of idfc', [$requestTransfer]);
 
                         $orderStatus = 'pending';
 
@@ -116,14 +125,13 @@ class OrderProcessApiCallJob implements ShouldQueue
                                 $statusCode = 200;
                                 $message = $message ?: 'Transaction processed successfully.';
 
-                                DB::select("CALL OrderStatusProcessedUpdate('".$Order->order_ref_id."', $Order->user_id, 'processed', '".$message."', '".$statusCode."', '".$bank_reference."', @json)");
+                                DB::select("CALL OrderStatusProcessedUpdate('" . $Order->order_ref_id . "', $Order->user_id, 'processed', '" . $message . "', '" . $statusCode . "', '" . $bank_reference . "', @json)");
                                 $results = DB::select('select @json as json');
                                 $response = json_decode($results[0]->json, true);
 
                                 if (($response['status'] ?? '0') == '1') {
                                     TransactionHelper::sendCallback($Order->user_id, $Order->order_ref_id, 'processed');
                                 }
-
                             } elseif ($status === 'SUCCESS' && strtoupper($resourceStatus) === 'ACPT') {
 
                                 DB::table('orders')
@@ -132,8 +140,7 @@ class OrderProcessApiCallJob implements ShouldQueue
                                         'payout_id' => $transactionID,
                                         'cron_date' => now(),
                                     ]);
-
-                            } elseif($status == 'ERROR') {
+                            } elseif ($status == 'ERROR') {
                                 $refId = isset($requestTransfer['initiateAuthGenericFundTransferAPIResp']) ? $requestTransfer['initiateAuthGenericFundTransferAPIResp'] : null;
                                 DB::table('orders')
                                     ->where(['user_id' => $Order->user_id, 'order_ref_id' => $Order->order_ref_id])
@@ -174,12 +181,10 @@ class OrderProcessApiCallJob implements ShouldQueue
                         }
 
                         break;
-
                 }
             }
         } catch (\Exception  $e) {
-            // Storage::disk('local')->append($fileName, $e . date('H:i:s'));
-            \Log::info('After dispatching OrderProcessApiCallJob', ['error' => $e->getMessage()]);
+            Log::info('After dispatching OrderProcessApiCallJob', ['error' => $e->getMessage()]);
         }
     }
 }

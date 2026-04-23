@@ -40,14 +40,14 @@ class PayoutBalanceDebitAndStatusUpdateJob implements ShouldQueue
      */
     public $failOnTimeout = true;
 
-    private $orderRefId, $userId, $serviceId, $call, $getServicePkId, $errorDesc, $statusCode, $utr, $status;
+    private $orderRefId, $userId, $call, $serviceId, $getServicePkId, $errorDesc, $statusCode, $utr, $status;
 
-    public function __construct($orderRefId, $userId, $serviceId, $call, $getServicePkId = "", $errorDesc = "", $statusCode = "", $utr = "", $status = "")
+    public function __construct($orderRefId, $userId, $call, $serviceId = "", $getServicePkId = "", $errorDesc = "", $statusCode = "", $utr = "", $status = "")
     {
         $this->orderRefId = $orderRefId;
         $this->userId = $userId;
-        $this->serviceId = $serviceId;
         $this->call = $call;
+        $this->serviceId = $serviceId;
         $this->getServicePkId = $getServicePkId;
         $this->errorDesc = $errorDesc;
         $this->statusCode = $statusCode;
@@ -62,24 +62,30 @@ class PayoutBalanceDebitAndStatusUpdateJob implements ShouldQueue
     public function handle(): void
     {
         try {
-            Log::info('Inter in PayoutBalanceDebitAndStatusUpdateJob');
+            Log::info('Inter in PayoutBalanceDebitAndStatusUpdateJob', [
+                'call_type' => $this->call,
+                'user_id' => $this->userId,
+                'order_id' => $this->orderRefId,
+                'service_id' =>  $this->serviceId
+            ]);
             if ($this->call == 'balance_debit') {
-                $OrderData = Order::select('user_id', 'order_ref_id', 'contact_id')
-                    ->where(['cron_status' => '0', 'status' => 'queued', 'user_id' => $this->userId, 'order_ref_id' => $this->orderRefId])
+                $OrderData = Order::select('user_id', 'order_ref_id', 'contact_id', 'connectpe_id')
+                    ->where(['is_cron' => '0', 'status' => 'queued', 'user_id' => $this->userId, 'order_ref_id' => $this->orderRefId])
                     ->first();
 
+                Log::info('order data', ['data' => $OrderData]);
                 if (isset($OrderData) && !empty($OrderData)) {
 
                     $provider = CommonHelper::getProviderSlug($this->userId, $this->serviceId);
                     $providerSlug = $provider['provider_slug'];
                     $providerId =  $provider['provider_id'];
 
-                    $lockeOrder = TransactionHelper::moveOrderToProcessingByOrderId($OrderData->user_id, $OrderData->order_ref_id, $providerId);
+                    $lockeOrder = TransactionHelper::moveOrderToProcessingByOrderId($OrderData->user_id, $OrderData->order_ref_id, $OrderData->connectpe_id, $providerId);
 
-
+                    Log::info('lock order', ['data' => $lockeOrder]);
                     if ($lockeOrder['status'] && isset($OrderData)) {
+                        Log::info('Going to Enter in OrderProcessApiCallJob');
                         dispatch(new \App\Jobs\OrderProcessApiCallJob($OrderData->order_ref_id, $OrderData->user_id, $providerSlug, $providerId))->delay(rand(2, 7))->onQueue('payout_process_queue');
-                        Log::info('Enter in OrderProcessApiCallJob');
                     } else {
                         $errorDesc = $lockeOrder['message'];
                         $statusCode = '';
@@ -87,7 +93,7 @@ class PayoutBalanceDebitAndStatusUpdateJob implements ShouldQueue
                         $utr = '';
 
                         if ($errorDesc == 'debit_balance_failed') {
-                            dispatch(new \App\Jobs\PayoutBalanceDebitAndStatusUpdateJob($OrderData->order_ref_id, $OrderData->user_id, 'balance_debit', '', '', '', '', ''))->delay(rand(5, 10))->onQueue('payout_debit_queue');
+                            dispatch(new \App\Jobs\PayoutBalanceDebitAndStatusUpdateJob($OrderData->order_ref_id, $OrderData->user_id, 'balance_debit', $this->serviceId, '', '', '', '', ''))->delay(rand(5, 10))->onQueue('payout_debit_queue');
                         }
 
                         DB::select("CALL OrderStatusUpdate('" . $OrderData->order_ref_id . "', $OrderData->user_id,
@@ -100,9 +106,10 @@ class PayoutBalanceDebitAndStatusUpdateJob implements ShouldQueue
                     }
                 }
             } else if ($this->call == 'failed_order') {
+                Log::info('PayoutBalanceDebitAndStatusUpdateJob failed');
                 Log::info('failed_order', ['user_id' => $this->userId, 'transaction_no' => $this->orderRefId]);
-                $OrderData = Order::select('transaction_no', 'user_id')
-                    ->where(['status' => 'processing', 'user_id' => $this->userId, 'transaction_no' => $this->orderRefId])
+                $OrderData = Order::select('order_ref_id ', 'user_id')
+                    ->where(['status' => 'processing', 'user_id' => $this->userId, 'order_ref_id ' => $this->orderRefId])
                     ->first();
 
                 Log::info('failed_order:OrderData', ['data' => json_encode($OrderData), 'order_ref_id' => $this->orderRefId]);
@@ -114,17 +121,17 @@ class PayoutBalanceDebitAndStatusUpdateJob implements ShouldQueue
                     Log::info('After OrderStatusUpdate:', [$results[0]->json]);
                     Log::info('Response payoutBalanceAndStatusUpdate:', $response);
                     if ($response['status'] == '1') {
-                        // if ($OrderData->area == '00') {
-                        //     BulkPayoutDetail::payStatusUpdate($OrderData->batch_id, 'failed', $OrderData->order_ref_id, $this->errorDesc, $this->utr);
-                        //     BulkPayout::updateStatusByBatch($OrderData->batch_id, array('status' => 'processed'));
-                        // }
                         TransactionHelper::sendCallback($OrderData->user_id, $OrderData->transaction_no,  $this->status);
                     }
                 }
             }
         } catch (\Exception  $e) {
+            Log::error('Payout Job Error: ' . $e->getMessage());
+            Log::error('Error at Line: ' . $e->getLine());
+            Log::error('Trace: ' . $e->getTraceAsString());
+
             $fileName = 'public/orderDeadlock' . $this->orderRefId . '.txt';
-            Storage::disk('local')->append($fileName, $e . date('H:i:s'));
+            Storage::disk('local')->append($fileName, $e->getMessage() . " | " . date('H:i:s'));
         }
     }
 }

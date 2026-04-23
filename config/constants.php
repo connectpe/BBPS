@@ -4,6 +4,7 @@ return [
     // Service Id Constant
     'PAYOUT_SERVICE_ID' => 1,
     'PAYIN_SERVICE_ID' => 2,
+    'MOBILE_RECHARGE_ID' => 3,
 
 
 
