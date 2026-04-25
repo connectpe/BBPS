@@ -125,6 +125,7 @@ class PayoutBalanceDebitAndStatusUpdateJob implements ShouldQueue
                     }
                 }
             }
+            
         } catch (\Exception  $e) {
             Log::error('Payout Job Error: ' . $e->getMessage());
             Log::error('Error at Line: ' . $e->getLine());
