@@ -98,7 +98,9 @@
             let table = $('#usersLogTable').DataTable({
                 processing: true,
                 serverSide: true,
-                order: [[5, 'desc']],
+                order: [
+                    [5, 'desc']
+                ],
                 ajax: {
                     url: "{{ url('fetch') }}/users-log/0",
                     type: "POST",
@@ -121,11 +123,21 @@
                     },
                     {
                         data: null,
-                        render: function(row) {
+                        name: 'user.name',
+                        defaultContent: 'N/A',
+                        render: function(data, type, row) {
+                            let url = "{{ route('view_user', ['id' => 'id']) }}".replace('id', row
+                                .user_id);
+
+                            const userName = row?.user?.name ?? '----';
+                            const email = row?.user?.email ?? '----';
+
                             return `
-                        <strong>${row?.user?.name ?? '----'}</strong><br>
-                        <small>${row?.user?.email ?? ''}</small>
-                    `;
+                                <a href="${url}" class="text-primary fw-semibold text-decoration-none">
+                                    ${userName}<br/>
+                                    <small>[${email}]</small>
+                                </a>
+                            `;
                         }
                     },
                     {
