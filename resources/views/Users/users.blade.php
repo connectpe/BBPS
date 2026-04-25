@@ -199,7 +199,7 @@
                         4: 'SUSPENDED'
                     };
 
-                    let dropdown = `<select class="form-select form-select2" onchange="changeStatusDropdown(this, ${row.id})" onfocus="this.setAttribute('data-prev', this.value)">`;
+                    let dropdown = `<select class="form-select form-select2 select2Width" onchange="changeStatusDropdown(this, ${row.id})" onfocus="this.setAttribute('data-prev', this.value)">`;
 
                     for (const [value, label] of Object.entries(statusOptions)) {
                         let selected = data == value ? 'selected' : '';

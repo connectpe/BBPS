@@ -104,6 +104,7 @@ use App\Facades\FileUpload;
 
 $user = Auth::user();
 $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
+$isKyc = false;
 @endphp
 
 @if ($role == 1)
@@ -379,7 +380,7 @@ $role = $user->role_id; // $role == 1 is Admin and $role == 2 is User.
             // Default values if businessInfo is null or missing 'is_kyc' attribute
             $message = 'KYC Not Verified';
             $badge = 'danger';
-            $isKyc = false;
+
 
             // Check if $businessInfo exists and has the is_kyc attribute
             if ($businessInfo && isset($businessInfo->is_kyc)) {
@@ -2087,8 +2088,11 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Account Mobile Number<span class="text-danger">*</span></label>
-                            <input type="text" class="form-control validated" placeholder="Enter account mobile number" name="account_mobile_number"
-                             maxlength="10" inputmode="numeric" pattern="[0-9]{10}" oninput="this.value = this.value.replace(/[^0-9]/g, '')" value="{{ $usersBank->account_mobile_number ?? '' }}" {{ ($isKyc ?? 0) ? 'disabled' : '' }}>
+                            <input type="text" class="form-control validated" placeholder="Enter account mobile number"
+                                name="account_mobile_number" maxlength="10" inputmode="numeric" pattern="[0-9]{10}"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                value="{{ $usersBank->account_mobile_number ?? '' }}" {{ ($isKyc ?? 0) ? 'disabled' : ''
+                                }}>
                         </div>
 
                         <div class="col-md-6">
@@ -2109,7 +2113,7 @@ $kycColor = $businessInfo?->is_kyc == '1' ? 'text-success' : 'text-danger';
                                 </span>
                                 @endif
                             </div>
-                            
+
                             <small class="text-muted">Upload cheque / passbook copy (Max 2MB each)</small>
                         </div>
                     </div>

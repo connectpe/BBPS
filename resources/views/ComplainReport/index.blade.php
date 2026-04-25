@@ -370,7 +370,7 @@
 
                         const remarkEscaped = escapeHtml(row.remark || '');
 
-                        let dropdown = `<select class="form-select form-select-sm form-select2"
+                        let dropdown = `<select class="form-select form-select-sm form-select2 select2Width"
                             data-id="${row.id}"
                             data-status="${escapeHtml(row.status)}"
                             data-ticket="${escapeHtml(row.ticket_number)}"
