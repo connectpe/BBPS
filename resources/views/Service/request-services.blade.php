@@ -165,7 +165,7 @@
 
                         if (data === 'pending') {
                             return `
-                                <select class="status-dropdown form-control" onchange="approveRejectService(${row.id})">
+                                <select class="status-dropdown form-control select2Width" onchange="approveRejectService(${row.id})">
                                     <option value="pending" selected>Pending</option>
                                     <option value="approved">Approved</option>
                                 </select>

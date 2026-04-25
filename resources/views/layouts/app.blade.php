@@ -81,6 +81,9 @@
             background-color: #c3ccd8 !important;
         }
 
+        .select2Width {
+            width: 150px !important
+        }
 
         @media (max-width: 768px) {
             /* .sidebar {
