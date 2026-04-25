@@ -48,8 +48,13 @@ class MobiKwikHelper
 
             // dd($this->clientId,$this->clientSecret);
 
+            Log::info('Mobikwik Token API Response', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
             if (! $response->successful()) {
-                Log::error('Mobikwik Token API HTTP Error', [
+                Log::info('Mobikwik Token API HTTP Error', [
+                    'timeStamp' => now(),
                     'status' => $response->status(),
                     'response' => $response->body(),
                 ]);
@@ -58,7 +63,10 @@ class MobiKwikHelper
             }
 
             $data = $response->json();
-            dd($data);
+            dd([
+                'timestamp' => now()->toDateTimeString(),
+                'response_data' => $data
+            ]);
             $token = $data['data']['token'];
             dd($data);
             //  OLD TOKEN HANDLE (rotation rule)
