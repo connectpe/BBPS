@@ -5,6 +5,7 @@ namespace App\Helpers;
 use App\Models\UserConfig;
 use App\Models\Transaction;
 use App\Models\WebHookUrl;
+use App\Models\Order;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
@@ -68,6 +69,35 @@ class TransactionHelper
                 'status' => false,
                 'message' => 'Exception occurred'
             ];
+        }
+    }
+
+    public static function sendPayoutCallback($userId, $orderRefId, $status, $serviceId)
+    {
+        //send callback
+        $getWebhooks = WebHookUrl::where('user_id', $userId)->where('service_id', $serviceId)->first();
+        if ($getWebhooks) {
+            $order = Order::where('order_ref_id', $orderRefId)->first();
+            $url = $getWebhooks['webhook_url'];
+            $secret = $getWebhooks['secret'];
+            if (isset($getWebhooks['header_key']) && isset($getWebhooks['header_value'])) {
+                $headers = [$getWebhooks['header_key'] => $getWebhooks['header_value']];
+                if ($status == 'processed') {
+                    WebhookHelper::PayoutSuccess($order, $url, $secret, $headers);
+                } else if ($status == 'failed') {
+                    WebhookHelper::PayoutFailed($order, $url, $secret, $headers);
+                } else if ($status == 'reversed') {
+                    WebhookHelper::PayoutReverse($order, $url, $secret, $headers);
+                }
+            } else {
+                if ($status == 'processed') {
+                    WebhookHelper::PayoutSuccess($order, $url, $secret);
+                } else if ($status == 'failed') {
+                    WebhookHelper::PayoutFailed($order, $url, $secret);
+                } else if ($status == 'reversed') {
+                    WebhookHelper::PayoutReverse($order, $url, $secret);
+                }
+            }
         }
     }
 

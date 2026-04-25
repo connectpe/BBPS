@@ -109,7 +109,7 @@ class PayoutBalanceDebitAndStatusUpdateJob implements ShouldQueue
                 Log::info('PayoutBalanceDebitAndStatusUpdateJob failed');
                 Log::info('failed_order', ['user_id' => $this->userId, 'transaction_no' => $this->orderRefId]);
                 $OrderData = Order::select('order_ref_id ', 'user_id')
-                    ->where(['status' => 'processing', 'user_id' => $this->userId, 'order_ref_id ' => $this->orderRefId])
+                    ->where(['status' => 'pending', 'user_id' => $this->userId, 'order_ref_id ' => $this->orderRefId])
                     ->first();
 
                 Log::info('failed_order:OrderData', ['data' => json_encode($OrderData), 'order_ref_id' => $this->orderRefId]);
