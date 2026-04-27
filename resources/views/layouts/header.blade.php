@@ -5,9 +5,9 @@
             <i class="bi bi-list"></i>
         </button> -->
 
-        <button id="sidebarToggle" class="btn btn-outline-secondary me-3 d-md-none">
+        {{-- <button id="sidebarToggle" class="btn btn-outline-secondary me-3 d-md-none">
             <i class="bi bi-list"></i>
-        </button>
+        </button> --}}
 
 
         <!-- <h2 class="mb-4">@yield('page-title')</h1> -->
