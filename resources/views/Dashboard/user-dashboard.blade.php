@@ -80,12 +80,15 @@
                     <div class="row g-3 text-center">
                         @php
                         $services = [
-                        ['name' => 'Bill Pay', 'icon' => 'bi-receipt'],
+                         ['name' => 'Bill Pay', 'image' => 'assets/image/Logo/b-mnemonic-logo.jpg'],
                         ['name' => 'Cash Collection', 'icon' => 'bi-cash-stack'],
                         ['name' => 'Digital Wallet', 'icon' => 'bi-wallet2'],
                         ['name' => 'DTH Recharge', 'icon' => 'bi-tv'],
-                        ['name' => 'OTT', 'icon' => 'bi-play-btn'],
-                        ['name' => 'OTH Recharge', 'icon' => 'bi-phone'],
+
+                        ['name' => 'OTT', 'icon' => 'bi-play-circle'],
+                        ['name' => 'Recharge', 'icon' => 'bi-battery-charging'],
+                        ['name' => 'Scan Pay', 'icon' => 'bi-qr-code-scan'],
+                        ['name' => 'Uber', 'icon' => 'bi-car-front'],
                         ];
 
                         $colors =
@@ -98,14 +101,25 @@
                         @endphp
 
                         <div class="col-6">
-                            <div class="border rounded p-2 h-100 service-box bg-light">
+                            <div class="border rounded p-2 h-100 service-box bg-light text-center">
+
+                                <!-- ICON / IMAGE -->
+                                @if(isset($service['image']))
+                                <img src="{{ asset($service['image']) }}" alt="{{ $service['name'] }}"
+                                    style="width:28px; height:28px; object-fit:contain;">
+                                @else
                                 <i class="bi {{ $service['icon'] }} fs-4" style="color: {{ $randColor }}"></i>
-                                <a href="{{ route('utility_service') }}"
+                                @endif
+
+                                <!-- NAME -->
+                                <a href="{{ route('recharge_service') }}"
                                     class="text-decoration-none text-dark small fw-semibold mt-1 d-block text-center">
                                     {{ $service['name'] }}
                                 </a>
+
                             </div>
                         </div>
+
                         @endforeach
 
                     </div>
