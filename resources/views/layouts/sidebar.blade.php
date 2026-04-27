@@ -369,7 +369,41 @@
     <li><a href="{{ route('ladger.index') }}" class="nav-link {{ Route::currentRouteName() == 'ladger.index' ? 'active' : '' }}"><i class="bi bi-journal-text"></i><span class="menu-text">Ledger</span></a></li>
     <li><a href="{{ route('add_agreement') }}" class="nav-link {{ Route::currentRouteName() == 'add_agreement' ? 'active' : '' }}"><i class="bi bi-file-earmark-arrow-up"></i><span class="menu-text">Documents Upload</span></a></li>
     <li><a href="{{ route('maintenance_mode') }}" class="nav-link {{ Route::currentRouteName() == 'maintenance_mode' ? 'active' : '' }}"><i class="bi bi-tools"></i><span class="menu-text">Maintenance Mode</span></a></li>
+{{-- API Documentation --}}
+<li>
+    <a class="nav-link {{ $apiActive ? 'active' : '' }}"
+        data-bs-toggle="collapse" href="#apiDocsAdmin">
+        <i class="bi bi-code-slash"></i>
+        <span class="menu-text">API Documentation</span>
+        <i class="bi bi-chevron-down submenu-arrow"></i>
+    </a>
 
+    <div class="collapse submenu {{ $apiActive ? 'show' : '' }}" id="apiDocsAdmin">
+        <a href="{{ route('payin_docs') }}"
+            class="nav-link {{ Route::currentRouteName() == 'payin_docs' ? 'active' : '' }}">
+            <i class="bi bi-wallet-fill"></i>
+            <span class="menu-text">Payin</span>
+        </a>
+    </div>
+</li>
+
+{{-- Settings --}}
+<li>
+    <a class="nav-link {{ $settingsActive ? 'active' : '' }}"
+        data-bs-toggle="collapse" href="#settingsMenu">
+        <i class="bi bi-gear"></i>
+        <span class="menu-text">Settings</span>
+        <i class="bi bi-chevron-down submenu-arrow"></i>
+    </a>
+
+    <div class="collapse submenu {{ $settingsActive ? 'show' : '' }}" id="settingsMenu">
+        <a href="{{ route('users_log') }}"
+            class="nav-link {{ Route::currentRouteName() == 'users_log' ? 'active' : '' }}">
+            <i class="fa-solid fa-user-clock"></i>
+            <span class="menu-text">Users Log</span>
+        </a>
+    </div>
+</li>
 
     {{-- Logout --}}
     <li>
@@ -417,7 +451,7 @@
     @endphp
 
     {{-- Services --}}
-    <li>
+    {{-- <li>
         <a class="nav-link {{ $servicesActive ? 'active' : '' }}"
             data-bs-toggle="collapse" href="#servicesMenu">
             <i class="bi bi-gear-fill"></i>
@@ -444,37 +478,82 @@
                 <span class="menu-text">Recharge Services</span>
             </a>
         </div>
+    </li> --}}
+
+    <li>
+         <a href="{{ route('recharge_service') }}"
+                class="nav-link {{ Route::currentRouteName() == 'recharge_service' ? 'active' : '' }}">
+                <i class="bi bi-gear-fill"></i>
+                <span class="menu-text">Services</span>
+            </a>
     </li>
 
     {{-- Transaction Report --}}
-    <li>
-        <a class="nav-link {{ $transactionActive ? 'active' : '' }}"
-            data-bs-toggle="collapse" href="#transactionMenu">
-            <i class="bi bi-receipt"></i>
-            <span class="menu-text">Transaction Report</span>
-            <i class="bi bi-chevron-down submenu-arrow"></i>
+   @php
+    $transactionRoute = [
+        'transaction_status',
+        'transaction_complaint',
+        'complaint_status',
+        'reports/recharge',
+        'reports/banking',
+        'reports/utility',
+        'reports',
+    ];
+
+    $transactionActive =
+        in_array(Route::currentRouteName(), $transactionRoute) ||
+        request()->is('reports/recharge') ||
+        request()->is('reports/banking') ||
+        request()->is('reports/utility');
+@endphp
+
+<li>
+    <a class="nav-link {{ $transactionActive ? 'active' : '' }}"
+        data-bs-toggle="collapse" href="#transactionMenu">
+        <i class="bi bi-receipt"></i>
+        <span class="menu-text">Report</span>
+        <i class="bi bi-chevron-down submenu-arrow"></i>
+    </a>
+
+    <div class="collapse submenu {{ $transactionActive ? 'show' : '' }}" id="transactionMenu">
+
+        <a href="{{ url('reports/recharge') }}"
+            class="nav-link {{ request()->is('reports/recharge') ? 'active' : '' }}">
+            <i class="bi bi-phone"></i>
+            <span class="menu-text">Recharge</span>
         </a>
 
-        <div class="collapse submenu {{ $transactionActive ? 'show' : '' }}" id="transactionMenu">
-            <a href="{{ route('transaction_status') }}"
-                class="nav-link {{ Route::currentRouteName() == 'transaction_status' ? 'active' : '' }}">
-                <i class="bi bi-list-check"></i>
-                <span class="menu-text">Transaction Status</span>
-            </a>
+        <a href="{{ url('reports/banking') }}"
+            class="nav-link {{ request()->is('reports/banking') ? 'active' : '' }}">
+            <i class="bi bi-bank"></i>
+            <span class="menu-text">Banking</span>
+        </a>
 
-            <a href="{{ route('transaction_complaint') }}"
-                class="nav-link {{ Route::currentRouteName() == 'transaction_complaint' ? 'active' : '' }}">
-                <i class="bi bi-exclamation-octagon"></i>
-                <span class="menu-text">Transaction Complaint</span>
-            </a>
+        <a href="{{ url('reports/utility') }}"
+            class="nav-link {{ request()->is('reports/utility') ? 'active' : '' }}">
+            <i class="bi bi-lightning-charge"></i>
+            <span class="menu-text">Utility</span>
+        </a>
 
-            <a href="{{ route('complaint_status') }}"
-                class="nav-link {{ Route::currentRouteName() == 'complaint_status' ? 'active' : '' }}">
-                <i class="bi bi-info-circle"></i>
-                <span class="menu-text">Complaint Status</span>
-            </a>
-        </div>
-    </li>
+        <a href="{{ route('transaction_status') }}"
+            class="nav-link {{ Route::currentRouteName() == 'transaction_status' ? 'active' : '' }}">
+            <i class="bi bi-list-check"></i>
+            <span class="menu-text">Transaction Status</span>
+        </a>
+
+        <a href="{{ route('transaction_complaint') }}"
+            class="nav-link {{ Route::currentRouteName() == 'transaction_complaint' ? 'active' : '' }}">
+            <i class="bi bi-exclamation-octagon"></i>
+            <span class="menu-text">Transaction Complaint</span>
+        </a>
+
+        <a href="{{ route('complaint_status') }}"
+            class="nav-link {{ Route::currentRouteName() == 'complaint_status' ? 'active' : '' }}">
+            <i class="bi bi-info-circle"></i>
+            <span class="menu-text">Complaint Status</span>
+        </a>
+    </div>
+</li>
 
     {{-- UPI Services --}}
     <li>

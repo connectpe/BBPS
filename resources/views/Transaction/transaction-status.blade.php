@@ -5,234 +5,236 @@
 
 @section('content')
 
-<div class="container">
+<style>
+    .transaction-card {
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        border: 1px solid #ddd;
+        background: #fff;
+    }
 
-    <div class="row g-4">
+    .section-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: #111;
+        margin-bottom: 20px;
+    }
 
-    <!-- Search Form -->
-    <div class="col-12 px-0">
-        <div class="card border shadow-sm">
-            <div class="card-header position-relative">
-                <h5 class="mb-0 t-status">Check Status</h5>
+    .input-line {
+        border: none;
+        border-bottom: 1px solid #999;
+        border-radius: 0;
+        padding-left: 0;
+        box-shadow: none !important;
+    }
 
-                <!-- Responsive Logo -->
-                <img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}"
-                    alt="logo"
-                    class="d-none d-md-block"
-                    style="position:absolute; top:3px; right:10px; width:60px; height:auto;">
+    .input-line:focus {
+        border-bottom: 1px solid #4b4bb7;
+    }
+
+    .label-title {
+        font-weight: 600;
+        color: #3d3d99;
+        margin-bottom: 4px;
+    }
+
+    .or-text {
+        font-weight: 700;
+        margin: 15px 0;
+        color: #555;
+    }
+
+    .search-btn {
+        background: #4b4bb7;
+        color: white;
+        padding: 8px 28px;
+        border-radius: 4px;
+        border: none;
+    }
+
+    .search-btn:hover {
+        background: #3d3da5;
+    }
+
+    .result-box {
+        border: 1px solid #999;
+        padding: 20px;
+        min-height: 220px;
+    }
+
+    .result-row {
+        display: flex;
+        margin-bottom: 12px;
+    }
+
+    .result-label {
+        width: 180px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .logo-img {
+        position: absolute;
+        right: 20px;
+        top: 15px;
+        width: 120px;
+    }
+
+    @media(max-width:768px){
+        .logo-img{
+            width: 90px;
+            top: 10px;
+            right: 10px;
+        }
+
+        .result-label{
+            width: 140px;
+        }
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="card transaction-card p-4 position-relative">
+        
+        <img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}" class="logo-img" alt="logo">
+
+        <div class="row g-5">
+            
+            <!-- Left Side Form -->
+            <div class="col-md-5">
+                <h4 class="section-title">Check Transaction Status</h4>
+
+                <form id="transactionForm">
+                    
+                    <div class="mb-3">
+                        <label class="label-title">Payment Ref ID</label>
+                        <input type="text" id="txnid" class="form-control input-line" placeholder="Payment Reference ID">
+                    </div>
+
+                    <div class="or-text">OR</div>
+
+                    <div class="mb-3">
+                        <label class="label-title">Mobile Number</label>
+                        <input type="number" id="mobileNumber" class="form-control input-line" placeholder="Enter Mobile Number">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="label-title">From Date</label>
+                        <input type="date" id="fromDate" class="form-control input-line">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="label-title">To Date</label>
+                        <input type="date" id="toDate" class="form-control input-line">
+                    </div>
+
+                    <button type="submit" class="search-btn buttonColor">Search</button>
+                </form>
             </div>
 
-            <div class="card-body">
-                <form id="transactionForm">
-                    <div class="row g-3">
-
-                        <!-- Payment Ref ID -->
-                        <div class="col-12 col-md-5">
-                            <label for="txnid" class="form-label">
-                                Payment Ref ID<span class="text-danger">*</span>
-                            </label>
-                            <input type="text" id="txnid" class="form-control"
-                                placeholder="Payment Reference ID">
-                        </div>
-
-                        <!-- OR -->
-                        <div class="col-12 col-md-2 text-center d-flex align-items-center justify-content-center">
-                            <span class="fw-bold my-2 my-md-0">OR</span>
-                        </div>
-
-                        <!-- Mobile Number -->
-                        <div class="col-12 col-md-5">
-                            <label for="mobileNumber" class="form-label">
-                                Mobile Number<span class="text-danger">*</span>
-                            </label>
-                            <input type="number" id="mobileNumber" class="form-control"
-                                placeholder="Enter Mobile Number">
-                        </div>
-
-                        <!-- From Date -->
-                        <div class="col-12 col-md-6">
-                            <label for="fromDate" class="form-label">From Date</label>
-                            <input type="date" id="fromDate" class="form-control">
-                        </div>
-
-                        <!-- To Date -->
-                        <div class="col-12 col-md-6">
-                            <label for="toDate" class="form-label">To Date</label>
-                            <input type="date" id="toDate" class="form-control">
-                        </div>
-
-                        <!-- Buttons -->
-                        <div class="col-12 mt-3">
-                            <div class="row g-2">
-                                <div class="col-12 col-md-6">
-                                    <button type="submit" class="btn buttonColor w-100">
-                                        Check Status
-                                    </button>
-                                </div>
-
-                                <div class="col-12 col-md-6">
-                                    <button type="reset" class="btn btn-secondary w-100">
-                                        Reset
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </form>
+            <!-- Right Side Result -->
+            <div class="col-md-7">
+                <h4 class="section-title text-primary">Transaction List</h4>
+                <div id="resultArea" class="result-box">
+                    <div class="text-muted">No Record Found</div>
+                </div>
             </div>
 
         </div>
     </div>
-
-    <!-- Transaction Result -->
-    <div class="col-12" id="resultArea"></div>
-
-</div>
-
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function() {
 
-        const form = document.getElementById('transactionForm');
-        const mobileInput = document.getElementById('mobileNumber');
-        const fromDateInput = document.getElementById('fromDate');
-        const toDateInput = document.getElementById('toDate');
-        const resultArea = document.getElementById('resultArea');
+    const form = document.getElementById('transactionForm');
+    const mobileInput = document.getElementById('mobileNumber');
+    const fromDateInput = document.getElementById('fromDate');
+    const toDateInput = document.getElementById('toDate');
+    const resultArea = document.getElementById('resultArea');
 
-        // ===== Disable future dates =====
-        let today = new Date().toISOString().split('T')[0];
-        fromDateInput.setAttribute("max", today);
-        toDateInput.setAttribute("max", today);
+    let today = new Date().toISOString().split('T')[0];
+    fromDateInput.setAttribute("max", today);
+    toDateInput.setAttribute("max", today);
 
-        // ===== From date change -> set min for To date =====
-        fromDateInput.addEventListener("change", function() {
-            toDateInput.setAttribute("min", this.value);
-        });
+    fromDateInput.addEventListener("change", function() {
+        toDateInput.setAttribute("min", this.value);
+    });
 
-        // ===== Form Submit =====
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
 
-            let txnid = document.getElementById('txnid').value.trim();
-            let mobileNumber = mobileInput.value.trim();
-            let fromDate = fromDateInput.value;
-            let toDate = toDateInput.value;
+        let txnid = document.getElementById('txnid').value.trim();
+        let mobileNumber = mobileInput.value.trim();
+        let fromDate = fromDateInput.value;
+        let toDate = toDateInput.value;
 
-            if (!txnid && !mobileNumber && !fromDate && !toDate) {
-                notify("Please enter at least one field: Mobile Number, Payment Ref ID, or Date Range", "danger");
-                return;
-            }
+        if (!txnid && !mobileNumber && !fromDate && !toDate) {
+            notify("Please enter at least one field", "danger");
+            return;
+        }
 
-            if (mobileNumber && !/^[6-9][0-9]{9}$/.test(mobileNumber)) {
-                notify("Please enter valid 10 digit mobile number starting with 6, 7, 8 or 9", "danger");
-                return;
-            }
+        if (mobileNumber && !/^[6-9][0-9]{9}$/.test(mobileNumber)) {
+            notify("Please enter valid mobile number", "danger");
+            return;
+        }
 
-            if (fromDate && toDate && toDate < fromDate) {
-                notify("To Date must be greater than or equal to From Date", "danger");
-                return;
-            }
+        fetch("{{ route('transaction_status_check') }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+            },
+            body: JSON.stringify({
+                txn_id: txnid,
+                mobile: mobileNumber,
+                from_date: fromDate,
+                to_date: toDate
+            })
+        })
+        .then(response => response.json())
+        .then(response => {
 
-            fetch("{{ route('transaction_status_check') }}", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                    },
-                    body: JSON.stringify({
-                        txn_id: txnid,
-                        mobile: mobileNumber,
-                        from_date: fromDate,
-                        to_date: toDate
-                    })
-                })
-                .then(response => response.json())
-                .then(response => {
+            if (response.success && response.data.length > 0) {
 
-                    if (response.success && response.data.length > 0) {
+                let txn = response.data[0];
 
-                        let rows = "";
-                        response.data.forEach(txn => {
-                            let statusClass = "text-warning";
-                            if (txn.status?.toLowerCase() === "processed") {
-                                statusClass = "text-success";
-                            } else if (txn.status?.toLowerCase() === "failed") {
-                                statusClass = "text-danger";
-                            }
-
-                            let formattedDate = new Date(txn.created_at)
-                                .toLocaleString();
-
-                            rows += `
-                        <tr>
-                            <td>${txn.request_id ?? '-'}</td>
-                            <td>${txn.payment_ref_id ?? '-'}</td>
-                            <td>${txn.amount ?? '-'}</td>
-                            <td>${formattedDate}</td>
-                            <td>${txn.mobile_number ?? '-'}</td>
-                            <td class="${statusClass}">
-                                ${txn.status ?? '-'}
-                            </td>
-                        </tr>
-                    `;
-                        });
-
-                        resultArea.innerHTML = `
-                    <div class="card border shadow-sm mt-3">
-                        <div class="card-header">
-                            <h5 class="mb-0">Transaction Result</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>Request ID</th>
-                                            <th>Payment Ref ID</th>
-                                            <th>Amount</th>
-                                            <th>Date</th>
-                                            <th>Mobile</th>
-                                            <th>Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${rows}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                resultArea.innerHTML = `
+                    <div class="result-row">
+                        <div class="result-label">Request ID</div>
+                        <div>${txn.request_id ?? '-'}</div>
+                    </div>
+                    <div class="result-row">
+                        <div class="result-label">Payment Ref ID</div>
+                        <div>${txn.payment_ref_id ?? '-'}</div>
+                    </div>
+                    <div class="result-row">
+                        <div class="result-label">Amount</div>
+                        <div>${txn.amount ?? '-'}</div>
+                    </div>
+                    <div class="result-row">
+                        <div class="result-label">Time</div>
+                        <div>${txn.created_at ?? '-'}</div>
+                    </div>
+                    <div class="result-row">
+                        <div class="result-label">Mobile</div>
+                        <div>${txn.mobile_number ?? '-'}</div>
+                    </div>
+                    <div class="result-row">
+                        <div class="result-label">Status</div>
+                        <div>${txn.status ?? '-'}</div>
                     </div>
                 `;
-
-                    } else {
-                        resultArea.innerHTML =
-                            `<div class="alert alert-danger">No Record Found</div>`;
-                    }
-
-                })
-                .catch(error => {
-                    console.error("Error:", error);
-                    resultArea.innerHTML =
-                        `<div class="alert alert-danger">Server Error</div>`;
-                });
-
+            } else {
+                resultArea.innerHTML = `<div class="text-danger">No Record Found</div>`;
+            }
+        })
+        .catch(error => {
+            resultArea.innerHTML = `<div class="text-danger">Server Error</div>`;
         });
-
-        // ===== Reset Button Behaviour =====
-        form.addEventListener("reset", function() {
-            resultArea.innerHTML = "";
-            toDateInput.removeAttribute("min");
-        });
-
     });
+
+});
 </script>
-
-
-
-
-
-
 
 @endsection
