@@ -106,18 +106,18 @@
         // On window resize
         window.addEventListener('resize', updateSidebarState);
 
-        $('.form-select2').select2({
-            width: '100%'
-        });
+        // $('.form-select2').select2({
+        //     width: '100%'
+        // });
 
-        $(document).on('shown.bs.modal', '.modal', function() {
-            $(this).find('.form-select2').select2({
-                dropdownParent: $(this),
-                width: '100%',
-                placeholder: '-- Search --',
-                allowClear: true
-            });
-        });
+        // $(document).on('shown.bs.modal', '.modal', function() {
+        //     $(this).find('.form-select2').select2({
+        //         dropdownParent: $(this),
+        //         width: '100%',
+        //         placeholder: '-- Search --',
+        //         allowClear: true
+        //     });
+        // });
 
     });
 

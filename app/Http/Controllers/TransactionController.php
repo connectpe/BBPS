@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\CommonHelper;
 use App\Models\Complaint;
 use App\Models\ComplaintsCategory;
 use App\Models\Order;
@@ -13,7 +14,6 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use App\Helpers\CommonHelper;
 
 class TransactionController extends Controller
 {
@@ -49,8 +49,8 @@ class TransactionController extends Controller
             // Date range filter
             if ($request->from_date && $request->to_date) {
                 $query->whereBetween('created_at', [
-                    $request->from_date . ' 00:00:00',
-                    $request->to_date . ' 23:59:59',
+                    $request->from_date.' 00:00:00',
+                    $request->to_date.' 23:59:59',
                 ]);
             }
 
@@ -84,7 +84,7 @@ class TransactionController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error' . $e->getMessage(),
+                'message' => 'Error'.$e->getMessage(),
             ]);
         }
     }
@@ -107,7 +107,7 @@ class TransactionController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error' . $e->getMessage(),
+                'message' => 'Error'.$e->getMessage(),
             ]);
         }
     }
@@ -166,7 +166,7 @@ class TransactionController extends Controller
             }
 
             do {
-                $ticketId = '#' . strtoupper(rand(000000000000, 111111111111));
+                $ticketId = '#'.strtoupper(rand(000000000000, 111111111111));
             } while (Complaint::where('ticket_number', $ticketId)->exists());
 
             $userId = Auth::user()->id;
@@ -197,27 +197,22 @@ class TransactionController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error : ' . $e->getMessage(),
+                'message' => 'Error : '.$e->getMessage(),
             ]);
         }
     }
 
     public function complaintStatus()
     {
-
-        DB::beginTransaction();
         try {
-
-            $categories = ['transaction', 'refund', 'service', 'other'];
-            DB::commit();
+            $categories = ComplaintsCategory::select('id', 'category_name')->get();
 
             return view('Transaction.complaint-status', compact('categories'));
-        } catch (\Exception $e) {
-            DB::rollBack();
 
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error' . $e->getMessage(),
+                'message' => 'Error: '.$e->getMessage(),
             ]);
         }
     }
@@ -226,39 +221,44 @@ class TransactionController extends Controller
     {
         $request->validate([
             'ticket_number' => 'required|string',
+            'complaint_category' => 'nullable|string',
         ]);
 
-        DB::beginTransaction();
         try {
 
-            $complaint = Complaint::where('ticket_number', $request->ticket_number)
-                ->where('user_id', auth()->id()) // user sirf apni complaint check kare
+            $complaint = Complaint::with(['service', 'category'])
+                ->where('ticket_number', $request->ticket_number)
+                ->where('user_id', auth()->id())
+                ->when($request->complaint_category, function ($query) use ($request) {
+                    $query->where('complaints_category', $request->complaint_category);
+                })
                 ->first();
 
             if (! $complaint) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Complaint not found for given Ticket Number.',
+                    'message' => 'Complaint not found for given details.',
                 ], 404);
             }
-            DB::commit();
 
             return response()->json([
                 'status' => true,
                 'data' => [
                     'ticket_number' => $complaint->ticket_number,
-                    'service_name' => $complaint->service?->service_name,
-                    'resolved_at' => $complaint->resolved_at ? $complaint->resolved_at->format('M-d-Y h:i:s a') : '-',
-                    'complaint_status' => $complaint->status,
+                    'service_name' => $complaint->service?->service_name ?? '-',
+                    'complaint_category' => $complaint->category?->category_name ?? '-',
+                    'resolved_at' => $complaint->resolved_at
+                        ? $complaint->resolved_at->format('M-d-Y h:i:s a')
+                        : '-',
+                    'complaint_status' => $complaint->status ?? '-',
                 ],
             ]);
-        } catch (\Exception $e) {
-            DB::rollBack();
 
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error' . $e->getMessage(),
-            ]);
+                'message' => 'Error: '.$e->getMessage(),
+            ], 500);
         }
     }
 
@@ -281,13 +281,13 @@ class TransactionController extends Controller
             $fileRef = $txn->payment_ref_id ?? $txn->connectpe_id ?? $txn->request_id ?? $txn->id;
             DB::commit();
 
-            return $pdf->download('Invoice_' . $fileRef . '.pdf');
+            return $pdf->download('Invoice_'.$fileRef.'.pdf');
         } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json([
                 'status' => false,
-                'message' => 'Error' . $e->getMessage(),
+                'message' => 'Error'.$e->getMessage(),
             ]);
         }
     }
@@ -330,7 +330,7 @@ class TransactionController extends Controller
             $fileName = $order->transaction_no ?? $order->connectpe_id ?? $order->id;
             DB::commit();
 
-            return $pdf->download('Payout_Receipt_' . $fileName . '.pdf');
+            return $pdf->download('Payout_Receipt_'.$fileName.'.pdf');
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -344,7 +344,7 @@ class TransactionController extends Controller
         $resp['message'] = 'Initiate';
         try {
             $txn = CommonHelper::getRandomString('txn', false);
-            DB::select("CALL debitPayoutBalanceOrder($userId, '" . $orderRefId . "', '" . $txn . "', @json)");
+            DB::select("CALL debitPayoutBalanceOrder($userId, '".$orderRefId."', '".$txn."', @json)");
             $results = DB::select('select @json as json');
             $response = json_decode($results[0]->json, true);
             if ($response['status'] == '1') {
@@ -356,8 +356,9 @@ class TransactionController extends Controller
             }
         } catch (\Exception $e) {
             $resp['status'] = false;
-            $resp['message'] = 'Some errors : ' . $e->getMessage();
+            $resp['message'] = 'Some errors : '.$e->getMessage();
         }
+
         return $resp;
     }
 }
