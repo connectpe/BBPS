@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Recharge Services')
-@section('page-title', 'Recharge Services')
+@section('title', 'Services')
+@section('page-title', 'Services')
 @section('content')
 <style>
     .card-height {
@@ -272,109 +272,257 @@
             width: 100%;
         }
     }
+
+    .service-col {
+        width: 10%;
+        flex: 0 0 10%;
+    }
+
+    @media (max-width: 992px) {
+        .service-col {
+            width: 20%;
+            flex: 0 0 20%;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .service-col {
+            width: 25%;
+            flex: 0 0 25%;
+        }
+    }
+
+    .bc-logo {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 60px;
+        height: auto;
+    }
+
+    @media (max-width: 768px) {
+        .bc-logo {
+            width: 45px;
+            top: 5px;
+            right: 5px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .bc-logo {
+            position: static;
+            display: block;
+            margin: 0 auto 10px;
+            width: 50px;
+        }
+    }
 </style>
 
 
 
 <div class="row g-4 mb-3">
-    <div class="col-12">
-        <div class="banner position-relative overflow-hidden rounded" style="height: 250px;">
-            <img src="{{ asset('assets/image/recharge.jpg') }}" alt="Banking Services Banner"
-                class="w-100 h-100 object-fit-cover">
-            <div class="position-absolute top-50 start-50 translate-middle text-center text-white">
-                <h2 class="fw-bold">Fast & Easy Recharge Services</h2>
-                <p class="mb-0">Recharge your mobile, DTH, and pay bills instantly</p>
-            </div>
-        </div>
-    </div>
 
     @php
-   $services = [
-
-    ['name' => 'Mobile Postpaid', 'icon' => 'bi-phone'],
-    ['name' => 'Mobile Prepaid', 'icon' => 'bi-phone'],
-    ['name' => 'Landline Postpaid', 'icon' => 'bi-telephone'],
+    $services = [
+    ['name' => 'Agent Collection', 'icon' => 'bi-people'],
     ['name' => 'Broadband Postpaid', 'icon' => 'bi-wifi'],
     ['name' => 'Cable TV', 'icon' => 'bi-tv'],
+    ['name' => 'Clubs and Associations', 'icon' => 'bi-people'],
+    ['name' => 'Credit Card', 'icon' => 'bi-credit-card'],
+    ['name' => 'Donation', 'icon' => 'bi-gift'],
     ['name' => 'DTH', 'icon' => 'bi-display'],
-
+    ['name' => 'Education Fees', 'icon' => 'bi-mortarboard'],
+    ['name' => 'Electricity', 'icon' => 'bi-lightning-charge'],
     ['name' => 'Fastag', 'icon' => 'bi-signpost'],
-    ['name' => 'Fleet Card Recharge', 'icon' => 'bi-truck'],
+    ['name' => 'Gas', 'icon' => 'bi-fire'],
+    ['name' => 'eChallan', 'icon' => 'bi-receipt'],
     ['name' => 'EV Recharge', 'icon' => 'bi-ev-station'],
+    ['name' => 'Fleet Card Recharge', 'icon' => 'bi-truck'],
+    ['name' => 'Housing Society', 'icon' => 'bi-building'],
+    ['name' => 'Insurance', 'icon' => 'bi-shield-check'],
+    ['name' => 'Landline Postpaid', 'icon' => 'bi-telephone'],
+    ['name' => 'Loan Repayment', 'icon' => 'bi-cash-stack'],
+    ['name' => 'LPG Gas', 'icon' => 'bi-fire'],
+    ['name' => 'Mobile Postpaid', 'icon' => 'bi-phone'],
+    ['name' => 'Mobile Prepaid', 'icon' => 'bi-phone'],
+    ['name' => 'Municipal Services', 'icon' => 'bi-gear'],
+    ['name' => 'Municipal Taxes', 'icon' => 'bi-currency-dollar'],
+    ['name' => 'National Pension System', 'icon' => 'bi-graph-up'],
     ['name' => 'NCMC Recharge', 'icon' => 'bi-wallet2'],
-
+    ['name' => 'Prepaid Meter', 'icon' => 'bi-speedometer2'],
+    ['name' => 'Recurring Deposit', 'icon' => 'bi-calendar2-check'],
+    ['name' => 'Rental', 'icon' => 'bi-building-check'],
     ['name' => 'Subscription', 'icon' => 'bi-journal-text'],
-];
+    ['name' => 'Water', 'icon' => 'bi-droplet'],
+    ];
+
+
     $colors = [
     '#f94144','#f3722c','#f8961e','#f9c74f',
     '#90be6d','#43aa8b','#577590','#277da1',
     '#9d4edd','#ff6d00','#1982c4','#6a4c93'
-     ];
-@endphp
+    ];
+    @endphp
 
     <div class="col-md-12">
-        <div class="card shadow-sm h-100 position-relative">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
 
-            <img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}" alt="logo" style="position:absolute; top:10px; right:10px; width:70px; height:auto;">
+                <div class="position-relative">
 
-            <div class="card-body mt-lg-1 mt-5">
-                <div class="row g-3">
-                    @foreach ($services as $service)
-                    @php $randColor = $colors[array_rand($colors)]; @endphp
-                    <div class="col-6 col-sm-4 col-md-3 col-lg-3 text-center mb-3">
-                        <a href="javascript:void(0)"
-                            class="text-decoration-none text-dark d-flex flex-column align-items-center service-btn"
-                            data-service="{{ $service['name'] }}">
-                            <div class="rounded-circle d-flex justify-content-center align-items-center border border-light"
-                                style="width:60px; height:60px; font-size:1.5rem; background-color: #e1e8ef; color: {{ $randColor }};">
-                                <i class="bi {{ $service['icon'] }}"></i>
+                    <!-- TOP RIGHT LOGO -->
+                    <img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}" alt="logo" class="bc-logo">
+
+                    <div class="row align-items-center">
+
+                        <!-- LEFT: Title -->
+                        <div class="col-md-2 text-center text-md-start mb-2">
+                            <small class="mb-0" style="color:#333;">
+                                Select Bharat-Connect Service
+                            </small>
+                        </div>
+
+                        <!-- CENTER: Services -->
+                        <div class="col-md-9">
+                            <div class="d-flex flex-wrap justify-content-center">
+
+                                @foreach ($services as $service)
+                                @php $randColor = $colors[array_rand($colors)]; @endphp
+
+                                <div class="service-col text-center mb-2">
+
+                                    <a href="javascript:void(0)"
+                                        class="text-decoration-none text-dark d-flex flex-column align-items-center service-btn"
+                                        data-service="{{ $service['name'] }}">
+
+                                        <div class="rounded-circle d-flex justify-content-center align-items-center"
+                                            style="width:40px; height:40px; font-size:1.1rem; background:#e1e8ef; color: {{ $randColor }};">
+
+                                            <i class="bi {{ $service['icon'] }}"></i>
+                                        </div>
+
+                                        <span style="font-size:10px;" class="mt-1 text-center">
+                                            {{ $service['name'] }}
+                                        </span>
+
+                                    </a>
+                                </div>
+
+                                @endforeach
+
                             </div>
-                            <span class="small fw-semibold text-center mt-2">{{ $service['name'] }}</span>
-                        </a>
+                        </div>
+
                     </div>
-                    @endforeach
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="row">
+        <div class="col-md-6">
+
+            @php
+            $categories = ['Adani Electricity', 'BSES Rajdhani Power Limited', 'Torrent Power Limited'];
+            @endphp
+
+            <div class="card shadow-sm card-height h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Basic List Group</h5>
+                    <!-- <img src="{{ asset('assets/image/Logo/bhaxrat-connect-logo.jpg') }}" alt="" style="width: 70px;"> -->
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <form class="row g-3 flex-grow-1">
+
+                        <div class="col-12">
+                            <label for="category" class="form-label">Category</label>
+                            <select class="form-select form-select2" id="category">
+                                <option selected>--Select Category--</option>
+                                <option value="support">Support</option>
+                                <option value="feedback">Feedback</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <label for="search_categroy" class="form-label">Search Category</label>
+                            <input type="text" class="form-control" id="search_categroy" placeholder="Search Category">
+                        </div>
+
+                        <div class="col-12">
+                            <label for="select_category" class="form-label">Select Category:</label>
+                            <div class="border border-1 p-2 rounded" style="max-height: 100px; overflow-y: auto;">
+                                @foreach ($categories as $category)
+                                <div class="border border-1 p-2 mb-2 rounded">
+                                    {{ $category }}
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+
+
+                        <!-- Buttons -->
+                        <div class="col-12 mt-2 d-flex gap-2">
+                            <button type="button"
+                                class="btn w-100 font-semibold rounded hover:opacity-90 transition buttonColor">
+
+                                Search
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
-    </div>
-</div>
+        <div class="col-md-6">
+            <div class="card shadow-sm card-height h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Request Form</h5>
+                    <!-- <img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}" alt="" style="width: 70px;"> -->
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <form class="row g-3 flex-grow-1">
+                        <!-- Biller Name -->
+                        <div class="col-12">
+                            <label for="billerName" class="form-label">Biller Name <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="billerName" placeholder="Biller Name">
+                        </div>
 
-<!-- Recharge Modal -->
-<div class="modal fade" id="rechargeModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
+                        <!-- Contract Account Number -->
+                        <div class="col-12">
+                            <label for="account_no" class="form-label">Contract Account Number <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="account_no"
+                                placeholder="Contract Account Number">
+                        </div>
 
-            <div class="modal-header position-relative overflow-visible">
-                <h5 class="modal-title" id="modalTitle">
-                    Recharge
-                </h5>
+                        <!-- TPIN -->
+                        <div class="col-12">
+                            <label for="TPIN" class="form-label">TPIN <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="TPIN" placeholder="Enter TPIN">
+                        </div>
 
-                <img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}"
-                    alt=""
-                    class="position-absolute"
-                    style="top: 10px; right: 50px; width: 70px; z-index: 1060;">
+                        <!-- Button -->
+                        <div class="col-12">
+                            <button type="button"
+                                class="btn w-100 font-semibold rounded hover:opacity-90 transition buttonColor">
 
-                <button type="button"
-                    class="btn-close position-absolute bg-light"
-                    data-bs-dismiss="modal"
-                    style="right: 18px; z-index: 1061;">
-                </button>
+                                Search
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-
-                <form id="rechargeForm">
-                   
-                    <div class="modal-body" id="modalBody"></div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary d-none" id="backBtn">Back</button>
-
-                        {{-- keep as button (no form submit auto) --}}
-                        <button type="button" class="btn btn-primary" id="nextBtn">View Plans</button>
-                    </div>
-                </form>
         </div>
+
     </div>
 </div>
+
+
+
 
 <!-- MPIN Modal -->
 <div class="modal fade" id="mpinModal" tabindex="-1" aria-labelledby="mpinModalLabel" aria-hidden="true">
@@ -389,12 +537,9 @@
                 <div class="modal-body text-center">
                     <p class="text-muted mb-3">Please enter your 4-digit MPIN to proceed with recharge</p>
 
-                    <input type="password" name="mpin" id="mpinInput"
-                        class="form-control text-center fw-bold"
-                        maxlength="4" inputmode="numeric"
-                        placeholder="Enter your MPIN"
-                        style="letter-spacing: 10px; font-size: 22px;"
-                        required />
+                    <input type="password" name="mpin" id="mpinInput" class="form-control text-center fw-bold"
+                        maxlength="4" inputmode="numeric" placeholder="Enter your MPIN"
+                        style="letter-spacing: 10px; font-size: 22px;" required />
 
                     <input type="hidden" name="amount" id="rechargeAmount">
                     <input type="hidden" name="mobile" id="rechargeMobile">
@@ -407,7 +552,9 @@
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    {{-- <button type="submit" onclick="var e=this;setTimeout(function(){e.disabled=true;},0);return true;" class="btn btn-primary">Confirm Recharge</button> --}}
+                    {{-- <button type="submit"
+                        onclick="var e=this;setTimeout(function(){e.disabled=true;},0);return true;"
+                        class="btn btn-primary">Confirm Recharge</button> --}}
                     <button type="submit" id="confirmRechargeBtn" class="btn btn-primary">Confirm Recharge</button>
                 </div>
             </form>
@@ -466,15 +613,17 @@ $rechargePlanTypes = [
 @endphp
 
 
+@include('Include.Service-modal.prepaid-recharge')
+
 <script>
     let clickCount = 0;
 
-    document.getElementById("confirmRechargeBtn").addEventListener("click", function (event) {
+    $("#confirmRechargeBtn").on("click", function (event) {
         clickCount++;
-
         if (clickCount >= 4) {
-            this.disabled = true;
-            this.innerText = "Limit Exceeded";
+            $(this).prop("disabled", true);
+            $(this).text("Limit Exceeded");
+
             Swal.fire({
                 icon: 'error',
                 title: 'Limit Exceeded',
@@ -482,13 +631,31 @@ $rechargePlanTypes = [
                 confirmButtonColor: '#3085d6',
                 confirmButtonText: 'OK'
             });
-            // event.preventDefault(); 
         }
     });
-</script>
 
 
-<script>
+    // Event binding
+    $(document).on('click', '.service-btn', function () {
+        let service = $(this).data('service');
+        openServiceModal(service);
+    });
+
+    function openServiceModal(service) {
+        if (service === 'Mobile Prepaid') {
+            $('#rechargeModal').modal('show');
+        }
+    }
+
+    function spinLoader(text) {
+        return `
+                <div class="text-center my-4">
+                    <div class="spinner-border text-primary"></div>
+                    <p class="mt-2">${text}</p>
+                </div>
+            `;
+    }
+
     function buildOperatorDropdown() {
         let options = `<option value="">Select Operator</option>`;
         window.rechargeOperators.forEach(op => {
@@ -538,7 +705,8 @@ $rechargePlanTypes = [
     }
 </script>
 
-<script>
+
+<!-- <script>
     /* ===============================
            SERVICE CONFIG
         ================================ */
@@ -772,7 +940,7 @@ $rechargePlanTypes = [
 
         document.getElementById('modalBody').innerHTML = html;
 
-        $('.plan').off('click').on('click', function() {
+        $('.plan').off('click').on('click', function () {
             $('.plan').removeClass('active');
             $(this).addClass('active');
 
@@ -787,12 +955,12 @@ $rechargePlanTypes = [
     /* ===============================
        INIT
     ================================ */
-    $(document).ready(function() {
+    $(document).ready(function () {
         window.rechargeOperators = @json($rechargeOperators);
         window.rechargeCircles = @json($rechargeCircles);
         window.rechargePlanTypes = @json($rechargePlanTypes);
 
-        $('.service-btn').on('click', function() {
+        $('.service-btn').on('click', function () {
             currentService = $(this).data('service');
             stepIndex = 0;
             selectedAmount = 0;
@@ -818,7 +986,7 @@ $rechargePlanTypes = [
             if (__plansAbortController) {
                 try {
                     __plansAbortController.abort();
-                } catch (e) {}
+                } catch (e) { }
             }
             __plansAbortController = null;
             __plansReqId++;
@@ -907,7 +1075,7 @@ $rechargePlanTypes = [
         FIXED: prevents multiple Pay Now hits
 
     ================================ */
-    $('#nextBtn').off('click').on('click', function(e) {
+    $('#nextBtn').off('click').on('click', function (e) {
         e.preventDefault();
 
         const config = serviceConfig[currentService];
@@ -930,7 +1098,7 @@ $rechargePlanTypes = [
        BUTTON HANDLERS
        FIXED: prevents multiple Pay Now hits
     ================================ */
-    $('#nextBtn').off('click').on('click', function(e) {
+    $('#nextBtn').off('click').on('click', function (e) {
         e.preventDefault();
 
         const config = serviceConfig[currentService];
@@ -976,11 +1144,11 @@ $rechargePlanTypes = [
         }
     });
 
-    $('#backBtn').on('click', function() {
+    $('#backBtn').on('click', function () {
         if (__plansAbortController) {
             try {
                 __plansAbortController.abort();
-            } catch (e) {}
+            } catch (e) { }
         }
         __plansAbortController = null;
 
@@ -1020,19 +1188,19 @@ $rechargePlanTypes = [
 
     $('#backBtn').off('click').on('click', function () {
 
-   
+
         if (__plansAbortController) {
-            try { __plansAbortController.abort(); } catch (e) {}
+            try { __plansAbortController.abort(); } catch (e) { }
         }
         __plansAbortController = null;
 
-       __fetchingPlans = false;
-       __plansReqId++;
+        __fetchingPlans = false;
+        __plansReqId++;
 
-   
-       __payLock = false;
-       $('#nextBtn').prop('disabled', false);
-       if (stepIndex > 0) stepIndex--;
+
+        __payLock = false;
+        $('#nextBtn').prop('disabled', false);
+        if (stepIndex > 0) stepIndex--;
         loadStep();
     });
 
@@ -1048,7 +1216,7 @@ $rechargePlanTypes = [
 </script>
 
 <script>
-    document.getElementById('nextBtn').addEventListener('click', function() {
+    document.getElementById('nextBtn').addEventListener('click', function () {
 
         if (currentService !== "Mobile Prepaid") return;
 
@@ -1099,25 +1267,25 @@ $rechargePlanTypes = [
         if (__plansAbortController) {
             try {
                 __plansAbortController.abort();
-            } catch (e) {}
+            } catch (e) { }
         }
         __plansAbortController = new AbortController();
         const reqId = ++__plansReqId;
 
         fetch('/user/bbps-recharge/getPlans/' + operator_id + '/' + circle_id + '/' + plan_type, {
-                method: 'POST',
-                signal: __plansAbortController.signal,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({
-                    mobile,
-                    operator_id,
-                    circle_id,
-                    plan_type
-                })
+            method: 'POST',
+            signal: __plansAbortController.signal,
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                mobile,
+                operator_id,
+                circle_id,
+                plan_type
             })
+        })
             .then(res => res.json())
             .then(response => {
                 if (reqId !== __plansReqId) return;
@@ -1157,13 +1325,13 @@ $rechargePlanTypes = [
         };
 
         fetch("{{ route('bbps.validateRecharge') }}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                body: JSON.stringify(payload)
-            })
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify(payload)
+        })
             .then(res => res.json())
             .then(res => {
                 if (res.message?.code === "RECHARGEVALIDATIONSUCCESS") {
@@ -1227,12 +1395,12 @@ $rechargePlanTypes = [
         document.getElementById('mpinError').classList.add('d-none');
 
         fetch("{{ route('bbps.mpin_auth') }}", {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                }
-            })
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            }
+        })
             .then(res => res.json())
             .then(res => {
                 if (res.status == true) {
@@ -1269,7 +1437,7 @@ $rechargePlanTypes = [
 </script>
 
 <script>
-    document.getElementById('rechargeForm').addEventListener('submit', function(e) {
+    document.getElementById('rechargeForm').addEventListener('submit', function (e) {
         e.preventDefault();
 
         if (currentService !== 'Mobile Postpaid') return;
@@ -1285,13 +1453,13 @@ $rechargePlanTypes = [
         console.log('Postpaid Data:', data);
 
         fetch("{{ route('bbps.postpaid_villBill') }}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify(data)
-            })
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify(data)
+        })
             .then(res => res.json())
             .then(res => {
                 console.log('Server Response:', res);
@@ -1300,5 +1468,5 @@ $rechargePlanTypes = [
                 console.error('Error:', err);
             });
     });
-</script>
+</script> -->
 @endsection
