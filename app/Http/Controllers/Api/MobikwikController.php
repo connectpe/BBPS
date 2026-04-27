@@ -394,7 +394,7 @@ class MobikwikController extends Controller
         }
 
         $providerSlug = CommonHelper::getProviderSlug($userId, $serviceId);
-       
+
         $request->validate([
             'amount' => 'required|string',
             'connectionNumber' => 'required',
@@ -418,7 +418,7 @@ class MobikwikController extends Controller
                     // dd($payload);
                     $mobikwikHelper = new MobiKwikHelper;
                     $token = $mobikwikHelper->isTokenPresent();
-                    dd($token);
+                    // dd($token);
 
                     $endpoint = '/recharge/v3/retailerValidation';
 
@@ -428,15 +428,15 @@ class MobikwikController extends Controller
                         $token
                     );
 
-                    if (!$response->successfull()) {
-                        Log::error('Mobikwik Validation API HTTP Error', [
+                    if (!isset($response['success'])) {
+                        Log::error('Mobikwik Validation API Invalid Response', [
                             'url' => $endpoint,
-                            'status' => $response->status(),
-                            'response' => $response->body(),
+                            'response' => $response,
                         ]);
+
                         return response()->json([
                             'status' => false,
-                            'message' => 'Unable to fetch validation response from provider side'
+                            'message' => 'Invalid response from provider'
                         ]);
                     }
 

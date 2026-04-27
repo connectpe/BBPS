@@ -63,12 +63,12 @@ class MobiKwikHelper
             }
 
             $data = $response->json();
-            dd([
-                'timestamp' => now()->toDateTimeString(),
-                'response_data' => $data
-            ]);
+            // dd([
+            //     'timestamp' => now()->toDateTimeString(),
+            //     'response_data' => $data
+            // ]);
             $token = $data['data']['token'];
-            dd($data);
+            // dd($data);
             //  OLD TOKEN HANDLE (rotation rule)
             MobikwikToken::where('is_active', true)
                 ->update([
