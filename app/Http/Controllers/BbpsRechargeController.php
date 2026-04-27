@@ -34,11 +34,10 @@ class BbpsRechargeController extends Controller
         $this->publicKey     = file_get_contents(config('mobikwik.public_key'));
     }
 
-    public function mpinAuth(Request $request)
+    public function mobilePrepaidPayment(Request $request)
     {
         try {
             $request->validate([
-                'mpin'        => 'required|numeric',
                 'mobile'      => 'required|string',
                 'operator_id' => 'required|string',
                 'circle_id'   => 'required|string',
@@ -54,12 +53,6 @@ class BbpsRechargeController extends Controller
                 ], 401);
             }
 
-            if (!Hash::check($request->mpin, $user->mpin)) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Invalid MPIN',
-                ], 401);
-            }
 
             $endpoint = '/recharge/v3/retailerPayment';
 
@@ -93,9 +86,6 @@ class BbpsRechargeController extends Controller
             ], 500);
         }
     }
-
-
-
 
     public function getPlans($operator_id, $circle_id, $plan_type = null)
     {

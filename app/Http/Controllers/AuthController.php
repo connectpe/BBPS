@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -589,6 +590,48 @@ class AuthController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Error : ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function mpinVerify(Request $request)
+    {
+        try {
+            $request->validate([
+                'mpin'        => 'required|numeric',
+            ],[
+                'mpin.required' => 'MPIN is required',
+                'mpin.numeric' => 'MPIN should be numeric only',
+            ]);
+
+            $user = Auth::user();
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User not authenticated',
+                ], 401);
+            }
+
+            if (!Hash::check($request->mpin, $user->mpin)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Invalid MPIN',
+                ], 401);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'MPIN Verified Successfully'
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('MPIN Recharge Error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage() ?: 'Something went wrong',
             ], 500);
         }
     }

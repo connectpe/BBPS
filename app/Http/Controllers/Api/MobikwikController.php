@@ -394,7 +394,7 @@ class MobikwikController extends Controller
         }
 
         $providerSlug = CommonHelper::getProviderSlug($userId, $serviceId);
-       
+
         $request->validate([
             'amount' => 'required|string',
             'connectionNumber' => 'required',
