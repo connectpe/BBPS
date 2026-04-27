@@ -159,13 +159,13 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
         Route::post('validateRecharge', [BbpsRechargeController::class, 'validateRecharge'])->name('bbps.validateRecharge');
 
         Route::post('status', [BbpsRechargeController::class, 'status'])->name('bbps.status');
-        Route::post('mpin-auth', [BbpsRechargeController::class, 'mpinAuth'])->name('bbps.mpin_auth');
+        Route::post('mobile-prepaid-payment', [BbpsRechargeController::class, 'mobilePrepaidPayment'])->name('mobile_prepaid_payment');
     });
 
     Route::post('generate/client-credentials', [UserController::class, 'generateClientCredentials'])->name('generate_client_credentials');
 
     Route::get('/dashboard', [UserController::class, 'dashboard'])->name('user.dashboard');
-
+    Route::post('verify-mpin', [AuthController::class, 'mpinVerify'])->name('verify_mpin');
 
     // Service Related Route
     Route::group(['middleware' => ['isUserAccessPage']], function () {
