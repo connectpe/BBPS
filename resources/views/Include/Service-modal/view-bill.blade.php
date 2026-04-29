@@ -32,6 +32,9 @@
         width: 60%;
     }
 
+    #printSection {
+        display: none;
+    }
 
     @media print {
 
@@ -45,6 +48,7 @@
         }
 
         #printSection {
+            display: block !important;
             position: absolute;
             left: 0;
             top: 0;
@@ -52,7 +56,6 @@
         }
 
     }
-
 
     .receipt-header {
         width: 100%;
@@ -364,8 +367,8 @@
 
             <!-- Footer Buttons -->
             <div class="d-flex justify-content-center gap-3 mt-4">
-                <button class="btn buttonColor px-5 rounded-pill" onclick="sendEmail()">Email</button>
-                <button class="btn buttonColor px-5 rounded-pill" onclick="printReceipt()">Print</button>
+                <button class="btn buttonColor px-5" onclick="sendEmail()">Email</button>
+                <button class="btn buttonColor px-5" onclick="printReceipt()">Print</button>
             </div>
 
         </div>
