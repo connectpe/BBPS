@@ -356,28 +356,6 @@ class MobikwikController extends Controller
         }
     }
 
-    // protected function isTokenPresent()
-    // {
-    //     try {
-    //         $tokenData = MobikwikToken::where('is_active', true)
-    //             ->where('expire_at', '>=', now())
-    //             ->latest()
-    //             ->first();
-    //         // dd($tokenData->token);
-    //         // Agar valid token mil gaya
-    //         if ($tokenData) {
-    //             return $tokenData->token;
-    //         }
-
-    //         //  Nahi mila → new generate
-    //         return (new MobiKwikHelper)->generateToken();
-    //     } catch (\Exception $e) {
-    //         Log::error('Mobikwik Token Present Exception', [
-    //             'error' => $e->getMessage(),
-    //         ]);
-    //     }
-    // }
-
     public function validateRecharge(Request $request)
     {
         $data = $this->ValidateUsers($request);
@@ -481,20 +459,23 @@ class MobikwikController extends Controller
         }
     }
 
-    public function mobikwikPayment(Request $request, $type)
+    public function retailerPayment(Request $request)
     {
-        $data = $this->ValidateUsers($request);
-        $userId = $data['user_id'];
-        $serviceId = $data['service'];
-        $ip = $request->ip();
+        $data = $request->all();
 
-        $ipWhitelist = CommonHelper::checkIpWhiteList($userId, $serviceId, $ip);
-        if (!$ipWhitelist) {
-            return response()->json([
-                'status' => false,
-                'mesage' => 'Ip not whitelisted'
-            ]);
-        }
+        $data['agent'] = [
+            'ip'        => $headers['cf-connecting-ip'][0] ?? $request->ip(),
+            'userAgent' => $headers['user-agent'][0] ?? ''
+        ];
+
+        $ip =  $data['agent']['ip'];
+        $userAgent = $data['agent']['userAgent'];
+        dd($userAgent);
+        $userId = $data['auth_data']['user_id'];
+        $serviceId = $data['auth_data']['service_id'];
+
+        $provider = CommonHelper::getProviderSlug($userId, $serviceId);
+        $providerSlug = $provider['provider_slug'];
 
         $messages = [
             'connectionNumber.required' => 'Connection number is required.',
@@ -555,17 +536,12 @@ class MobikwikController extends Controller
             // 'additionalPrm2' => 'nullable|string|max:255',
         ], $messages);
 
-        switch ($type) {
-            case 'mobikwik-payment':
+        switch ($providerSlug) {
+            case 'mobikwik':
                 try {
-                    $connectPeId = CommonHelper::generateConnectPeTransactionId();
-                    $defaultSlugData = DefaultProvider::select('provider_slug')->where('service_id', $serviceId)->first();
-                    if (empty($defaultSlugData)) {
-                        $defaultSlugData = UserRooting::select('provider_slug')->where(['user_id' => $userId, 'service_id' => $serviceId])->first();
-                    }
 
-                    $slug = $defaultSlugData->provider_slug;
-                    // dd($slug);
+                    $connectPeId = CommonHelper::generateConnectPeTransactionId();
+
                     $payload = [
                         'cn' => $request->connectionNumber,
                         'op' => $request->operator,
@@ -577,30 +553,10 @@ class MobikwikController extends Controller
                         'remitterName' => $request->remitterName,
                         'paymentRefID' => $request->paymentRefID,
                         'paymentMode' => $request->paymentMode,
-                        // "connectpeId" => $connectPeId,
                         'paymentAccountInfo' => $request->paymentAccountInfo,
-                        // 'status'                => 'queued',
-                        // "call"               => 'balance_debit',
-                        // 'user_id'            => $userId,
-                        // "serviceId"         => $serviceId,
-                        // 'slug'              => $slug,
                     ];
 
-                    // dd($payload);
-                    // Transaction::create([
-                    //     'user_id'               => $userId,
-                    //     'operator_id'           => $payload['op'],
-                    //     'circle_id'             => $payload['cir'],
-                    //     'amount'                => $payload['amt'],
-                    //     'transaction_type'      => $payload['paymentMode'],
-                    //     'request_id'            => $payload['reqid'],
-                    //     'mobile_number'         => $payload['customerMobile'],
-                    //     'payment_ref_id'        => $payload['paymentRefID'],
-                    //     'payment_account_info'  => $payload['paymentAccountInfo'],
-                    //     'recharge_type'         => 'prepaid',
-                    //     'status'                => 'queued',
-                    //     'connectpe_id'          => $connectPeId,
-                    // ]);
+
 
                     $mobikwikHelper = new MobiKwikHelper;
                     $token = $mobikwikHelper->isTokenPresent();
@@ -620,7 +576,7 @@ class MobikwikController extends Controller
                     ]);
 
                     // dispatch(
-                    //     new DebitBalanceUpdateJob(
+                    //     new RechargeDebitBalanceAndStatusUpdateJob(
                     //         $endpoint,
                     //         $payload,
                     //         $token

@@ -327,7 +327,7 @@ class TransactionHelper
                 'amount'        => $charges['amount'],
                 'fee'           => $charges['fee'],
                 'tax'           => $charges['tax'],
-                'total_amount'  =>  $totalAmount,
+                'total_amount'  => $totalAmount,
                 'mode'          => CommonHelper::caseConversion($orderArray['mode'], 'u'),
                 'purpose'       => CommonHelper::caseConversion($orderArray['purpose'], 'u'),
                 'remark'        => $remarksData,
@@ -347,6 +347,61 @@ class TransactionHelper
                 'status'  => true,
                 'message' => 'Order created successfully.',
                 'order_id' => $orderId
+            ];
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return [
+                'status'  => false,
+                'message' => 'Something went wrong: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    public static function createRechargeTransactionOrders($userId, $serviceId, $providerId, $payload)
+    {
+        try {
+            DB::beginTransaction();
+
+            $remarksData = 'Fund Transfer';
+
+            $connectpeId = CommonHelper::generateConnectPeTransactionId();
+
+            $orderData = [
+                'user_id'       => $userId,
+                'provider_id'   => $providerId,
+                'service_id'    => $serviceId,
+                'connectpe_id'  => $connectpeId,
+                'request_id'       => $modeId,
+                'payment_ref_id ' => $ghdjkfdk,
+                'connection_no' => $hjf,
+                'operator_id' => $hgdg,
+                'circle_id' => $dghdj,
+                'plan_type' => $gfgnfj,
+                'customer_mobile' => $jhgjdh,
+                'agent_id' => $ffhb,
+                'remitter_name' => $xhdfhgd,
+                'payment_mode' => $vmcvf,
+                'payment_account_info' => $fdhgdjfh,
+                'recharge_type' => $fndjnbd,
+                'amount'        => $charges['amount'],
+                'remark'        => $remarksData,
+                'ip'            => $orderArray['agent']['ip'] ?? null,
+                'user_agent'    => $orderArray['agent']['userAgent'] ?? null,
+                'status'        => 'queued',
+                'updated_by'    => $userId,
+                'created_at'    => now(),
+                'updated_at'    => now(),
+            ];
+
+            $orderId = DB::table('recharge_orders')->insertGetId($orderData);
+
+            DB::commit();
+
+            return [
+                'status'  => true,
+                'message' => 'Recharge Order created successfully.',
+                'request_id' => $orderId
             ];
         } catch (\Exception $e) {
             DB::rollBack();
