@@ -25,12 +25,12 @@ Route::post('postpaid-villbill', [BbpsRechargeController::class, 'postpaidVillBi
 
 
 
-Route::group(['middleware' => ['logs']], function () {
-    Route::prefix('bbps')->group(function () {
+Route::group(['middleware' => ['logs', 'basicAuth']], function () {
+    Route::prefix('mobile-recharge')->group(function () {
 
         Route::post('getplans/{circle}/{operator}/{plan_type?}', [MobikwikController::class, 'getplans']);
         Route::post('balance', [MobikwikController::class, 'getBalance'])->name('Mobikwik.balanace');
-        Route::post('payment/{type}', [MobikwikController::class, 'mobikwikPayment'])->name('Mobikwik.payment');
+        Route::post('retailerPayment', [MobikwikController::class, 'retailerPayment'])->name('Mobikwik.payment');
         Route::post('status/{type}', [MobikwikController::class, 'mobikwikStatus'])->name('Mobikwik.status');
         Route::post('recharge-validation', [MobikwikController::class, 'validateRecharge'])->name('Mobikwik.recharge.validation');
         Route::post('fetch-bill/{type}', [MobikwikController::class, 'fetchPostpaidBill'])->name('fetch.postpaid.bill');

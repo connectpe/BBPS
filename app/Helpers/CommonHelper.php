@@ -217,18 +217,18 @@ class CommonHelper
 
     public static function getProviderSlug($userId, $serviceId)
     {
-        // $userRooting = UserRooting::select('provider_slug', 'provider_id')
-        //     ->where('user_id', $userId)
-        //     ->where('service_id', $serviceId)
-        //     ->first();
+        $userRooting = UserRooting::select('provider_slug', 'provider_id')
+            ->where('user_id', $userId)
+            ->where('service_id', $serviceId)
+            ->first();
 
-        // if ($userRooting) {
-        //     return [
-        //         'status' => true,
-        //         'provider_id' => $userRooting->provider_id,
-        //         'provider_slug' => $userRooting->provider_slug,
-        //     ];
-        // }
+        if ($userRooting) {
+            return [
+                'status' => true,
+                'provider_id' => $userRooting->provider_id,
+                'provider_slug' => $userRooting->provider_slug,
+            ];
+        }
 
         $defaultProvider = DefaultProvider::select('provider_id', 'provider_slug')
             ->where('service_id', $serviceId)
