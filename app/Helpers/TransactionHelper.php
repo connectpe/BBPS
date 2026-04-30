@@ -358,40 +358,44 @@ class TransactionHelper
         }
     }
 
-    public static function createRechargeTransactionOrders($userId, $serviceId, $providerId, $payload)
+    public static function createRechargeTransactionOrders($userId, $serviceId,  $connectpeId, $payload, $agent)
     {
         try {
             DB::beginTransaction();
 
             $remarksData = 'Fund Transfer';
 
-            $connectpeId = CommonHelper::generateConnectPeTransactionId();
+            $provider = CommonHelper::getProviderSlug($userId, $serviceId);
+            $providerId =  $provider['provider_id'];
+            $providerSlug = $provider['provider_slug'];
+
+            $ip = $agent['ip'];
+            $uaerAgent = $agent['userAgent'];
 
             $orderData = [
-                'user_id'       => $userId,
-                'provider_id'   => $providerId,
-                'service_id'    => $serviceId,
-                'connectpe_id'  => $connectpeId,
-                'request_id'       => $modeId,
-                'payment_ref_id ' => $ghdjkfdk,
-                'connection_no' => $hjf,
-                'operator_id' => $hgdg,
-                'circle_id' => $dghdj,
-                'plan_type' => $gfgnfj,
-                'customer_mobile' => $jhgjdh,
-                'agent_id' => $ffhb,
-                'remitter_name' => $xhdfhgd,
-                'payment_mode' => $vmcvf,
-                'payment_account_info' => $fdhgdjfh,
-                'recharge_type' => $fndjnbd,
-                'amount'        => $charges['amount'],
-                'remark'        => $remarksData,
-                'ip'            => $orderArray['agent']['ip'] ?? null,
-                'user_agent'    => $orderArray['agent']['userAgent'] ?? null,
-                'status'        => 'queued',
-                'updated_by'    => $userId,
-                'created_at'    => now(),
-                'updated_at'    => now(),
+                'user_id'          => $userId,
+                'provider_id'      => $providerId,
+                'service_id'       => $serviceId,
+                'connectpe_id'     => $connectpeId,
+                'request_id'       => $payload['reqid'],
+                'payment_ref_id'  =>  $payload['paymentRefID'],
+                'connection_no'    => $payload['cn'],
+                'operator_id'      => $payload['op'],
+                'circle_id'        => $payload['cir'],
+                'plan_type'        => $payload['plantype'] ?? 'NULL',
+                'customer_mobile'  => $payload['customerMobile'],
+                'agent_id'         => $payload['agentId'],
+                'remitter_name'    => $payload['remitterName'],
+                'payment_mode'     => $payload['paymentMode'],
+                'payment_account_info' =>  $payload['paymentAccountInfo'],
+                'recharge_type'    => 'prepaid',
+                'amount'           => $payload['amt'],
+                'remark'           => $remarksData,
+                'ip'               => $agent['ip'] ?? null,
+                'user_agent'       => $agent['userAgent'] ?? null,
+                'status'           => 'queue',
+                'created_at'       => now(),
+                'updated_at'       => now(),
             ];
 
             $orderId = DB::table('recharge_orders')->insertGetId($orderData);
@@ -401,7 +405,7 @@ class TransactionHelper
             return [
                 'status'  => true,
                 'message' => 'Recharge Order created successfully.',
-                'request_id' => $orderId
+                'request_id' => $payload['reqid']
             ];
         } catch (\Exception $e) {
             DB::rollBack();
