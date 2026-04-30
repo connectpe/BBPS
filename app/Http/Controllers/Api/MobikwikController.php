@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Helpers\CommonHelper;
 use App\Helpers\MobiKwikHelper;
+use App\Helpers\TransactionHelper;
+use App\Helpers\ApiResponseHelper;
 use App\Http\Controllers\Controller;
 use App\Jobs\DebitBalanceUpdateJob;
 use App\Models\DefaultProvider;
@@ -14,6 +16,7 @@ use App\Models\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Jobs\RechargeDebitBalanceAndStatusUpdateJob;
 
 class MobikwikController extends Controller
 {
@@ -461,18 +464,13 @@ class MobikwikController extends Controller
 
     public function retailerPayment(Request $request)
     {
-        $data = $request->all();
-
-        $data['agent'] = [
+        $agent = [
             'ip'        => $headers['cf-connecting-ip'][0] ?? $request->ip(),
-            'userAgent' => $headers['user-agent'][0] ?? ''
+            'userAgent' => $headers['user-agent'][0] ?? $request->header('User-Agent')
         ];
 
-        $ip =  $data['agent']['ip'];
-        $userAgent = $data['agent']['userAgent'];
-        dd($userAgent);
-        $userId = $data['auth_data']['user_id'];
-        $serviceId = $data['auth_data']['service_id'];
+        $userId = $request['auth_data']['user_id'];
+        $serviceId = $request['auth_data']['service_id'];
 
         $provider = CommonHelper::getProviderSlug($userId, $serviceId);
         $providerSlug = $provider['provider_slug'];
@@ -556,7 +554,29 @@ class MobikwikController extends Controller
                         'paymentAccountInfo' => $request->paymentAccountInfo,
                     ];
 
+                    $connectpeId = CommonHelper::generateConnectPeTransactionId();
 
+                    $rechargeOrderCreate = TransactionHelper::createRechargeTransactionOrders($userId, $serviceId, $connectpeId, $payload, $agent);
+
+                    if (! $$rechargeOrderCreate['status']) {
+                        return ApiResponseHelper::failed($rechargeOrderCreate['message'], []);
+                    }
+
+                    // Dispatch Job
+                    dispatch(new RechargeDebitBalanceAndStatusUpdateJob($connectpeId, $userId, 'balance_debit', $serviceId, '', '', '', '', ''))->onQueue('payout_debit_queue');
+
+                    // Response
+                    return ApiResponseHelper::success(
+                        'Order accepted successfully',
+                        [
+                            'paymentRefID' => $request->paymentRefID,
+                            'connectpeID'  => $connectpeId,
+                            'status'      => 'queued'
+                        ],
+                        200
+                    );
+
+                    dd($rechargeOrderCreate);
 
                     $mobikwikHelper = new MobiKwikHelper;
                     $token = $mobikwikHelper->isTokenPresent();
