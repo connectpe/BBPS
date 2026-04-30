@@ -100,7 +100,7 @@
                         $randColor = $colors[array_rand($colors)];
                         @endphp
 
-                        <div class="col-6">
+                        <div class="col-6 cursor-pointer" onClick="location.href='{{ route('recharge_service') }}'">
                             <div class="border rounded p-2 h-100 service-box bg-light text-center">
 
                                 <!-- ICON / IMAGE -->
