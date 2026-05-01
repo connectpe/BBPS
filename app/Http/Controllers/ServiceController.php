@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BbpsCategory;
+use App\Models\BbpsCategoryOperator;
+use App\Models\BusinessInfo;
 use App\Models\GlobalService;
 use App\Models\User;
 use App\Models\UserService;
-use App\Models\BusinessInfo;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class ServiceController extends Controller
@@ -20,7 +22,20 @@ class ServiceController extends Controller
 
     public function rechargeService()
     {
-        return view('Service.recharge');
+        $bbpsCategories = BbpsCategory::where('status', 1)->get();
+
+        return view('Service.recharge', compact('bbpsCategories'));
+    }
+
+    public function getBillers($categoryId)
+    {
+        $billers = BbpsCategoryOperator::where('bbps_category_id', $categoryId)
+            ->where('status', 1)
+            ->select('id', 'biller_name', 'biller_id')
+            ->orderBy('biller_name', 'asc')
+            ->get();
+
+        return response()->json($billers);
     }
 
     public function bankingService()
@@ -101,12 +116,14 @@ class ServiceController extends Controller
     {
         try {
             $services = GlobalService::select('id', 'service_name', 'slug')->where('is_active', '1')->orderBy('id', 'desc')->get();
-            $requestedServices = UserService::where('user_id', Auth::id())->select('id', 'user_id', 'service_id', 'status')->get() ->keyBy('service_id'); 
+            $requestedServices = UserService::where('user_id', Auth::id())->select('id', 'user_id', 'service_id', 'status')->get()->keyBy('service_id');
             $business = BusinessInfo::where('user_id', Auth::id())->first();
-            $userKycStatus = $business && (string)$business->is_kyc === '1';
+            $userKycStatus = $business && (string) $business->is_kyc === '1';
+
             return view('Service.api-partner-services', compact('services', 'requestedServices', 'userKycStatus'));
         } catch (\Throwable $e) {
-            Log::error('API Partner Services Error: ' . $e->getMessage());
+            Log::error('API Partner Services Error: '.$e->getMessage());
+
             return redirect()->back()->with('error', 'Something went wrong. Please try again.');
         }
     }

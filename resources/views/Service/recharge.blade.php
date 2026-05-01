@@ -3,634 +3,634 @@
 @section('title', 'Services')
 @section('page-title', 'Services')
 @section('content')
-<style>
-    .card-height {
-        height: 400px;
-    }
+    <style>
+        .meta-badge,
+        .meta-card {
+            border: 1px solid rgba(0, 0, 0, .08)
+        }
 
-    .meta-card {
-        background: linear-gradient(135deg, rgba(13, 110, 253, .10), rgba(25, 135, 84, .08));
-        border: 1px solid rgba(0, 0, 0, .08);
-        border-radius: 14px;
-        padding: 12px 12px;
-        margin-bottom: 12px;
-    }
+        .meta-title,
+        .meta-top {
+            align-items: center;
+            display: flex;
+            gap: 10px
+        }
 
-    .meta-top {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-        margin-bottom: 10px;
-    }
+        .plan-left,
+        .plan-meta {
+            min-width: 0
+        }
 
-    .meta-title {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-weight: 700;
-        font-size: 14px;
-        color: rgba(0, 0, 0, .75);
-    }
+        #rechargeModal .modal-header,
+        .meta-card {
+            background: linear-gradient(135deg, rgba(13, 110, 253, .1), rgba(25, 135, 84, .08))
+        }
 
-    .meta-ico {
-        width: 36px;
-        height: 36px;
-        border-radius: 10px;
-        background: rgba(13, 110, 253, .15);
-        color: #0d6efd;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex: 0 0 auto;
-    }
+        .card-height {
+            height: 400px
+        }
 
-    .meta-badges {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-    }
+        .meta-card {
+            border-radius: 14px;
+            padding: 12px;
+            margin-bottom: 12px
+        }
 
-    .meta-badge {
-        background: rgba(255, 255, 255, .75);
-        border: 1px solid rgba(0, 0, 0, .08);
-        border-radius: 999px;
-        padding: 5px 10px;
-        font-size: 12px;
-        color: rgba(0, 0, 0, .70);
-        align-items: center;
-        gap: 6px;
-    }
+        .meta-top {
+            justify-content: space-between;
+            margin-bottom: 10px
+        }
 
-    .meta-badge i {
-        opacity: .85;
-    }
+        .meta-title {
+            font-weight: 700;
+            font-size: 14px;
+            color: rgba(0, 0, 0, .75)
+        }
 
-    .meta-mobile {
-        font-weight: 800;
-        color: rgba(0, 0, 0, .80);
-    }
+        .meta-ico {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: rgba(13, 110, 253, .15);
+            color: #0d6efd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto
+        }
 
-    .plans-wrap {
-        border: 1px solid rgba(0, 0, 0, .08);
-        border-radius: 12px;
-        overflow: hidden;
-        background: #fff;
-    }
+        .meta-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px
+        }
 
-    .plans-scroll {
-        max-height: 320px;
-        overflow-y: auto;
-    }
+        .meta-badge {
+            background: rgba(255, 255, 255, .75);
+            border-radius: 999px;
+            padding: 5px 10px;
+            font-size: 12px;
+            color: rgba(0, 0, 0, .7);
+            align-items: center;
+            gap: 6px
+        }
 
-    .plan-card {
-        width: 100%;
-        text-align: left;
-        padding: 12px 14px;
-        background: #fff;
-        border: 0;
-        border-bottom: 1px solid rgba(0, 0, 0, .06);
-        transition: all .15s ease-in-out;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-    }
+        .plan-card,
+        .plan-left {
+            align-items: center;
+            gap: 12px;
+            display: flex
+        }
 
-    .plan-card:last-child {
-        border-bottom: 0;
-    }
+        .meta-badge i {
+            opacity: .85
+        }
 
-    .plan-card:hover {
-        background: rgba(13, 110, 253, .05);
-        transform: translateY(-1px);
-    }
+        .meta-mobile {
+            font-weight: 800;
+            color: rgba(0, 0, 0, .8)
+        }
 
-    .plan-left {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        min-width: 0;
-    }
+        .plans-wrap {
+            border: 1px solid rgba(0, 0, 0, .08);
+            border-radius: 12px;
+            overflow: hidden;
+            background: #fff
+        }
 
-    .plan-badge {
-        width: 42px;
-        height: 42px;
-        border-radius: 10px;
-        background: rgba(13, 110, 253, .12);
-        color: #0d6efd;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex: 0 0 auto;
-        font-weight: 700;
-    }
+        .plans-scroll {
+            max-height: 320px;
+            overflow-y: auto
+        }
 
-    .plan-meta {
-        min-width: 0;
-    }
+        .plan-card {
+            width: 100%;
+            text-align: left;
+            padding: 12px 14px;
+            background: #fff;
+            border: 0;
+            border-bottom: 1px solid rgba(0, 0, 0, .06);
+            transition: .15s ease-in-out;
+            justify-content: space-between
+        }
 
-    .plan-amt {
-        font-weight: 800;
-        font-size: 15px;
-        margin: 0;
-        line-height: 1.2;
-        white-space: nowrap;
-        color: rgba(0, 0, 0, .80);
-    }
+        .plan-card:last-child {
+            border-bottom: 0
+        }
 
-    .plan-sub {
-        margin: 2px 0 0;
-        font-size: 12px;
-        color: rgba(0, 0, 0, .65);
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
+        .plan-card:hover {
+            background: rgba(13, 110, 253, .05);
+            transform: translateY(-1px)
+        }
 
-    .plan-right {
-        flex: 0 0 auto;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        color: rgba(0, 0, 0, .55);
-        font-size: 12px;
-    }
+        .plan-badge {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            background: rgba(13, 110, 253, .12);
+            color: #0d6efd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            font-weight: 700
+        }
 
-    .plan-chip {
-        background: rgba(0, 0, 0, .05);
-        padding: 4px 10px;
-        border-radius: 999px;
-        font-weight: 700;
-    }
+        .plan-amt {
+            font-weight: 800;
+            font-size: 15px;
+            margin: 0;
+            line-height: 1.2;
+            white-space: nowrap;
+            color: rgba(0, 0, 0, .8)
+        }
 
-    .plan-card.active {
-        background: rgba(25, 135, 84, .10);
-        outline: 2px solid rgba(25, 135, 84, .22);
-    }
+        .plan-sub {
+            margin: 2px 0 0;
+            font-size: 12px;
+            color: rgba(0, 0, 0, .65);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
 
-    #rechargeModal .modal-content {
-        border: 0;
-        border-radius: 18px;
-        /* overflow: hidden; */
-        box-shadow: 0 18px 45px rgba(0, 0, 0, .18);
-    }
+        .plan-right {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(0, 0, 0, .55);
+            font-size: 12px
+        }
 
-    #rechargeModal .modal-header {
-        border-bottom: 1px solid rgba(0, 0, 0, .06);
-        background: linear-gradient(135deg, rgba(13, 110, 253, .10), rgba(25, 135, 84, .08));
-        padding: 14px 16px;
-    }
+        .plan-chip {
+            background: rgba(0, 0, 0, .05);
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-weight: 700
+        }
 
-    #rechargeModal .modal-title {
-        font-weight: 900;
-        font-size: 16px;
-        color: rgba(0, 0, 0, .78);
-    }
+        .plan-card.active {
+            background: rgba(25, 135, 84, .1);
+            outline: rgba(25, 135, 84, .22) solid 2px
+        }
 
-    #rechargeModal .btn-close {
-        opacity: .7;
-    }
+        #rechargeModal .modal-content {
+            border: 0;
+            border-radius: 18px;
+            box-shadow: 0 18px 45px rgba(0, 0, 0, .18)
+        }
 
-    #rechargeModal .btn-close:hover {
-        opacity: 1;
-    }
+        #rechargeModal .modal-header {
+            border-bottom: 1px solid rgba(0, 0, 0, .06);
+            padding: 14px 16px
+        }
 
-    #rechargeModal .modal-body {
-        padding: 16px;
-        background: #fff;
-    }
+        #rechargeModal .modal-title {
+            font-weight: 900;
+            font-size: 16px;
+            color: rgba(0, 0, 0, .78)
+        }
 
-    #rechargeModal .modal-footer {
-        border-top: 1px solid rgba(0, 0, 0, .06);
-        background: rgba(0, 0, 0, .015);
-        padding: 12px 16px;
-        gap: 10px;
-    }
+        #rechargeModal .btn-close {
+            opacity: .7
+        }
 
-    #rechargeModal #backBtn,
-    #rechargeModal #nextBtn {
-        border-radius: 12px;
-        font-weight: 800;
-        padding: 10px 14px;
-    }
-
-    #rechargeModal #nextBtn {
-        box-shadow: 0 10px 18px rgba(13, 110, 253, .18);
-    }
-
-    #rechargeModal #nextBtn:active {
-        transform: translateY(1px);
-        box-shadow: 0 6px 12px rgba(13, 110, 253, .14);
-    }
-
-    #rechargeModal .form-control,
-    #rechargeModal .form-select {
-        border-radius: 12px;
-        padding: 10px 12px;
-        border-color: rgba(0, 0, 0, .12);
-    }
-
-    #rechargeModal .form-control:focus,
-    #rechargeModal .form-select:focus {
-        border-color: rgba(13, 110, 253, .35);
-        box-shadow: 0 0 0 .2rem rgba(13, 110, 253, .12);
-    }
-
-    #rechargeModal label,
-    #rechargeModal .form-label {
-        font-weight: 800;
-        font-size: 12px;
-        color: rgba(0, 0, 0, .65);
-    }
-
-    #rechargeModal .spinner-border {
-        width: 2rem;
-        height: 2rem;
-    }
-
-    #rechargeModal .text-center p {
-        font-size: 12px;
-        color: rgba(0, 0, 0, .55);
-    }
-
-    @media (max-width: 576px) {
-        #rechargeModal .modal-dialog {
-            margin: 12px;
+        #rechargeModal .btn-close:hover {
+            opacity: 1
         }
 
         #rechargeModal .modal-body {
-            padding: 14px;
+            padding: 16px;
+            background: #fff
         }
 
         #rechargeModal .modal-footer {
-            padding: 12px 14px;
+            border-top: 1px solid rgba(0, 0, 0, .06);
+            background: rgba(0, 0, 0, .015);
+            padding: 12px 16px;
+            gap: 10px
         }
 
         #rechargeModal #backBtn,
         #rechargeModal #nextBtn {
-            width: 100%;
+            border-radius: 12px;
+            font-weight: 800;
+            padding: 10px 14px
         }
-    }
 
-    .service-col {
-        width: 10%;
-        flex: 0 0 10%;
-    }
+        #rechargeModal #nextBtn {
+            box-shadow: 0 10px 18px rgba(13, 110, 253, .18)
+        }
 
-    @media (max-width: 992px) {
+        #rechargeModal #nextBtn:active {
+            transform: translateY(1px);
+            box-shadow: 0 6px 12px rgba(13, 110, 253, .14)
+        }
+
+        #rechargeModal .form-control,
+        #rechargeModal .form-select {
+            border-radius: 12px;
+            padding: 10px 12px;
+            border-color: rgba(0, 0, 0, .12)
+        }
+
+        #rechargeModal .form-control:focus,
+        #rechargeModal .form-select:focus {
+            border-color: rgba(13, 110, 253, .35);
+            box-shadow: 0 0 0 .2rem rgba(13, 110, 253, .12)
+        }
+
+        #rechargeModal .form-label,
+        #rechargeModal label {
+            font-weight: 800;
+            font-size: 12px;
+            color: rgba(0, 0, 0, .65)
+        }
+
+        #rechargeModal .spinner-border {
+            width: 2rem;
+            height: 2rem
+        }
+
+        #rechargeModal .text-center p {
+            font-size: 12px;
+            color: rgba(0, 0, 0, .55)
+        }
+
         .service-col {
-            width: 20%;
-            flex: 0 0 20%;
+            width: 10%;
+            flex: 0 0 10%
         }
-    }
 
-    @media (max-width: 576px) {
-        .service-col {
-            width: 25%;
-            flex: 0 0 25%;
+        @media (max-width:992px) {
+            .service-col {
+                width: 20%;
+                flex: 0 0 20%
+            }
         }
-    }
 
-    .bc-logo {
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 60px;
-        height: auto;
-    }
-
-    @media (max-width: 768px) {
         .bc-logo {
-            width: 45px;
-            top: 5px;
-            right: 5px;
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 60px;
+            height: auto
         }
-    }
 
-    @media (max-width: 576px) {
-        .bc-logo {
-            position: static;
-            display: block;
-            margin: 0 auto 10px;
-            width: 50px;
+        @media (max-width:768px) {
+            .bc-logo {
+                width: 45px;
+                top: 5px;
+                right: 5px
+            }
         }
-    }
-</style>
+
+        @media (max-width:576px) {
+            #rechargeModal .modal-dialog {
+                margin: 12px
+            }
+
+            #rechargeModal .modal-body {
+                padding: 14px
+            }
+
+            #rechargeModal .modal-footer {
+                padding: 12px 14px
+            }
+
+            #rechargeModal #backBtn,
+            #rechargeModal #nextBtn {
+                width: 100%
+            }
+
+            .service-col {
+                width: 25%;
+                flex: 0 0 25%
+            }
+
+            .bc-logo {
+                position: static;
+                display: block;
+                margin: 0 auto 10px;
+                width: 50px
+            }
+        }
+    </style>
 
 
 
-<div class="row g-4 mb-3">
+    <div class="row g-4 mb-3">
 
-    @php
-    $services = [
-    ['name' => 'Agent Collection', 'icon' => 'bi-people'],
-    ['name' => 'Broadband Postpaid', 'icon' => 'bi-wifi'],
-    ['name' => 'Cable TV', 'icon' => 'bi-tv'],
-    ['name' => 'Clubs and Associations', 'icon' => 'bi-people'],
-    ['name' => 'Credit Card', 'icon' => 'bi-credit-card'],
-    ['name' => 'Donation', 'icon' => 'bi-gift'],
-    ['name' => 'DTH', 'icon' => 'bi-display'],
-    ['name' => 'Education Fees', 'icon' => 'bi-mortarboard'],
-    ['name' => 'Electricity', 'icon' => 'bi-lightning-charge'],
-    ['name' => 'Fastag', 'icon' => 'bi-signpost'],
-    ['name' => 'Gas', 'icon' => 'bi-fire'],
-    ['name' => 'eChallan', 'icon' => 'bi-receipt'],
-    ['name' => 'EV Recharge', 'icon' => 'bi-ev-station'],
-    ['name' => 'Fleet Card Recharge', 'icon' => 'bi-truck'],
-    ['name' => 'Housing Society', 'icon' => 'bi-building'],
-    ['name' => 'Insurance', 'icon' => 'bi-shield-check'],
-    ['name' => 'Landline Postpaid', 'icon' => 'bi-telephone'],
-    ['name' => 'Loan Repayment', 'icon' => 'bi-cash-stack'],
-    ['name' => 'LPG Gas', 'icon' => 'bi-fire'],
-    ['name' => 'Mobile Postpaid', 'icon' => 'bi-phone'],
-    ['name' => 'Mobile Prepaid', 'icon' => 'bi-phone'],
-    ['name' => 'Municipal Services', 'icon' => 'bi-gear'],
-    ['name' => 'Municipal Taxes', 'icon' => 'bi-currency-dollar'],
-    ['name' => 'National Pension System', 'icon' => 'bi-graph-up'],
-    ['name' => 'NCMC Recharge', 'icon' => 'bi-wallet2'],
-    ['name' => 'Prepaid Meter', 'icon' => 'bi-speedometer2'],
-    ['name' => 'Recurring Deposit', 'icon' => 'bi-calendar2-check'],
-    ['name' => 'Rental', 'icon' => 'bi-building-check'],
-    ['name' => 'Subscription', 'icon' => 'bi-journal-text'],
-    ['name' => 'Water', 'icon' => 'bi-droplet'],
-    ];
+        @php
+            $services = [
+                ['name' => 'Agent Collection', 'icon' => 'bi-people'],
+                ['name' => 'Broadband Postpaid', 'icon' => 'bi-wifi'],
+                ['name' => 'Cable TV', 'icon' => 'bi-tv'],
+                ['name' => 'Clubs and Associations', 'icon' => 'bi-people'],
+                ['name' => 'Credit Card', 'icon' => 'bi-credit-card'],
+                ['name' => 'Donation', 'icon' => 'bi-gift'],
+                ['name' => 'DTH', 'icon' => 'bi-display'],
+                ['name' => 'Education Fees', 'icon' => 'bi-mortarboard'],
+                ['name' => 'Electricity', 'icon' => 'bi-lightning-charge'],
+                ['name' => 'Fastag', 'icon' => 'bi-signpost'],
+                ['name' => 'Gas', 'icon' => 'bi-fire'],
+                ['name' => 'eChallan', 'icon' => 'bi-receipt'],
+                ['name' => 'EV Recharge', 'icon' => 'bi-ev-station'],
+                ['name' => 'Fleet Card Recharge', 'icon' => 'bi-truck'],
+                ['name' => 'Housing Society', 'icon' => 'bi-building'],
+                ['name' => 'Insurance', 'icon' => 'bi-shield-check'],
+                ['name' => 'Landline Postpaid', 'icon' => 'bi-telephone'],
+                ['name' => 'Loan Repayment', 'icon' => 'bi-cash-stack'],
+                ['name' => 'LPG Gas', 'icon' => 'bi-fire'],
+                ['name' => 'Mobile Postpaid', 'icon' => 'bi-phone'],
+                ['name' => 'Mobile Prepaid', 'icon' => 'bi-phone'],
+                ['name' => 'Municipal Services', 'icon' => 'bi-gear'],
+                ['name' => 'Municipal Taxes', 'icon' => 'bi-currency-dollar'],
+                ['name' => 'National Pension System', 'icon' => 'bi-graph-up'],
+                ['name' => 'NCMC Recharge', 'icon' => 'bi-wallet2'],
+                ['name' => 'Prepaid Meter', 'icon' => 'bi-speedometer2'],
+                ['name' => 'Recurring Deposit', 'icon' => 'bi-calendar2-check'],
+                ['name' => 'Rental', 'icon' => 'bi-building-check'],
+                ['name' => 'Subscription', 'icon' => 'bi-journal-text'],
+                ['name' => 'Water', 'icon' => 'bi-droplet'],
+            ];
 
+            $colors = [
+                '#f94144',
+                '#f3722c',
+                '#f8961e',
+                '#f9c74f',
+                '#90be6d',
+                '#43aa8b',
+                '#577590',
+                '#277da1',
+                '#9d4edd',
+                '#ff6d00',
+                '#1982c4',
+                '#6a4c93',
+            ];
+        @endphp
 
-    $colors = [
-    '#f94144','#f3722c','#f8961e','#f9c74f',
-    '#90be6d','#43aa8b','#577590','#277da1',
-    '#9d4edd','#ff6d00','#1982c4','#6a4c93'
-    ];
-    @endphp
+        <div class="col-md-12">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
 
-    <div class="col-md-12">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
+                    <div class="position-relative">
 
-                <div class="position-relative">
+                        <!-- TOP RIGHT LOGO -->
+                        <img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}" alt="logo" class="bc-logo">
 
-                    <!-- TOP RIGHT LOGO -->
-                    <img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}" alt="logo" class="bc-logo">
+                        <div class="row align-items-center">
 
-                    <div class="row align-items-center">
-
-                        <!-- LEFT: Title -->
-                        <div class="col-md-2 text-center text-md-start mb-2">
-                            <small class="mb-0" style="color:#333;">
-                                Select Bharat-Connect Service
-                            </small>
-                        </div>
-
-                        <!-- CENTER: Services -->
-                        <div class="col-md-9">
-                            <div class="d-flex flex-wrap justify-content-center">
-
-                                @foreach ($services as $service)
-                                @php $randColor = $colors[array_rand($colors)]; @endphp
-
-                                <div class="service-col text-center mb-2">
-
-                                    <a href="javascript:void(0)"
-                                        class="text-decoration-none text-dark d-flex flex-column align-items-center service-btn"
-                                        data-service="{{ $service['name'] }}">
-
-                                        <div class="rounded-circle d-flex justify-content-center align-items-center"
-                                            style="width:40px; height:40px; font-size:1.1rem; background:#e1e8ef; color: {{ $randColor }};">
-
-                                            <i class="bi {{ $service['icon'] }}"></i>
-                                        </div>
-
-                                        <span style="font-size:10px;" class="mt-1 text-center">
-                                            {{ $service['name'] }}
-                                        </span>
-
-                                    </a>
-                                </div>
-
-                                @endforeach
-
+                            <!-- LEFT: Title -->
+                            <div class="col-md-2 text-center text-md-start mb-2">
+                                <small class="mb-0" style="color:#333;">
+                                    Select Bharat-Connect Service
+                                </small>
                             </div>
-                        </div>
 
+                            <!-- CENTER: Services -->
+                            <div class="col-md-9">
+                                <div class="d-flex flex-wrap justify-content-center">
+
+                                    @foreach ($services as $service)
+                                        @php $randColor = $colors[array_rand($colors)]; @endphp
+
+                                        <div class="service-col text-center mb-2">
+
+                                            <a href="javascript:void(0)"
+                                                class="text-decoration-none text-dark d-flex flex-column align-items-center service-btn"
+                                                data-service="{{ $service['name'] }}">
+
+                                                <div class="rounded-circle d-flex justify-content-center align-items-center"
+                                                    style="width:40px; height:40px; font-size:1.1rem; background:#e1e8ef; color: {{ $randColor }};">
+
+                                                    <i class="bi {{ $service['icon'] }}"></i>
+                                                </div>
+
+                                                <span style="font-size:10px;" class="mt-1 text-center">
+                                                    {{ $service['name'] }}
+                                                </span>
+
+                                            </a>
+                                        </div>
+                                    @endforeach
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="row">
+            <div class="col-md-6">
+
+                @php
+                    $categories = ['Adani Electricity', 'BSES Rajdhani Power Limited', 'Torrent Power Limited'];
+                @endphp
+
+                <div class="card shadow-sm card-height h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Basic List Group</h5>
+                        <!-- <img src="{{ asset('assets/image/Logo/bhaxrat-connect-logo.jpg') }}" alt="" style="width: 70px;"> -->
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <form class="row">
+
+                            <div class="col-12 mb-3">
+                                <label for="category" class="form-label">Category</label>
+                                <select class="form-select" id="category" name="category">
+                                    <option value="">--Select Category--</option>
+                                    @foreach ($bbpsCategories as $category)
+                                        <option value="{{ $category->id }}">
+                                            {{ $category->bbps_category_name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-12 mb-3">
+                                <label for="biller_name" class="form-label">Select Biller:</label>
+                                <select class="form-select" id="biller-list" name="biller_name">
+                                    <option value="">-- Select Biller --</option>
+                                </select>
+                            </div>
+
+
+                            <!-- Buttons -->
+                            <div class="col-12 mt-2 gap-2">
+                                <button type="button"
+                                    class="btn w-100 font-semibold rounded hover:opacity-90 transition buttonColor">
+
+                                    Search
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
-
             </div>
-        </div>
-    </div>
-</div>
-
-<div class="row mt-3">
-    <div class="row">
-        <div class="col-md-6">
-
-            @php
-            $categories = ['Adani Electricity', 'BSES Rajdhani Power Limited', 'Torrent Power Limited'];
-            @endphp
-
-            <div class="card shadow-sm card-height h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Basic List Group</h5>
-                    <!-- <img src="{{ asset('assets/image/Logo/bhaxrat-connect-logo.jpg') }}" alt="" style="width: 70px;"> -->
-                </div>
-                <div class="card-body d-flex flex-column">
-                    <form class="row g-3 flex-grow-1">
-
-                        <div class="col-12">
-                            <label for="category" class="form-label">Category</label>
-                            <select class="form-select form-select2" id="category">
-                                <option selected>--Select Category--</option>
-                                <option value="support">Support</option>
-                                <option value="feedback">Feedback</option>
-                                <option value="other">Other</option>
-                            </select>
-                        </div>
-
-                        <div class="col-12">
-                            <label for="search_categroy" class="form-label">Search Category</label>
-                            <input type="text" class="form-control" id="search_categroy" placeholder="Search Category">
-                        </div>
-
-                        <div class="col-12">
-                            <label for="select_category" class="form-label">Select Category:</label>
-                            <div class="border border-1 p-2 rounded" style="max-height: 100px; overflow-y: auto;">
-                                @foreach ($categories as $category)
-                                <div class="border border-1 p-2 mb-2 rounded">
-                                    {{ $category }}
-                                </div>
-                                @endforeach
+            <div class="col-md-6">
+                <div class="card shadow-sm card-height h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Request Form</h5>
+                        <!-- <img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}" alt="" style="width: 70px;"> -->
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <form class="row g-3 flex-grow-1">
+                            <!-- Biller Name -->
+                            <div class="col-12">
+                                <label for="billerName" class="form-label">Biller Name <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="billerName" placeholder="Biller Name">
                             </div>
-                        </div>
 
+                            <!-- Contract Account Number -->
+                            <div class="col-12">
+                                <label for="account_no" class="form-label">Contract Account Number <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="account_no"
+                                    placeholder="Contract Account Number">
+                            </div>
 
-                        <!-- Buttons -->
-                        <div class="col-12 mt-2 d-flex gap-2">
-                            <button type="button"
-                                class="btn w-100 font-semibold rounded hover:opacity-90 transition buttonColor">
+                            <!-- TPIN -->
+                            <div class="col-12">
+                                <label for="TPIN" class="form-label">TPIN <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="TPIN" placeholder="Enter TPIN">
+                            </div>
 
-                                Search
-                            </button>
-                        </div>
-                    </form>
+                            <!-- Button -->
+                            <div class="col-12">
+                                <button type="button"
+                                    class="btn w-100 font-semibold rounded hover:opacity-90 transition buttonColor">
+
+                                    Search
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
+
         </div>
-        <div class="col-md-6">
-            <div class="card shadow-sm card-height h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Request Form</h5>
-                    <!-- <img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}" alt="" style="width: 70px;"> -->
-                </div>
-                <div class="card-body d-flex flex-column">
-                    <form class="row g-3 flex-grow-1">
-                        <!-- Biller Name -->
-                        <div class="col-12">
-                            <label for="billerName" class="form-label">Biller Name <span
-                                    class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="billerName" placeholder="Biller Name">
-                        </div>
-
-                        <!-- Contract Account Number -->
-                        <div class="col-12">
-                            <label for="account_no" class="form-label">Contract Account Number <span
-                                    class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="account_no"
-                                placeholder="Contract Account Number">
-                        </div>
-
-                        <!-- TPIN -->
-                        <div class="col-12">
-                            <label for="TPIN" class="form-label">TPIN <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="TPIN" placeholder="Enter TPIN">
-                        </div>
-
-                        <!-- Button -->
-                        <div class="col-12">
-                            <button type="button"
-                                class="btn w-100 font-semibold rounded hover:opacity-90 transition buttonColor">
-
-                                Search
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
     </div>
-</div>
 
 
 
-{{-- Static View Bill Modal  --}}
+    {{-- Static View Bill Modal  --}}
 
 
 
-@php
-$rechargeOperators = [
-['name' => 'Jio', 'icon' => 'bi-telephone-fill', 'op_id' => 140],
-['name' => 'Airtel', 'icon' => 'bi-telephone-fill', 'op_id' => 141],
-['name' => 'Vodafone Idea (Vi)', 'icon' => 'bi-telephone-fill', 'op_id' => 2],
-['name' => 'BSNL (Vodafone Idea)', 'icon' => 'bi-telephone-fill', 'op_id' => 4],
-['name' => 'BSNL', 'icon' => 'bi-telephone-fill', 'op_id' => 5],
-['name' => 'MTNL (Vodafone Idea)', 'icon' => 'bi-telephone-fill', 'op_id' => 6],
-['name' => 'MTNL', 'icon' => 'bi-telephone-fill', 'op_id' => 7],
-['name' => 'Tata Docomo', 'icon' => 'bi-telephone-fill', 'op_id' => 8],
-['name' => 'Aircel', 'icon' => 'bi-telephone-fill', 'op_id' => 9],
-['name' => 'Idea Cellular', 'icon' => 'bi-telephone-fill', 'op_id' => 10],
-];
+    @php
+        $rechargeOperators = [
+            ['name' => 'Jio', 'icon' => 'bi-telephone-fill', 'op_id' => 140],
+            ['name' => 'Airtel', 'icon' => 'bi-telephone-fill', 'op_id' => 141],
+            ['name' => 'Vodafone Idea (Vi)', 'icon' => 'bi-telephone-fill', 'op_id' => 2],
+            ['name' => 'BSNL (Vodafone Idea)', 'icon' => 'bi-telephone-fill', 'op_id' => 4],
+            ['name' => 'BSNL', 'icon' => 'bi-telephone-fill', 'op_id' => 5],
+            ['name' => 'MTNL (Vodafone Idea)', 'icon' => 'bi-telephone-fill', 'op_id' => 6],
+            ['name' => 'MTNL', 'icon' => 'bi-telephone-fill', 'op_id' => 7],
+            ['name' => 'Tata Docomo', 'icon' => 'bi-telephone-fill', 'op_id' => 8],
+            ['name' => 'Aircel', 'icon' => 'bi-telephone-fill', 'op_id' => 9],
+            ['name' => 'Idea Cellular', 'icon' => 'bi-telephone-fill', 'op_id' => 10],
+        ];
 
-$rechargeCircles = [
-['name' => 'Andhra Pradesh & Telangana', 'code' => 'AP', 'circle_id' => 1],
-['name' => 'Assam', 'code' => 'AS', 'circle_id' => 2],
-['name' => 'Bihar & Jharkhand', 'code' => 'BR', 'circle_id' => 3],
-['name' => 'Chennai', 'code' => 'CH', 'circle_id' => 4],
-['name' => 'Delhi NCR', 'code' => 'DL', 'circle_id' => 5],
-['name' => 'Gujarat', 'code' => 'GJ', 'circle_id' => 6],
-['name' => 'Haryana', 'code' => 'HR', 'circle_id' => 7],
-['name' => 'Himachal Pradesh', 'code' => 'HP', 'circle_id' => 8],
-['name' => 'Jammu & Kashmir', 'code' => 'JK', 'circle_id' => 9],
-['name' => 'Karnataka', 'code' => 'KA', 'circle_id' => 10],
-['name' => 'Kerala', 'code' => 'KL', 'circle_id' => 11],
-['name' => 'Kolkata', 'code' => 'KO', 'circle_id' => 12],
-['name' => 'Madhya Pradesh & Chhattisgarh', 'code' => 'MP', 'circle_id' => 13],
-['name' => 'Maharashtra & Goa', 'code' => 'MH', 'circle_id' => 14],
-['name' => 'Mumbai', 'code' => 'MU', 'circle_id' => 15],
-['name' => 'North East', 'code' => 'NE', 'circle_id' => 16],
-['name' => 'Odisha', 'code' => 'OR', 'circle_id' => 17],
-['name' => 'Punjab', 'code' => 'PB', 'circle_id' => 18],
-['name' => 'Rajasthan', 'code' => 'RJ', 'circle_id' => 19],
-['name' => 'Tamil Nadu', 'code' => 'TN', 'circle_id' => 20],
-['name' => 'Uttar Pradesh (East)', 'code' => 'UE', 'circle_id' => 21],
-['name' => 'Uttar Pradesh (West)', 'code' => 'UW', 'circle_id' => 22],
-['name' => 'West Bengal', 'code' => 'WB', 'circle_id' => 23],
-];
+        $rechargeCircles = [
+            ['name' => 'Andhra Pradesh & Telangana', 'code' => 'AP', 'circle_id' => 1],
+            ['name' => 'Assam', 'code' => 'AS', 'circle_id' => 2],
+            ['name' => 'Bihar & Jharkhand', 'code' => 'BR', 'circle_id' => 3],
+            ['name' => 'Chennai', 'code' => 'CH', 'circle_id' => 4],
+            ['name' => 'Delhi NCR', 'code' => 'DL', 'circle_id' => 5],
+            ['name' => 'Gujarat', 'code' => 'GJ', 'circle_id' => 6],
+            ['name' => 'Haryana', 'code' => 'HR', 'circle_id' => 7],
+            ['name' => 'Himachal Pradesh', 'code' => 'HP', 'circle_id' => 8],
+            ['name' => 'Jammu & Kashmir', 'code' => 'JK', 'circle_id' => 9],
+            ['name' => 'Karnataka', 'code' => 'KA', 'circle_id' => 10],
+            ['name' => 'Kerala', 'code' => 'KL', 'circle_id' => 11],
+            ['name' => 'Kolkata', 'code' => 'KO', 'circle_id' => 12],
+            ['name' => 'Madhya Pradesh & Chhattisgarh', 'code' => 'MP', 'circle_id' => 13],
+            ['name' => 'Maharashtra & Goa', 'code' => 'MH', 'circle_id' => 14],
+            ['name' => 'Mumbai', 'code' => 'MU', 'circle_id' => 15],
+            ['name' => 'North East', 'code' => 'NE', 'circle_id' => 16],
+            ['name' => 'Odisha', 'code' => 'OR', 'circle_id' => 17],
+            ['name' => 'Punjab', 'code' => 'PB', 'circle_id' => 18],
+            ['name' => 'Rajasthan', 'code' => 'RJ', 'circle_id' => 19],
+            ['name' => 'Tamil Nadu', 'code' => 'TN', 'circle_id' => 20],
+            ['name' => 'Uttar Pradesh (East)', 'code' => 'UE', 'circle_id' => 21],
+            ['name' => 'Uttar Pradesh (West)', 'code' => 'UW', 'circle_id' => 22],
+            ['name' => 'West Bengal', 'code' => 'WB', 'circle_id' => 23],
+        ];
 
-$rechargePlanTypes = [
-['name' => 'Data', 'code' => 'DATA', 'plan_id' => 3],
-['name' => 'Popular', 'code' => 'POPULAR', 'plan_id' => 1],
-['name' => 'Unlimited', 'code' => 'UNLIMITED', 'plan_id' => 2],
-['name' => 'Talktime', 'code' => 'TALKTIME', 'plan_id' => 4],
-['name' => 'SMS', 'code' => 'SMS', 'plan_id' => 5],
-['name' => 'Roaming', 'code' => 'ROAMING', 'plan_id' => 6],
-];
-@endphp
+        $rechargePlanTypes = [
+            ['name' => 'Data', 'code' => 'DATA', 'plan_id' => 3],
+            ['name' => 'Popular', 'code' => 'POPULAR', 'plan_id' => 1],
+            ['name' => 'Unlimited', 'code' => 'UNLIMITED', 'plan_id' => 2],
+            ['name' => 'Talktime', 'code' => 'TALKTIME', 'plan_id' => 4],
+            ['name' => 'SMS', 'code' => 'SMS', 'plan_id' => 5],
+            ['name' => 'Roaming', 'code' => 'ROAMING', 'plan_id' => 6],
+        ];
+    @endphp
 
 
-@include('Include.Service-modal.prepaid-recharge')
-@include('Include.Service-modal.view-bill')
+    @include('Include.Service-modal.prepaid-recharge')
+    @include('Include.Service-modal.view-bill')
 
-<script>
-    let clickCount = 0;
+    <script>
+        let clickCount = 0;
 
-    $("#confirmRechargeBtn").on("click", function (event) {
-        clickCount++;
-        if (clickCount >= 4) {
-            $(this).prop("disabled", true);
-            $(this).text("Limit Exceeded");
+        $("#confirmRechargeBtn").on("click", function(event) {
+            clickCount++;
+            if (clickCount >= 4) {
+                $(this).prop("disabled", true);
+                $(this).text("Limit Exceeded");
 
-            Swal.fire({
-                icon: 'error',
-                title: 'Limit Exceeded',
-                text: 'You have attempted too many times. Please try again later.',
-                confirmButtonColor: '#3085d6',
-                confirmButtonText: 'OK'
-            });
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Limit Exceeded',
+                    text: 'You have attempted too many times. Please try again later.',
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'OK'
+                });
+            }
+        });
+
+
+        // Event binding
+        $(document).on('click', '.service-btn', function() {
+            let service = $(this).data('service');
+            openServiceModal(service);
+        });
+
+        function openServiceModal(service) {
+            if (service === 'Mobile Prepaid') {
+                $('#rechargeModal').modal('show');
+            } else {
+                $('#viewBillModal').modal('show');
+            }
         }
-    });
 
-
-    // Event binding
-    $(document).on('click', '.service-btn', function () {
-        let service = $(this).data('service');
-        openServiceModal(service);
-    });
-
-    function openServiceModal(service) {
-        if (service === 'Mobile Prepaid') {
-            $('#rechargeModal').modal('show');
-        }else{
-              $('#viewBillModal').modal('show');
-        }
-    }
-
-    function spinLoader(text) {
-        return `
+        function spinLoader(text) {
+            return `
                 <div class="text-center my-4">
                     <div class="spinner-border text-primary"></div>
                     <p class="mt-2">${text}</p>
                 </div>
             `;
-    }
+        }
 
-    function buildOperatorDropdown() {
-        let options = `<option value="">Select Operator</option>`;
-        window.rechargeOperators.forEach(op => {
-            options += `<option value="${op.op_id}">${op.name}</option>`;
-        });
+        function buildOperatorDropdown() {
+            let options = `<option value="">Select Operator</option>`;
+            window.rechargeOperators.forEach(op => {
+                options += `<option value="${op.op_id}">${op.name}</option>`;
+            });
 
-        return `
+            return `
                 <div class="mb-3">
                     <label>Operator</label>
                     <select class="form-select" id="operator" name="operator">
@@ -638,15 +638,15 @@ $rechargePlanTypes = [
                     </select>
                 </div>
             `;
-    }
+        }
 
-    function buildCircleDropdown() {
-        let options = `<option value="">Select Circle</option>`;
-        window.rechargeCircles.forEach(circle => {
-            options += `<option value="${circle.circle_id}">${circle.name}</option>`;
-        });
+        function buildCircleDropdown() {
+            let options = `<option value="">Select Circle</option>`;
+            window.rechargeCircles.forEach(circle => {
+                options += `<option value="${circle.circle_id}">${circle.name}</option>`;
+            });
 
-        return `
+            return `
                 <div class="mb-3">
                     <label>Circle</label>
                     <select class="form-select" id="circle" name="circle">
@@ -654,15 +654,15 @@ $rechargePlanTypes = [
                     </select>
                 </div>
             `;
-    }
+        }
 
-    function buildPlanTypeDropdown() {
-        let options = `<option value="">Select Plan Type</option>`;
-        window.rechargePlanTypes.forEach(plan => {
-            options += `<option value="${plan.plan_id}">${plan.name}</option>`;
-        });
+        function buildPlanTypeDropdown() {
+            let options = `<option value="">Select Plan Type</option>`;
+            window.rechargePlanTypes.forEach(plan => {
+                options += `<option value="${plan.plan_id}">${plan.name}</option>`;
+            });
 
-        return `
+            return `
                 <div class="mb-3">
                     <label>Plan Type</label>
                     <select class="form-select" id="planType" name="planType">
@@ -670,718 +670,40 @@ $rechargePlanTypes = [
                     </select>
                 </div>
             `;
-    }
-</script>
-
-
-<!-- <script>
-    /* ===============================
-           SERVICE CONFIG
-        ================================ */
-    const serviceConfig = {
-        "Mobile Postpaid": {
-            steps: ["INPUT"],
-            input: () => `
-                    <div class="mb-3">
-                        <label>Mobile Number</label>
-                        <input class="form-control" id="postmobile" name="postmobile" type="text">
-                    </div>
-                    ${buildOperatorDropdown()}
-                    ${buildCircleDropdown()}
-                `
-        },
-
-        "Mobile Prepaid": {
-            steps: ["INPUT", "FETCH_PLANS", "PAY"],
-            input: () => `
-                    <div class="mb-3">
-                        <label>Mobile Number</label>
-                        <input class="form-control" id="mobile" name="mobile" type="text">
-                    </div>
-                    ${buildOperatorDropdown()}
-                    ${buildCircleDropdown()}
-                    ${buildPlanTypeDropdown()}
-                `
-        },
-
-        "Landline Postpaid": {
-            steps: ["INPUT", "FETCH_BILL"],
-            input: () => `
-                    <div class="mb-3">
-                        <label>Landline Number</label>
-                        <input class="form-control" id="accountInput">
-                    </div>
-                    ${buildOperatorDropdown()}
-                `
-        },
-
-        "Broadband Postpaid": {
-            steps: ["INPUT", "FETCH_BILL", "PAY"],
-            input: () => `
-                    <div class="mb-3">
-                        <label>Broadband Account ID</label>
-                        <input class="form-control" id="accountInput">
-                    </div>
-                    ${buildOperatorDropdown()}
-                `
-        },
-
-        "Cable TV": {
-            steps: ["INPUT", "FETCH_BILL", "PAY"],
-            input: () => `
-                    <div class="mb-3">
-                        <label>Customer ID</label>
-                        <input class="form-control" id="accountInput">
-                    </div>
-                    ${buildOperatorDropdown()}
-                `
-        },
-
-        "DTH": {
-            steps: ["INPUT", "FETCH_BILL", "PAY"],
-            input: () => `
-                    <div class="mb-3">
-                        <label>Subscriber ID</label>
-                        <input class="form-control" id="accountInput">
-                    </div>
-                    ${buildOperatorDropdown()}
-                `
-        },
-
-        "Fastag": {
-            steps: ["INPUT", "FETCH_BILL", "PAY"],
-            input: () => `
-                    <div class="mb-3">
-                        <label>Vehicle / FASTag Number</label>
-                        <input class="form-control" id="accountInput">
-                    </div>
-                `
-        },
-
-        "Subscription": {
-            steps: ["INPUT", "PAY"],
-            input: () => `
-                    <div class="mb-3">
-                        <label>Subscription ID</label>
-                        <input class="form-control" id="accountInput">
-                    </div>
-                `
-        },
-
-        "NCMC Recharge": {
-            steps: ["INPUT", "PAY"],
-            input: () => `
-                    <div class="mb-3">
-                        <label>NCMC Card Number</label>
-                        <input class="form-control" id="accountInput">
-                    </div>
-                `
-        },
-
-        "Bill Pay": {
-            steps: ["INPUT", "FETCH_BILL", "PAY"],
-            input: () => `
-                    <div class="mb-3">
-                        <label>Bill Type</label>
-                        <select class="form-select">
-                            <option>Electricity</option>
-                            <option>Water</option>
-                            <option>Gas</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label>Consumer Number</label>
-                        <input class="form-control" id="accountInput">
-                    </div>
-                `
-        },
-
-        "Scan Pay": {
-            steps: ["SCAN", "PAY"],
-            input: () => `
-                    <div class="text-center">
-                        <button type="button" class="btn btn-outline-primary w-100">
-                            <i class="bi bi-qr-code-scan me-2"></i> Scan QR Code
-                        </button>
-                    </div>
-                `
         }
-    };
-
-    /*===============================
-       GLOBAL STATE
-    ================================ */
-    let currentService = '';
-    let stepIndex = 0;
-    let selectedAmount = 0;
-    let __fetchingPlans = false;
-
-
-    let __payLock = false; // Pay Now multi hit stop
-    let __nextClickLock = false; // fast click spam stop
-
-    let selectedMeta = {
-        mobile: '',
-        operator_id: '',
-        operatorName: '',
-        circle_id: '',
-        circleName: '',
-        plan_id: '',
-        planName: '',
-        amount: '',
-    };
-
-    let cachedPlans = [];
-    let __plansReqId = 0;
-    let __plansAbortController = null;
-
-    function renderMetaHeader(meta) {
-        return `
-                <div class="meta-card">
-                    <div class="meta-top">
-                        <div class="meta-title">
-                            <div class="meta-ico"><i class="bi bi-receipt-cutoff"></i></div>
-                            <div>
-                                <div style="font-size:12px; opacity:.75;">Recharge Details</div>
-                                <div class="meta-mobile">${meta.mobile || ''}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="meta-badges">
-                        <div class="meta-badge"><i class="bi bi-sim"></i><span><b>Operator:</b> ${meta.operatorName || '-'}</span></div>
-                        <div class="meta-badge"><i class="bi bi-geo-alt"></i><span><b>Circle:</b> ${meta.circleName || '-'}</span></div>
-                        <div class="meta-badge"><i class="bi bi-lightning-charge"></i><span><b>Plan:</b> ${meta.planName || '-'}</span></div>
-                    </div>
-                </div>
-            `;
-    }
-
-    function renderPlansList(plans, mobile) {
-        let html = `${renderMetaHeader(selectedMeta)}<div class="plans-wrap"><div class="plans-scroll">`;
-
-        plans.forEach((p) => {
-            const amt = p.amount ?? p.price ?? p.recharge_amount ?? p.amt ?? 0;
-
-            let validity = p.validity ?? p.validityDays ?? p.days ?? p.planValidity ?? '';
-            let desc = p.description ?? p.desc ?? p.planName ?? '';
-
-            let talktimeValue =
-                p.talktime ??
-                p.talkTime ??
-                p.talktime_amount ??
-                p.talktimeAmount ??
-                p.talk_value ??
-                '';
-
-            validity = (validity + '').replace(/--/g, '').replace(/\s+/g, ' ').trim();
-            desc = (desc + '').replace(/\s+/g, ' ').trim();
-
-            const validityText = validity ? validity : '—';
-
-            if (talktimeValue) {
-                const tv = (talktimeValue + '').trim();
-                desc = (desc ? desc + ' • ' : '') + `Talktime ₹${tv}`;
-            }
-
-            const descText = desc ? desc : 'Plan details';
-
-            html += `
-                    <button type="button" class="plan-card plan" data-amt="${amt}">
-                        <div class="plan-left">
-                            <div class="plan-badge">₹</div>
-                            <div class="plan-meta">
-                                <p class="plan-amt">₹${amt}</p>
-                                <p class="plan-sub">${descText}</p>
-                            </div>
-                        </div>
-
-                        <div class="plan-right">
-                            <span class="plan-chip">${validityText}</span>
-                            <i class="bi bi-chevron-right"></i>
-                        </div>
-                    </button>
-                `;
-        });
-
-        html += `</div></div>`;
-
-        document.getElementById('modalBody').innerHTML = html;
-
-        $('.plan').off('click').on('click', function () {
-            $('.plan').removeClass('active');
-            $(this).addClass('active');
-
-            selectedAmount = $(this).data('amt') || 0;
-            selectedMeta.amount = selectedAmount;
-
-            stepIndex = 2; // PAY step
-            loadStep();
-        });
-    }
-
-    /* ===============================
-       INIT
-    ================================ */
-    $(document).ready(function () {
-        window.rechargeOperators = @json($rechargeOperators);
-        window.rechargeCircles = @json($rechargeCircles);
-        window.rechargePlanTypes = @json($rechargePlanTypes);
-
-        $('.service-btn').on('click', function () {
-            currentService = $(this).data('service');
-            stepIndex = 0;
-            selectedAmount = 0;
-            __fetchingPlans = false;
-
-
-            __payLock = false;
-            __nextClickLock = false;
-
-            selectedMeta = {
-                mobile: '',
-                operator_id: '',
-                operatorName: '',
-                circle_id: '',
-                circleName: '',
-                plan_id: '',
-                planName: '',
-                amount: 0,
-            };
-
-            cachedPlans = [];
-
-            if (__plansAbortController) {
-                try {
-                    __plansAbortController.abort();
-                } catch (e) { }
-            }
-            __plansAbortController = null;
-            __plansReqId++;
-
-            $('#modalTitle').text(currentService);
-            loadStep();
-            $('#rechargeModal').modal('show');
-        });
-    });
-
-    /* ===============================
-       STEP ENGINE
-    ================================ */
-    function loadStep() {
-        const config = serviceConfig[currentService];
-        const step = config.steps[stepIndex];
-
-        $('#backBtn').toggleClass('d-none', stepIndex === 0);
-
-        if (step === "INPUT" || step === "SCAN") {
-            $('#nextBtn').text('View Plans').show().prop('disabled', false);
-            $('#modalBody').html(config.input());
-            return;
-        }
-
-        if (step === "FETCH_BILL") {
-            $('#nextBtn').text('Fetching...').prop('disabled', true).show();
-            $('#modalBody').html(spinLoader("Fetching bill details..."));
-
-            setTimeout(() => {
-                selectedAmount = 399;
-                stepIndex++;
-                loadStep();
-            }, 1200);
-            return;
-        }
-
-        if (step === "FETCH_PLANS") {
-            $('#nextBtn').hide();
-
-            if (cachedPlans && cachedPlans.length) {
-                renderPlansList(cachedPlans, selectedMeta.mobile);
-                return;
-            }
-
-            $('#modalBody').html(`
-                    ${renderMetaHeader(selectedMeta)}
-                    ${spinLoader("Fetching recharge plans...")}
-                `);
-            return;
-        }
-
-        if (step === "PAY") {
-            $('#nextBtn').text('Pay Now').show().prop('disabled', false);
-
-            $('#modalBody').html(`
-                    ${renderMetaHeader(selectedMeta)}
-
-                    <div class="mb-3">
-                        <label>Amount</label>
-                        <input class="form-control" id="amount" value="₹${selectedAmount || 0}" readonly>
-                    </div>
-
-                    <div class="mb-3">
-                        <label>Payment Method</label>
-                        <select class="form-select">
-                            <option>UPI</option>
-                            <option>Wallet</option>
-                            <option>Debit Card</option>
-                            <option>Net Banking</option>
-                        </select>
-                    </div>
-
-                    <div class="alert alert-info py-2 mb-0" style="font-size:12px;">
-                        <i class="bi bi-shield-check me-1"></i> You will be redirected to secure payment.
-                    </div>
-                `);
-
-            return;
-        }
-    }
-
-    /* ===============================
-       BUTTON HANDLERS
-
-        FIXED: prevents multiple Pay Now hits
-
-    ================================ */
-    $('#nextBtn').off('click').on('click', function (e) {
-        e.preventDefault();
-
-        const config = serviceConfig[currentService];
-        const step = config.steps[stepIndex];
-
-
-        if (__nextClickLock) return;
-        __nextClickLock = true;
-        setTimeout(() => {
-            __nextClickLock = false;
-        }, 350);
-
-
-        if (currentService === "Mobile Prepaid" && stepIndex === 0) {
-            return;
-        }
-    });
-
-    /* ===============================
-       BUTTON HANDLERS
-       FIXED: prevents multiple Pay Now hits
-    ================================ */
-    $('#nextBtn').off('click').on('click', function (e) {
-        e.preventDefault();
-
-        const config = serviceConfig[currentService];
-        const step = config.steps[stepIndex];
-
-
-        if (__nextClickLock) return;
-        __nextClickLock = true;
-        setTimeout(() => {
-            __nextClickLock = false;
-        }, 350);
-
-
-        if (currentService === "Mobile Prepaid" && stepIndex === 0) {
-            return;
-        }
-
-
-
-        if (currentService === "Mobile Postpaid" && stepIndex === 0) {
-            document.getElementById('rechargeForm')
-                .dispatchEvent(new Event('submit', {
-                    cancelable: true
-                }));
-            return;
-        }
-
-
-
-        if (step === "PAY") {
-            if (__payLock) return;
-            __payLock = true;
-            $('#nextBtn').prop('disabled', true);
-            rechargeValidation();
-            return;
-        }
-
-        if (stepIndex < config.steps.length - 1) {
-            stepIndex++;
-            loadStep();
-        } else {
-            rechargeValidation();
-        }
-    });
-
-    $('#backBtn').on('click', function () {
-        if (__plansAbortController) {
-            try {
-                __plansAbortController.abort();
-            } catch (e) { }
-        }
-        __plansAbortController = null;
-
-        __fetchingPlans = false;
-        __plansReqId++;
-
-
-        __payLock = false;
-        $('#nextBtn').prop('disabled', false);
-
-
-        if (currentService === "Mobile Postpaid" && stepIndex === 0) {
-            document.getElementById('rechargeForm')
-                .dispatchEvent(new Event('submit', {
-                    cancelable: true
-                }));
-            return;
-        }
-
-
-        if (step === "PAY") {
-            if (__payLock) return;
-            __payLock = true;
-            $('#nextBtn').prop('disabled', true);
-            rechargeValidation();
-            return;
-        }
-
-        if (stepIndex < config.steps.length - 1) {
-            stepIndex++;
-            loadStep();
-        } else {
-            rechargeValidation();
-        }
-    });
-
-
-    $('#backBtn').off('click').on('click', function () {
-
-
-        if (__plansAbortController) {
-            try { __plansAbortController.abort(); } catch (e) { }
-        }
-        __plansAbortController = null;
-
-        __fetchingPlans = false;
-        __plansReqId++;
-
-
-        __payLock = false;
-        $('#nextBtn').prop('disabled', false);
-        if (stepIndex > 0) stepIndex--;
-        loadStep();
-    });
-
-
-    function spinLoader(text) {
-        return `
-                <div class="text-center my-4">
-                    <div class="spinner-border text-primary"></div>
-                    <p class="mt-2">${text}</p>
-                </div>
-            `;
-    }
-</script>
-
-<script>
-    document.getElementById('nextBtn').addEventListener('click', function () {
-
-        if (currentService !== "Mobile Prepaid") return;
-
-
-        if (stepIndex !== 0) return;
-
-        if (!document.getElementById('mobile')) return;
-        if (__fetchingPlans) return;
-
-        __fetchingPlans = true;
-
-        const mobile = document.getElementById('mobile').value;
-
-        const operatorSelect = document.getElementById('operator');
-        const circleSelect = document.getElementById('circle');
-        const planSelect = document.getElementById('planType');
-
-        const operator_id = operatorSelect.value;
-        const circle_id = circleSelect.value;
-        const plan_type = planSelect.value;
-
-        if (!mobile || !operator_id || !circle_id || !plan_type) {
-            __fetchingPlans = false;
-            alert('Please fill all fields');
-            return;
-        }
-
-        const operatorName = operatorSelect.options[operatorSelect.selectedIndex]?.text || '';
-        const circleName = circleSelect.options[circleSelect.selectedIndex]?.text || '';
-        const planName = planSelect.options[planSelect.selectedIndex]?.text || '';
-
-        selectedMeta = {
-            mobile,
-            operator_id,
-            operatorName,
-            circle_id,
-            circleName,
-            plan_id: plan_type,
-            planName,
-            amount: 0,
-        };
-
-        cachedPlans = [];
-
-        stepIndex = 1; // FETCH_PLANS
-        loadStep();
-
-        if (__plansAbortController) {
-            try {
-                __plansAbortController.abort();
-            } catch (e) { }
-        }
-        __plansAbortController = new AbortController();
-        const reqId = ++__plansReqId;
-
-        fetch('/user/bbps-recharge/getPlans/' + operator_id + '/' + circle_id + '/' + plan_type, {
-            method: 'POST',
-            signal: __plansAbortController.signal,
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({
-                mobile,
-                operator_id,
-                circle_id,
-                plan_type
-            })
-        })
-            .then(res => res.json())
-            .then(response => {
-                if (reqId !== __plansReqId) return;
-
-                __fetchingPlans = false;
-
-                if (!response.success) {
-                    alert(response.message || 'Plans not available');
-                    stepIndex = 0;
-                    loadStep();
-                    return;
-                }
-
-                cachedPlans = response.data || [];
-                renderPlansList(cachedPlans, mobile);
-            })
-            .catch(error => {
-                if (error.name === 'AbortError') return;
-                console.error(error);
-                __fetchingPlans = false;
-                alert('Error fetching plans');
-                stepIndex = 0;
-                loadStep();
-            });
-    });
-</script>
-
-<script>
-    function rechargeValidation() {
-        const payload = {
-            amt: String(selectedMeta.amount),
-            cn: String(selectedMeta.mobile),
-            op: String(selectedMeta.operator_id),
-            cir: String(selectedMeta.circle_id),
-            planCode: String(selectedMeta.plan_id),
-            adParams: {}
-        };
-
-        fetch("{{ route('bbps.validateRecharge') }}", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            },
-            body: JSON.stringify(payload)
-        })
-            .then(res => res.json())
-            .then(res => {
-                if (res.message?.code === "RECHARGEVALIDATIONSUCCESS") {
-                    Swal.fire({
-                        icon: 'error',
-                        title: `<span style="font-size:15px; color: #AA4A44;">${res.message?.code || 'N/A'}</span>`,
-                        html: `<p>${res.message?.text || 'Validation failed. Please try again.'}</p>`,
-                        confirmButtonText: 'OK'
-                    });
-                    return;
-
-                } else if (res.message?.code === "RECHARGEVALIDATIONFAILURE") {
-
-                    const currentModalEl = document.querySelector('#rechargeModal.modal.show');
-                    if (currentModalEl) {
-                        const currentModal = bootstrap.Modal.getInstance(currentModalEl);
-                        currentModal.hide();
+    </script>
+
+    <script>
+        $('#category').on('change', function() {
+            let categoryId = $(this).val();
+
+            $('#biller-list').html('<option value="">Loading...</option>');
+
+            if (categoryId) {
+                $.ajax({
+                    url: '/get-billers/' + categoryId,
+                    type: 'GET',
+                    success: function(response) {
+                        let options = '<option value="">-- Select Biller --</option>';
+
+                        if (response.length > 0) {
+                            response.forEach(function(biller) {
+                                options += `
+                            <option value="${biller.biller_name}">
+                                ${biller.biller_name}
+                            </option>
+                        `;
+                            });
+                        } else {
+                            options = '<option value="">No billers found</option>';
+                        }
+
+                        $('#biller-list').html(options);
                     }
-
-                    document.getElementById('rechargeAmount').value = selectedMeta.amount;
-                    document.getElementById('rechargeMobile').value = selectedMeta.mobile;
-                    document.getElementById('rechargeOperatorId').value = selectedMeta.operator_id;
-                    document.getElementById('rechargeCircleId').value = selectedMeta.circle_id;
-                    document.getElementById('rechargePlanId').value = selectedMeta.plan_id;
-
-                    const mpinModal = new bootstrap.Modal(document.getElementById('mpinModal'));
-                    mpinModal.show();
-
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: `<span style="font-size:15px; color: #AA4A44;">${res.message || 'N/A'}</span>`,
-                        html: `<p>${res.message || 'Validation failed. Please try again.'}</p>`,
-                        confirmButtonText: 'OK'
-                    });
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                alert('Recharge validation error');
-            })
-            .finally(() => {
-
-                __payLock = false;
-                $('#nextBtn').prop('disabled', false);
-            });
-    }
-
-    
-</script>
-
-<script>
-    document.getElementById('rechargeForm').addEventListener('submit', function (e) {
-        e.preventDefault();
-
-        if (currentService !== 'Mobile Postpaid') return;
-
-        const modal = document.getElementById('rechargeModal');
-
-        const data = {
-            cn: modal.querySelector('#postmobile')?.value,
-            op: modal.querySelector('#operator')?.value,
-            cir: modal.querySelector('#circle')?.value
-        };
-
-        console.log('Postpaid Data:', data);
-
-        fetch("{{ route('bbps.postpaid_villBill') }}", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify(data)
-        })
-            .then(res => res.json())
-            .then(res => {
-                console.log('Server Response:', res);
-            })
-            .catch(err => {
-                console.error('Error:', err);
-            });
-    });
-</script> -->
+                });
+            } else {
+                $('#biller-list').html('<option value="">-- Select Biller --</option>');
+            }
+        });
+    </script>
 @endsection
