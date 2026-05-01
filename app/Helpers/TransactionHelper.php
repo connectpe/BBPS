@@ -451,4 +451,27 @@ class TransactionHelper
         }
         return $resp;
     }
+
+    public static function moveRechargeOrderToPending($userId, $paymentRefId, $connectpeId, $providerId)
+    {
+        $resp['status'] = false;
+        $resp['message'] = 'Initiate';
+        try {
+            $txn = CommonHelper::getRandomString('txn', false);
+            DB::select("CALL debitRechargeAmount($userId, '" . $paymentRefId . "',  '" . $connectpeId . "','" . $providerId . "', '" . $txn . "', @json)");
+            $results = DB::select('select @json as json');
+            $response = json_decode($results[0]->json, true);
+            if ($response['status'] == '1') {
+                $resp['status'] = true;
+                $resp['message'] = 'Recharge order processing successfully.';
+            } else {
+                $resp['status'] = false;
+                $resp['message'] = $response['message'];
+            }
+        } catch (\Exception $e) {
+            $resp['status'] = false;
+            $resp['message'] = 'Some errors : ' . $e->getMessage();
+        }
+        return $resp;
+    }
 }
