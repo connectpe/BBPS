@@ -558,12 +558,12 @@ class MobikwikController extends Controller
 
                     $rechargeOrderCreate = TransactionHelper::createRechargeTransactionOrders($userId, $serviceId, $connectpeId, $payload, $agent);
 
-                    if (! $$rechargeOrderCreate['status']) {
+                    if (!$rechargeOrderCreate['status']) {
                         return ApiResponseHelper::failed($rechargeOrderCreate['message'], []);
                     }
 
                     // Dispatch Job
-                    dispatch(new RechargeDebitBalanceAndStatusUpdateJob($connectpeId, $userId, 'balance_debit', $serviceId, '', '', '', '', ''))->onQueue('payout_debit_queue');
+                    dispatch(new RechargeDebitBalanceAndStatusUpdateJob($connectpeId, $userId, 'balance_debit', $serviceId, $payload, '', '', ''))->onQueue('recharge_debit_queue');
 
                     // Response
                     return ApiResponseHelper::success(

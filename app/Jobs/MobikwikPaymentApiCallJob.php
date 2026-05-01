@@ -20,24 +20,26 @@ class MobikwikPaymentApiCallJob implements ShouldQueue
     public $tries = 3;
     public $timeout = 120;
 
-    private array $payload;
-    private string $endpoint;
-    private string $token;
-    private string $type;
+    // private array $payload;
+    // private string $endpoint;
+    // private string $token;
+    // private string $type;
 
-    public function __construct(string $endpoint, array $payload, string $token, string $type)
+    private $connectpeId, $userId, $providerSlug, $providerId, $payload;
+    public function __construct($connectpeId, $userId, $providerSlug, $providerId, $payload)
     {
-        $this->endpoint = $endpoint;
+        $this->connectpeId = $connectpeId;
+        $this->userId    = $userId;
+        $this->providerSlug     = $providerSlug;
+        $this->providerId = $providerId;
         $this->payload  = $payload;
-        $this->token    = $token;
-        $this->type     = $type;
     }
 
     public function handle(): void
     {
         try {
 
-            switch ($this->type) {
+            switch ($this->providerSlug) {
 
                 case 'mobikwik':
                     $this->handleMobikwik();
@@ -50,18 +52,17 @@ class MobikwikPaymentApiCallJob implements ShouldQueue
                     ]);
                     break;
             }
-
         } catch (\Throwable $e) {
             Log::error('Payment API Job Failed', [
                 'error' => $e->getMessage(),
                 'type' => $this->type,
                 'payload' => $this->payload
             ]);
-            throw $e; 
+            throw $e;
         }
     }
 
-    
+
     private function handleMobikwik(): void
     {
         $mobikwik = new MobiKwikHelper();
@@ -78,11 +79,11 @@ class MobikwikPaymentApiCallJob implements ShouldQueue
 
         DB::transaction(function () use ($response) {
 
-           
+
             $transaction = Transaction::where('user_id', $this->payload['userid'])
                 ->where('request_id', $this->payload['reqid'])
-                ->where('status','processing')
-                ->where('cron_status','1')
+                ->where('status', 'processing')
+                ->where('cron_status', '1')
                 ->lockForUpdate()
                 ->first();
 
@@ -107,10 +108,9 @@ class MobikwikPaymentApiCallJob implements ShouldQueue
                     $transaction->request_id,
                     'success'
                 );
-
             } elseif ($status === 'FAILED') {
 
-                
+
                 $this->payload['call'] = 'failed_order';
 
                 dispatch(
@@ -120,15 +120,13 @@ class MobikwikPaymentApiCallJob implements ShouldQueue
                         $this->token
                     )
                 )->delay(now()->addSeconds(5))
-                 ->onQueue('recharge_process_queue');
-
+                    ->onQueue('recharge_process_queue');
             } else {
-                
+
                 Log::info('Mobikwik transaction pending', [
                     'request_id' => $this->payload['reqid']
                 ]);
             }
-
         });
     }
 }
