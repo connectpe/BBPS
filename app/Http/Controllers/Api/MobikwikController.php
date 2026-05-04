@@ -16,6 +16,7 @@ use App\Models\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Validation\RetailerPaymentValidation;
 use App\Jobs\RechargeDebitBalanceAndStatusUpdateJob;
 
 class MobikwikController extends Controller
@@ -475,64 +476,11 @@ class MobikwikController extends Controller
         $provider = CommonHelper::getProviderSlug($userId, $serviceId);
         $providerSlug = $provider['provider_slug'];
 
-        $messages = [
-            'connectionNumber.required' => 'Connection number is required.',
-            'connectionNumber.string' => 'Connection number must be a valid string.',
-            'connectionNumber.regex' => 'Connection number must be a 10-digit number.',
+        $validator = RetailerPaymentValidation::validate($request->all());
 
-            'operator.required' => 'Operator is required.',
-            'operator.exists' => 'Selected operator is invalid.',
-
-            'circle.required' => 'Circle is required.',
-            'circle.exists' => 'Selected circle is invalid.',
-
-            'amount.required' => 'Amount is required.',
-            'amount.numeric' => 'Amount must be a number.',
-            'amount.min' => 'Amount must be at least 1.',
-
-            'requestId.required' => 'Request ID is required.',
-            'requestId.string' => 'Request ID must be a valid string.',
-            'requestId.unique' => 'This Request ID has already been used.',
-
-            'customerMobile.required' => 'Customer mobile number is required.',
-            'customerMobile.string' => 'Customer mobile number must be a valid string.',
-            'customerMobile.regex' => 'Customer mobile number must be a 10-digit number.',
-
-            'remitterName.required' => 'Remitter name is required.',
-            'remitterName.string' => 'Remitter name must be a valid string.',
-            'remitterName.max' => 'Remitter name cannot exceed 100 characters.',
-
-            'paymentRefID.required' => 'Payment reference ID is required.',
-            'paymentRefID.string' => 'Payment reference ID must be a valid string.',
-            'paymentRefID.unique' => 'This Payment Reference ID has already been used.',
-
-            'paymentMode.required' => 'Payment mode is required.',
-            'paymentMode.in' => 'Payment mode must be Wallet.',
-
-            'paymentAccountInfo.required' => 'Payment account information is required.',
-            'paymentAccountInfo.string' => 'Payment account information must be a valid string.',
-            'paymentAccountInfo.max' => 'Payment account information cannot exceed 100 characters.',
-
-            'additionalPrm1.string' => 'Additional parameter 1 must be a valid string.',
-            'additionalPrm1.max' => 'Additional parameter 1 cannot exceed 255 characters.',
-
-        ];
-
-        $request->validate([
-            'connectionNumber' => 'required|string|regex:/^[0-9]{10}$/',
-            'operator' => 'required',
-            'circle' => '',
-            'amount' => 'required|numeric|min:1',
-            'requestId' => 'required|string|unique:transactions,request_id',
-            'customerMobile' => 'required|string|regex:/^[0-9]{10}$/',
-            'agentId' => 'required|string',
-            'remitterName' => 'required|string|max:100',
-            'paymentRefID' => 'required|string|unique:transactions,payment_ref_id',
-            'paymentMode' => 'required|string',
-            'paymentAccountInfo' => 'required|string|max:100',
-            // 'additionalPrm1' => 'nullable|string|max:255',
-            // 'additionalPrm2' => 'nullable|string|max:255',
-        ], $messages);
+        if ($validator->fails()) {
+            return ApiResponseHelper::missing($validator->errors()->first());
+        }
 
         switch ($providerSlug) {
             case 'mobikwik':
@@ -567,11 +515,11 @@ class MobikwikController extends Controller
 
                     // Response
                     return ApiResponseHelper::success(
-                        'Order accepted successfully',
+                        'Recharge order accepted successfully',
                         [
                             'paymentRefID' => $request->paymentRefID,
                             'connectpeID'  => $connectpeId,
-                            'status'      => 'queued'
+                            'status'      => 'queue'
                         ],
                         200
                     );
