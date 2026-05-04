@@ -68,7 +68,7 @@ class RechargeDebitBalanceAndStatusUpdateJob implements ShouldQueue
                     Log::info('lock order', ['data' => $lockeOrder]);
                     if ($lockeOrder['status'] && isset($OrderData)) {
                         Log::info('Going to Enter in OrderProcessApiCallJob');
-                        dispatch(new \App\Jobs\MobikwikPaymentApiCallJob($OrderData->connectpe_id, $OrderData->user_id, $providerSlug, $providerId, $this->payload))->delay(rand(2, 7))->onQueue('recharge_process_queue');
+                        dispatch(new \App\Jobs\MobikwikPaymentApiCallJob($OrderData->payment_ref_id, $OrderData->user_id, $providerSlug, $providerId, $this->payload))->delay(rand(2, 7))->onQueue('recharge_process_queue');
                     } else {
                         $errorDesc = $lockeOrder['message'];
                         $statusCode = '';
