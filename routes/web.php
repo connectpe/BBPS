@@ -149,6 +149,9 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/payment-modes/{serviceId}', [AdminController::class, 'getPaymentModes']);
         Route::post('/payment-modes/save/{serviceId}', [AdminController::class, 'savePaymentModes']);
         Route::post('/payment-modes/status/{id}', [AdminController::class, 'updatePaymentModeStatus']);
+
+        // Document Verification Routes
+        Route::get('/bank-account', [AdminController::class, 'bankAccount'])->name('bank_account');
     });
 });
 
