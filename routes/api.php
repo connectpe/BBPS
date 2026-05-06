@@ -45,7 +45,6 @@ Route::prefix('payin')->group(function () {
     Route::post('/checkStatus', [PayinCheckStatusController::class, 'checkStatus']);
 });
 
-
 Route::group(['middleware' => ['logs', 'basicAuth']], function () {
     Route::prefix('payout')->group(function () {
         Route::post('/contacts', [ContactController::class, 'createContact']);
@@ -54,11 +53,12 @@ Route::group(['middleware' => ['logs', 'basicAuth']], function () {
 });
 
 Route::group(['middleware' => ['logs'], 'prefix' => 'verification'], function () {
-    // Route::post('verify-pan',[DocumentVerificationController::class,'panVerify'])->name('pan.verify');
+    Route::post('pan', [DocumentVerification::class, 'panVerify'])->name('pan_verify');
     Route::post('bank-account', [DocumentVerification::class, 'bankAccountVerify'])->name('bank_account_verify');
-    // Route::post('verify-cin',[DocumentVerificationController::class,'verifyCinNumber'])->name('cin.verify');
-    // Route::post('verify-gstin',[DocumentVerificationController::class,'verifyGstinNumber'])->name('gstin.verify');
-    // Route::post('verify-ifsc',[DocumentVerificationController::class,'verifyIfsc'])->name('verify.ifsc');
+    Route::post('cin', [DocumentVerification::class, 'cinVerify'])->name('cin_verify');
+    Route::post('gstin', [DocumentVerification::class, 'gstinVerify'])->name('gstin_verify');
+    Route::post('ifsc', [DocumentVerification::class, 'ifscVerify'])->name('ifsc_verify');
+    Route::post('aadhar-masking', [DocumentVerification::class, 'aadharMaskingVerify'])->name('aadhar_masking_verify');
     // Route::post('initiate-video-link', [DocumentVerificationController::class, 'initiateVideoKyc'])->name('initiate.video.link');
 
 });
