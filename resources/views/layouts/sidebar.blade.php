@@ -266,6 +266,8 @@
 
         $settingsRoute = ['users_log'];
         $settingsActive = in_array(Route::currentRouteName(), $settingsRoute);
+        $documentVerificationRoute = ['bank_account'];
+        $documentVerificationActive = in_array(Route::currentRouteName(), $documentVerificationRoute);
     @endphp
 
 
@@ -383,6 +385,24 @@
             class="nav-link {{ Route::currentRouteName() == 'payin_docs' ? 'active' : '' }}">
             <i class="bi bi-wallet-fill"></i>
             <span class="menu-text">Payin</span>
+        </a>
+    </div>
+</li>
+
+{{-- Document Verification --}}
+<li>
+    <a class="nav-link {{ $documentVerificationActive ? 'active' : '' }}"
+       data-bs-toggle="collapse" href="#documentVerificationMenu">
+        <i class="bi bi-shield-check"></i>
+        <span class="menu-text">Document Verification</span>
+        <i class="bi bi-chevron-down submenu-arrow"></i>
+    </a>
+
+    <div class="collapse submenu {{ $documentVerificationActive ? 'show' : '' }}" id="documentVerificationMenu">
+        <a href="{{ route('bank_account') }}"
+           class="nav-link {{ Route::currentRouteName() == 'bank_account' ? 'active' : '' }}">
+            <i class="bi bi-bank"></i>
+            <span class="menu-text">Bank Account</span>
         </a>
     </div>
 </li>
@@ -722,6 +742,7 @@
             <a href="{{ route('reports', ['type' => 'banking']) }}" class="nav-link">
                 <i class="bi bi-bank"></i>
                 <span class="menu-text">Banking</span>
+
             </a>
 
             <a href="{{ route('reports', ['type' => 'utility']) }}" class="nav-link">
