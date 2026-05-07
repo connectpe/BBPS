@@ -2534,4 +2534,9 @@ class AdminController extends Controller
     {
         return view('DocumentVerification.pan-verify');
     }
+
+    public function gstinVerification()
+    {
+        return view('DocumentVerification.gstin-verify');
+    }
 }

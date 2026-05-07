@@ -153,6 +153,7 @@ Route::group(['middleware' => ['auth']], function () {
         // Document Verification Routes
         Route::get('/bank-account', [AdminController::class, 'bankAccount'])->name('bank_account');
         Route::get('/pan-verification', [AdminController::class, 'panVerification'])->name('pan_verification');
+        Route::get('/gstin-verification', [AdminController::class, 'gstinVerification'])->name('gstin_verification');
     });
 });
 
