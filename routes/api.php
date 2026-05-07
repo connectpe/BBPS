@@ -5,7 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\MobikwikController;
 use App\Http\Controllers\Api\CallbackController;
-use App\Http\Controllers\DocumentVerificationController;
+use App\Http\Controllers\Api\DocumentVerification;
 use App\Http\Controllers\Api\PayinCheckStatusController;
 use App\Http\Controllers\Api\PayinOrdersController;
 use App\Http\Controllers\Api\PayinCallbacksController;
@@ -53,9 +53,9 @@ Route::group(['middleware' => ['logs', 'basicAuth']], function () {
     });
 });
 
-Route::group(['middleware' => ['logs'], 'prefix' => 'document'], function () {
+Route::group(['middleware' => ['logs'], 'prefix' => 'verification'], function () {
     // Route::post('verify-pan',[DocumentVerificationController::class,'panVerify'])->name('pan.verify');
-    // Route::post('verify-account',[DocumentVerificationController::class,'VerifyAccountDetails'])->name('bank.account.verify');
+    Route::post('bank-account', [DocumentVerification::class, 'bankAccountVerify'])->name('bank_account_verify');
     // Route::post('verify-cin',[DocumentVerificationController::class,'verifyCinNumber'])->name('cin.verify');
     // Route::post('verify-gstin',[DocumentVerificationController::class,'verifyGstinNumber'])->name('gstin.verify');
     // Route::post('verify-ifsc',[DocumentVerificationController::class,'verifyIfsc'])->name('verify.ifsc');

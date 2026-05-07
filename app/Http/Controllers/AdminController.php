@@ -2524,4 +2524,9 @@ class AdminController extends Controller
             'is_active' => $mode->is_active,
         ]);
     }
+
+    public function bankAccount()
+    {
+        return view('DocumentVerification.bank-account');
+    }
 }
