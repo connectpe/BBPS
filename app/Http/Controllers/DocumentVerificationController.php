@@ -139,7 +139,7 @@ class DocumentVerificationController extends Controller
 
     public function VerifyAccountDetails(Request $request)
     {
-        dd($request->all());
+
         try {
             $request->validate([
                 'name' => 'required|string',
@@ -158,6 +158,8 @@ class DocumentVerificationController extends Controller
                 'ifsc' => $request->ifsc,
                 'name' => $request->name,
             ]);
+
+            dd($response->json());
 
             return $response->json();
         } catch (\Exception $e) {
@@ -241,6 +243,8 @@ class DocumentVerificationController extends Controller
                 $businessInfo->is_gstin_verify = '1';
                 $businessInfo->save();
             }
+
+            dd($response->json());
             DB::commit();
             return $this->returnResponse(true, $response['data']['message'] ?? 'GSTIN verification completed');
         } catch (\Exception $e) {
@@ -278,6 +282,7 @@ class DocumentVerificationController extends Controller
             ];
 
             $endpoint = "https://api.cashfree.com/verification/pan";
+            // $endpoint = "https://sandbox.cashfree.com/verification/pan";
 
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
@@ -289,7 +294,7 @@ class DocumentVerificationController extends Controller
                 $businessInfo->is_pan_verify = '1';
                 $businessInfo->save();
             }
-
+            dd($response->json());
             DB::commit();
             return $this->returnResponse(true, $response['data']['message'] ?? 'Individual PAN verification completed');
         } catch (\Exception $e) {
@@ -335,10 +340,10 @@ class DocumentVerificationController extends Controller
             ])->post($endpoint, $payload);
 
             if (isset($response['status'], $response['data']['valid']) && $response['status'] === true && $response['data']['valid'] === true) {
-                $businessInfo->is_pan_verify = '1';
+                $businessInfo->is_business_pan_verified = '1';
                 $businessInfo->save();
             }
-
+            dd($response->json());
             DB::commit();
             return $this->returnResponse(true, $response['data']['message'] ?? 'Business PAN verification completed');
         } catch (\Exception $e) {
@@ -374,19 +379,19 @@ class DocumentVerificationController extends Controller
                 return $this->returnResponse(false, 'Beneficiary name doesn\'t exist.');
             }
 
-            if (!$bankDetails->phone) {
+            if (!$bankDetails->account_mobile_number) {
                 return $this->returnResponse(false, 'Bank registered mobile number doesn\'t exist.');
             }
 
             $payload = [
                 "bank_account" => $bankDetails->account_number ?? null,
-                'ifsc'  => $bankDetails->ifsc_code ?? null,
+                "ifsc"  => $bankDetails->ifsc_code ?? null,
                 "name" => $bankDetails->benificiary_name ?? null,
                 "phone" => $bankDetails->account_mobile_number ?? null,
             ];
 
-            // $endpoint = "https://api.cashfree.com/verification/ifsc";
-            $endpoint = "https://api.cashfree.com/verification/bank-account/sync";
+            // $endpoint = "https://api.cashfree.com/verification/bank-account/sync";
+            $endpoint = "https://sandbox.cashfree.com/verification/bank-account/sync";
 
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
@@ -454,7 +459,7 @@ class DocumentVerificationController extends Controller
                 $businessInfo->is_aadhaar_verified = '1';
                 $businessInfo->save();
             }
-
+            dd($response->json());
             DB::commit();
             return $this->returnResponse(true, $response['data']['message'] ?? 'Aadhaar verification completed');
         } catch (\Exception $e) {
