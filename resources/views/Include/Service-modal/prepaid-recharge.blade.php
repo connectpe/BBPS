@@ -7,7 +7,7 @@
                 <h5 class="modal-title" id="modalTitle">Mobile Prepaid Recharge</h5>
 
                 <img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}" class="position-absolute"
-                    style="top: 10px; right: 50px; width: 70px;">
+                    style="top: 10px; right: 50px; width: 60px;">
 
                 <button type="button" class="btn-close position-absolute bg-light" data-bs-dismiss="modal"
                     style="right: 18px;">
