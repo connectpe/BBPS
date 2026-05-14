@@ -14,7 +14,7 @@
     }
 
     .print-logo {
-        height: 40px;
+        height: 80px;
     }
 
     .print-table {
@@ -101,7 +101,7 @@
 
         .print-only-logo {
             display: block !important;
-            height: 30px;
+            height: 40px;
             margin-bottom: 7px;
         }
 
@@ -121,14 +121,14 @@
 
                 <!-- Bharat Connect Logo -->
                 <img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}"
-                    style="position:absolute; top:0; right:0; height:40px;">
+                    style="position:absolute; top:0; right:0; height:42px;">
 
                 <h6 class="fw-semibold mt-2">Are you sure to proceed?</h6>
 
                 <!-- Icon -->
                 <div class="my-2">
                     <div class="rounded-circle border d-inline-flex align-items-center justify-content-center"
-                        style="width:60px; height:60px;">
+                        style="width:50px; height:50px;">
                         💰
                     </div>
                 </div>

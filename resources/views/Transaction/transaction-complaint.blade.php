@@ -114,7 +114,7 @@
                     </h5>
 
                     <img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}" alt=""
-                        class="position-absolute" style="top: 10px; right: 50px; width: 70px; z-index: 1060;">
+                        class="position-absolute" style="top: 10px; right: 50px; width: 90px; z-index: 1060;">
 
                     <button type="button" class="btn-close position-absolute bg-light" data-bs-dismiss="modal"
                         style="right: 18px; z-index: 1061;">

@@ -57,7 +57,7 @@
         position: absolute;
         right: 20px;
         top: 15px;
-        width: 120px;
+        width: 90px;
     }
 
     .result-table {
@@ -92,7 +92,7 @@
         <form id="transactionForm">
             @csrf
 
-            <div class="row">
+            <div class="row mt-4">
                 <div class="col-md-4">
 
                     <!-- Complaint Type -->

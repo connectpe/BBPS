@@ -77,7 +77,7 @@
         position: absolute;
         right: 20px;
         top: 15px;
-        width: 120px;
+        width: 80px;
     }
 
     @media(max-width:768px){

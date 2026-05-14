@@ -274,13 +274,13 @@
             position: absolute;
             top: 0;
             right: 0;
-            width: 60px;
+            width: 80px;
             height: auto
         }
 
         @media (max-width:768px) {
             .bc-logo {
-                width: 45px;
+                width: 80px;
                 top: 5px;
                 right: 5px
             }
@@ -313,7 +313,7 @@
                 position: static;
                 display: block;
                 margin: 0 auto 10px;
-                width: 50px
+                width: 80px
             }
         }
     </style>
