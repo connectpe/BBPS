@@ -107,7 +107,7 @@
                 <form id="transactionForm">
                     
                     <div class="mb-3">
-                        <label class="label-title">Payment Ref ID</label>
+                        <label class="label-title">Bharat-Connect Txn ID </label>
                         <input type="text" id="txnid" class="form-control input-line" placeholder="Payment Reference ID">
                     </div>
 
@@ -200,14 +200,21 @@ document.addEventListener("DOMContentLoaded", function() {
                 let txn = response.data[0];
 
                 resultArea.innerHTML = `
-                    <div class="result-row">
+                    {{-- <div class="result-row">
                         <div class="result-label">Request ID</div>
                         <div>${txn.request_id ?? '-'}</div>
-                    </div>
-                    <div class="result-row">
-                        <div class="result-label">Payment Ref ID</div>
+                    </div> --}}
+
+                     <div class="result-row">
+                        <div class="result-label"> Agent ID </div>
                         <div>${txn.payment_ref_id ?? '-'}</div>
                     </div>
+
+                     <div class="result-row">
+                        <div class="result-label"> Biller ID </div>
+                        <div>OTME0005XXZ49</div>
+                    </div>
+                  
                     <div class="result-row">
                         <div class="result-label">Amount</div>
                         <div>${txn.amount ?? '-'}</div>
@@ -216,13 +223,19 @@ document.addEventListener("DOMContentLoaded", function() {
                         <div class="result-label">Time</div>
                         <div>${txn.created_at ?? '-'}</div>
                     </div>
-                    <div class="result-row">
+                    {{-- <div class="result-row">
                         <div class="result-label">Mobile</div>
                         <div>${txn.mobile_number ?? '-'}</div>
+                    </div> --}}
+
+                      <div class="result-row">
+                        <div class="result-label"> Bharat-Connect Txn ID </div>
+                        <div>${txn.payment_ref_id ?? '-'}</div>
                     </div>
+
                     <div class="result-row">
                         <div class="result-label">Status</div>
-                        <div>${txn.status ?? '-'}</div>
+                        <div>${(txn.status == 'processed' ? 'SUCCESS' : txn.status) ?? '-'}</div>
                     </div>
                 `;
             } else {

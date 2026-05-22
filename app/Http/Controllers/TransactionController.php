@@ -14,6 +14,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class TransactionController extends Controller
 {
@@ -75,7 +76,7 @@ class TransactionController extends Controller
                         'mobile_number' => $txn->mobile_number,
                         'payment_ref_id' => $txn->payment_ref_id,
                         'connectpe_id' => $txn->connectpe_id,
-                        'created_at' => $txn->created_at,
+                        'created_at' =>  Carbon::parse($txn->created_at)->timezone('Asia/Kolkata')->format('Y-m-d H:i:sP')
                     ];
                 }),
             ]);

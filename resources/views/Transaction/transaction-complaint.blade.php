@@ -148,9 +148,26 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label">TXN Date</label>
+                                <label class="form-label">Date From</label>
                                 <input type="date" name="txn_date" id="txn_date" class="form-control">
                                 <small class="text-danger d-none" id="err_txn_date"></small>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Date To</label>
+                                <input type="date" name="date_to" id="date_to" class="form-control">
+                                <small class="text-danger d-none" id="err_date_to"></small>
+                            </div>
+
+                             <div class="col-md-6">
+                                <label class="form-label">Complaint Reason<span class="text-danger">*</span></label>
+                                <select name="category" class="form-select form-select2">
+                                    <option value="">-- Complaint Reason --</option>
+                                    @foreach ($categories as $value)
+                                        <option value="{{ $value->id }}">{{ $value->category_name }}</option>
+                                    @endforeach
+                                </select>
+                                <small class="text-danger d-none" id="err_category"></small>
                             </div>
 
                             <div class="col-md-6">
@@ -179,17 +196,6 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label">Category<span class="text-danger">*</span></label>
-                                <select name="category" class="form-select form-select2">
-                                    <option value="">-- Select Category --</option>
-                                    @foreach ($categories as $value)
-                                        <option value="{{ $value->id }}">{{ $value->category_name }}</option>
-                                    @endforeach
-                                </select>
-                                <small class="text-danger d-none" id="err_category"></small>
-                            </div>
-
-                            <div class="col-md-6">
                                 <label class="form-label">Attachment </label>
                                 <input type="file" name="attachment" class="form-control"
                                     accept=".jpg,.jpeg,.png,.pdf">
@@ -197,7 +203,7 @@
                             </div>
 
                             <div class="col-12">
-                                <label class="form-label">Description<span class="text-danger">*</span></label>
+                                <label class="form-label">Complain Description<span class="text-danger">*</span></label>
                                 <textarea name="description" class="form-control" rows="3" placeholder="Write complaint..." required
                                     min="20"></textarea>
                                 <small class="text-danger d-none" id="err_description"></small>
