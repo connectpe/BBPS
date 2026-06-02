@@ -266,6 +266,9 @@
 
         $settingsRoute = ['users_log'];
         $settingsActive = in_array(Route::currentRouteName(), $settingsRoute);
+
+        $documentVerificationRoute = ['bank_account', 'pan_verification', 'gstin_verification'];
+        $documentVerificationActive = in_array(Route::currentRouteName(), $documentVerificationRoute);
     @endphp
 
 
@@ -383,6 +386,32 @@
             class="nav-link {{ Route::currentRouteName() == 'payin_docs' ? 'active' : '' }}">
             <i class="bi bi-wallet-fill"></i>
             <span class="menu-text">Payin</span>
+        </a>
+    </div>
+</li>
+
+{{-- Document Verification --}}
+<li>
+    <a class="nav-link {{ $documentVerificationActive ? 'active' : '' }}"
+       data-bs-toggle="collapse" href="#documentVerificationMenu">
+        <i class="bi bi-shield-check"></i>
+        <span class="menu-text">Document Verification</span>
+        <i class="bi bi-chevron-down submenu-arrow"></i>
+    </a>
+
+    <div class="collapse submenu {{ $documentVerificationActive ? 'show' : '' }}" id="documentVerificationMenu">
+        <a href="{{ route('bank_account') }}"
+           class="nav-link {{ Route::currentRouteName() == 'bank_account' ? 'active' : '' }}">
+            <i class="bi bi-bank"></i>
+            <span class="menu-text">Bank Account</span>
+        </a>
+        <a href="{{ route('pan_verification') }}"class="nav-link {{ Route::currentRouteName() == 'pan_verification' ? 'active' : '' }}">
+            <i class="bi bi-person-vcard"></i>
+            <span class="menu-text">PAN Verification</span>
+        </a>
+        <a href="{{ route('gstin_verification') }}" class="nav-link {{ Route::currentRouteName() == 'gstin_verification' ? 'active' : '' }}">
+            <i class="bi bi-receipt-cutoff"></i>
+            <span class="menu-text">GSTIN Verification</span>
         </a>
     </div>
 </li>
@@ -560,7 +589,7 @@
         <a class="nav-link {{ $upiActive ? 'active' : '' }}"
             data-bs-toggle="collapse" href="#upiMenu">
             <i class="bi bi-phone"></i>
-            <span class="menu-text">Support</span>
+            <span class="menu-text">UPI Services</span>
             <i class="bi bi-chevron-down submenu-arrow"></i>
         </a>
 
@@ -586,24 +615,24 @@
     </li>
 
     {{-- Single Links --}}
-    {{-- <li>
+    <li>
         <a href="{{ route('payout_transaction') }}"
             class="nav-link {{ Route::currentRouteName() == 'payout_transaction' ? 'active' : '' }}">
             <i class="bi bi-arrow-left-right"></i>
             <span class="menu-text">Payout Transaction</span>
         </a>
-    </li> --}}
+    </li>
 
-    {{-- <li>
+    <li>
         <a href="{{ route('user_load_money_request') }}"
             class="nav-link {{ Route::currentRouteName() == 'user_load_money_request' ? 'active' : '' }}">
             <i class="bi bi-wallet2"></i>
             <span class="menu-text">Load Money Request</span>
         </a>
-    </li> --}}
+    </li>
 
     {{-- API Documentation --}}
-    {{-- <li>
+    <li>
         <a class="nav-link {{ $apiActive ? 'active' : '' }}"
             data-bs-toggle="collapse" href="#apiMenu">
             <i class="bi bi-code-slash"></i>
@@ -618,21 +647,21 @@
                 <span class="menu-text">Payin</span>
             </a>
         </div>
-    </li> --}}
+    </li>
 
-    {{-- <li>
+    <li>
         <a href="{{ route('ladger.index') }}"
             class="nav-link {{ Route::currentRouteName() == 'ladger.index' ? 'active' : '' }}">
             <i class="bi bi-journal-text"></i>
             <span class="menu-text">Ledger Report</span>
         </a>
-    </li> --}}
+    </li>
 
     <li>
         <a href="{{ route('all_agreements') }}"
             class="nav-link {{ Route::currentRouteName() == 'all_agreements' ? 'active' : '' }}">
             <i class="bi bi-file-earmark-text"></i>
-            <span class="menu-text">Settings</span>
+            <span class="menu-text">Documents</span>
         </a>
     </li>
 
@@ -722,6 +751,7 @@
             <a href="{{ route('reports', ['type' => 'banking']) }}" class="nav-link">
                 <i class="bi bi-bank"></i>
                 <span class="menu-text">Banking</span>
+
             </a>
 
             <a href="{{ route('reports', ['type' => 'utility']) }}" class="nav-link">
