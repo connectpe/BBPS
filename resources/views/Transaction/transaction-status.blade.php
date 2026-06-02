@@ -77,13 +77,13 @@
         position: absolute;
         right: 20px;
         top: 15px;
-        width: 80px;
+        width: 100px;
     }
 
     @media(max-width:768px){
         .logo-img{
-            width: 90px;
-            top: 10px;
+            width: 100px;
+            top: 43px;
             right: 10px;
         }
 

@@ -101,14 +101,14 @@
                         @endphp
 
                         <div class="col-6 cursor-pointer" onClick="location.href='{{ route('recharge_service') }}'">
-                            <div class="border rounded p-2 h-100 service-box bg-light text-center">
+                            <div class="border rounded p-2 h-100 text-center">
 
                                 <!-- ICON / IMAGE -->
                                 @if(isset($service['image']))
                                 <img src="{{ asset($service['image']) }}" alt="{{ $service['name'] }}"
-                                    style="width:28px; height:28px; object-fit:contain;">
+                                    style="width:50px; height:50px; object-fit:contain;">
                                 @else
-                                <i class="bi {{ $service['icon'] }} fs-4" style="color: {{ $randColor }}"></i>
+                                <i class="bi {{ $service['icon'] }} fs-2" style="color: {{ $randColor }};"></i>
                                 @endif
 
                                 <!-- NAME -->

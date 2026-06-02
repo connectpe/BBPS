@@ -275,7 +275,7 @@
         position: absolute;
         top: 0;
         right: 0;
-        width: 80px;
+        width: 100px;
         height: auto
     }
 
@@ -350,7 +350,6 @@
     ['name' => 'National Pension System', 'icon' => 'bi-graph-up'],
     ['name' => 'NCMC Recharge', 'icon' => 'bi-wallet2'],
     ['name' => 'Prepaid Meter', 'icon' => 'bi-speedometer2'],
-    ['name' => 'Recurring Deposit', 'icon' => 'bi-calendar2-check'],
     ['name' => 'Rental', 'icon' => 'bi-building-check'],
     ['name' => 'Subscription', 'icon' => 'bi-journal-text'],
     ['name' => 'Water', 'icon' => 'bi-droplet'],

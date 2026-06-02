@@ -57,7 +57,7 @@
         position: absolute;
         right: 20px;
         top: 15px;
-        width: 90px;
+        width: 100px;
     }
 
     .result-table {
@@ -73,9 +73,9 @@
 
     @media(max-width:768px){
         .logo-img{
-            width: 90px;
+            width: 100px;
             right: 10px;
-            top: 10px;
+            top: 43px;
         }
     }
 </style>
