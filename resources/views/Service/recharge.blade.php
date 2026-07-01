@@ -325,6 +325,7 @@
 
     @php
     $services = [
+    ['name' => 'AEPS', 'icon' => 'bi-person-badge'],
     ['name' => 'Agent Collection', 'icon' => 'bi-people'],
     ['name' => 'Broadband Postpaid', 'icon' => 'bi-wifi'],
     ['name' => 'Cable TV', 'icon' => 'bi-tv'],
@@ -354,7 +355,6 @@
     ['name' => 'Rental', 'icon' => 'bi-building-check'],
     ['name' => 'Subscription', 'icon' => 'bi-journal-text'],
     ['name' => 'Water', 'icon' => 'bi-droplet'],
-    ['name' => 'AEPS', 'icon' => 'bi-person-badge'],
     ];
 
     $colors = [
