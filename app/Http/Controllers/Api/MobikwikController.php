@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Helpers\CommonHelper;
 use App\Helpers\MobiKwikHelper;
+use App\Helpers\TransactionHelper;
+use App\Helpers\ApiResponseHelper;
 use App\Http\Controllers\Controller;
 use App\Jobs\DebitBalanceUpdateJob;
 use App\Models\DefaultProvider;
@@ -14,6 +16,8 @@ use App\Models\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Validation\RetailerPaymentValidation;
+use App\Jobs\RechargeDebitBalanceAndStatusUpdateJob;
 
 class MobikwikController extends Controller
 {
@@ -86,11 +90,12 @@ class MobikwikController extends Controller
         }
     }
 
-    public function getPlans(Request $request, $provider, $circle_id, $operator_id, $plan_type = null)
+    public function getPlans(Request $request, $circle_id, $operator_id, $plan_type = null)
     {
         try {
 
             $data = $this->ValidateUsers($request);
+            // dd($data);
             $userId = $data['user_id'];
             $serviceId = $data['service'];
             $ip = $request->ip();
@@ -103,16 +108,17 @@ class MobikwikController extends Controller
                 ]);
             }
 
+            $providerSlug = CommonHelper::getProviderSlug($userId, $serviceId);
+
             $opId = $operator_id;
             $cirId = $circle_id;
             $planType = $plan_type;
-            $ProviderName = $provider;
-            // dd($ProviderName);
-            switch ($ProviderName) {
-                case 'mobikwik-plans':
+
+            switch ($providerSlug['provider_slug']) {
+                case 'mobikwik':
                     try {
                         $endpoint = "/recharge/v1/rechargePlansAPI/{$opId}/{$cirId}";
-
+                        // dd($endpoint);
                         // Append planType ONLY if provided
                         if (! empty($planType)) {
                             $endpoint .= "/{$planType}";
@@ -229,7 +235,7 @@ class MobikwikController extends Controller
         }
     }
 
-    public function getBalance(Request $request, $type)
+    public function getBalance(Request $request)
     {
         $data = $this->ValidateUsers($request);
         $userId = $data['user_id'];
@@ -244,9 +250,11 @@ class MobikwikController extends Controller
             ]);
         }
 
-        switch ($type) {
+        $providerSlug = CommonHelper::getProviderSlug($userId, $serviceId);
 
-            case 'mobikwik-balance':
+        switch ($providerSlug['provider_slug']) {
+
+            case 'mobikwik':
                 try {
                     $request->validate([
                         'memberId' => 'required|string',
@@ -352,29 +360,7 @@ class MobikwikController extends Controller
         }
     }
 
-    // protected function isTokenPresent()
-    // {
-    //     try {
-    //         $tokenData = MobikwikToken::where('is_active', true)
-    //             ->where('expire_at', '>=', now())
-    //             ->latest()
-    //             ->first();
-    //         // dd($tokenData->token);
-    //         // Agar valid token mil gaya
-    //         if ($tokenData) {
-    //             return $tokenData->token;
-    //         }
-
-    //         //  Nahi mila → new generate
-    //         return (new MobiKwikHelper)->generateToken();
-    //     } catch (\Exception $e) {
-    //         Log::error('Mobikwik Token Present Exception', [
-    //             'error' => $e->getMessage(),
-    //         ]);
-    //     }
-    // }
-
-    public function validateRecharge(Request $request, $type)
+    public function validateRecharge(Request $request)
     {
         $data = $this->ValidateUsers($request);
         $userId = $data['user_id'];
@@ -389,6 +375,8 @@ class MobikwikController extends Controller
             ]);
         }
 
+        $providerSlug = CommonHelper::getProviderSlug($userId, $serviceId);
+
         $request->validate([
             'amount' => 'required|string',
             'connectionNumber' => 'required',
@@ -398,8 +386,8 @@ class MobikwikController extends Controller
             'adParams' => [],
         ]);
 
-        switch ($type) {
-            case 'mobiwik-recharge-validation':
+        switch ($providerSlug['provider_slug']) {
+            case 'mobikwik':
                 try {
                     $payload = [
                         'amt' => $request->amount,
@@ -409,10 +397,10 @@ class MobikwikController extends Controller
                         'planCode' => $request->planCode,
                         'adParams' => (object) [],
                     ];
-
+                    // dd($payload);
                     $mobikwikHelper = new MobiKwikHelper;
                     $token = $mobikwikHelper->isTokenPresent();
-                    dd($token);
+                    // dd($token);
 
                     $endpoint = '/recharge/v3/retailerValidation';
 
@@ -422,15 +410,15 @@ class MobikwikController extends Controller
                         $token
                     );
 
-                    if (!$response->successfull()) {
-                        Log::error('Mobikwik Validation API HTTP Error', [
+                    if (!isset($response['success'])) {
+                        Log::error('Mobikwik Validation API Invalid Response', [
                             'url' => $endpoint,
-                            'status' => $response->status(),
-                            'response' => $response->body(),
+                            'response' => $response,
                         ]);
+
                         return response()->json([
                             'status' => false,
-                            'message' => 'Unable to fetch validation response from provider side'
+                            'message' => 'Invalid response from provider'
                         ]);
                     }
 
@@ -475,91 +463,31 @@ class MobikwikController extends Controller
         }
     }
 
-    public function mobikwikPayment(Request $request, $type)
+    public function retailerPayment(Request $request)
     {
-        $data = $this->ValidateUsers($request);
-        $userId = $data['user_id'];
-        $serviceId = $data['service'];
-        $ip = $request->ip();
-
-        $ipWhitelist = CommonHelper::checkIpWhiteList($userId, $serviceId, $ip);
-        if (!$ipWhitelist) {
-            return response()->json([
-                'status' => false,
-                'mesage' => 'Ip not whitelisted'
-            ]);
-        }
-
-        $messages = [
-            'connectionNumber.required' => 'Connection number is required.',
-            'connectionNumber.string' => 'Connection number must be a valid string.',
-            'connectionNumber.regex' => 'Connection number must be a 10-digit number.',
-
-            'operator.required' => 'Operator is required.',
-            'operator.exists' => 'Selected operator is invalid.',
-
-            'circle.required' => 'Circle is required.',
-            'circle.exists' => 'Selected circle is invalid.',
-
-            'amount.required' => 'Amount is required.',
-            'amount.numeric' => 'Amount must be a number.',
-            'amount.min' => 'Amount must be at least 1.',
-
-            'requestId.required' => 'Request ID is required.',
-            'requestId.string' => 'Request ID must be a valid string.',
-            'requestId.unique' => 'This Request ID has already been used.',
-
-            'customerMobile.required' => 'Customer mobile number is required.',
-            'customerMobile.string' => 'Customer mobile number must be a valid string.',
-            'customerMobile.regex' => 'Customer mobile number must be a 10-digit number.',
-
-            'remitterName.required' => 'Remitter name is required.',
-            'remitterName.string' => 'Remitter name must be a valid string.',
-            'remitterName.max' => 'Remitter name cannot exceed 100 characters.',
-
-            'paymentRefID.required' => 'Payment reference ID is required.',
-            'paymentRefID.string' => 'Payment reference ID must be a valid string.',
-            'paymentRefID.unique' => 'This Payment Reference ID has already been used.',
-
-            'paymentMode.required' => 'Payment mode is required.',
-            'paymentMode.in' => 'Payment mode must be Wallet.',
-
-            'paymentAccountInfo.required' => 'Payment account information is required.',
-            'paymentAccountInfo.string' => 'Payment account information must be a valid string.',
-            'paymentAccountInfo.max' => 'Payment account information cannot exceed 100 characters.',
-
-            'additionalPrm1.string' => 'Additional parameter 1 must be a valid string.',
-            'additionalPrm1.max' => 'Additional parameter 1 cannot exceed 255 characters.',
-
+        $agent = [
+            'ip'        => $headers['cf-connecting-ip'][0] ?? $request->ip(),
+            'userAgent' => $headers['user-agent'][0] ?? $request->header('User-Agent')
         ];
 
-        $request->validate([
-            'connectionNumber' => 'required|string|regex:/^[0-9]{10}$/',
-            'operator' => 'required',
-            'circle' => '',
-            'amount' => 'required|numeric|min:1',
-            'requestId' => 'required|string|unique:transactions,request_id',
-            'customerMobile' => 'required|string|regex:/^[0-9]{10}$/',
-            'agentId' => 'required|string',
-            'remitterName' => 'required|string|max:100',
-            'paymentRefID' => 'required|string|unique:transactions,payment_ref_id',
-            'paymentMode' => 'required|string',
-            'paymentAccountInfo' => 'required|string|max:100',
-            // 'additionalPrm1' => 'nullable|string|max:255',
-            // 'additionalPrm2' => 'nullable|string|max:255',
-        ], $messages);
+        $userId = $request['auth_data']['user_id'];
+        $serviceId = $request['auth_data']['service_id'];
 
-        switch ($type) {
-            case 'mobikwik-payment':
+        $provider = CommonHelper::getProviderSlug($userId, $serviceId);
+        $providerSlug = $provider['provider_slug'];
+
+        $validator = RetailerPaymentValidation::validate($request->all());
+
+        if ($validator->fails()) {
+            return ApiResponseHelper::missing($validator->errors()->first());
+        }
+
+        switch ($providerSlug) {
+            case 'mobikwik':
                 try {
-                    $connectPeId = CommonHelper::generateConnectPeTransactionId();
-                    $defaultSlugData = DefaultProvider::select('provider_slug')->where('service_id', $serviceId)->first();
-                    if (empty($defaultSlugData)) {
-                        $defaultSlugData = UserRooting::select('provider_slug')->where(['user_id' => $userId, 'service_id' => $serviceId])->first();
-                    }
 
-                    $slug = $defaultSlugData->provider_slug;
-                    // dd($slug);
+                    $connectPeId = CommonHelper::generateConnectPeTransactionId();
+
                     $payload = [
                         'cn' => $request->connectionNumber,
                         'op' => $request->operator,
@@ -571,30 +499,32 @@ class MobikwikController extends Controller
                         'remitterName' => $request->remitterName,
                         'paymentRefID' => $request->paymentRefID,
                         'paymentMode' => $request->paymentMode,
-                        // "connectpeId" => $connectPeId,
                         'paymentAccountInfo' => $request->paymentAccountInfo,
-                        // 'status'                => 'queued',
-                        // "call"               => 'balance_debit',
-                        // 'user_id'            => $userId,
-                        // "serviceId"         => $serviceId,
-                        // 'slug'              => $slug,
                     ];
 
-                    // dd($payload);
-                    // Transaction::create([
-                    //     'user_id'               => $userId,
-                    //     'operator_id'           => $payload['op'],
-                    //     'circle_id'             => $payload['cir'],
-                    //     'amount'                => $payload['amt'],
-                    //     'transaction_type'      => $payload['paymentMode'],
-                    //     'request_id'            => $payload['reqid'],
-                    //     'mobile_number'         => $payload['customerMobile'],
-                    //     'payment_ref_id'        => $payload['paymentRefID'],
-                    //     'payment_account_info'  => $payload['paymentAccountInfo'],
-                    //     'recharge_type'         => 'prepaid',
-                    //     'status'                => 'queued',
-                    //     'connectpe_id'          => $connectPeId,
-                    // ]);
+                    $connectpeId = CommonHelper::generateConnectPeTransactionId();
+
+                    $rechargeOrderCreate = TransactionHelper::createRechargeTransactionOrders($userId, $serviceId, $connectpeId, $payload, $agent);
+
+                    if (!$rechargeOrderCreate['status']) {
+                        return ApiResponseHelper::failed($rechargeOrderCreate['message'], []);
+                    }
+
+                    // Dispatch Job
+                    dispatch(new RechargeDebitBalanceAndStatusUpdateJob($connectpeId, $userId, 'balance_debit', $serviceId, $payload, '', '', ''))->onQueue('recharge_debit_queue');
+
+                    // Response
+                    return ApiResponseHelper::success(
+                        'Recharge order accepted successfully',
+                        [
+                            'paymentRefID' => $request->paymentRefID,
+                            'connectpeID'  => $connectpeId,
+                            'status'      => 'queue'
+                        ],
+                        200
+                    );
+
+                    dd($rechargeOrderCreate);
 
                     $mobikwikHelper = new MobiKwikHelper;
                     $token = $mobikwikHelper->isTokenPresent();
@@ -614,7 +544,7 @@ class MobikwikController extends Controller
                     ]);
 
                     // dispatch(
-                    //     new DebitBalanceUpdateJob(
+                    //     new RechargeDebitBalanceAndStatusUpdateJob(
                     //         $endpoint,
                     //         $payload,
                     //         $token

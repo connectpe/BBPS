@@ -34,19 +34,27 @@ class MobiKwikHelper
     public function generateToken()
     {
         try {
+            $payload = [
+                'clientId'     => trim($this->clientId),
+                'clientSecret' => trim($this->clientSecret),
+            ];
+
+            // dd($payload);
             $response = Http::timeout(15)
                 ->withHeaders([
                     'Content-Type' => 'application/json',
                 ])
-                ->post($this->baseUrl . '/recharge/v1/verify/retailer', [
-                    'clientId' => $this->clientId,
-                    'clientSecret' => $this->clientSecret,
-                ]);
+                ->post($this->baseUrl . '/recharge/v1/verify/retailer', $payload);
 
             // dd($this->clientId,$this->clientSecret);
 
+            Log::info('Mobikwik Token API Response', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
             if (! $response->successful()) {
-                Log::error('Mobikwik Token API HTTP Error', [
+                Log::info('Mobikwik Token API HTTP Error', [
+                    'timeStamp' => now(),
                     'status' => $response->status(),
                     'response' => $response->body(),
                 ]);
@@ -55,8 +63,12 @@ class MobiKwikHelper
             }
 
             $data = $response->json();
+            // dd([
+            //     'timestamp' => now()->toDateTimeString(),
+            //     'response_data' => $data
+            // ]);
             $token = $data['data']['token'];
-
+            // dd($data);
             //  OLD TOKEN HANDLE (rotation rule)
             MobikwikToken::where('is_active', true)
                 ->update([

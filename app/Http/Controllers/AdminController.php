@@ -175,7 +175,7 @@ class AdminController extends Controller
             });
 
             $data['usersBank'] = Cache::remember("{$cachePrefix}usersBank", 18000, function () use ($userId) {
-                return UsersBank::select('account_number', 'ifsc_code', 'branch_name', 'bank_docs', 'benificiary_name')
+                return UsersBank::select('account_number', 'account_mobile_number', 'ifsc_code', 'branch_name', 'bank_docs', 'benificiary_name')
                     ->where('user_id', $userId)
                     ->first();
             });
@@ -1505,6 +1505,14 @@ class AdminController extends Controller
         try {
 
             $business = BusinessInfo::where('id', $request->id)->where('user_id', $request->userId)->first();
+            $user = User::where('id', $request->userId)->where('status', '1')->first();
+
+            if (! $user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User Not Found',
+                ], 404);
+            }
 
             if (! $business) {
                 return response()->json([
@@ -1513,12 +1521,15 @@ class AdminController extends Controller
                 ], 404);
             }
 
+
             if (
                 (int) $business->is_pan_verify === 1 &&
+                (int) $business->is_business_pan_verified === 1 &&
                 (int) $business->is_gstin_verify === 1 &&
                 (int) $business->is_cin_verify === 1 &&
                 (int) $business->is_bank_details_verify === 1 &&
-                (int) $business->is_aadhaar_verified === 1
+                (int) $business->is_aadhaar_verified === 1 &&
+                (int)  $user->setup_cost_paid === 1
             ) {
 
                 $status = $business->is_kyc == '1' ? '0' : '1';
@@ -1539,7 +1550,7 @@ class AdminController extends Controller
 
                 return response()->json([
                     'status' => false,
-                    'message' => 'Your documents are not fully verified. Please complete document verification to proceed with KYC.',
+                    'message' => 'KYC not Updated : Make sure your document are verified and Setup cost is paid successfully.',
                 ]);
             }
         } catch (\Exception $e) {
@@ -1591,7 +1602,7 @@ class AdminController extends Controller
             $data = [
                 'service_id' => $request->service_id,
                 'provider_id' => $request->provider_id,
-                'provider_slug' => 'default_' . $provider->provider_slug,
+                'provider_slug' => $provider->provider_slug,
                 'updated_by' => $updatedBy,
             ];
 
@@ -1664,7 +1675,7 @@ class AdminController extends Controller
             $data = [
                 'service_id' => $request->service_id,
                 'provider_id' => $request->provider_id,
-                'provider_slug' => 'default_' . $provider->provider_slug,
+                'provider_slug' => $provider->provider_slug,
                 'updated_by' => $updatedBy,
             ];
 
@@ -2512,5 +2523,20 @@ class AdminController extends Controller
                 : 'Payment mode deactivated successfully',
             'is_active' => $mode->is_active,
         ]);
+    }
+
+    public function bankAccount()
+    {
+        return view('DocumentVerification.bank-account');
+    }
+
+    public function panVerification()
+    {
+        return view('DocumentVerification.pan-verify');
+    }
+
+    public function gstinVerification()
+    {
+        return view('DocumentVerification.gstin-verify');
     }
 }

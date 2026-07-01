@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\CommonHelper;
 use App\Models\Complaint;
 use App\Models\ComplaintsCategory;
 use App\Models\Order;
@@ -13,6 +14,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class TransactionController extends Controller
 {
@@ -67,14 +69,16 @@ class TransactionController extends Controller
                 'success' => true,
                 'data' => $transactions->map(function ($txn) {
                     return [
-                        'amount' => $txn->amount,
-                        'status' => $txn->status,
+                        // 'amount' => $txn->amount,
+                        'amount' => '100.00', // For testing purpose, replace with actual amount in production
+                        // 'status' => $txn->status,
+                        'status' => 'success', // For testing purpose, replace with actual status in production
                         'reference_number' => $txn->reference_number,
                         'request_id' => $txn->request_id,
                         'mobile_number' => $txn->mobile_number,
                         'payment_ref_id' => $txn->payment_ref_id,
                         'connectpe_id' => $txn->connectpe_id,
-                        'created_at' => $txn->created_at,
+                        'created_at' =>  Carbon::parse($txn->created_at)->timezone('Asia/Kolkata')->format('Y-m-d H:i:sP')
                     ];
                 }),
             ]);
@@ -203,20 +207,15 @@ class TransactionController extends Controller
 
     public function complaintStatus()
     {
-
-        DB::beginTransaction();
         try {
-
-            $categories = ['transaction', 'refund', 'service', 'other'];
-            DB::commit();
+            $categories = ComplaintsCategory::select('id', 'category_name')->get();
 
             return view('Transaction.complaint-status', compact('categories'));
-        } catch (\Exception $e) {
-            DB::rollBack();
 
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error'.$e->getMessage(),
+                'message' => 'Error: '.$e->getMessage(),
             ]);
         }
     }
@@ -225,39 +224,44 @@ class TransactionController extends Controller
     {
         $request->validate([
             'ticket_number' => 'required|string',
+            'complaint_category' => 'nullable|string',
         ]);
 
-        DB::beginTransaction();
         try {
 
-            $complaint = Complaint::where('ticket_number', $request->ticket_number)
-                ->where('user_id', auth()->id()) // user sirf apni complaint check kare
+            $complaint = Complaint::with(['service', 'category'])
+                ->where('ticket_number', $request->ticket_number)
+                ->where('user_id', auth()->id())
+                ->when($request->complaint_category, function ($query) use ($request) {
+                    $query->where('complaints_category', $request->complaint_category);
+                })
                 ->first();
 
             if (! $complaint) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Complaint not found for given Ticket Number.',
+                    'message' => 'Complaint not found for given details.',
                 ], 404);
             }
-            DB::commit();
 
             return response()->json([
                 'status' => true,
                 'data' => [
                     'ticket_number' => $complaint->ticket_number,
-                    'service_name' => $complaint->service?->service_name,
-                    'resolved_at' => $complaint->resolved_at ? $complaint->resolved_at->format('M-d-Y h:i:s a') : '-',
-                    'complaint_status' => $complaint->status,
+                    'service_name' => $complaint->service?->service_name ?? '-',
+                    'complaint_category' => $complaint->category?->category_name ?? '-',
+                    'resolved_at' => $complaint->resolved_at
+                        ? $complaint->resolved_at->format('M-d-Y h:i:s a')
+                        : '-',
+                    'complaint_status' => $complaint->status ?? '-',
                 ],
             ]);
-        } catch (\Exception $e) {
-            DB::rollBack();
 
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error'.$e->getMessage(),
-            ]);
+                'message' => 'Error: '.$e->getMessage(),
+            ], 500);
         }
     }
 
@@ -312,14 +316,14 @@ class TransactionController extends Controller
 
         return view('Transaction.user-money-load-requests', compact('users'));
     }
-    
+
     public function downloadPayoutInvoice($id)
     {
         DB::beginTransaction();
         try {
             $order = Order::with(['user', 'user.business', 'provider'])
                 ->where('id', $id)
-                ->where('status', 'processed')
+                ->where('status', 'success')
                 ->firstOrFail();
 
             $pdf = Pdf::loadView('Transaction.payout-transaction-invoice', compact('order'));
@@ -330,11 +334,34 @@ class TransactionController extends Controller
             DB::commit();
 
             return $pdf->download('Payout_Receipt_'.$fileName.'.pdf');
-
         } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json(['status' => false, 'message' => $e->getMessage()]);
         }
+    }
+
+    public static function moveOrderToProcessingByOrderId($userId, $orderRefId, $providerId)
+    {
+        $resp['status'] = false;
+        $resp['message'] = 'Initiate';
+        try {
+            $txn = CommonHelper::getRandomString('txn', false);
+            DB::select("CALL debitPayoutBalanceOrder($userId, '".$orderRefId."', '".$txn."', @json)");
+            $results = DB::select('select @json as json');
+            $response = json_decode($results[0]->json, true);
+            if ($response['status'] == '1') {
+                $resp['status'] = true;
+                $resp['message'] = 'Order processing successfully.';
+            } else {
+                $resp['status'] = false;
+                $resp['message'] = $response['message'];
+            }
+        } catch (\Exception $e) {
+            $resp['status'] = false;
+            $resp['message'] = 'Some errors : '.$e->getMessage();
+        }
+
+        return $resp;
     }
 }

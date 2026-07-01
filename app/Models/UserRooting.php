@@ -14,13 +14,14 @@ class UserRooting extends Model
     protected $fillable = [
         'user_id',
         'service_id',
-        'service_unique_id',
+        'provider_id',
         'provider_slug',
     ];
 
     protected $casts = [
         'user_id' => 'integer',
         'service_id' => 'integer',
+        'provider_id' => 'integer',
     ];
 
     /**

@@ -5,7 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\MobikwikController;
 use App\Http\Controllers\Api\CallbackController;
-use App\Http\Controllers\DocumentVerificationController;
+use App\Http\Controllers\Api\DocumentVerification;
 use App\Http\Controllers\Api\PayinCheckStatusController;
 use App\Http\Controllers\Api\PayinOrdersController;
 use App\Http\Controllers\Api\PayinCallbacksController;
@@ -25,14 +25,14 @@ Route::post('postpaid-villbill', [BbpsRechargeController::class, 'postpaidVillBi
 
 
 
-Route::group(['middleware' => ['logs']], function () {
-    Route::prefix('bbps')->group(function () {
+Route::group(['middleware' => ['logs', 'basicAuth']], function () {
+    Route::prefix('mobile-recharge')->group(function () {
 
-        Route::post('getplans/{provider}/{circle}/{operator}/{plan_type?}', [MobikwikController::class, 'getplans']);
-        Route::post('balance/{type}', [MobikwikController::class, 'getBalance'])->name('Mobikwik.balanace');
-        Route::post('payment/{type}', [MobikwikController::class, 'mobikwikPayment'])->name('Mobikwik.payment');
+        Route::post('getplans/{circle}/{operator}/{plan_type?}', [MobikwikController::class, 'getplans']);
+        Route::post('balance', [MobikwikController::class, 'getBalance'])->name('Mobikwik.balanace');
+        Route::post('retailerPayment', [MobikwikController::class, 'retailerPayment'])->name('Mobikwik.payment');
         Route::post('status/{type}', [MobikwikController::class, 'mobikwikStatus'])->name('Mobikwik.status');
-        Route::post('recharge-validation/{type}', [MobikwikController::class, 'validateRecharge'])->name('Mobikwik.recharge.validation');
+        Route::post('recharge-validation', [MobikwikController::class, 'validateRecharge'])->name('Mobikwik.recharge.validation');
         Route::post('fetch-bill/{type}', [MobikwikController::class, 'fetchPostpaidBill'])->name('fetch.postpaid.bill');
     });
 
@@ -45,7 +45,6 @@ Route::prefix('payin')->group(function () {
     Route::post('/checkStatus', [PayinCheckStatusController::class, 'checkStatus']);
 });
 
-
 Route::group(['middleware' => ['logs', 'basicAuth']], function () {
     Route::prefix('payout')->group(function () {
         Route::post('/contacts', [ContactController::class, 'createContact']);
@@ -53,12 +52,13 @@ Route::group(['middleware' => ['logs', 'basicAuth']], function () {
     });
 });
 
-Route::group(['middleware' => ['logs'], 'prefix' => 'document'], function () {
-    // Route::post('verify-pan',[DocumentVerificationController::class,'panVerify'])->name('pan.verify');
-    // Route::post('verify-account',[DocumentVerificationController::class,'VerifyAccountDetails'])->name('bank.account.verify');
-    // Route::post('verify-cin',[DocumentVerificationController::class,'verifyCinNumber'])->name('cin.verify');
-    // Route::post('verify-gstin',[DocumentVerificationController::class,'verifyGstinNumber'])->name('gstin.verify');
-    // Route::post('verify-ifsc',[DocumentVerificationController::class,'verifyIfsc'])->name('verify.ifsc');
+Route::group(['middleware' => ['logs'], 'prefix' => 'verification'], function () {
+    Route::post('pan', [DocumentVerification::class, 'panVerify'])->name('pan_verify');
+    Route::post('bank-account', [DocumentVerification::class, 'bankAccountVerify'])->name('bank_account_verify');
+    Route::post('cin', [DocumentVerification::class, 'cinVerify'])->name('cin_verify');
+    Route::post('gstin', [DocumentVerification::class, 'gstinVerify'])->name('gstin_verify');
+    Route::post('ifsc', [DocumentVerification::class, 'ifscVerify'])->name('ifsc_verify');
+    Route::post('aadhar-masking', [DocumentVerification::class, 'aadharMaskingVerify'])->name('aadhar_masking_verify');
     // Route::post('initiate-video-link', [DocumentVerificationController::class, 'initiateVideoKyc'])->name('initiate.video.link');
 
 });

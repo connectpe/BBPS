@@ -149,6 +149,11 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/payment-modes/{serviceId}', [AdminController::class, 'getPaymentModes']);
         Route::post('/payment-modes/save/{serviceId}', [AdminController::class, 'savePaymentModes']);
         Route::post('/payment-modes/status/{id}', [AdminController::class, 'updatePaymentModeStatus']);
+
+        // Document Verification Routes
+        Route::get('/bank-account', [AdminController::class, 'bankAccount'])->name('bank_account');
+        Route::get('/pan-verification', [AdminController::class, 'panVerification'])->name('pan_verification');
+        Route::get('/gstin-verification', [AdminController::class, 'gstinVerification'])->name('gstin_verification');
     });
 });
 
@@ -159,13 +164,13 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
         Route::post('validateRecharge', [BbpsRechargeController::class, 'validateRecharge'])->name('bbps.validateRecharge');
 
         Route::post('status', [BbpsRechargeController::class, 'status'])->name('bbps.status');
-        Route::post('mpin-auth', [BbpsRechargeController::class, 'mpinAuth'])->name('bbps.mpin_auth');
+        Route::post('mobile-prepaid-payment', [BbpsRechargeController::class, 'mobilePrepaidPayment'])->name('mobile_prepaid_payment');
     });
 
     Route::post('generate/client-credentials', [UserController::class, 'generateClientCredentials'])->name('generate_client_credentials');
 
     Route::get('/dashboard', [UserController::class, 'dashboard'])->name('user.dashboard');
-
+    Route::post('verify-mpin', [AuthController::class, 'mpinVerify'])->name('verify_mpin');
 
     // Service Related Route
     Route::group(['middleware' => ['isUserAccessPage']], function () {
@@ -262,6 +267,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('upi-collection', [AdminController::class, 'UpiCollection'])->name('upi_collection');
     Route::get('all-upi-transactions', [AdminController::class, 'UpiTransaction'])->name('all_upi_transactions');
     Route::get('/download-slip/{id}', [AdminController::class, 'downloadSlip']);
+
+    Route::get('/get-billers/{categoryId}', [ServiceController::class, 'getBillers']);
 });
 
 Route::group(['middleware' => ['logs', 'auth'], 'prefix' => 'document'], function () {

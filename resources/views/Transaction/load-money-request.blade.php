@@ -318,7 +318,7 @@
                         'rejected',
                     ];
 
-                    let dropdown = `<select class="form-select statusDropdown"
+                    let dropdown = `<select class="form-select statusDropdown select2Width"
                             data-id="${row.id}"
                             data-status="${row.status}"
                             data-requestId="${row.request_id}"

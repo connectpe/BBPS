@@ -1,56 +1,33 @@
 <header class="bg-white shadow-sm p-3 d-flex justify-content-between align-items-center border">
     <div class="d-flex align-items-center">
-        <!-- Sidebar Toggle -->
-        <!-- <button id="sidebarToggle" class="btn btn-outline-secondary me-3">
-            <i class="bi bi-list"></i>
-        </button> -->
 
-        <button id="sidebarToggle" class="btn btn-outline-secondary me-3 d-md-none">
-            <i class="bi bi-list"></i>
-        </button>
-
-
-        <!-- <h2 class="mb-4">@yield('page-title')</h1> -->
-        <!-- <h6 class="mb-0">Dashboard</h6> -->
         @php
-
             $role = Auth::user()->role_id;
-
         @endphp
 
-        @if ($role == 1)
-            {{-- <button class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#serviceModall">
-                    <i class="bi bi-gear-fill"></i>
-                </button> --}}
-        @elseif (in_array($role, [2, 3]))
+        @if (in_array($role, [2, 3]))
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#serviceModall" title="Services">
                 <i class="bi bi-gear-fill fs-6"></i>
             </button>
         @endif
+
         <button class="btn btn-sm btn-danger ms-2" id="clearCacheBtn">
             Clear Cache
         </button>
-
-
     </div>
 
     <div class="d-flex align-items-center gap-3">
 
-        @php
-
-            $role = Auth::user()->role_id;
-        @endphp
-
+        {{-- Wallet --}}
         @if ($role == 1)
             <div class="text-end">
                 <small class="text-muted">Main Wallet</small>
                 <div class="fw-semibold text-success">₹ {{ number_format(0, 2) }}</div>
             </div>
 
-            <!-- AEPS Balance -->
             <div class="text-end">
                 <small class="text-muted">Business Wallet</small>
-                <div class="fw-semibold text-primary"> ₹ {{ number_format($businessWallet ?? 0, 2) }}</div>
+                <div class="fw-semibold text-primary">₹ {{ number_format($businessWallet ?? 0, 2) }}</div>
             </div>
         @else
             <div class="text-end">
@@ -59,34 +36,39 @@
             </div>
         @endif
 
+        {{-- Notification Icon --}}
+        <div class="position-relative cursor-pointer">
+            <i class="bi bi-bell fs-4"></i>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                4
+            </span>
+        </div>
 
-        <!-- Wallet Balance -->
-
-
-        <!-- Notification + Profile -->
+        {{-- Profile Dropdown --}}
         <div class="dropdown">
-            <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center"
-                data-bs-toggle="dropdown">
-                <i class="bi bi-bell me-2 position-relative">
-                    <span class="position-absolute top-0 start-100 translate-middle badge bg-danger">
-                        4
-                    </span>
-                </i>
-                <i class="bi bi-person-circle"></i>
+            <button
+                class="btn bg-light border rounded-circle shadow-sm d-flex align-items-center justify-content-center"
+                data-bs-toggle="dropdown" style="width: 34px; height: 34px;">
+                <i class="bi bi-person-circle fs-4 text-primary"></i>
             </button>
 
-            <ul class="dropdown-menu dropdown-menu-end">
-                <li class="dropdown-header">Notifications</li>
-                <li><a class="dropdown-item" href="javascript:void(0)">BBPS Bill Paid Successfully</a></li>
-                <li><a class="dropdown-item" href="javascript:void(0)">AEPS Settlement Completed</a></li>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
                 <li>
-                    <hr class="dropdown-divider">
+                    <a class="dropdown-item" href="{{ route('admin_profile', auth::id()) }}">
+                        <i class="bi bi-person me-2"></i> My Profile
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="javascript:void(0)">
+                        <i class="bi bi-wallet2 me-2"></i> Wallet Statement
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="javascript:void(0)">
+                        <i class="bi bi-credit-card me-2"></i> AEPS Statement
+                    </a>
                 </li>
 
-
-                <li><a class="dropdown-item" href="{{ route('admin_profile', auth::id()) }}">My Profile</a></li>
-                <li><a class="dropdown-item" href="javascript:void(0)">Wallet Statement</a></li>
-                <li><a class="dropdown-item" href="javascript:void(0)">AEPS Statement</a></li>
                 <li>
                     <hr class="dropdown-divider">
                 </li>
@@ -94,11 +76,14 @@
                 <li>
                     <form action="{{ route('admin.logout') }}" method="POST">
                         @csrf
-                        <button class="dropdown-item text-danger">Logout</button>
+                        <button class="dropdown-item text-danger">
+                            <i class="bi bi-box-arrow-right me-2"></i> Logout
+                        </button>
                     </form>
                 </li>
             </ul>
         </div>
+
     </div>
 </header>
 <div class="modal fade" id="serviceModall" tabindex="-1" aria-hidden="true">

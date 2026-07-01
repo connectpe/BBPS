@@ -7,6 +7,7 @@ use App\Models\GlobalService;
 use App\Models\IpWhitelist;
 use App\Models\MobikwikToken;
 use App\Models\OauthUser;
+use App\Models\PaymentMode;
 use App\Models\UserRooting;
 use App\Models\UserService;
 use Illuminate\Support\Facades\Log;
@@ -17,16 +18,17 @@ class CommonHelper
     {
         $credential = OauthUser::where('client_id', $clientId)->where('is_active', '1')->first();
 
+        $hashSecret = hash('sha512', $clientSecret);
         // dd($credential);
 
-        if (! $credential) {
+        if (!$credential) {
             return [
                 'status' => false,
                 'message' => 'Invalid client_id',
             ];
         }
 
-        if (! $credential->verifyClientSecret($clientSecret)) {
+        if ($hashSecret !== $credential->client_secret) {
             return [
                 'status' => false,
                 'message' => 'Invalid client_secret',
@@ -66,17 +68,17 @@ class CommonHelper
 
     public static function generateTransactionId()
     {
-        return 'TXN'.time().rand(100, 999);
+        return 'TXN' . time() . rand(100, 999);
     }
 
     public static function generatePaymentRefId()
     {
-        return 'PAY'.time().rand(100, 999);
+        return 'PAY' . time() . rand(100, 999);
     }
 
     public static function generateConnectPeTransactionId()
     {
-        return 'CPE'.time().rand(100, 999);
+        return 'CPE' . time() . rand(100, 999);
     }
 
     public static function isTokenPresent()
@@ -215,7 +217,7 @@ class CommonHelper
 
     public static function getProviderSlug($userId, $serviceId)
     {
-        $userRooting = UserRooting::select('provider_slug')
+        $userRooting = UserRooting::select('provider_slug', 'provider_id')
             ->where('user_id', $userId)
             ->where('service_id', $serviceId)
             ->first();
@@ -223,17 +225,19 @@ class CommonHelper
         if ($userRooting) {
             return [
                 'status' => true,
+                'provider_id' => $userRooting->provider_id,
                 'provider_slug' => $userRooting->provider_slug,
             ];
         }
 
-        $defaultProvider = DefaultProvider::select('provider_slug')
+        $defaultProvider = DefaultProvider::select('provider_id', 'provider_slug')
             ->where('service_id', $serviceId)
             ->first();
 
         if ($defaultProvider) {
             return [
                 'status' => true,
+                'provider_id' => $defaultProvider->provider_id,
                 'provider_slug' => $defaultProvider->provider_slug,
             ];
         }
@@ -295,12 +299,12 @@ class CommonHelper
 
         if ($prefix) {
             if ($separator) {
-                $string = $ts.strtoupper($hash).rand(1, 9);
+                $string = $ts . strtoupper($hash) . rand(1, 9);
             } else {
-                $string = $ts.strtoupper($hash).rand(1, 9);
+                $string = $ts . strtoupper($hash) . rand(1, 9);
             }
         } else {
-            $string = $hash.$ts;
+            $string = $hash . $ts;
         }
 
         return $string;
@@ -317,12 +321,12 @@ class CommonHelper
 
         if ($prefix) {
             if ($separator) {
-                $string = $ts.strtoupper($hash);
+                $string = $ts . strtoupper($hash);
             } else {
-                $string = $ts.strtoupper($hash);
+                $string = $ts . strtoupper($hash);
             }
         } else {
-            $string = $hash.$ts;
+            $string = $hash . $ts;
         }
 
         return $string;
@@ -350,7 +354,7 @@ class CommonHelper
     {
         do {
             $randomNumber = random_int(100000000, 999999999);
-            $modeId = 'md_'.$randomNumber;
+            $modeId = 'md_' . $randomNumber;
         } while (\App\Models\PaymentMode::where('mode_id', $modeId)->exists());
 
         return $modeId;
@@ -358,14 +362,14 @@ class CommonHelper
     public static function getModeId($mode, $serviceId)
     {
         $mode    = self::caseConversion($mode, 'l');
-        $modeData = Product::where('mode_slug', $mode)->where('service_id', $serviceId)->where('is_active', '1')->first();
+        $modeData = PaymentMode::where('mode_slug', $mode)->where('service_id', $serviceId)->where('is_active', '1')->first();
         if (isset($modeData)) {
             $response['status']  = true;
-            $response['message'] = 'Product available for transactions';
+            $response['message'] = 'Payment mode available for transactions';
             $response['data']    = $modeData;
         } else {
             $response['status']  = false;
-            $response['message'] = 'Product not found or inactive';
+            $response['message'] = 'Payment mode not found or inactive';
         }
 
         return $response;

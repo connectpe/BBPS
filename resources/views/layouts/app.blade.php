@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>@yield('title', 'BBPS Dashboard')</title>
+    <link rel="icon" type="image/png" href="{{ asset('assets/images/logo.png') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -81,6 +82,9 @@
             background-color: #c3ccd8 !important;
         }
 
+        .select2Width {
+            width: 150px !important
+        }
 
         @media (max-width: 768px) {
             /* .sidebar {
@@ -351,7 +355,7 @@
         @include('layouts.header')
 
         {{-- Main Content --}}
-        <main class="flex-grow-1 p-3 bg-light">
+        <main class="flex-grow-1 p-3 bg-white">
             <div class="d-flex align-items-center justify-content-between mb-2">
                 <h2 class="mb-0">@yield('page-title')</h2>
                 <!-- Button placeholder, will be injected by child if exists -->
@@ -370,6 +374,7 @@
     </div>
 
     @include('layouts.script')
+    @include('Include.mpin-modal')
 
     <!-- Global Notification -->
     <div class="position-fixed top-0 end-0 p-3" style="z-index: 1080">
@@ -381,7 +386,15 @@
         </div>
     </div>
 
+
     <script>
+
+        window.paymentContext = {
+            service: null,
+            payload: {},
+            callback: null
+        };
+
         window.notify = function (message, type = "danger") {
 
             let toastEl = document.getElementById('globalToast');
@@ -542,9 +555,33 @@
                 modal.show();
 
             });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+
+            // Normal select2
+            $('.form-select2').each(function () {
+                if ($(this).closest('.modal').length === 0) {
+                    $(this).select2({
+                        width: '100%'
+                    });
+                }
+            });
+
+            // Modal select2
+            $('.modal').on('shown.bs.modal', function () {
+                $(this).find('.form-select2').select2({
+                    dropdownParent: $(this),
+                    width: '100%'
+                });
+            });
 
         });
     </script>
+
+
 </body>
 
 </html>

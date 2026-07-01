@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->string('bene_mobile')->after('bene_email')->nullable();
+        Schema::create('bbps_categories', function (Blueprint $table) {
+            $table->id();
+            $table->string('bbps_category_name')->unique();
+            $table->enum('status', ['1', '0'])->default('1');
+            $table->timestamps();
         });
     }
 
@@ -21,10 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->dropColumn([
-            'bene_mobile'
-            ]);
-        });
+        Schema::dropIfExists('bbps_categories');
     }
 };

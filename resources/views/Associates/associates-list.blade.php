@@ -25,27 +25,28 @@ use App\Facades\FileUpload;
 
     @forelse($associates ?? [] as $associate)
 
-    <div class="col-xl-3 col-lg-4 col-md-6">
+    <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
 
-        <div class="card border shadow-sm h-100">
+       <div class="card border shadow-sm">
             <div class="position-absolute top-0 start-0 m-2">
-                <div title="Priority" class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center"
+                <div title="Priority"
+                    class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center"
                     style="width:20px; height:20px; font-size:10px;">
                     {{ $associate->priority ?? 0 }}
                 </div>
             </div>
             <!-- Image -->
-            <div class="p-2 text-center">
+            <div class="p-1 text-center">
                 <img src="{{ FileUpload::getFilePath($associate->logo) }}"
                     class="img-fluid rounded associate-img cursor-pointer"
                     onclick="showImage('{{ FileUpload::getFilePath($associate->logo) }}','Associates Image')"
-                    style="height:95px; object-fit:cover;">
+                    style="height:70px; object-fit:cover;">
             </div>
 
             <!-- Body -->
-            <div class="card-body py-2 text-center">
+            <div class="card-body py-1 text-center">
 
-                <h6 class="mb-1 small fw-semibold text-truncate">
+                <h6 class="mb-0 small fw-semibold text-truncate">
                     {{ $associate->name }}
                 </h6>
 
