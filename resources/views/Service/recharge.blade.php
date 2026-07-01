@@ -354,6 +354,7 @@
     ['name' => 'Rental', 'icon' => 'bi-building-check'],
     ['name' => 'Subscription', 'icon' => 'bi-journal-text'],
     ['name' => 'Water', 'icon' => 'bi-droplet'],
+    ['name' => 'AEPS', 'icon' => 'bi-person-badge'],
     ];
 
     $colors = [
