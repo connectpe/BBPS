@@ -4,7 +4,7 @@
 @section('page-title', 'Recharge Report')
 
 @section('page-button')
-<img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}" alt="" style="width: 84px; z-index: 1060;">
+<img src="{{ asset('assets/image/Logo/bharat-connect-logo.jpg') }}" alt="" style="width: 100px; z-index: 1060;">
 @endsection
 @section('content')
 

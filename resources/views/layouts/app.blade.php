@@ -355,7 +355,7 @@
         @include('layouts.header')
 
         {{-- Main Content --}}
-        <main class="flex-grow-1 p-3 bg-light">
+        <main class="flex-grow-1 p-3 bg-white">
             <div class="d-flex align-items-center justify-content-between mb-2">
                 <h2 class="mb-0">@yield('page-title')</h2>
                 <!-- Button placeholder, will be injected by child if exists -->

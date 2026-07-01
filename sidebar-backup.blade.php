@@ -266,7 +266,8 @@
 
         $settingsRoute = ['users_log'];
         $settingsActive = in_array(Route::currentRouteName(), $settingsRoute);
-        $documentVerificationRoute = ['bank_account'];
+
+        $documentVerificationRoute = ['bank_account', 'pan_verification', 'gstin_verification'];
         $documentVerificationActive = in_array(Route::currentRouteName(), $documentVerificationRoute);
     @endphp
 
@@ -403,6 +404,14 @@
            class="nav-link {{ Route::currentRouteName() == 'bank_account' ? 'active' : '' }}">
             <i class="bi bi-bank"></i>
             <span class="menu-text">Bank Account</span>
+        </a>
+        <a href="{{ route('pan_verification') }}"class="nav-link {{ Route::currentRouteName() == 'pan_verification' ? 'active' : '' }}">
+            <i class="bi bi-person-vcard"></i>
+            <span class="menu-text">PAN Verification</span>
+        </a>
+        <a href="{{ route('gstin_verification') }}" class="nav-link {{ Route::currentRouteName() == 'gstin_verification' ? 'active' : '' }}">
+            <i class="bi bi-receipt-cutoff"></i>
+            <span class="menu-text">GSTIN Verification</span>
         </a>
     </div>
 </li>

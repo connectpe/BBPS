@@ -14,7 +14,8 @@
     }
 
     .print-logo {
-        height: 80px;
+        height: 30mm;
+        width: 30mm;
     }
 
     .print-table {
@@ -66,7 +67,8 @@
     }
 
     .right-logo {
-        height: 60px;
+        height: 30mm;
+        width: 30mm;
     }
 
     .success-text {
