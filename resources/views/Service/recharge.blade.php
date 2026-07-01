@@ -325,6 +325,7 @@
 
     @php
     $services = [
+    ['name' => 'AEPS', 'icon' => 'bi-person-badge'],
     ['name' => 'Agent Collection', 'icon' => 'bi-people'],
     ['name' => 'Broadband Postpaid', 'icon' => 'bi-wifi'],
     ['name' => 'Cable TV', 'icon' => 'bi-tv'],
