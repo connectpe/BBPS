@@ -205,7 +205,7 @@ class PayinOrdersController extends Controller
                 ]);
 
                 $url = $this->cashfreePayinUrl;
-                // dd($url);
+                dd($url);
 
                 $payload = [
                     "customer_details" => [
@@ -219,7 +219,12 @@ class PayinOrdersController extends Controller
                     "link_purpose" => "Payment"
                 ];
 
-                // dd($this->cashfreeapiversion, $this->cashfreeappid, $this->cashfreesecretkey, $payload);
+                dd(
+                    'Cashfree API Version: ' . $this->cashfreeapiversion,
+                    'Cashfree App ID: ' . $this->cashfreeappid,
+                    'Cashfree Secret Key: ' . $this->cashfreesecretkey,
+                    $payload
+                );
 
                 $response = Http::withHeaders([
                     'x-api-version' => $this->cashfreeapiversion,
