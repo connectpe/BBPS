@@ -212,6 +212,11 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
     Route::post('add-load-money-request', [UserController::class, 'addMoneyRequest'])->name('add_load_money_request');
 
     Route::get('/payin-docs', [UserController::class, 'payinDocsUser'])->name('payin_docs_user');
+
+    // AEPS Services Route
+    Route::get('/aeps/services', function () {
+        return view('AepsServices.aeps-services');
+    })->name('aeps.services');
 });
 
 
