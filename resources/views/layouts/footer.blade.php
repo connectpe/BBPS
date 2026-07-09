@@ -1,3 +1,3 @@
 <footer class="bg-white border-top text-center p-2">
-    <small>BBPS Integrated System © {{ date('Y') }}</small>
+    <small>ConnectPe © {{ date('Y') }}</small>
 </footer>
