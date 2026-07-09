@@ -124,5 +124,10 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'aeps_keys' => [
+        'AEPS_BASE_URL' => env('AEPS_BASE_URL'),
+        'AEPS_TOKEN'  => env('AEPS_TOKEN'),
+    ],
+
 
 ];
