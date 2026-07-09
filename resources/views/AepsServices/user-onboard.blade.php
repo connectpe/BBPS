@@ -26,6 +26,7 @@
             <div class="card-body">
 
                 <form method="POST" action="{{ route('aeps.onboard.user') }}" enctype="multipart/form-data">
+
                     @csrf
 
                     <div class="row">

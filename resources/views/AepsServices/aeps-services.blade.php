@@ -10,7 +10,7 @@
         background: #fff;
         border: 1px solid #e5e7eb;
         border-radius: 15px;
-        box-shadow: 0 2px 10px rgba(0,0,0,.08);
+        /* box-shadow: 0 2px 10px rgba(0,0,0,.08); */
     }
 
     .aeps-card .card-body{
@@ -23,8 +23,8 @@
     }
 
     .service-circle{
-        width: 90px;
-        height: 90px;
+        width: 75px;
+        height: 75px;
         border-radius: 50%;
         background: #eef3fb;
         border: 2px solid #dbe4f0;
@@ -37,7 +37,7 @@
     }
 
     .service-circle i{
-        font-size: 34px;
+        font-size: 28px;
     }
 
     .service-item p{
@@ -75,7 +75,7 @@
     }
 </style>
 
-<div class="container-fluid">
+<div class="container-fluid px-0">
 
     <div class="card aeps-card">
         {{-- <div class="card-header bg-white">
