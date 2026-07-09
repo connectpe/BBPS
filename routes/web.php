@@ -13,6 +13,7 @@ use App\Http\Controllers\SchemeController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ServiceCostController;
 use App\Http\Controllers\ServiceRequestController;
+use App\Http\Controllers\AepsController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\users\ReportController;
 use App\Http\Controllers\users\UserController;
@@ -213,10 +214,15 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
 
     Route::get('/payin-docs', [UserController::class, 'payinDocsUser'])->name('payin_docs_user');
 
-    // AEPS Services Route
-    Route::get('/aeps/services', function () {
-        return view('AepsServices.aeps-services');
-    })->name('aeps.services');
+
+    Route::prefix('aeps')
+        ->controller(AepsController::class)
+        ->name('aeps.')
+        ->group(function () {
+            Route::get('/services', 'aepsServices')->name('services');
+            Route::get('/onboard', 'userOnboard')->name('useronboard');
+            Route::post('/onboard-user', 'aepsUserOnboard')->name('onboard.user');
+        });
 });
 
 

@@ -625,6 +625,12 @@
                             <i class="bi bi-grid"></i>
                             <span class="menu-text">AEPS Services</span>
                         </a>
+
+                        <a href="{{ route('aeps.useronboard') }}"
+                            class="nav-link {{ Route::currentRouteName() == 'aeps.useronboard' ? 'active' : '' }}">
+                            <i class="bi bi-person-plus"></i>
+                            <span class="menu-text">User Onboard</span>
+                        </a>
                     </div>
                 </li>
 
