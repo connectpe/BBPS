@@ -77,8 +77,8 @@
 
                                 <option value="">--Select Company Type--</option>
                                 @foreach ($companyType as $type)
-                                    <option value="{{ $type['mccDescription'] }}"
-                                        {{ old('companyType') == $type['mccDescription'] ? 'selected' : '' }}>
+                                    <option value="{{ $type['mccCode'] }}"
+                                        {{ old('companyType') == $type['mccCode'] ? 'selected' : '' }}>
                                         {{ $type['mccDescription'] }}
                                     </option>
                                 @endforeach
