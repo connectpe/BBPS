@@ -5,332 +5,352 @@
 
 @section('content')
 
-<div class="accordion mb-3" id="filterAccordion">
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="headingFilter">
-            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse"
-                data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
-                Filter Users
-            </button>
-        </h2>
-        <div id="collapseFilter" class="accordion-collapse collapse" aria-labelledby="headingFilter"
-            data-bs-parent="#filterAccordion">
-            <div class="accordion-body">
-                <div class="row g-3 align-items-end">
-                    <div class="col-md-3">
-                        <label for="filterName" class="form-label d-block">User</label>
-                        <select name="filterName" id="filterName" class="form-control form-select2">
-                            <option value="">--Select User--</option>
-                            @foreach($users as $value)
-                            <option value="{{$value->id}}">{{$value->name}} ({{ $value->email }})</option>
-                            @endforeach
-                        </select>
-                    </div>
+    <div class="accordion mb-3" id="filterAccordion">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingFilter">
+                <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
+                    Filter Users
+                </button>
+            </h2>
+            <div id="collapseFilter" class="accordion-collapse collapse" aria-labelledby="headingFilter"
+                data-bs-parent="#filterAccordion">
+                <div class="accordion-body">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-3">
+                            <label for="filterName" class="form-label d-block">User</label>
+                            <select name="filterName" id="filterName" class="form-control form-select2">
+                                <option value="">--Select User--</option>
+                                @foreach ($users as $value)
+                                    <option value="{{ $value->id }}">{{ $value->name }} ({{ $value->email }})</option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                    <div class="col-md-3">
-                        <label for="filterStatus" class="form-label">Status</label>
-                        <select class="form-select form-select2" id="filterStatus">
-                            <option value="">All</option>
-                            <option value="0">Initiated</option>
-                            <option value="1">Active</option>
-                            <option value="2">Inactive</option>
-                            <option value="3">Pending</option>
-                            <option value="4">Suspended</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="filterDateFrom" class="form-label">From Date</label>
-                        <input type="date" class="form-control" id="filterDateFrom">
-                    </div>
+                        <div class="col-md-3">
+                            <label for="filterStatus" class="form-label">Status</label>
+                            <select class="form-select form-select2" id="filterStatus">
+                                <option value="">All</option>
+                                <option value="0">Initiated</option>
+                                <option value="1">Active</option>
+                                <option value="2">Inactive</option>
+                                <option value="3">Pending</option>
+                                <option value="4">Suspended</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="filterDateFrom" class="form-label">From Date</label>
+                            <input type="date" class="form-control" id="filterDateFrom">
+                        </div>
 
-                    <div class="col-md-3">
-                        <label for="filterDateTo" class="form-label">To Date</label>
-                        <input type="date" class="form-control" id="filterDateTo">
-                    </div>
-                    <div class="col-12 d-flex gap-2 justify-content-center">
-                        <!-- Buttons aligned with input fields -->
-                        <button class="btn buttonColor " id="applyFilter"> Filter</button>
+                        <div class="col-md-3">
+                            <label for="filterDateTo" class="form-label">To Date</label>
+                            <input type="date" class="form-control" id="filterDateTo">
+                        </div>
+                        <div class="col-12 d-flex gap-2 justify-content-center">
+                            <!-- Buttons aligned with input fields -->
+                            <button class="btn buttonColor " id="applyFilter"> Filter</button>
 
-                        <button class="btn btn-secondary" id="resetFilter">Reset</button>
+                            <button class="btn btn-secondary" id="resetFilter">Reset</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
 
-<div class="col-12">
-    <div class="card shadow-sm">
-        <div class="card-body pt-4">
-            <div class="table-responsive">
-                <table id="usersTable" class="table table-striped table-bordered table-hover w-100">
-                    <thead>
-                        <tr>
-                            <th>S.No</th>
-                            <th>Organization Name</th>
-                            <th>Email</th>
-                            <th>PanNO.</th>
-                            <th>Aadhar NO.</th>
-                            <th>Bussiness Wallet</th>
-                            <th>Created at</th>
-                            <th>Status</th>
-                            {{-- <th>Root</th> --}}
-                        </tr>
-                    </thead>
-                    <tbody>
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-body pt-4">
+                <div class="table-responsive">
+                    <table id="usersTable" class="table table-striped table-bordered table-hover w-100">
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                <th>Organization Name</th>
+                                <th>Email</th>
+                                <th>PanNO.</th>
+                                <th>Aadhar NO.</th>
+                                <th>Bussiness Wallet</th>
+                                <th>Created at</th>
+                                <th>Status</th>
+                                <th>Login as User</th>
+                            </tr>
+                        </thead>
+                        <tbody>
 
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<script>
-    $(document).ready(function () {
+    <script>
+        $(document).ready(function() {
 
-        var table = $('#usersTable').DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: {
+            var table = $('#usersTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
 
-                url: "{{url('fetch')}}/users/0",
-                type: 'POST',
+                    url: "{{ url('fetch') }}/users/0",
+                    type: 'POST',
 
-                data: function (d) {
-                    d._token = $('meta[name="csrf-token"]').attr('content');
-                    d.id = $('#filterName').val();
-                    d.email = $('#filterEmail').val();
-                    d.status = $('#filterStatus').val();
-                    d.date_from = $('#filterDateFrom').val();
-                    d.date_to = $('#filterDateTo').val();
-                }
-            },
-            pageLength: 10,
-            lengthMenu: [5, 10, 25, 50],
-            responsive: false,
-            dom: "<'row mb-2'<'col-sm-4'l><'col-sm-4'f><'col-sm-4 text-end'B>>" +
-                "<'row'<'col-12'tr>>" +
-                "<'row mt-2'<'col-sm-6'i><'col-sm-6'p>>",
-            buttons: [{
-                extend: 'excelHtml5',
-                text: 'Excel',
-                className: 'btn buttonColor btn-sm'
+                    data: function(d) {
+                        d._token = $('meta[name="csrf-token"]').attr('content');
+                        d.id = $('#filterName').val();
+                        d.email = $('#filterEmail').val();
+                        d.status = $('#filterStatus').val();
+                        d.date_from = $('#filterDateFrom').val();
+                        d.date_to = $('#filterDateTo').val();
+                    }
+                },
+                pageLength: 10,
+                lengthMenu: [5, 10, 25, 50],
+                responsive: false,
+                dom: "<'row mb-2'<'col-sm-4'l><'col-sm-4'f><'col-sm-4 text-end'B>>" +
+                    "<'row'<'col-12'tr>>" +
+                    "<'row mt-2'<'col-sm-6'i><'col-sm-6'p>>",
+                buttons: [{
+                        extend: 'excelHtml5',
+                        text: 'Excel',
+                        className: 'btn buttonColor btn-sm'
 
-            },
-            {
-                extend: 'pdfHtml5',
-                text: 'PDF',
-                className: 'btn buttonColor btn-sm'
-            }
-            ],
-            language: {
-                searchPlaceholder: "Search users..."
-            },
+                    },
+                    {
+                        extend: 'pdfHtml5',
+                        text: 'PDF',
+                        className: 'btn buttonColor btn-sm'
+                    }
+                ],
+                language: {
+                    searchPlaceholder: "Search users..."
+                },
 
-            columns: [{
-                data: null,
-                orderable: false,
-                searchable: false,
-                render: function (data, type, row, meta) {
-                    return meta.settings._iDisplayStart + meta.row + 1;
-                }
-            },
-            {
-                data: null,
-                render: function (data, type, row) {
-                    let url = "{{ route('view_user', ['id' => 'id']) }}".replace('id', row.id);
-                    const userName = row?.name;
-                    const businessName = row?.business?.business_name;
+                columns: [{
+                        data: null,
+                        orderable: false,
+                        searchable: false,
+                        render: function(data, type, row, meta) {
+                            return meta.settings._iDisplayStart + meta.row + 1;
+                        }
+                    },
+                    {
+                        data: null,
+                        render: function(data, type, row) {
+                            let url = "{{ route('view_user', ['id' => 'id']) }}".replace('id', row
+                                .id);
+                            const userName = row?.name;
+                            const businessName = row?.business?.business_name;
 
-                    return `
+                            return `
                                 <a href="${url}" class="text-primary fw-semibold text-decoration-none">
                                     ${userName ?? '----'} <br/>
                                     [${businessName ?? '----'}]
                                 </a>
                             `;
-                }
-            },
-            {
-                data: 'email',
-                render: function (data) {
-                    return data || '----'
-                }
-            },
-            {
-                data: 'business.pan_number',
-                render: function (data) {
-                    return data || '----'
-                }
-            },
-            {
-                data: 'business.aadhar_number',
-                render: function (data) {
-                    return data || '----'
-                }
-            },
-            {
-                data: 'transaction_amount',
-                render: function (data) {
-                    const amount = new Intl.NumberFormat('en-IN', {
-                        style: 'currency',
-                        currency: 'INR',
-                    }).format(data || 0);
+                        }
+                    },
+                    {
+                        data: 'email',
+                        render: function(data) {
+                            return data || '----'
+                        }
+                    },
+                    {
+                        data: 'business.pan_number',
+                        render: function(data) {
+                            return data || '----'
+                        }
+                    },
+                    {
+                        data: 'business.aadhar_number',
+                        render: function(data) {
+                            return data || '----'
+                        }
+                    },
+                    {
+                        data: 'transaction_amount',
+                        render: function(data) {
+                            const amount = new Intl.NumberFormat('en-IN', {
+                                style: 'currency',
+                                currency: 'INR',
+                            }).format(data || 0);
 
-                    return amount;
-                }
-            },
-            {
-                data: 'created_at',
-                render: function (data) {
-                    return formatDateTime(data)
-                }
-            },
-            {
-                data: 'status',
-                render: function (data, type, row) {
+                            return amount;
+                        }
+                    },
+                    {
+                        data: 'created_at',
+                        render: function(data) {
+                            return formatDateTime(data)
+                        }
+                    },
+                    {
+                        data: 'status',
+                        render: function(data, type, row) {
 
-                    const statusOptions = {
-                        0: 'INITIATED',
-                        1: 'ACTIVE',
-                        2: 'INACTIVE',
-                        3: 'PENDING',
-                        4: 'SUSPENDED'
-                    };
+                            const statusOptions = {
+                                0: 'INITIATED',
+                                1: 'ACTIVE',
+                                2: 'INACTIVE',
+                                3: 'PENDING',
+                                4: 'SUSPENDED'
+                            };
 
-                    let dropdown = `<select class="form-select form-select2 select2Width" onchange="changeStatusDropdown(this, ${row.id})" onfocus="this.setAttribute('data-prev', this.value)">`;
+                            let dropdown =
+                                `<select class="form-select form-select2 select2Width" onchange="changeStatusDropdown(this, ${row.id})" onfocus="this.setAttribute('data-prev', this.value)">`;
 
-                    for (const [value, label] of Object.entries(statusOptions)) {
-                        let selected = data == value ? 'selected' : '';
-                        dropdown += `<option value="${value}" ${selected}>${label}</option>`;
+                            for (const [value, label] of Object.entries(statusOptions)) {
+                                let selected = data == value ? 'selected' : '';
+                                dropdown +=
+                                    `<option value="${value}" ${selected}>${label}</option>`;
+                            }
+
+                            dropdown += `</select>`;
+                            return dropdown;
+                        },
+                        orderable: false,
+                        searchable: false
+
+                    },
+                    {
+                        data: 'id',
+                        render: function(data) {
+                            const impersonateRoute =
+                                "{{ route('enter.impersonate', ['user' => '__ID__']) }}";
+                            let url = impersonateRoute.replace('__ID__', data);
+
+                            return `
+                            <form method="POST" action="${url}">
+                                <input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">
+                                <button type="submit" class="btn btn-outline-success">
+                                  =>
+                                </button>
+                            </form>
+                        `;
+                        }
                     }
+                    // {
+                    //     data: null,
+                    //     render: function(data, type, row) {
 
-                    dropdown += `</select>`;
-                    return dropdown;
-                },
-                orderable: false,
-                searchable: false
+                    //         const statusOptions = {
+                    //             0: 'Mobikwik',
+                    //             1: 'Paysprint',
+                    //             2: 'Test'
 
-            },
-                // {
-                //     data: null,
-                //     render: function(data, type, row) {
+                    //         };
 
-                //         const statusOptions = {
-                //             0: 'Mobikwik',
-                //             1: 'Paysprint',
-                //             2: 'Test'
+                    //         let dropdown = `<select class="form-select form-select-sm" onchange="changeRootDropdown(this, ${row.id})" onfocus="this.setAttribute('data-prev', this.value)">`;
 
-                //         };
+                    //         for (const [value, label] of Object.entries(statusOptions)) {
+                    //             let selected = data == value ? 'selected' : '';
+                    //             dropdown += `<option value="${value}" ${selected}>${label}</option>`;
+                    //         }
 
-                //         let dropdown = `<select class="form-select form-select-sm" onchange="changeRootDropdown(this, ${row.id})" onfocus="this.setAttribute('data-prev', this.value)">`;
+                    //         dropdown += `</select>`;
+                    //         return dropdown;
+                    //     },
+                    //     orderable: false,
+                    //     searchable: false
 
-                //         for (const [value, label] of Object.entries(statusOptions)) {
-                //             let selected = data == value ? 'selected' : '';
-                //             dropdown += `<option value="${value}" ${selected}>${label}</option>`;
-                //         }
+                    // }
+                ]
 
-                //         dropdown += `</select>`;
-                //         return dropdown;
-                //     },
-                //     orderable: false,
-                //     searchable: false
+            });
+            $('#filterDateFrom').on('change', function() {
+                let from = $(this).val();
+                $('#filterDateTo').attr('min', from);
+                if ($('#filterDateTo').val() && $('#filterDateTo').val() < from) {
+                    $('#filterDateTo').val('');
+                }
+            });
 
-                // }
-            ]
+            // Apply filter
+            $('#applyFilter').on('click', function() {
+                table.ajax.reload();
+            });
 
+            // Reset filter
+            $('#resetFilter').on('click', function() {
+                $('#filterName').val('').trigger('change');
+                $('#filterEmail').val('');
+                $('#filterStatus').val('').trigger('change');
+                $('#filterDateFrom').val('').removeAttr('max');
+                $('#filterDateTo').val('').removeAttr('min');
+                table.ajax.reload();
+            });
         });
-        $('#filterDateFrom').on('change', function () {
-            let from = $(this).val();
-            $('#filterDateTo').attr('min', from);
-            if ($('#filterDateTo').val() && $('#filterDateTo').val() < from) {
-                $('#filterDateTo').val('');
-            }
-        });
-
-        // Apply filter
-        $('#applyFilter').on('click', function () {
-            table.ajax.reload();
-        });
-
-        // Reset filter
-        $('#resetFilter').on('click', function () {
-            $('#filterName').val('').trigger('change');
-            $('#filterEmail').val('');
-            $('#filterStatus').val('').trigger('change');
-            $('#filterDateFrom').val('').removeAttr('max');
-            $('#filterDateTo').val('').removeAttr('min');
-            table.ajax.reload();
-        });
-    });
 
 
-    function changeStatusDropdown(selectElement, id) {
-        const newStatus = selectElement.value;
-        const prevStatus = selectElement.getAttribute('data-prev');
+        function changeStatusDropdown(selectElement, id) {
+            const newStatus = selectElement.value;
+            const prevStatus = selectElement.getAttribute('data-prev');
 
-        Swal.fire({
-            title: 'Are you sure?',
-            text: 'Do you want to change the status?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes',
-            cancelButtonText: 'Cancel'
-        }).then((result) => {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'Do you want to change the status?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
 
-            if (!result.isConfirmed) {
-                selectElement.value = prevStatus;
-                return;
-            }
+                if (!result.isConfirmed) {
+                    selectElement.value = prevStatus;
+                    return;
+                }
 
-            $.ajax({
-                url: "{{ route('admin.user_status.change') }}",
-                type: 'POST',
-                data: {
-                    _token: $('meta[name="csrf-token"]').attr('content'),
-                    status: newStatus,
-                    id: id
-                },
-                success: function (response) {
-                    if (response.success) {
+                $.ajax({
+                    url: "{{ route('admin.user_status.change') }}",
+                    type: 'POST',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        status: newStatus,
+                        id: id
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Updated!',
+                                text: response.message ?? 'Status updated successfully',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                        }
+                        // update previous value after success
+                        selectElement.setAttribute('data-prev', newStatus);
+                    },
+                    error: function(xhr) {
+                        // rollback on error
+                        selectElement.value = prevStatus;
+
+                        let message = 'Something went wrong!';
+
+                        if (xhr.status === 422 && xhr.responseJSON?.errors) {
+                            const firstKey = Object.keys(xhr.responseJSON.errors)[0];
+                            message = xhr.responseJSON.errors[firstKey][0];
+                        } else if (xhr.responseJSON?.message) {
+                            message = xhr.responseJSON.message;
+                        }
+
                         Swal.fire({
-                            icon: 'success',
-                            title: 'Updated!',
-                            text: response.message ?? 'Status updated successfully',
+                            icon: 'error',
+                            title: 'Error!',
+                            text: message,
                             timer: 2000,
                             showConfirmButton: false
                         });
                     }
-                    // update previous value after success
-                    selectElement.setAttribute('data-prev', newStatus);
-                },
-                error: function (xhr) {
-                    // rollback on error
-                    selectElement.value = prevStatus;
-
-                    let message = 'Something went wrong!';
-
-                    if (xhr.status === 422 && xhr.responseJSON?.errors) {
-                        const firstKey = Object.keys(xhr.responseJSON.errors)[0];
-                        message = xhr.responseJSON.errors[firstKey][0];
-                    } else if (xhr.responseJSON?.message) {
-                        message = xhr.responseJSON.message;
-                    }
-
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error!',
-                        text: message,
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
-                }
+                });
             });
-        });
-    }
-</script>
+        }
+    </script>
 
 @endsection

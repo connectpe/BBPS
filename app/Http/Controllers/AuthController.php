@@ -329,6 +329,14 @@ class AuthController extends Controller
     {
         DB::beginTransaction();
         try {
+
+            if (session('impersonator')) {
+                $admin = User::findOrFail(session('impersonator'));
+                session()->forget('impersonator');
+                Auth::login($admin);
+                return redirect()->route('users');
+            }
+
             event(new UserActivityEvent(auth()->user(), 'Logout'));
             Auth::logout();
             $request->session()->invalidate();
@@ -599,7 +607,7 @@ class AuthController extends Controller
         try {
             $request->validate([
                 'mpin'        => 'required|numeric',
-            ],[
+            ], [
                 'mpin.required' => 'MPIN is required',
                 'mpin.numeric' => 'MPIN should be numeric only',
             ]);
