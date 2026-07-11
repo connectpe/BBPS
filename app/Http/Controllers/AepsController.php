@@ -33,7 +33,31 @@ class AepsController extends Controller
 
     public function aepsServices()
     {
-        return view('AepsServices.aeps-services');
+
+
+        $bankName = [];
+        $body = [
+            'token' => $this->token
+        ];
+
+        $url = $this->baseUrl . 'api/maeps/getdata';
+        $response = $this->callApi(
+            'POST',
+            $url,
+            [
+                'Accept' => 'application/json',
+            ],
+            [
+                'json' => $body
+            ]
+        );
+
+        $response =  $response->json();
+        if (isset($response['status']) && $response['status'] === 'TXN' && isset($response['data']['bankName'])) {
+            $bankName = $response['data']['bankName'];
+        }
+
+        return view('AepsServices.aeps-services', compact('bankName'));
     }
 
     public function userOnboard()
@@ -107,10 +131,7 @@ class AepsController extends Controller
             return redirect()->back()->withInput()->with('error', $response['message']);
         }
 
-
-        if (isset($response['status']) && $response['status'] === 'TXN' && isset($response['data']['companyTypes'])) {
-            $companyType = $response['data']['companyTypes'];
-        }
+ 
     }
 
 
