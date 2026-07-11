@@ -30,6 +30,18 @@
                 <div class="fw-semibold text-primary">₹ {{ number_format($businessWallet ?? 0, 2) }}</div>
             </div>
         @else
+            @if (session()->has('impersonator'))
+                <div class="text-end">
+                    <div class=" mb-0 p-2">
+                        <form method="POST" action="{{ route('exit.impersonate') }}" class="mt-2">
+                            @csrf
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                Exit Impersonation <i class="fa-solid fa-arrow-up"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            @endif
             <div class="text-end">
                 <small class="text-muted">Business Wallet</small>
                 <div class="fw-semibold text-success">₹ {{ number_format($businessWallet ?? 0, 2) }}</div>

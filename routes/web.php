@@ -155,6 +155,9 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/bank-account', [AdminController::class, 'bankAccount'])->name('bank_account');
         Route::get('/pan-verification', [AdminController::class, 'panVerification'])->name('pan_verification');
         Route::get('/gstin-verification', [AdminController::class, 'gstinVerification'])->name('gstin_verification');
+
+         //Enter Impersonate 
+        Route::post('/impersonate/{user}', [AdminController::class, 'enterImpersonate'])->name('enter.impersonate');
     });
 });
 
@@ -215,14 +218,16 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
     Route::get('/payin-docs', [UserController::class, 'payinDocsUser'])->name('payin_docs_user');
 
 
-    Route::prefix('aeps')
-        ->controller(AepsController::class)
-        ->name('aeps.')
-        ->group(function () {
+    Route::prefix('aeps')->controller(AepsController::class)->name('aeps.')->group(function () {
             Route::get('/services', 'aepsServices')->name('services');
             Route::get('/onboard', 'userOnboard')->name('useronboard');
             Route::post('/onboard-user', 'aepsUserOnboard')->name('onboard.user');
+            Route::post('/balance-enquiry', 'balanceEnquiry')->name('balance.enquiry');
         });
+
+        // Exit Impersonate
+    Route::post('/exit-impersonation', [AdminController::class, 'exitImpersonate'])->name('exit.impersonate');
+
 });
 
 

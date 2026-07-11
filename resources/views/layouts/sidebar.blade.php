@@ -319,7 +319,7 @@
 
                         <a href="{{ route('request_services') }}"
                             class="nav-link d-flex justify-content-between align-items-center {{ Route::currentRouteName() == 'request_services' ? 'active' : '' }}">
-                            <span><i class="bi bi-clipboard-check"></i> Service Requests</span>
+                            <i class="bi bi-clipboard-check"></i><span> Service Requests</span>
                             @if ($serviceRequestCount)
                                 <span class="badge bg-light text-dark">{{ $serviceRequestCount }}</span>
                             @endif
