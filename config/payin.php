@@ -12,8 +12,8 @@ return [
     |
     */
 
-    'cashfree_url' => env('CASHFREE_URL'),
-    'cashfree_app_id' => env('CASHFREE_APP_ID'),
-    'cashfree_secret_key' => env('CASHFREE_SECRET_KEY'),
-    'cashfree_api_version' => env('CASHFREE_API_VERSION'),
+    'cashfree_url' => env('PAYIN_CASHFREE_URL'),
+    'cashfree_app_id' => env('PAYIN_CASHFREE_APP_ID'),
+    'cashfree_secret_key' => env('PAYIN_CASHFREE_SECRET_KEY'),
+    'cashfree_api_version' => env('PAYIN_CASHFREE_API_VERSION'),
 ];

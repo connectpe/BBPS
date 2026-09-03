@@ -2539,4 +2539,41 @@ class AdminController extends Controller
     {
         return view('DocumentVerification.gstin-verify');
     }
+
+
+
+    // Impersonate 
+    public function enterImpersonate(User $user)
+    {
+        // Prevent nested impersonation
+        if (session()->has('impersonator')) {
+            return back()->with('error', 'Already impersonating.');
+        }
+
+        // Store admin id
+        session([
+            'impersonator' => Auth::id()
+        ]);
+
+        // Login as user
+        Auth::login($user);
+
+        return redirect()->route('user.dashboard');
+    }
+
+
+    public function exitImpersonate()
+    {
+        if (!session()->has('impersonator')) {
+            return redirect()->back()->with('error', 'You are not impersonationg as user');
+        }
+
+        $admin = User::findOrFail(session('impersonator'));
+
+        session()->forget('impersonator');
+
+        Auth::login($admin);
+
+        return redirect()->route('users');
+    }
 }

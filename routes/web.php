@@ -13,6 +13,7 @@ use App\Http\Controllers\SchemeController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ServiceCostController;
 use App\Http\Controllers\ServiceRequestController;
+use App\Http\Controllers\AepsController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\users\ReportController;
 use App\Http\Controllers\users\UserController;
@@ -154,6 +155,9 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/bank-account', [AdminController::class, 'bankAccount'])->name('bank_account');
         Route::get('/pan-verification', [AdminController::class, 'panVerification'])->name('pan_verification');
         Route::get('/gstin-verification', [AdminController::class, 'gstinVerification'])->name('gstin_verification');
+
+         //Enter Impersonate 
+        Route::post('/impersonate/{user}', [AdminController::class, 'enterImpersonate'])->name('enter.impersonate');
     });
 });
 
@@ -212,6 +216,18 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
     Route::post('add-load-money-request', [UserController::class, 'addMoneyRequest'])->name('add_load_money_request');
 
     Route::get('/payin-docs', [UserController::class, 'payinDocsUser'])->name('payin_docs_user');
+
+
+    Route::prefix('aeps')->controller(AepsController::class)->name('aeps.')->group(function () {
+            Route::get('/services', 'aepsServices')->name('services');
+            Route::get('/onboard', 'userOnboard')->name('useronboard');
+            Route::post('/onboard-user', 'aepsUserOnboard')->name('onboard.user');
+            Route::post('/balance-enquiry', 'balanceEnquiry')->name('balance.enquiry');
+        });
+
+        // Exit Impersonate
+    Route::post('/exit-impersonation', [AdminController::class, 'exitImpersonate'])->name('exit.impersonate');
+
 });
 
 

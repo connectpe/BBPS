@@ -35,6 +35,8 @@ class User extends Authenticatable
         'forget_mpin_otp',
         'mpin_otp_expires_at',
         'profile_image',
+        'aeps_merchant_login_Id',
+        'aeps_merchant_login_pin',
     ];
 
     /**
