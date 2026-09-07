@@ -205,26 +205,61 @@ class PayinOrdersController extends Controller
                 ]);
 
                 $url = $this->cashfreePayinUrl;
-                dd($url);
+                // dd($url);
+
+                // $payload = [
+                //     "customer_details" => [
+                //         "customer_name" => $request->name,
+                //         "customer_email" => $request->email,
+                //         "customer_phone" => $request->mobileNumber
+                //     ],
+                //     "link_amount" => $request->amount,
+                //     "link_currency" => "INR",
+                //     "link_id" => $request->cust_txn_id,
+                //     "link_purpose" => "Payment"
+                // ];
 
                 $payload = [
                     "customer_details" => [
-                        "customer_name" => $request->name,
+                        "customer_name"  => $request->name,
                         "customer_email" => $request->email,
-                        "customer_phone" => $request->mobileNumber
+                        "customer_phone" => $request->mobileNumber,
                     ],
-                    "link_amount" => $request->amount,
+
+                    "link_amount" => (float) $request->amount,
                     "link_currency" => "INR",
                     "link_id" => $request->cust_txn_id,
-                    "link_purpose" => "Payment"
-                ];
+                    "link_purpose" => "Payment",
 
-                dd(
-                    'Cashfree API Version: ' . $this->cashfreeapiversion,
-                    'Cashfree App ID: ' . $this->cashfreeappid,
-                    'Cashfree Secret Key: ' . $this->cashfreesecretkey,
-                    $payload
-                );
+                    "link_auto_reminders" => true,
+
+                    "link_expiry_time" => now()->addHours(24)->format('Y-m-d\TH:i:sP'),
+
+                    "link_meta" => [
+                        "notify_url" => "https://login.connectpe.in/api/payin/callbacks/cashfree",
+                        "return_url" => "https://login.connectpe.in/",
+                        "upi_intent" => false,
+                    ],
+
+                    "link_notify" => [
+                        "send_email" => true,
+                        "send_sms" => true,
+                    ],
+
+                    "link_partial_payments" => false,
+
+                    "link_notes" => [
+                        "remarks" => "Payment Link",
+                    ],
+
+                    "enable_invoice" => true,
+                ];
+                // dd(
+                //     'Cashfree API Version: ' . $this->cashfreeapiversion,
+                //     'Cashfree App ID: ' . $this->cashfreeappid,
+                //     'Cashfree Secret Key: ' . $this->cashfreesecretkey,
+                //     $payload
+                // );
 
                 $response = Http::withHeaders([
                     'x-api-version' => $this->cashfreeapiversion,
