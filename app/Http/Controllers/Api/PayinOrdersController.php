@@ -205,7 +205,6 @@ class PayinOrdersController extends Controller
                 ]);
 
                 $url = $this->cashfreePayinUrl;
-                dd($url);
 
                 $payload = [
                     "customer_details" => [
@@ -218,14 +217,13 @@ class PayinOrdersController extends Controller
                     "link_id" => $request->cust_txn_id,
                     "link_purpose" => "Payment"
                 ];
-
-                dd(
-                    'Cashfree API Version: ' . $this->cashfreeapiversion,
-                    'Cashfree App ID: ' . $this->cashfreeappid,
-                    'Cashfree Secret Key: ' . $this->cashfreesecretkey,
-                    $payload
-                );
-
+                // dd([
+                //     'x-api-version' => $this->cashfreeapiversion,
+                //     'x-client-id' => $this->cashfreeappid,
+                //     'x-client-secret' => $this->cashfreesecretkey,
+                //     'Content-Type' => 'application/json',
+                //     'url' => $url
+                // ]);
                 $response = Http::withHeaders([
                     'x-api-version' => $this->cashfreeapiversion,
                     'x-client-id' => $this->cashfreeappid,
@@ -244,7 +242,6 @@ class PayinOrdersController extends Controller
                     ->post($url, $payload);
 
                 $result = $response->json();
-                dd($result);
 
                 Log::info('Cashfree Payin Response', [
                     'request' => $payload,
