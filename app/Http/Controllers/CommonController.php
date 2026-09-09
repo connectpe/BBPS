@@ -897,6 +897,36 @@ class CommonController extends Controller
                 }
                 break;
 
+            case 'seamless-upi-collection':
+                $request['table'] = '\App\Models\SeamlessUpiCollection';
+                $request['searchData'] = ['cust_txn_id', 'connectpe_order_id', 'cust_name', 'cust_email', 'amount', 'utr', 'status', 'created_at'];
+                $request['select'] = 'all';
+                $request['with'] = ['user'];
+                $orderIndex = $request->get('order');
+                if (isset($orderIndex) && count($orderIndex)) {
+                    $columnsIndex = $request->get('columns');
+                    $columnIndex = $orderIndex[0]['column'];
+                    $columnName = $columnsIndex[$columnIndex]['data'] ?? 'id';
+                    $columnSortOrder = $orderIndex[0]['dir'] ?? 'DESC';
+                    if ($columnName == '0' || empty($columnName)) {
+                        $columnName = 'id';
+                        $columnSortOrder = 'DESC';
+                    }
+                    $request['order'] = [$columnName, strtoupper($columnSortOrder)];
+                } else {
+                    $request['order'] = ['id', 'DESC'];
+                }
+                if (! isset($request['where']) || ! is_array($request['where'])) {
+                    $request['where'] = [];
+                }
+                if (Auth::user()->role_id == '1') {
+                    $request['parentData'] = 'all';
+                } else {
+                    $request['whereIn'] = 'user_id';
+                    $request['parentData'] = [Auth::user()->id];
+                }
+                break;
+
             case 'upi-collection':
                 $request['table'] = '\App\Models\UpiCollection';
                 $request['searchData'] = ['cust_txn_id', 'connectpe_order_id', 'cust_name', 'cust_email', 'amount', 'utr', 'status', 'created_at'];
@@ -989,6 +1019,7 @@ class CommonController extends Controller
             'upi-callback' => ['txn_id', 'txn_order_id', 'utr', 'status'],
             'upi-collection' => ['cust_txn_id', 'connectpe_order_id', 'cust_name', 'cust_email', 'utr', 'status'],
             'users-log' => ['user_id', 'action', 'ip_address'],
+            'seamless-upi-collection' => ['cust_txn_id', 'connectpe_order_id', 'cust_name', 'cust_email', 'utr', 'status'],
             // add more types and columns here
         ];
 
@@ -1142,6 +1173,16 @@ class CommonController extends Controller
                             $q->where('cust_txn_id', 'LIKE', "%{$value}%")
                                 ->orWhere('connectpe_order_id', 'LIKE', "%{$value}%")
                                 ->orWhere('utr', 'LIKE', "%{$value}%");
+
+                            return;
+                        }
+
+                        if ($request['type'] === 'seamless-upi-collection') {
+
+                            $q->where('cust_txn_id', 'LIKE', "%{$value}%")
+                            ->orWhere('connectpe_order_id', 'LIKE', "%{$value}%")
+                            ->orWhere('txn_order_id', 'LIKE', "%{$value}%")
+                            ->orWhere('utr', 'LIKE', "%{$value}%");
 
                             return;
                         }

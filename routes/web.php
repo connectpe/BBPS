@@ -158,6 +158,8 @@ Route::group(['middleware' => ['auth']], function () {
 
          //Enter Impersonate 
         Route::post('/impersonate/{user}', [AdminController::class, 'enterImpersonate'])->name('enter.impersonate');
+
+        Route::get('/admin/seamless-upi-collection', [AdminController::class, 'seamlessUpiCollection'])->name('seamless_upi_collection');
     });
 });
 

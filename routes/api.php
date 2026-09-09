@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\PayinCallbacksController;
 use App\Http\Controllers\ServiceCostController;
 use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\PayoutOrderController;
+use \App\Http\Controllers\Api\SeamlessPayinController;
 
 
 Route::get('/user', function (Request $request) {
@@ -63,7 +64,10 @@ Route::group(['middleware' => ['logs'], 'prefix' => 'verification'], function ()
 
 });
 
-
+Route::post('upi-deep-link', [SeamlessPayinController::class, 'upiDeepLink'])->name('upi.deep.link');
+Route::post('/easebuzz/initiate',[SeamlessPayinController::class, 'generateEasebuzzAccessKey'])->name('easebuzz.initiate');
+Route::post('/success/page',[SeamlessPayinController::class, 'success'])->name('easebuzz.success');
+Route::post('/failure/page',[SeamlessPayinController::class, 'failure'])->name('easebuzz.failure');
 
 
 // Route::post('validateRecharge', [BbpsRechargeController::class, 'validateRecharge'])->name('bbps.validateRecharge');
