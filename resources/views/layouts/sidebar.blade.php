@@ -277,6 +277,7 @@
                         'all_upi_transactions',
                         'api_callback',
                         'upi_manual_settlement',
+                        'seamless_upi_collection',
                     ];
                     $upiActive = in_array(Route::currentRouteName(), $upiRoute);
 
@@ -406,6 +407,11 @@
                         <a href="{{ route('upi_manual_settlement') }}"
                             class="nav-link {{ Route::currentRouteName() == 'upi_manual_settlement' ? 'active' : '' }}"><i
                                 class="bi bi-wallet2"></i><span class="menu-text">Manual Settlement</span></a>
+                                <a href="{{ route('seamless_upi_collection') }}"
+    class="nav-link {{ Route::currentRouteName() == 'seamless_upi_collection' ? 'active' : '' }}">
+    <i class="bi bi-phone-vibrate"></i>
+    <span class="menu-text">Seamless UPI Collection</span>
+</a>
                     </div>
                 </li>
 

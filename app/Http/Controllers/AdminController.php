@@ -2576,4 +2576,10 @@ class AdminController extends Controller
 
         return redirect()->route('users');
     }
+
+
+
+    public function seamlessUpiCollection(){
+        return view('UpiServices.seamless-upi-collection');
+    }
 }
