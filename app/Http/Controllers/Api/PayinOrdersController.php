@@ -208,20 +208,7 @@ class PayinOrdersController extends Controller
                     'cust_txn_id' => 'required|string|max:100|unique:upi_collections,cust_txn_id',
                 ]);
 
-                $url = $this->cashfreePayinUrl;
-                // dd($url);
-
-                // $payload = [
-                //     "customer_details" => [
-                //         "customer_name" => $request->name,
-                //         "customer_email" => $request->email,
-                //         "customer_phone" => $request->mobileNumber
-                //     ],
-                //     "link_amount" => $request->amount,
-                //     "link_currency" => "INR",
-                //     "link_id" => $request->cust_txn_id,
-                //     "link_purpose" => "Payment"
-                // ];
+                $url = $this->cashfreePayinUrl; 
 
                 $payload = [
                     "customer_details" => [
@@ -264,7 +251,6 @@ class PayinOrdersController extends Controller
                 //     'Cashfree Secret Key: ' . $this->cashfreesecretkey,
                 //     $payload
                 // );
-
                 $response = Http::withHeaders([
                     'x-api-version' => $this->cashfreeapiversion,
                     'x-client-id' => $this->cashfreeappid,
@@ -283,7 +269,6 @@ class PayinOrdersController extends Controller
                     ->post($url, $payload);
 
                 $result = $response->json();
-                dd($result);
 
                 Log::info('Cashfree Payin Response', [
                     'request' => $payload,

@@ -313,7 +313,15 @@
 
                 </div>
             </div>
+
+            <div class="row bg-white d-flex justify-content-center align-items-center w-100 g-0"
+                style="min-height: 50px;">
+                <div class="col-auto">
+                    <p class="mb-0">© <?php echo date('Y'); ?> Rafifintech. All Rights Reserved.</p>
+                </div>
+            </div>
         </div>
+
     </div>
 
 
