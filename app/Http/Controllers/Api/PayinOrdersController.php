@@ -11,11 +11,14 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use App\Helpers\SeamlessPayinHelper;
+use App\Helpers\TransactionHelper;
+use App\Models\Transaction;
 
 class PayinOrdersController extends Controller
 {
 
-    private $cashfreePayinUrl;
+    protected $cashfreePayinUrl;
     private $cashfreeappid;
     private $cashfreesecretkey;
     private $cashfreeapiversion;
@@ -86,7 +89,8 @@ class PayinOrdersController extends Controller
             ]);
         }
 
-        $providerSlug = $getProviderSlug['provider_slug'] ?? null;
+        // $providerSlug = $getProviderSlug['provider_slug'] ?? null;
+        $providerSlug = "easebuzz";
 
         switch ($providerSlug) {
             case 'cgpey':
@@ -136,7 +140,7 @@ class PayinOrdersController extends Controller
 
                     $result = $response->json();
 
-                    $alldata = FeeTaxDedectionHelper::FeeTaxDeduction($userId, $request->amount);
+                    $alldata = TransactionHelper::payinFeeTaxDeduction($userId, $request->amount, $serviceId);
 
                     if ($response->successful()) {
 
@@ -204,26 +208,49 @@ class PayinOrdersController extends Controller
                     'cust_txn_id' => 'required|string|max:100|unique:upi_collections,cust_txn_id',
                 ]);
 
-                $url = $this->cashfreePayinUrl;
+                $url = $this->cashfreePayinUrl; 
 
                 $payload = [
                     "customer_details" => [
-                        "customer_name" => $request->name,
+                        "customer_name"  => $request->name,
                         "customer_email" => $request->email,
-                        "customer_phone" => $request->mobileNumber
+                        "customer_phone" => $request->mobileNumber,
                     ],
-                    "link_amount" => $request->amount,
+
+                    "link_amount" => (float) $request->amount,
                     "link_currency" => "INR",
                     "link_id" => $request->cust_txn_id,
-                    "link_purpose" => "Payment"
+                    "link_purpose" => "Payment",
+
+                    "link_auto_reminders" => true,
+
+                    "link_expiry_time" => now()->addHours(24)->format('Y-m-d\TH:i:sP'),
+
+                    "link_meta" => [
+                        "notify_url" => "https://login.connectpe.in/api/payin/callbacks/cashfree",
+                        "return_url" => "https://login.connectpe.in/",
+                        "upi_intent" => false,
+                    ],
+
+                    "link_notify" => [
+                        "send_email" => true,
+                        "send_sms" => true,
+                    ],
+
+                    "link_partial_payments" => false,
+
+                    "link_notes" => [
+                        "remarks" => "Payment Link",
+                    ],
+
+                    "enable_invoice" => true,
                 ];
-                // dd([
-                //     'x-api-version' => $this->cashfreeapiversion,
-                //     'x-client-id' => $this->cashfreeappid,
-                //     'x-client-secret' => $this->cashfreesecretkey,
-                //     'Content-Type' => 'application/json',
-                //     'url' => $url
-                // ]);
+                // dd(
+                //     'Cashfree API Version: ' . $this->cashfreeapiversion,
+                //     'Cashfree App ID: ' . $this->cashfreeappid,
+                //     'Cashfree Secret Key: ' . $this->cashfreesecretkey,
+                //     $payload
+                // );
                 $response = Http::withHeaders([
                     'x-api-version' => $this->cashfreeapiversion,
                     'x-client-id' => $this->cashfreeappid,
@@ -254,6 +281,125 @@ class PayinOrdersController extends Controller
                     'message' => $response->successful() ? 'Payment initiated successfully' : 'API Error',
                 ]);
 
+                break;
+
+            case 'easebuzz':
+                try {
+
+                    $request->validate([
+                        'name' => 'required|string|max:100',
+                        'email' => 'required|email|max:100',
+                        'mobile_number' => 'required|digits:10',
+                        'amount' => 'required|numeric|min:1',
+                        'transaction_id' => 'required|string',
+                    ]);
+
+                    // GENERATE ACCESS KEY INTERNALLY
+
+                    $accessKeyResponse = SeamlessPayinHelper::generateEasebuzzAccessKey([
+
+                        'amount'         => $request->amount,
+                        'firstname'      => $request->name,
+                        'phone'          => $request->mobile_number,
+                        'email'          => $request->email,
+                        'transaction_id' => $request->transaction_id ?? null,
+                    ]);
+
+                    // CHECK ACCESS KEY
+
+                    if (
+                        !($accessKeyResponse['status'] ?? false) ||
+                        empty($accessKeyResponse['access_key'] ?? null)
+                    ) {
+                        return response()->json([
+                            'status'  => false,
+                            'message' => 'Unable to generate Easebuzz access key',
+                            'response' => $accessKeyResponse,
+                        ], 400);
+                    }
+
+
+                    $accessKey = $accessKeyResponse['access_key'] ?? null;
+
+                    // GENERATE UPI DEEPLINK
+
+                    $data = [
+                        'access_key'   => $accessKey,
+                        'payment_mode' => 'UPI',
+                        'upi_qr'       => 'true',
+                        'request_mode' => 'SUVA',
+                    ];
+
+                    $url = 'https://pay.easebuzz.in/initiate_seamless_payment/';
+
+
+                    $response = Http::asForm()
+                        ->acceptJson()
+                        ->post($url, $data);
+
+
+                    $result = $response->json();
+
+                    $alldata = TransactionHelper::payinFeeTaxDeduction($userId, $request->amount, $serviceId);
+                    $connectpeOrderId = CommonHelper::generateConnectPeTransactionId();
+                    if (
+                        $response->successful() &&
+                        ($result['status'] ?? false) === true
+                    ) {
+
+                        DB::table('seamless_upi_collections')->insert([
+                            'cust_name' => $request->name,
+                            'cust_mobile' => $request->mobile_number,
+                            'cust_email' => $request->email,
+                            'cust_txn_id' =>  $request->transaction_id,
+                            'connectpe_order_id' => $connectpeOrderId,
+                            'amount' => $request->amount,
+                            'fee' => $alldata['fee'],
+                            'tax' => $alldata['tax'],
+                            'net_amount' => $alldata['netAmount'],
+                            'user_id' => $userId,
+                            'txn_order_id' => 'null',
+                            'upi_intent' => $result['qr_link'] ?? null,
+                            'response' => $result,
+                            'status' => 'pending',
+                            'route'  => $providerSlug,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+
+                        return response()->json([
+                            'status'  => true,
+                            'message' => 'Payment initiated successfully',
+                            'data' => [
+                                'status' => 'pending',
+                                'amount' => $request->amount,
+                                'intent_url' => $result['qr_link'] ?? null,
+                                'orderid' => $connectpeOrderId,
+                                'txnid' => 'null',
+                                'client_txn_id' => $request->transaction_id,
+                                'created_at' => now(),
+                            ]
+                        ]);
+                    }
+
+                    // EASEBUZZ ERROR
+
+                    return response()->json([
+                        'status'   => false,
+                        'message'  => $result['msg_desc']
+                            ?? 'Unable to generate UPI deeplink',
+
+                        'response' => $result,
+                    ], 400);
+                } catch (\Exception $e) {
+
+                    return response()->json([
+                        'status'  => false,
+                        'message' => 'Easebuzz API error',
+                        'error'   => $e->getMessage(),
+                    ], 500);
+                }
+                break;
                 break;
 
             default:
