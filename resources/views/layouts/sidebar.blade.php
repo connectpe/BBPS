@@ -488,11 +488,11 @@
 
                     <div class="collapse submenu {{ $documentVerificationActive ? 'show' : '' }}"
                         id="documentVerificationMenu">
-                        <a href="{{ route('bank_account') }}"
+                        <!-- <a href="{{ route('bank_account') }}"
                             class="nav-link {{ Route::currentRouteName() == 'bank_account' ? 'active' : '' }}">
                             <i class="bi bi-bank"></i>
                             <span class="menu-text">Bank Account</span>
-                        </a>
+                        </a> -->
                         <a
                             href="{{ route('pan_verification') }}"class="nav-link {{ Route::currentRouteName() == 'pan_verification' ? 'active' : '' }}">
                             <i class="bi bi-person-vcard"></i>
