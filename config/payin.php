@@ -16,4 +16,8 @@ return [
     'cashfree_app_id' => env('PAYIN_CASHFREE_APP_ID'),
     'cashfree_secret_key' => env('PAYIN_CASHFREE_SECRET_KEY'),
     'cashfree_api_version' => env('PAYIN_CASHFREE_API_VERSION'),
+
+    'easebuzz_base_url' => env('EASEBUZZ_BASE_URL'),
+    'easebuzz_key' => env('EASEBUZZ_KEY'),
+    'easebuzz_salt' => env('EASEBUZZ_SALT'),
 ];

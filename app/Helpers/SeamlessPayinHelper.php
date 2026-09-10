@@ -7,10 +7,16 @@ use Illuminate\Support\Str;
 
 class SeamlessPayinHelper
 {
+
     public static function generateEasebuzzAccessKey(array $data)
     {
-        $key  = 'XIH4IP6A3F';
+        // $key  = env('EASEBUZZ_KEY');
+        // $salt = env('EASEBUZZ_SALT');
+        // $baseurl = env('EASEBUZZ_BASE_URL');
+        // dd($key, $salt, $baseurl);
+        $key = 'XIH4IP6A3F';
         $salt = 'FJ99A4834P';
+        
 
         $txnid = $data['transaction_id'] ?? 'TXN_' . strtoupper(Str::random(15));
 
@@ -68,6 +74,8 @@ class SeamlessPayinHelper
         // EASEBUZZ INITIATE PAYMENT API
 
         $url = 'https://pay.easebuzz.in/payment/initiateLink';
+        // $url = $baseurl . 'payment/initiateLink';
+        // dd($url);
 
         $payload = [
 
