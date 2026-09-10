@@ -42,6 +42,7 @@ class TransactionHelper
                     'response' => $response->body(),
                 ]);
 
+
                 return [
                     'status' => true,
                     'message' => 'Callback sent successfully'
@@ -50,8 +51,9 @@ class TransactionHelper
 
             Log::error('Callback failed', [
                 'order_id' => $orderId,
-                'status'   => $response->status(),
-                'body'     => $response->body(),
+                'webhook_url' => $getWebhookUrl->url,
+                'status' => $response->status(),
+                'body' => $response->body(),
             ]);
 
             return [
