@@ -226,6 +226,18 @@ class PayinCallbacksController extends Controller
                 }
 
                 break;
+            case 'easebuzz':
+                Log::info('Easebuzz callback received', $request->all());
+                // try{}catch (\Exception $e) {
+                //     Log::error('Easebuzz callback error', [
+                //         'error' => $e->getMessage(),
+                //     ]);
+                //     return response()->json([
+                //         'success' => false,
+                //         'message' => 'Server error'
+                //     ], 500);
+                // }
+                break;    
             default:
                 return response()->json([
                     'success' => false,
