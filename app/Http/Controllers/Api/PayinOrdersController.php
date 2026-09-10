@@ -211,7 +211,7 @@ class PayinOrdersController extends Controller
                     'cust_txn_id' => 'required|string|max:100|unique:upi_collections,cust_txn_id',
                 ]);
 
-                $url = $this->cashfreePayinUrl; 
+                $url = $this->cashfreePayinUrl;
 
                 $payload = [
                     "customer_details" => [
@@ -313,7 +313,7 @@ class PayinOrdersController extends Controller
                         'email'          => $request->email,
                         'transaction_id' => $request->transaction_id ?? null,
                     ]);
-                    
+
                     // dd($accessKeyResponse);
                     // CHECK ACCESS KEY
 
@@ -351,9 +351,24 @@ class PayinOrdersController extends Controller
 
                     $result = $response->json();
 
+                    Log::info('Easebuzz Payin Response', [
+                        'response' => $result,
+                    ]);
+
                     $alldata = TransactionHelper::payinFeeTaxDeduction($userId, $request->amount, $serviceId);
-                    // dd($alldata);
+    
                     $connectpeOrderId = CommonHelper::generateConnectPeTransactionId();
+
+                    $intentUrl = $result['qr_link'] ?? null;
+
+                    if ($intentUrl) {
+                        $intentUrl = str_replace(
+                            'refUrl=https://pay.easebuzz.in',
+                            'refUrl=https://connectpe.in',
+                            $intentUrl
+                        );
+                    }
+
                     if (
                         $response->successful() &&
                         ($result['status'] ?? false) === true
@@ -371,7 +386,7 @@ class PayinOrdersController extends Controller
                             'net_amount' => $alldata['netAmount'],
                             'user_id' => $userId,
                             'txn_order_id' => 'null',
-                            'upi_intent' => $result['qr_link'] ?? null,
+                            'upi_intent' => $intentUrl,
                             'response' => json_encode($result),
                             'status' => 'pending',
                             'route'  => $providerSlug,
@@ -385,7 +400,7 @@ class PayinOrdersController extends Controller
                             'data' => [
                                 'status' => 'pending',
                                 'amount' => $request->amount,
-                                'intent_url' => $result['qr_link'] ?? null,
+                                'intent_url' => $intentUrl,
                                 'orderid' => $connectpeOrderId,
                                 'txnid' => 'null',
                                 'client_txn_id' => $request->transaction_id,
