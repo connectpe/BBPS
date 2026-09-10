@@ -20,6 +20,7 @@ use App\Http\Controllers\users\UserController;
 use App\Http\Controllers\SupportDashboardController;
 use App\Http\Middleware\IsAdmin;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\PayinCallbacksController;
 
 
 Route::get('test-redis', function () {
@@ -329,4 +330,5 @@ Route::prefix('admin', function () {
 
 Route::prefix('payin')->group(function () {
     Route::post('orders', [ServiceCostController::class, 'getServiceCost'])->name('payin.orders');
+    // Route::post('/callbacks/{type}', [PayinCallbacksController::class, 'callbacks']);
 });
