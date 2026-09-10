@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use App\Helpers\SeamlessPayinHelper;
 use App\Helpers\TransactionHelper;
 use App\Models\Transaction;
+use Illuminate\Validation\Rule;
 
 class PayinOrdersController extends Controller
 {
@@ -22,6 +23,7 @@ class PayinOrdersController extends Controller
     private $cashfreeappid;
     private $cashfreesecretkey;
     private $cashfreeapiversion;
+    private $easebuzzBaseUrl;
 
     public function __construct()
     {
@@ -29,6 +31,7 @@ class PayinOrdersController extends Controller
         $this->cashfreeappid = config('payin.cashfree_app_id');
         $this->cashfreesecretkey = config('payin.cashfree_secret_key');
         $this->cashfreeapiversion = config('payin.cashfree_api_version');
+        $this->easebuzzBaseUrl = config('payin.easebuzz_base_url');
     }
 
 
@@ -89,8 +92,8 @@ class PayinOrdersController extends Controller
             ]);
         }
 
-        // $providerSlug = $getProviderSlug['provider_slug'] ?? null;
-        $providerSlug = "easebuzz";
+        $providerSlug = $getProviderSlug['provider_slug'] ?? null;
+        // $providerSlug = "easebuzz";
 
         switch ($providerSlug) {
             case 'cgpey':
@@ -108,7 +111,7 @@ class PayinOrdersController extends Controller
 
                     $request->validate($rules, $messages);
 
-                    $url = $this->cgpeyPayinUrl;
+                    // $url = $this->cgpeyPayinUrl;
 
 
                     $payload = [
@@ -306,7 +309,13 @@ class PayinOrdersController extends Controller
                         'email' => 'required|email|max:100',
                         'mobile_number' => 'required|digits:10',
                         'amount' => 'required|numeric|min:1',
-                        'transaction_id' => 'required|string',
+
+                        'transaction_id' => [
+                            'required',
+                            'string',
+                            'max:100',
+                            Rule::unique('seamless_upi_collections', 'cust_txn_id'),
+                        ],
                     ]);
 
                     // GENERATE ACCESS KEY INTERNALLY
@@ -319,7 +328,8 @@ class PayinOrdersController extends Controller
                         'email'          => $request->email,
                         'transaction_id' => $request->transaction_id ?? null,
                     ]);
-
+                    
+                    // dd($accessKeyResponse);
                     // CHECK ACCESS KEY
 
                     if (
@@ -346,6 +356,7 @@ class PayinOrdersController extends Controller
                     ];
 
                     $url = 'https://pay.easebuzz.in/initiate_seamless_payment/';
+                    // $url = $this->easebuzzBaseUrl . 'initiate_seamless_payment/';
 
 
                     $response = Http::asForm()
@@ -356,6 +367,7 @@ class PayinOrdersController extends Controller
                     $result = $response->json();
 
                     $alldata = TransactionHelper::payinFeeTaxDeduction($userId, $request->amount, $serviceId);
+                    // dd($alldata);
                     $connectpeOrderId = CommonHelper::generateConnectPeTransactionId();
                     if (
                         $response->successful() &&
@@ -375,7 +387,7 @@ class PayinOrdersController extends Controller
                             'user_id' => $userId,
                             'txn_order_id' => 'null',
                             'upi_intent' => $result['qr_link'] ?? null,
-                            'response' => $result,
+                            'response' => json_encode($result),
                             'status' => 'pending',
                             'route'  => $providerSlug,
                             'created_at' => now(),
@@ -392,19 +404,16 @@ class PayinOrdersController extends Controller
                                 'orderid' => $connectpeOrderId,
                                 'txnid' => 'null',
                                 'client_txn_id' => $request->transaction_id,
-                                'created_at' => now(),
+                                'created_at' => now()->format('d-m-Y h:i:s A'),
                             ]
                         ]);
                     }
 
                     // EASEBUZZ ERROR
-
                     return response()->json([
                         'status'   => false,
-                        'message'  => $result['msg_desc']
-                            ?? 'Unable to generate UPI deeplink',
-
-                        'response' => $result,
+                        'message'  => 'Unable to generate UPI deeplink',
+                        'response' => json_encode($result),
                     ], 400);
                 } catch (\Exception $e) {
 
@@ -414,7 +423,6 @@ class PayinOrdersController extends Controller
                         'error'   => $e->getMessage(),
                     ], 500);
                 }
-                break;
                 break;
 
             default:
