@@ -281,7 +281,7 @@ class PayinCallbacksController extends Controller
                         'amount'       => $data['amount'] ?? 0,
                         'utr'          => $data['bank_ref_num'] ?? null,
                         'root'         => $type,
-                        'message'      => $data['msg_desc'] ?? null,
+                        'message'      => $data['error_Message'] ?? $data['error'] ?? 'Payment callback received',
                         'response'     => json_encode($data),
                         'status'       => $status,
                         'updated_by'   => '',
