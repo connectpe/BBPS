@@ -413,10 +413,10 @@ class PayinOrdersController extends Controller
             abort(404, 'QR code is not available.');
         }
 
-        if ($transaction->created_at->addMinutes(8)->isPast()) {
+        if ($transaction->created_at->addMinutes(2)->isPast()) {
             abort(404, 'QR code is expired.');
         }
 
-        return view('payin.qr', compact('transaction'));
+        return view('Payin.qr', compact('transaction'));
     }
 }

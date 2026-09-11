@@ -437,7 +437,7 @@
 
         // Persistent 8-Minute Countdown Timer Logic using localStorage
         const storageKey = `groscope_payment_timer_${txnId}`;
-        const durationSeconds = 8 * 60;
+        const durationSeconds = 2 * 60;
 
         let expirationTime = localStorage.getItem(storageKey);
         const now = Date.now();
