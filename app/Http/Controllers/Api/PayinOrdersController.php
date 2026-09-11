@@ -280,7 +280,7 @@ class PayinOrdersController extends Controller
                 try {
 
                     $validator->addRules([
-                        'amount' => 'required|numeric|min:100',
+                        'amount' => 'required|numeric|min:1',
                     ]);
 
                     $this->validateError($validator);
@@ -409,14 +409,124 @@ class PayinOrdersController extends Controller
     {
         $transaction = SeamlessUpiCollection::where('cust_txn_id',  $clientRefId)->firstOrFail();
 
-        if (empty($transaction->upi_intent)) {
-            abort(404, 'QR code is not available.');
-        }
+        // $transaction = SeamlessUpiCollection::where('cust_txn_id',  $clientRefId)->where('status', 'pending')->firstOrFail();
+        // if (empty($transaction->upi_intent)) {
+        //     abort(404, 'QR code is not available.');
+        // }
 
-        if ($transaction->created_at->addMinutes(2)->isPast()) {
-            abort(404, 'QR code is expired.');
-        }
+        // if ($transaction->created_at->addMinutes(2)->isPast()) {
+        //     abort(404, 'QR code is expired.');
+        // }
 
         return view('Payin.qr', compact('transaction'));
+    }
+
+    public function qrStatus($clientRefId)
+    {
+
+        if (!$clientRefId) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Client Referene ID is Invalid',
+            ], 404);
+        }
+
+        $transaction = DB::table('seamless_upi_collections')
+            ->where('cust_txn_id', $clientRefId)
+            ->first();
+
+        if (!$transaction) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Transaction not found',
+            ], 404);
+        }
+
+        $type = $transaction->route ?? null;
+
+        switch ($type) {
+
+            case 'easebuzz':
+
+                $key = 'XIH4IP6A3F';
+                $salt = 'FJ99A4834P';
+                $txnid = $clientRefId;
+
+                $hash = $key . '|' . $txnid . '|' . $salt;
+                $hash = hash('sha512', $hash);
+
+                $response = Http::asForm()
+                    ->acceptJson()
+                    ->post('https://dashboard.easebuzz.in/transaction/v2.1/retrieve', [
+                        'key'   => $key,
+                        'txnid' => $txnid,
+                        'hash'  => $hash,
+                    ]);
+
+                Log::info('EaseBuzz Ajax Poling Status', [
+                    'response' => $response->json()
+                ]);
+
+                if ($response->successful()) {
+                    $data = $response->json();
+                    Log::info('EaseBuzz Ajax Poling ', [
+                        'data' => $data
+                    ]);
+
+                    $transactionStatus = data_get($data, 'msg.0.status');
+
+                    if ($transactionStatus === null) {
+                        return response()->json([
+                            'status' => false,
+                            'message' => 'Transaction status not found in Status response.',
+                        ], 400);
+                    }
+
+                    if ($data['status'] == true && $transactionStatus === "success") {
+                        return response()->json([
+                            'status' => true,
+                            'data' => [
+                                'status' => 'success',
+                                'amount' => $transaction->amount,
+                                'transaction_id' => $transaction->cust_txn_id,
+                            ],
+                        ]);
+                    }
+
+                    if ($data['status'] == true && $transactionStatus  == "failed") {
+                        return response()->json([
+                            'status' => false,
+                            'data' => [
+                                'status' => 'failed',
+                                'amount' => $transaction->amount,
+                                'transaction_id' => $transaction->cust_txn_id,
+                            ],
+                        ]);
+                    }
+
+                    return response()->json([
+                        'status' => false,
+                        'data' => [
+                            'status' => 'pending',
+                            'amount' => $transaction->amount,
+                            'transaction_id' => $transaction->cust_txn_id,
+                        ],
+                    ]);
+                }
+
+                return response()->json([
+                    'status' => false,
+                    'message' => 'API failed',
+                ]);
+
+                break;
+
+            default:
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Route not found'
+                ]);
+                break;
+        }
     }
 }
