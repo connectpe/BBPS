@@ -336,4 +336,3 @@ Route::prefix('payin')->group(function () {
 
 Route::get('/payin/qr/{clientRefId}', [PayinOrdersController::class, 'qrCodeForPayin'])->name('payin.qr');
 Route::get('/check/qr/status/{clientRefId}', [PayinOrdersController::class, 'qrStatus'])->name('payin.qr.status');
-
