@@ -11,6 +11,7 @@ use App\Models\PaymentMode;
 use App\Models\UserRooting;
 use App\Models\UserService;
 use Illuminate\Support\Facades\Log;
+use Exception;
 
 class CommonHelper
 {
@@ -115,10 +116,7 @@ class CommonHelper
     public static function getUserIdAndServiceIdUsingKeyAndSecret($header)
     {
         if (! isset($header['php-auth-user'][0]) || ! isset($header['php-auth-pw'][0])) {
-            return [
-                'status' => false,
-                'message' => 'Authorization headers missing',
-            ];
+            throw new Exception("Authorization headers missing");
         }
 
         $key = $header['php-auth-user'][0];
@@ -131,10 +129,7 @@ class CommonHelper
             ])->first();
 
         if (! $OauthClient) {
-            return [
-                'status' => false,
-                'message' => 'Invalid clientId Or Secret Key',
-            ];
+            throw new Exception("Invalid clientId Or Secret Key");
         }
 
         return [
@@ -149,24 +144,15 @@ class CommonHelper
         $service = GlobalService::where('id', $serviceId)->first();
 
         if (! $service) {
-            return [
-                'status' => false,
-                'message' => 'Service not found',
-            ];
+            throw new Exception("Service not found");
         }
 
         if ($service->is_active != 1) {
-            return [
-                'status' => false,
-                'message' => 'Global Service is currently inactive',
-            ];
+            throw new Exception("Global Service is currently inactive");
         }
 
         if ($service->is_activation_allowed != 1) {
-            return [
-                'status' => false,
-                'message' => 'Global service activation is inactive',
-            ];
+            throw new Exception("Global service activation is inactive");
         }
 
         return [
@@ -182,31 +168,19 @@ class CommonHelper
             ->first();
 
         if (! $userService) {
-            return [
-                'status' => false,
-                'message' => 'Service not assigned to this user',
-            ];
+            throw new Exception("Service not assigned to this user");
         }
 
         if ($userService->status !== 'approved') {
-            return [
-                'status' => false,
-                'message' => 'Service is not approved for this user',
-            ];
+            throw new Exception("Service is not approved for this user");
         }
 
         if ($userService->is_active != 1) {
-            return [
-                'status' => false,
-                'message' => 'Service is inactive for this user',
-            ];
+            throw new Exception("Service is inactive for this user");
         }
 
         if ($userService->is_api_enable != 1) {
-            return [
-                'status' => false,
-                'message' => 'API access is disabled for this service',
-            ];
+            throw new Exception("API access is disabled for this service");
         }
 
         return [
@@ -242,10 +216,7 @@ class CommonHelper
             ];
         }
 
-        return [
-            'status' => false,
-            'message' => 'No provider found for given user and service',
-        ];
+        throw new Exception("No provider found for given user and service");
     }
 
     public static function getUserRouteUsingUserId($userId, $service_id, $area)
