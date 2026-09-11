@@ -407,16 +407,16 @@ class PayinOrdersController extends Controller
 
     public function qrCodeForPayin(string $clientRefId)
     {
-        $transaction = SeamlessUpiCollection::where('cust_txn_id',  $clientRefId)->firstOrFail();
+        // $transaction = SeamlessUpiCollection::where('cust_txn_id',  $clientRefId)->firstOrFail();
 
-        // $transaction = SeamlessUpiCollection::where('cust_txn_id',  $clientRefId)->where('status', 'pending')->firstOrFail();
-        // if (empty($transaction->upi_intent)) {
-        //     abort(404, 'QR code is not available.');
-        // }
+        $transaction = SeamlessUpiCollection::where('cust_txn_id',  $clientRefId)->where('status', 'pending')->firstOrFail();
+        if (empty($transaction->upi_intent)) {
+            abort(404, 'QR code is not available.');
+        }
 
-        // if ($transaction->created_at->addMinutes(2)->isPast()) {
-        //     abort(404, 'QR code is expired.');
-        // }
+        if ($transaction->created_at->addMinutes(2)->isPast()) {
+            abort(404, 'QR code is expired.');
+        }
 
         return view('Payin.qr', compact('transaction'));
     }
