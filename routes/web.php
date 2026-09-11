@@ -22,6 +22,7 @@ use App\Http\Middleware\IsAdmin;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\PayinCallbacksController;
 use App\Http\Controllers\Api\PayinOrdersController;
+use Illuminate\Support\Facades\Http;
 
 Route::get('test-redis', function () {
     Redis::set('test_key', 'Ramanand');
@@ -334,3 +335,34 @@ Route::prefix('payin')->group(function () {
 
 
 Route::get('/payin/qr/{clientRefId}', [PayinOrdersController::class, 'qrCodeForPayin'])->name('payin.qr');
+Route::get('/check/qr/status/{clientRefId}', [PayinOrdersController::class, 'qrStatus'])->name('payin.qr.status');
+
+
+
+
+Route::get('/status', function () {
+
+    $key = 'XIH4IP6A3F';
+    $salt = 'FJ99A4834P';
+    $txnid = '123458901';
+
+    // key|txnid|salt
+
+    $hash = $key . '|' . $txnid . '|' . $salt;
+    $hash = hash('sha512', $hash);
+    // dd($hash);
+
+
+    $response = Http::asForm()
+        ->acceptJson()
+        ->post('https://dashboard.easebuzz.in/transaction/v2.1/retrieve', [
+            'key'   => $key,
+            'txnid' => $txnid,
+            'hash'  => $hash,
+        ]);
+
+    return response()->json([
+        'status' => $response->status(),
+        'body'   => $response->json(),
+    ]);
+});
