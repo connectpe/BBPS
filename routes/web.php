@@ -21,7 +21,7 @@ use App\Http\Controllers\SupportDashboardController;
 use App\Http\Middleware\IsAdmin;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\PayinCallbacksController;
-
+use App\Http\Controllers\Api\PayinOrdersController;
 
 Route::get('test-redis', function () {
     Redis::set('test_key', 'Ramanand');
@@ -157,7 +157,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/pan-verification', [AdminController::class, 'panVerification'])->name('pan_verification');
         Route::get('/gstin-verification', [AdminController::class, 'gstinVerification'])->name('gstin_verification');
 
-         //Enter Impersonate 
+        //Enter Impersonate 
         Route::post('/impersonate/{user}', [AdminController::class, 'enterImpersonate'])->name('enter.impersonate');
 
         Route::get('/admin/seamless-upi-collection', [AdminController::class, 'seamlessUpiCollection'])->name('seamless_upi_collection');
@@ -222,15 +222,14 @@ Route::group(['middleware' => ['isUser', 'logs', 'auth'], 'prefix' => 'user'], f
 
 
     Route::prefix('aeps')->controller(AepsController::class)->name('aeps.')->group(function () {
-            Route::get('/services', 'aepsServices')->name('services');
-            Route::get('/onboard', 'userOnboard')->name('useronboard');
-            Route::post('/onboard-user', 'aepsUserOnboard')->name('onboard.user');
-            Route::post('/balance-enquiry', 'balanceEnquiry')->name('balance.enquiry');
-        });
+        Route::get('/services', 'aepsServices')->name('services');
+        Route::get('/onboard', 'userOnboard')->name('useronboard');
+        Route::post('/onboard-user', 'aepsUserOnboard')->name('onboard.user');
+        Route::post('/balance-enquiry', 'balanceEnquiry')->name('balance.enquiry');
+    });
 
-        // Exit Impersonate
+    // Exit Impersonate
     Route::post('/exit-impersonation', [AdminController::class, 'exitImpersonate'])->name('exit.impersonate');
-
 });
 
 
@@ -332,3 +331,6 @@ Route::prefix('payin')->group(function () {
     Route::post('orders', [ServiceCostController::class, 'getServiceCost'])->name('payin.orders');
     // Route::post('/callbacks/{type}', [PayinCallbacksController::class, 'callbacks']);
 });
+
+
+Route::get('/payin/qr/{clientRefId}', [PayinOrdersController::class, 'qrCodeForPayin'])->name('payin.qr');

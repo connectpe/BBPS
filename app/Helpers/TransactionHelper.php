@@ -9,6 +9,7 @@ use App\Models\Order;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use Exception;
 
 class TransactionHelper
 {
@@ -140,11 +141,19 @@ class TransactionHelper
 
     public static function payinFeeTaxDeduction($userId, $totalAmount, $serviceId)
     {
+
+        $schemeId = null;
+        $scheme = null;
+
         $schemeId = DB::table("user_configs")
             ->select("scheme_id")
             ->where("user_id", $userId)
             ->first();
-        // dd($totalAmount);
+
+        if (!$schemeId) {
+            throw new Exception("Scheme not defined, contact to administrator", 404);
+        }
+
         if ($schemeId) {
             $scheme = DB::table("scheme_rules")
                 ->where("service_id", $serviceId)
@@ -154,23 +163,20 @@ class TransactionHelper
                 ->where("end_value", ">=", $totalAmount)
                 ->orderBy("id", "desc")
                 ->first();
+        }
 
-            // dd($scheme);
-        } else {
-            return response()->json([
-                "message" => "scheme is not defined yet for user id" . $userId,
-            ]);
+
+        if (!$scheme) {
+            throw new Exception("Scheme rule not defined, contact to administrator", 404);
+        }
+
+
+        if (!$scheme->fee) {
+            throw new Exception("Fee not defined for this scheme rule, contact to administrator", 404);
         }
 
         $feePercent = $scheme->fee;
         $taxPercent = 18;
-
-        if (!$scheme->fee) {
-            return response()->json([
-                "message" => "fee not deducted",
-            ]);
-        }
-
         $fee = 0;
         $tax = 0;
         $netAmount = 0;
@@ -186,11 +192,7 @@ class TransactionHelper
             $tax = ($fee * $taxPercent) / 100;
             $netAmount = $totalAmount - ($fee + $tax);
         } else {
-
-            return response()->json([
-                "status" => false,
-                "message" => "scheme type is not defined",
-            ]);
+            throw new Exception("Scheme type is not defined, contact to administrator", 404);
         }
 
 
