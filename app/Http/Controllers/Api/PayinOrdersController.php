@@ -13,8 +13,11 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\Helpers\SeamlessPayinHelper;
 use App\Helpers\TransactionHelper;
+use App\Models\SeamlessUpiCollection;
 use App\Models\Transaction;
 use Illuminate\Validation\Rule;
+use Exception;
+use Illuminate\Support\Facades\Validator;
 
 class PayinOrdersController extends Controller
 {
@@ -38,62 +41,49 @@ class PayinOrdersController extends Controller
 
     public function createOrders(Request $request)
     {
-        $userIdAndServiceId = CommonHelper::getUserIdAndServiceIdUsingKeyAndSecret($request->header());
 
-        if (!$userIdAndServiceId['status']) {
+        try {
+
+            $userIdAndServiceId = CommonHelper::getUserIdAndServiceIdUsingKeyAndSecret($request->header());
+
+            $userId = $userIdAndServiceId['user_id'] ?? null;
+            $serviceId = $userIdAndServiceId['service_id'] ?? null;
+
+            $activeUser = User::where('id', $userId)->where('status', '1')->first();
+            $isKyc = BusinessInfo::where('user_id', $userId)->where('is_kyc', '1')->first();
+
+            if (!$activeUser) {
+                throw new Exception("Your are inactive user, Please contact to the administrator");
+            }
+
+            if (!$isKyc) {
+                throw new Exception("KYC not completed");
+            }
+
+            CommonHelper::isUserServiceActiveUsingUserIdAndServiceId($userId, $serviceId);
+            CommonHelper::isGlobalServiceActive($serviceId);
+            $getProviderSlug = CommonHelper::getProviderSlug($userId, $serviceId);
+            $providerSlug = $getProviderSlug['provider_slug'] ?? null;
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => $userIdAndServiceId['message'] ?? 'Unauthorized'
-            ], 401);
-        }
-
-        $userId = $userIdAndServiceId['user_id'] ?? null;
-        $serviceId = $userIdAndServiceId['service_id'] ?? null;
-
-        $activeUser = User::where('id', $userId)->where('status', '1')->first();
-
-        if (!$activeUser) {
-            return response()->json([
-                'message' => 'Your are inactive user, Please contact to the administrator'
+                'message' => 'Error : ' . $e->getMessage()
             ]);
         }
 
-        $isKyc = BusinessInfo::where('user_id', $userId)->where('is_kyc', '1')->first();
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:100',
+            'email' => 'required|email|max:100',
+            'mobile_number' => 'required|digits:10',
 
-        if (!$isKyc) {
-            return response()->json([
-                'message' => 'KYC not completed'
-            ]);
-        }
-
-        $isGlobalServiceActive = CommonHelper::isGlobalServiceActive($serviceId);
-
-        if (!$isGlobalServiceActive['status']) {
-            return response()->json([
-                'status' => false,
-                'message' => $isGlobalServiceActive['message']
-            ], 400);
-        }
-
-        $isUserServiceActive = CommonHelper::isUserServiceActiveUsingUserIdAndServiceId($userId, $serviceId);
-
-        if (!$isGlobalServiceActive['status']) {
-            return response()->json([
-                'status' => false,
-                'message' => $isUserServiceActive['message']
-            ], 400);
-        }
-
-        $getProviderSlug = CommonHelper::getProviderSlug($userId, $serviceId);
-
-        if (!$getProviderSlug) {
-            return response()->json([
-                'message' => 'Provider not found for the user and service'
-            ]);
-        }
-
-        $providerSlug = $getProviderSlug['provider_slug'] ?? null;
-        // $providerSlug = "easebuzz";
+            'transaction_id' => [
+                'required',
+                'string',
+                'min:6',
+                'max:100',
+                Rule::unique('seamless_upi_collections', 'cust_txn_id'),
+            ],
+        ]);
 
         switch ($providerSlug) {
             case 'cgpey':
@@ -289,24 +279,16 @@ class PayinOrdersController extends Controller
             case 'easebuzz':
                 try {
 
-                    $request->validate([
-                        'name' => 'required|string|max:100',
-                        'email' => 'required|email|max:100',
-                        'mobile_number' => 'required|digits:10',
-                        'amount' => 'required|numeric|min:1',
-
-                        'transaction_id' => [
-                            'required',
-                            'string',
-                            'max:100',
-                            Rule::unique('seamless_upi_collections', 'cust_txn_id'),
-                        ],
+                    $validator->addRules([
+                        'amount' => 'required|numeric|min:100',
                     ]);
 
+                    $this->validateError($validator);
+
                     // GENERATE ACCESS KEY INTERNALLY
+                    $feeData = TransactionHelper::payinFeeTaxDeduction($userId, $request->amount, $serviceId);
 
                     $accessKeyResponse = SeamlessPayinHelper::generateEasebuzzAccessKey([
-
                         'amount'         => $request->amount,
                         'firstname'      => $request->name,
                         'phone'          => $request->mobile_number,
@@ -314,24 +296,15 @@ class PayinOrdersController extends Controller
                         'transaction_id' => $request->transaction_id ?? null,
                     ]);
 
-                    // dd($accessKeyResponse);
-                    // CHECK ACCESS KEY
+                    Log::info('accessKeyResponse', [
+                        'accessKeyResponse' => $accessKeyResponse
+                    ]);
 
-                    if (
-                        !($accessKeyResponse['status'] ?? false) ||
-                        empty($accessKeyResponse['access_key'] ?? null)
-                    ) {
-                        return response()->json([
-                            'status'  => false,
-                            'message' => 'Unable to generate Easebuzz access key',
-                            'response' => $accessKeyResponse,
-                        ], 400);
+                    if (!($accessKeyResponse['status'] ?? false) || empty($accessKeyResponse['access_key'] ?? null)) {
+                        throw new Exception("Unable to generate Payment Gateway access key", 400);
                     }
 
-
                     $accessKey = $accessKeyResponse['access_key'] ?? null;
-
-                    // GENERATE UPI DEEPLINK
 
                     $data = [
                         'access_key'   => $accessKey,
@@ -341,13 +314,10 @@ class PayinOrdersController extends Controller
                     ];
 
                     $url = 'https://pay.easebuzz.in/initiate_seamless_payment/';
-                    // $url = $this->easebuzzBaseUrl . 'initiate_seamless_payment/';
-
 
                     $response = Http::asForm()
                         ->acceptJson()
                         ->post($url, $data);
-
 
                     $result = $response->json();
 
@@ -355,24 +325,24 @@ class PayinOrdersController extends Controller
                         'response' => $result,
                     ]);
 
-                    $alldata = TransactionHelper::payinFeeTaxDeduction($userId, $request->amount, $serviceId);
-    
-                    $connectpeOrderId = CommonHelper::generateConnectPeTransactionId();
+                    if ($response->successful() && ($result['status'] ?? false) === true) {
 
-                    $intentUrl = $result['qr_link'] ?? null;
+                        $connectpeOrderId = CommonHelper::generateConnectPeTransactionId();
+                        $intentUrl = $result['qr_link'] ?? null;
 
-                    if ($intentUrl) {
-                        $intentUrl = str_replace(
-                            'refUrl=https://pay.easebuzz.in',
-                            'refUrl=https://connectpe.in',
-                            $intentUrl
-                        );
-                    }
+                        if ($intentUrl) {
+                            $intentUrl = str_replace(
+                                'refUrl=https://pay.easebuzz.in',
+                                'refUrl=https://connectpe.in',
+                                $intentUrl
+                            );
+                        }
 
-                    if (
-                        $response->successful() &&
-                        ($result['status'] ?? false) === true
-                    ) {
+
+                        $ourQrUrl = route('payin.qr', [
+                            'clientRefId' => $request->transaction_id,
+                        ]);
+
 
                         DB::table('seamless_upi_collections')->insert([
                             'cust_name' => $request->name,
@@ -381,9 +351,9 @@ class PayinOrdersController extends Controller
                             'cust_txn_id' =>  $request->transaction_id,
                             'connectpe_order_id' => $connectpeOrderId,
                             'amount' => $request->amount,
-                            'fee' => $alldata['fee'],
-                            'tax' => $alldata['tax'],
-                            'net_amount' => $alldata['netAmount'],
+                            'fee' => $feeData['fee'],
+                            'tax' => $feeData['tax'],
+                            'net_amount' => $feeData['netAmount'],
                             'user_id' => $userId,
                             'txn_order_id' => 'null',
                             'upi_intent' => $intentUrl,
@@ -401,26 +371,20 @@ class PayinOrdersController extends Controller
                                 'status' => 'pending',
                                 'amount' => $request->amount,
                                 'intent_url' => $intentUrl,
+                                'qr_url' => $ourQrUrl,
                                 'orderid' => $connectpeOrderId,
-                                'txnid' => 'null',
+                                'txnid' => null,
                                 'client_txn_id' => $request->transaction_id,
                                 'created_at' => now()->format('d-m-Y h:i:s A'),
                             ]
                         ]);
                     }
 
-                    // EASEBUZZ ERROR
-                    return response()->json([
-                        'status'   => false,
-                        'message'  => 'Unable to generate UPI deeplink',
-                        'response' => json_encode($result),
-                    ], 400);
+                    throw new Exception("Unable to generate UPI deeplink", 404);
                 } catch (\Exception $e) {
-
                     return response()->json([
                         'status'  => false,
-                        'message' => 'Easebuzz API error',
-                        'error'   => $e->getMessage(),
+                        'message' => 'Error : ' . $e->getMessage(),
                     ], 500);
                 }
                 break;
@@ -431,5 +395,28 @@ class PayinOrdersController extends Controller
                     'message' => 'Invalid payin type.',
                 ], 400);
         }
+    }
+
+
+    private function validateError($validator)
+    {
+        if ($validator->fails()) {
+            throw new Exception($validator->errors()->first(), 422);
+        }
+    }
+
+    public function qrCodeForPayin(string $clientRefId)
+    {
+        $transaction = SeamlessUpiCollection::where('cust_txn_id',  $clientRefId)->firstOrFail();
+
+        if (empty($transaction->upi_intent)) {
+            abort(404, 'QR code is not available.');
+        }
+
+        if ($transaction->created_at->addMinutes(8)->isPast()) {
+            abort(404, 'QR code is expired.');
+        }
+
+        return view('payin.qr', compact('transaction'));
     }
 }
