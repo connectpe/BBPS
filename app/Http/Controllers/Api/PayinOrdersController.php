@@ -305,6 +305,7 @@ class PayinOrdersController extends Controller
                     }
 
                     $accessKey = $accessKeyResponse['access_key'] ?? null;
+                    // dd($accessKey);
 
                     $data = [
                         'access_key'   => $accessKey,
@@ -318,8 +319,10 @@ class PayinOrdersController extends Controller
                     $response = Http::asForm()
                         ->acceptJson()
                         ->post($url, $data);
-
+                    
+                    // dd($response->body());
                     $result = $response->json();
+                    // dd($result);
 
                     Log::info('Easebuzz Payin Response', [
                         'response' => $result,
