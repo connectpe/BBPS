@@ -319,7 +319,7 @@
                                 class="fa-solid fa-handshake"></i><span class="menu-text">Associated Partners</span></a>
 
                         <a href="{{ route('request_services') }}"
-                            class="nav-link d-flex justify-content-between align-items-center {{ Route::currentRouteName() == 'request_services' ? 'active' : '' }}">
+                            class="nav-link {{ Route::currentRouteName() == 'request_services' ? 'active' : '' }}">
                             <i class="bi bi-clipboard-check"></i><span> Service Requests</span>
                             @if ($serviceRequestCount)
                                 <span class="badge bg-light text-dark">{{ $serviceRequestCount }}</span>
