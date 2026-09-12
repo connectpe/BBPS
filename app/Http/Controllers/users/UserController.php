@@ -166,10 +166,10 @@ class UserController extends Controller
                     'inside_image' => $requiredIfMissing($businessData->inside_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
                     'outside_image' => $requiredIfMissing($businessData->outside_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
                     'business_address_proof_image' => $requiredIfMissing($businessData->outside_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
-                    'signed_moa_image' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
-                    'signed_aoa_image' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
-                    'board_resolution' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
-                    'nsdl_declaration' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
+                    'signed_moa_image' => $requiredIfMissing($businessData->signed_moa_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
+                    'signed_aoa_image' => $requiredIfMissing($businessData->signed_aoa_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
+                    'board_resolution' => $requiredIfMissing($businessData->board_resolution ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
+                    'nsdl_declaration' => $requiredIfMissing($businessData->nsdl_declaration ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
 
                 ],
                 [
@@ -1464,7 +1464,7 @@ class UserController extends Controller
 
     public function allAgreement()
     {
-        $agreements = Agreement::where('status', '1')->latest()->get();
+        $agreements = Agreement::where('status', '1')->where('is_deleted', '0')->latest()->get();
 
         return view('Agreement.index', compact('agreements'));
     }
