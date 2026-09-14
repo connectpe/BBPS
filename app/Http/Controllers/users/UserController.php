@@ -278,7 +278,7 @@ class UserController extends Controller
                     'branch_name.max' => 'Branch name must not exceed 255 characters.',
 
                     'bank_docs.file' => 'Each bank document must be a valid file.',
-                    'bank_docs.mimes' => 'Bank documents must be a file of type: pdf, jpg, png.',
+                    'bank_docs.mimes' => 'Bank documents must be a file of type: jpeg, jpg, png.',
                     'bank_docs.max' => 'Bank documents must not exceed 5MB each.',
 
                     // Added in Later
