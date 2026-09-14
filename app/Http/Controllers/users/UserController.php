@@ -169,8 +169,8 @@ class UserController extends Controller
                     'business_address_proof_image' => $requiredIfMissing($businessData->outside_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
                     'signed_moa_image' => $requiredIfMissing($businessData->signed_moa_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
                     'signed_aoa_image' => $requiredIfMissing($businessData->signed_aoa_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
-                    'board_resolution' => $requiredIfMissing($businessData->board_resolution ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
-                    'nsdl_declaration' => $requiredIfMissing($businessData->nsdl_declaration ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
+                    'board_resolution' => $requiredIfMissing($businessData->board_resoultion_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
+                    'nsdl_declaration' => $requiredIfMissing($businessData->nsdl_declaration_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
 
                 ],
                 [
