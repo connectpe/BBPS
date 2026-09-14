@@ -1,121 +1,80 @@
 @extends('layouts.app')
 
-@section('title', 'UPI Collection')
-@section('page-title', 'UPI Collection')
+@section('title', 'Seamless UPI Collection')
+@section('page-title', 'Seamless UPI Collection')
 
 @section('content')
 
-    {{-- TOP SUMMARY BOXES --}}
-    <div class="row mb-3 g-3">
-
-        <div class="col-12 col-sm-6 col-lg-3">
-            <div class="card border-0 shadow-sm text-center h-100 bg-primary-subtle">
-                <div class="card-body">
-                    <h6 class="text-muted">Current Balance</h6>
-                    <h4 class="fw-bold mb-0">₹ 0.00</h4>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-sm-6 col-lg-3">
-            <div class="card border-0 shadow-sm text-center h-100 bg-success-subtle">
-                <div class="card-body">
-                    <h6 class="text-muted">Settlement Due Today</h6>
-                    <h4 class="fw-bold mb-0">₹ 0.00</h4>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-sm-6 col-lg-3">
-            <div class="card border-0 shadow-sm text-center h-100 bg-warning-subtle">
-                <div class="card-body">
-                    <h6 class="text-muted">Previous Settlement</h6>
-                    <h4 class="fw-bold mb-0">₹ 0.00</h4>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-sm-6 col-lg-3">
-            <div class="card border-0 shadow-sm text-center h-100 bg-info-subtle">
-                <div class="card-body">
-                    <h6 class="text-muted">Upcoming Settlement</h6>
-                    <h4 class="fw-bold mb-0">₹ 0.00</h4>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    {{-- FILTER --}}
     <div class="accordion mb-3" id="filterAccordion">
         <div class="accordion-item">
             <h2 class="accordion-header">
                 <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#collapseFilter">
-                    Filter
-                </button>
+                    data-bs-target="#collapseFilter">Filter</button>
             </h2>
-
             <div id="collapseFilter" class="accordion-collapse collapse">
                 <div class="accordion-body">
                     <div class="row g-3 align-items-end">
                         <div class="col-md-3">
-                            <label class="form-label">Customer Name</label>
-                            <select id="filterUser" class="form-control form-select2">
-                                <option value="">All Customers</option>
-                                @foreach ($customers as $cust)
-                                    <option value="{{ $cust }}">{{ $cust }}</option>
-                                @endforeach
-                            </select>
+                            <label class="form-label">Customer</label>
+                            <input type="text" id="filterCustomer" class="form-control" placeholder="Customer Name">
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Any Key</label>
-                            <input type="text" id="filterKeyword" class="form-control" placeholder="UTR / Txn ID">
+                            <input type="text" id="filterKeyword" class="form-control"
+                                placeholder="Txn ID / Order ID / UTR">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Status</label>
+                            <select id="filterStatus" class="form-control">
+                                <option value="">All</option>
+                                <option value="pending">Pending</option>
+                                <option value="success">Success</option>
+                                <option value="failed">Failed</option>
+                            </select>
                         </div>
 
                         <div class="col-md-2">
                             <label class="form-label">From Date</label>
-                            <input type="date" class="form-control" id="filterDateFrom">
+                            <input type="date" id="filterDateFrom" class="form-control">
                         </div>
 
                         <div class="col-md-2">
                             <label class="form-label">To Date</label>
-                            <input type="date" class="form-control" id="filterDateTo">
+                            <input type="date" id="filterDateTo" class="form-control">
                         </div>
 
                         <div class="col-md-2 d-flex gap-2">
                             <button class="btn buttonColor w-100" id="applyFilter">Filter</button>
                             <button class="btn btn-secondary w-100" id="resetFilter">Reset</button>
                         </div>
-
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- TABLE --}}
     <div class="card shadow-sm">
-        <div class="card-body pt-4">
+        <div class="card-body">
             <div class="table-responsive">
-                <table id="paymentTable" class="table table-striped table-bordered w-100">
+                <table id="seamlessTable" class="table table-bordered table-striped w-100">
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>Customer Name</th>
+                            <th>Customer</th>
                             <th>Email</th>
-                            <th>Cust Txn ID</th>
+                            <th>Txn ID</th>
                             <th>Order ID</th>
+                            <th>Customer TXN ID</th>
                             <th>UTR</th>
                             <th>Amount</th>
                             <th>Fee</th>
                             <th>Tax</th>
                             <th>Net Amount</th>
-                            @if (auth()->user()->role_id != 2)
-                                <th>Type</th>
-                            @endif
+                            <th>Auto Settlement</th>
+                            <th>Webhook</th>
                             <th>Status</th>
                             <th>Created At</th>
+                            <th>Updated At</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -124,27 +83,28 @@
         </div>
     </div>
 
-    {{-- SCRIPT --}}
     <script>
-        $(document).ready(function() {
+        $(function() {
 
-            var table = $('#paymentTable').DataTable({
+            let table = $('#seamlessTable').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: "{{ url('fetch/upi-collection') }}",
+                    url: "{{ url('fetch/seamless-upi-collection') }}",
                     type: "POST",
                     data: function(d) {
                         d._token = "{{ csrf_token() }}";
-                        d.page_type = 'collection';
                         d.any_key = $('#filterKeyword').val();
-                        d.cust_name = $('#filterUser').val();
-                        // d.status = $('#filterStatus').val();
+                        d.cust_name = $('#filterCustomer').val();
+                        d.status = $('#filterStatus').val();
                         d.date_from = $('#filterDateFrom').val();
                         d.date_to = $('#filterDateTo').val();
                     }
                 },
-                columns: [{
+
+                columns: [
+
+                    {
                         data: null,
                         orderable: false,
                         searchable: false,
@@ -152,6 +112,7 @@
                             return meta.row + meta.settings._iDisplayStart + 1;
                         }
                     },
+
                     {
                         data: 'cust_name'
                     },
@@ -163,6 +124,9 @@
                     },
                     {
                         data: 'connectpe_order_id'
+                    },
+                    {
+                        data: 'cust_txn_id'
                     },
                     {
                         data: 'utr'
@@ -179,24 +143,50 @@
                     {
                         data: 'net_amount'
                     },
-                    @if (auth()->user()->role_id != 2)
-                        {
-                            data: 'type'
-                        },
-                    @endif {
+
+                    {
+                        data: 'is_auto_settlement',
+                        render: function(data) {
+                            return data == 1 ?
+                                '<span class="badge bg-success">Yes</span>' :
+                                '<span class="badge bg-secondary">No</span>';
+                        }
+                    },
+
+                    {
+
+                        data: 'is_webhook_send',
+                        render: function(data) {
+                            return data == 1 ?
+                                '<span class="badge bg-success">Sent</span>' :
+                                '<span class="badge bg-warning">Pending</span>';
+
+                        }
+
+                    },
+
+                    {
+
                         data: 'status',
                         render: function(data) {
                             let badge = 'secondary';
-
-                            if (data === 'success') badge = 'success';
-                            else if (data === 'failed') badge = 'danger';
-                            else if (data === 'initiated') badge = 'warning';
-
+                            if (data == 'success') badge = 'success';
+                            else if (data == 'failed') badge = 'danger';
+                            else if (data == 'pending') badge = 'warning';
                             return `<span class="badge bg-${badge}">${data}</span>`;
+
+                        }
+
+                    },
+
+                    {
+                        data: 'created_at',
+                        render: function(data) {
+                            return formatDateTime(data);
                         }
                     },
                     {
-                        data: 'created_at',
+                        data: 'updated_at',
                         render: function(data) {
                             return formatDateTime(data);
                         }
@@ -205,30 +195,36 @@
                         data: 'id',
                         orderable: false,
                         searchable: false,
-                        render: function(data) {
-                            return `<a href="/download-slip/${data}" class="btn btn-sm btn-success" title="Download Slip"> <i class="fa fa-download"></i></a>`;
+                        render: function(data, type, row) {
+                            return `
+                            <a href=""
+                                class="btn btn-sm btn-primary"
+                                title="Check Status">
+                                    <i class="bi bi-patch-check"></i>
+                            </a>`;
                         }
                     }
 
+
                 ],
+
                 order: [
                     [0, 'DESC']
                 ]
-            });
 
+            });
             $('#applyFilter').click(function() {
                 table.draw();
             });
 
             $('#resetFilter').click(function() {
-                $('#filterUser').val(null).trigger('change');
+                $('#filterCustomer').val('');
                 $('#filterKeyword').val('');
-                // $('#filterStatus').val('');
+                $('#filterStatus').val('');
                 $('#filterDateFrom').val('');
                 $('#filterDateTo').val('');
                 table.draw();
             });
-
         });
     </script>
 
