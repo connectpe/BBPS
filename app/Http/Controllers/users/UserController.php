@@ -107,7 +107,6 @@ class UserController extends Controller
 
     public function completeProfile(Request $request, $userId)
     {
-
         DB::beginTransaction();
         try {
 
@@ -144,6 +143,8 @@ class UserController extends Controller
                     'adhar_front_image' => $requiredIfMissing($businessData->aadhar_front_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
                     'adhar_back_image' => $requiredIfMissing($businessData->aadhar_back_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
                     'pan_card_image' => $requiredIfMissing($businessData->pancard_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
+                    'aadhar_name' => $requiredBasedOnKyc($businessData->is_kyc ?? '0') . 'string|max:255|regex:/^(?!.*([.,@-])\1{2,}).*$/|regex:/^[a-zA-Z0-9\s&.,-]+$/',
+                    'pan_owner_name' => $requiredBasedOnKyc($businessData->is_kyc ?? '0') . 'string|max:255|regex:/^(?!.*([.,@-])\1{2,}).*$/|regex:/^[a-zA-Z0-9\s&.,-]+$/',
 
                     'account_holder_name' => $requiredBasedOnKyc($businessData->is_kyc ?? '0') . 'string|max:255|regex:/^(?!.*([.,@-])\1{2,}).*$/|regex:/^[a-zA-Z0-9\s&.,-]+$/',
                     'account_number' => $requiredBasedOnKyc($businessData->is_kyc ?? '0') . 'string|max:30|unique:users_banks,account_number,' . ($bankDetail->id ?? 'NULL') . ',id',
@@ -470,6 +471,9 @@ class UserController extends Controller
                 'state' => $request->state,
                 'pincode' => $request->pincode,
 
+
+                'aadhar_name' => $request->aadhar_name,
+                'pan_owner_name' => $request->pan_owner_name,
                 'aadhar_front_image' => $adharFrontPath,
                 'aadhar_back_image' => $adharBackPath,
                 'pancard_image' => $panCardPath,
@@ -498,6 +502,8 @@ class UserController extends Controller
                     'cin_no',
                     'gst_number',
                     'business_pan_number',
+                    'aadhar_name',
+                    'pan_owner_name',
                     'aadhar_number',
                     'pan_number',
                     'aadhar_front_image',
