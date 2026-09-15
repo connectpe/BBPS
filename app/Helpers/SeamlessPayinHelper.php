@@ -18,12 +18,12 @@ class SeamlessPayinHelper
             // $baseurl = env('EASEBUZZ_BASE_URL');
             // dd($key, $salt, $baseurl);
 
-            $key = 'XIH4IP6A3F';
-            $salt = 'FJ99A4834P';
+            // $key = 'XIH4IP6A3F';
+            // $salt = 'FJ99A4834P';
 
             // Redwell credentials key and salt
-            // $key = 'ZBCLPSC4KY';
-            // $salt = 'QZBZ8QDCP1';
+            $key = 'ZBCLPSC4KY';
+            $salt = 'QZBZ8QDCP1';
 
 
             $txnid = $data['transaction_id'] ?? 'TXN_' . strtoupper(Str::random(15));
@@ -118,13 +118,13 @@ class SeamlessPayinHelper
                 'country'  => 'India',
                 'zipcode'  => '226010',
 
-                'request_flow' => 'SEAMLESS',
+                // 'request_flow' => 'SEAMLESS',
             ];
 
             $response = Http::asForm()->post($url, $payload);
 
             $result = $response->json();
-            // dd($result);
+            dd($result);
             // RETURN ACCESS KEY
 
             if ($response->successful()) {

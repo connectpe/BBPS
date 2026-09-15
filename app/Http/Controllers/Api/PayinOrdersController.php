@@ -319,7 +319,123 @@ class PayinOrdersController extends Controller
                     $response = Http::asForm()
                         ->acceptJson()
                         ->post($url, $data);
-                    
+
+                    // dd($response->body());
+                    $result = $response->json();
+                    // dd($result);
+
+                    Log::info('Easebuzz Payin Response', [
+                        'response' => $result,
+                    ]);
+
+                    if ($response->successful() && ($result['status'] ?? false) === true) {
+
+                        $connectpeOrderId = CommonHelper::generateConnectPeTransactionId();
+                        $intentUrl = $result['qr_link'] ?? null;
+
+                        if ($intentUrl) {
+                            $intentUrl = str_replace(
+                                'refUrl=https://pay.easebuzz.in',
+                                'refUrl=https://connectpe.in',
+                                $intentUrl
+                            );
+                        }
+
+
+                        $ourQrUrl = route('payin.qr', [
+                            'clientRefId' => $request->transaction_id,
+                        ]);
+
+
+                        DB::table('seamless_upi_collections')->insert([
+                            'cust_name' => $request->name,
+                            'cust_mobile' => $request->mobile_number,
+                            'cust_email' => $request->email,
+                            'cust_txn_id' =>  $request->transaction_id,
+                            'connectpe_order_id' => $connectpeOrderId,
+                            'amount' => $request->amount,
+                            'fee' => $feeData['fee'],
+                            'tax' => $feeData['tax'],
+                            'net_amount' => $feeData['netAmount'],
+                            'user_id' => $userId,
+                            'txn_order_id' => 'null',
+                            'upi_intent' => $intentUrl,
+                            'response' => json_encode($result),
+                            'status' => 'pending',
+                            'route'  => $providerSlug,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+
+                        return response()->json([
+                            'status'  => true,
+                            'message' => 'Payment initiated successfully',
+                            'data' => [
+                                'status' => 'pending',
+                                'amount' => $request->amount,
+                                'intent_url' => $intentUrl,
+                                'qr_url' => $ourQrUrl,
+                                'orderid' => $connectpeOrderId,
+                                'txnid' => null,
+                                'client_txn_id' => $request->transaction_id,
+                                'created_at' => now()->format('d-m-Y h:i:s A'),
+                            ]
+                        ]);
+                    }
+
+                    throw new Exception("Unable to generate UPI deeplink", 404);
+                } catch (\Exception $e) {
+                    return response()->json([
+                        'status'  => false,
+                        'message' => 'Error : ' . $e->getMessage(),
+                    ], 500);
+                }
+                break;
+
+            case 'easebuzzcheckout':
+                try {
+
+                    $validator->addRules([
+                        'amount' => 'required|numeric|min:1',
+                    ]);
+
+                    $this->validateError($validator);
+
+                    // GENERATE ACCESS KEY INTERNALLY
+                    $feeData = TransactionHelper::payinFeeTaxDeduction($userId, $request->amount, $serviceId);
+
+                    $accessKeyResponse = SeamlessPayinHelper::generateEasebuzzAccessKey([
+                        'amount'         => $request->amount,
+                        'firstname'      => $request->name,
+                        'phone'          => $request->mobile_number,
+                        'email'          => $request->email,
+                        'transaction_id' => $request->transaction_id ?? null,
+                    ]);
+
+                    Log::info('accessKeyResponse', [
+                        'accessKeyResponse' => $accessKeyResponse
+                    ]);
+
+                    if (!($accessKeyResponse['status'] ?? false) || empty($accessKeyResponse['data'] ?? null)) {
+                        throw new Exception("Unable to generate Payment Gateway access key", 400);
+                    }
+
+                    $accessKey = $accessKeyResponse['data'] ?? null;
+                    dd($accessKey);
+
+                    $data = [
+                        'access_key'   => $accessKey,
+                        'payment_mode' => 'UPI',
+                        'upi_qr'       => 'true',
+                        'request_mode' => 'SUVA',
+                    ];
+
+                    $url = 'https://pay.easebuzz.in/initiate_seamless_payment/';
+
+                    $response = Http::asForm()
+                        ->acceptJson()
+                        ->post($url, $data);
+
                     // dd($response->body());
                     $result = $response->json();
                     // dd($result);
