@@ -37,6 +37,7 @@ class BusinessInfo extends Model
         'pan_owner_name',
         'aadhar_number',
         'aadhar_name',
+        'adhaar_request_id',
         'bank_id',
         'pancard_image',
         'aadhar_front_image',

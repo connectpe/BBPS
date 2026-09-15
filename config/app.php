@@ -130,4 +130,11 @@ return [
     ],
 
 
+    'document_verification' => [
+        'DOCUMENT_VERIFY_BASEURL' =>  env('DOCUMENT_VERIFY_BASEURL'),
+        'DOCUMENT_VERIFY_TEST_APIKEY' =>  env('DOCUMENT_VERIFY_TEST_APIKEY'),
+        'DOCUMENT_VERIFY_PRODUTION_APIKEY' =>  env('DOCUMENT_VERIFY_PRODUTION_APIKEY'),
+    ],
+
+
 ];

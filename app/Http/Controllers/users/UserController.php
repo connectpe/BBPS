@@ -10,6 +10,8 @@ use App\Helpers\SendingMail;
 use App\Http\Controllers\Controller;
 use App\Models\Agreement;
 use App\Models\BusinessInfo;
+use App\Models\City;
+use App\Models\DocumentVerificationResponse;
 use App\Models\GlobalService;
 use App\Models\IpWhitelist;
 use App\Models\LoadMoneyRequest;
@@ -686,6 +688,7 @@ class UserController extends Controller
                 ->orderBy('service_name')
                 ->get();
 
+            $data['documents'] =  DocumentVerificationResponse::where('user_id', $userId)->get();
             $data['userRootings'] = UserRooting::where('user_id', $userId)->get()->keyBy('service_id');
 
             return view('Users.view-user')->with($data);
@@ -1501,5 +1504,13 @@ class UserController extends Controller
         $data = str_replace(['</p>', '<br>', '<br/>'], "\n", $data);
         $data = strip_tags($data);
         return trim($data);
+    }
+
+
+    public function getCityByStateName(Request $request)
+    {
+        $stateName = $request->input('state_name');
+        $cities = City::where('state_name', $stateName)->pluck('city_name');
+        return response()->json($cities);
     }
 }
