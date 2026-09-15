@@ -169,8 +169,8 @@ class UserController extends Controller
                     'business_address_proof_image' => $requiredIfMissing($businessData->outside_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
                     'signed_moa_image' => $requiredIfMissing($businessData->signed_moa_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
                     'signed_aoa_image' => $requiredIfMissing($businessData->signed_aoa_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
-                    'board_resolution' => $requiredIfMissing($businessData->board_resolution ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
-                    'nsdl_declaration' => $requiredIfMissing($businessData->nsdl_declaration ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
+                    'board_resolution' => $requiredIfMissing($businessData->board_resoultion_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
+                    'nsdl_declaration' => $requiredIfMissing($businessData->nsdl_declaration_image ?? null) . 'file|mimes:jpg,jpeg,png|max:2048',
 
                 ],
                 [
@@ -278,7 +278,7 @@ class UserController extends Controller
                     'branch_name.max' => 'Branch name must not exceed 255 characters.',
 
                     'bank_docs.file' => 'Each bank document must be a valid file.',
-                    'bank_docs.mimes' => 'Bank documents must be a file of type: pdf, jpg, png.',
+                    'bank_docs.mimes' => 'Bank documents must be a file of type: jpeg, jpg, png.',
                     'bank_docs.max' => 'Bank documents must not exceed 5MB each.',
 
                     // Added in Later
