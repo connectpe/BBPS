@@ -458,6 +458,48 @@
                     </div>
                     <div class="mb-2"><strong>GSTIN:</strong> {{ $businessInfo->gst_number ?? '----' }}</div>
 
+                    <div class="container mt-4">
+
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Document Type</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($documents as $doc)
+                                    <tr>
+                                        <td>{{ ucwords(str_replace('_', ' ', $doc->document_type)) }}</td>
+                                        <td>
+                                            <span class="badge bg-success">Stored</span>
+                                        </td>
+
+                                        @php
+                                            $response = $doc->verification_response;
+                                            if (is_string($response)) {
+                                                $response = json_decode($response, true);
+                                            }
+                                        @endphp
+
+                                        <td>
+                                            <!-- Example: Passing the JSON array to a data attribute -->
+                                            <button type="button" class="btn btn-sm btn-primary view-response-btn"
+                                                data-response='@json($doc->verification_response)'>
+                                                <i class="bi bi-eye"></i> View Response
+                                            </button>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted">No documents found.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+
                 </div>
             </div>
 
@@ -525,6 +567,24 @@
         </div>
     </div>
 
+
+    <div class="modal fade" id="apiResponseModal" tabindex="-1" aria-labelledby="apiResponseModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="apiResponseModalLabel">API Response Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body bg-light">
+                    <!-- Preformatted box for raw JSON appearance -->
+                    <pre class="mb-0 p-3 rounded" style="max-height: 400px; overflow-y: auto;">
+                    <code id="jsonResponseContent" class="language-json">Loading...</code>
+                </pre>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
         function handleServiceAction(serviceId) {
@@ -699,6 +759,26 @@
                     .always(() => {
                         submitBtn.prop('disabled', false).text('Submit');
                     });
+            });
+
+            $(document).on('click', '.view-response-btn', function() {
+                let rawData = $(this).attr('data-response');
+                let parsedData = rawData;
+
+                try {
+                    if (typeof rawData === 'string') {
+                        parsedData = JSON.parse(rawData);
+                    }
+                    if (typeof parsedData === 'string') {
+                        parsedData = JSON.parse(parsedData);
+                    }
+                } catch (e) {
+                    console.error("Could not parse JSON:", e);
+                }
+
+                const formattedJson = JSON.stringify(parsedData, null, 4);
+                $('#jsonResponseContent').text(formattedJson);
+                $('#apiResponseModal').modal('show');
             });
         });
 

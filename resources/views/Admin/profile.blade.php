@@ -98,6 +98,13 @@
         }
     </style>
 
+    <style>
+        .otp-input {
+            width: 45px;
+            height: 50px;
+        }
+    </style>
+
     @php
 
         use App\Facades\FileUpload;
@@ -2302,7 +2309,7 @@ verified';
                         </div>
                         <div id="businessPanAction">
                             <span class="btn btn-sm btn-danger" id="businessPanBadge"
-                                onclick="verifyDocument('businessPan')">
+                                onclick="verifyDocument('businessPan', this)">
                                 Verify
                             </span>
 
@@ -2316,7 +2323,7 @@ verified';
                             <span id="gstNumber">-</span>
                         </div>
                         <div id="gstAction">
-                            <span class="btn btn-sm btn-danger" id="gstBadge" onclick="verifyDocument('gst')">
+                            <span class="btn btn-sm btn-danger" id="gstBadge" onclick="verifyDocument('gst',this)">
                                 Verify
                             </span>
                         </div>
@@ -2329,7 +2336,7 @@ verified';
                             <span id="cinNumber">-</span>
                         </div>
                         <div id="cinAction">
-                            <span class="btn btn-sm btn-danger" id="cinBadge" onclick="verifyDocument('cin')">
+                            <span class="btn btn-sm btn-danger" id="cinBadge" onclick="verifyDocument('cin',this)">
                                 Verify
                             </span>
                         </div>
@@ -2342,7 +2349,7 @@ verified';
                             <span id="bankNumber">-</span>
                         </div>
                         <div id="bankAction">
-                            <span class="btn btn-sm btn-danger" id="bankBadge" onclick="verifyDocument('bank')">
+                            <span class="btn btn-sm btn-danger" id="bankBadge" onclick="verifyDocument('bank',this)">
                                 Verify
                             </span>
                         </div>
@@ -2355,7 +2362,8 @@ verified';
                             <span id="aadhaarNumber">-</span>
                         </div>
                         <div id="aadhaarAction">
-                            <span class="btn btn-sm btn-danger" id="aadhaarBadge" onclick="verifyDocument('aadhaar')">
+                            <span class="btn btn-sm btn-danger" id="aadhaarBadge"
+                                onclick="verifyDocument('aadhaar',this)">
                                 Verify
                             </span>
                         </div>
@@ -2368,7 +2376,7 @@ verified';
                         </div>
                         <div id="videoKycAction">
                             <span class="btn btn-sm btn-danger" id="videoKycBadge"
-                                onclick="verifyDocument('videokyc')">
+                                onclick="verifyDocument('videokyc',this)">
                                 Verify
                             </span>
                         </div>
@@ -2418,7 +2426,6 @@ verified';
 
 
     {{-- IP Byte list table and add button --}}
-
 
     <div class="modal fade" id="ipModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -2549,10 +2556,147 @@ verified';
     </div>
 
 
+    <!-- Aadhaar OTP Verification Modal -->
+    <div class="modal fade" id="aadhaarOtpModal" tabindex="-1" aria-labelledby="aadhaarOtpModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content p-4">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold" id="aadhaarOtpModalLabel">Aadhaar Verification</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <p class="text-muted mb-4">Please enter the 6-digit OTP sent to your Aadhaar-registered mobile number.
+                    </p>
 
+                    <form id="aadhaarOtpForm">
+                        <!-- 6-Digit OTP Container -->
+                        <div class="d-flex justify-content-center gap-2 mb-4 otp-inputs">
+                            <input type="text" class="form-control text-center fs-4 otp-input" maxlength="1"
+                                pattern="[0-9]*" inputmode="numeric" required />
+                            <input type="text" class="form-control text-center fs-4 otp-input" maxlength="1"
+                                pattern="[0-9]*" inputmode="numeric" required />
+                            <input type="text" class="form-control text-center fs-4 otp-input" maxlength="1"
+                                pattern="[0-9]*" inputmode="numeric" required />
+                            <input type="text" class="form-control text-center fs-4 otp-input" maxlength="1"
+                                pattern="[0-9]*" inputmode="numeric" required />
+                            <input type="text" class="form-control text-center fs-4 otp-input" maxlength="1"
+                                pattern="[0-9]*" inputmode="numeric" required />
+                            <input type="text" class="form-control text-center fs-4 otp-input" maxlength="1"
+                                pattern="[0-9]*" inputmode="numeric" required />
+                        </div>
+                        <a href="javascript:void(0)" class="text-decoration-none"
+                            onclick="verifyDocument('aadhaar')">Resend OTP</a>
+                        <button type="submit" class="btn btn-secondary w-100 py-2 fw-semibold">Verify OTP</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
     <script>
+        function openAadhaarOTPModal() {
+            $("#aadhaarOtpModal").modal('show');
+        }
+
+        $('#aadhaarOtpModal').on('shown.bs.modal', function() {
+            const $form = $("#aadhaarOtpForm");
+            const $inputs = $form.find(".otp-input");
+            $inputs.val('');
+            $inputs.first().focus();
+        });
+
+        $(document).ready(function() {
+            const $form = $("#aadhaarOtpForm");
+            const $inputs = $form.find(".otp-input");
+
+            // Handle input navigation (auto-focus next/previous)
+            $inputs.on("input", function(e) {
+                const $this = $(this);
+                const index = $inputs.index(this);
+                const value = $this.val();
+
+                if (value && index < $inputs.length - 1) {
+                    $inputs.eq(index + 1).focus();
+                }
+            });
+
+            $inputs.on("keydown", function(e) {
+                const $this = $(this);
+                const index = $inputs.index(this);
+
+                if (e.key === "Backspace" && !$this.val() && index > 0) {
+                    $inputs.eq(index - 1).focus();
+                }
+            });
+
+
+            $form.on("submit", function(e) {
+                e.preventDefault();
+                let otpValue = "";
+                $inputs.each(function() {
+                    otpValue += $(this).val();
+                });
+
+                if (otpValue.length !== 6) {
+                    alert("Please enter a valid 6-digit OTP.");
+                    return;
+                }
+
+                const $submitBtn = $form.find('button[type="submit"]');
+                const originalText = $submitBtn.text();
+
+                $.ajax({
+                    url: "{{ route('verify.aadhaar.otp') }}",
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        otp: otpValue
+                    }),
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    beforeSend: function() {
+                        // Disable button and show loading state
+                        $submitBtn.prop('disabled', true).text('Verifying...');
+                    },
+                    success: function(response) {
+                        if (response.status) {
+                            $("#aadhaarOtpModal").modal('hide');
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: response.message || 'Verified Successfully'
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.message ||
+                                    'Request failed. Please try again'
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        let errorMessage = 'Request failed. Please try again.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: errorMessage
+                        });
+                    },
+                    complete: function() {
+                        // Re-enable button and restore original text regardless of success/error
+                        $submitBtn.prop('disabled', false).text(originalText);
+                    }
+                });
+            });
+        });
+
         document.querySelectorAll('.otp-box').forEach((input, index, inputs) => {
 
             input.addEventListener('keyup', function(e) {
@@ -2946,7 +3090,6 @@ verified';
         }
 
         $(document).ready(function() {
-
             $('#serviceForm').on('submit', function(e) {
                 e.preventDefault();
 
@@ -3750,12 +3893,12 @@ verified';
 
                 if (verified == 1) {
                     el.replaceWith(`
-        <span class="verified-badge d-inline-block">
-            <img src="{{ asset('assets/image/verified-icon.png') }}" 
-                 alt="Verified" 
-                 style="width:25px; height:25px;">
-        </span>
-    `);
+                    <span class="verified-badge d-inline-block">
+                        <img src="{{ asset('assets/image/verified-icon.png') }}" 
+                            alt="Verified" 
+                            style="width:25px; height:25px;">
+                    </span>
+                    `);
                 } else {
                     el.removeClass('badge bg-success').addClass('btn btn-sm btn-danger').text('Verify').off('click')
                     message.html('');
@@ -3763,8 +3906,7 @@ verified';
             }
 
             // API integration
-            function verifyDocument(type) {
-
+            function verifyDocument(type, element) {
                 const urlMap = {
                     individualPan: "{{ route('individual.pan.verify') }}",
                     businessPan: "{{ route('business.pan.verify') }}",
@@ -3779,7 +3921,11 @@ verified';
 
                 if (!url) {
                     console.warn("Unknown type:", type);
+                    return;
                 }
+
+                const $btn = $(element);
+                const originalText = $btn.text();
 
                 $.ajax({
                     url: url,
@@ -3787,14 +3933,31 @@ verified';
                     data: {
                         _token: "{{ csrf_token() }}"
                     },
+                    beforeSend: function() {
+                        // Disable click/interaction, add processing style, and change text
+                        $btn.css('pointer-events', 'none').css('opacity', '0.65').text('Verifying...');
+                    },
                     success: function(response) {
                         if (response.status) {
-                            setDocStatus(type, 1);
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Success',
-                                text: response.message || 'Operation successful'
-                            });
+                            if (response.otp) {
+                                $('#documentVerificationModal').modal('hide');
+                                openAadhaarOTPModal();
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success',
+                                    text: response.message || 'OTP sent on registered mobile no.'
+                                });
+                            } else {
+                                setDocStatus(type, 1);
+                                // Optional: Change button to a green "Verified" badge permanently for this session
+                                $btn.removeClass('btn-danger').addClass('btn-success').text('Verified');
+
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success',
+                                    text: response.message || 'Operation successful'
+                                });
+                            }
                         } else {
                             Swal.fire({
                                 icon: 'error',
@@ -3805,16 +3968,20 @@ verified';
                     },
                     error: function(xhr) {
                         let errorMessage = 'Request failed. Please try again.';
-                        if (xhr.responseJSON) {
-                            if (xhr.responseJSON.message) {
-                                errorMessage = xhr.responseJSON.message;
-                            }
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
                         }
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
                             text: errorMessage
                         });
+                    },
+                    complete: function() {
+                        // Restore button if it wasn't permanently verified
+                        if (!$btn.hasClass('btn-success')) {
+                            $btn.css('pointer-events', 'auto').css('opacity', '1').text(originalText);
+                        }
                     }
                 });
             }
@@ -3822,1341 +3989,17 @@ verified';
 
         <script>
             $(document).ready(function() {
-
-
-                const stateCities = {
-    "Andaman and Nicobar Islands": [
-        "Port Blair"
-    ],
-
-    "Haryana": [
-        "Faridabad",
-        "Gurgaon",
-        "Hisar",
-        "Rohtak",
-        "Panipat",
-        "Karnal",
-        "Sonipat",
-        "Yamunanagar",
-        "Panchkula",
-        "Bhiwani",
-        "Bahadurgarh",
-        "Jind",
-        "Sirsa",
-        "Thanesar",
-        "Kaithal",
-        "Palwal",
-        "Rewari",
-        "Hansi",
-        "Narnaul",
-        "Fatehabad",
-        "Gohana",
-        "Tohana",
-        "Narwana",
-        "Mandi Dabwali",
-        "Charkhi Dadri",
-        "Shahbad",
-        "Pehowa",
-        "Samalkha",
-        "Pinjore",
-        "Ladwa",
-        "Sohna",
-        "Safidon",
-        "Taraori",
-        "Mahendragarh",
-        "Ratia",
-        "Rania",
-        "Sarsod"
-    ],
-
-    "Tamil Nadu": [
-        "Chennai",
-        "Coimbatore",
-        "Madurai",
-        "Tiruchirappalli",
-        "Salem",
-        "Tirunelveli",
-        "Tiruppur",
-        "Ranipet",
-        "Nagercoil",
-        "Thanjavur",
-        "Vellore",
-        "Kancheepuram",
-        "Erode",
-        "Tiruvannamalai",
-        "Pollachi",
-        "Rajapalayam",
-        "Sivakasi",
-        "Pudukkottai",
-        "Neyveli (TS)",
-        "Nagapattinam",
-        "Viluppuram",
-        "Tiruchengode",
-        "Vaniyambadi",
-        "Theni Allinagaram",
-        "Udhagamandalam",
-        "Aruppukkottai",
-        "Paramakudi",
-        "Arakkonam",
-        "Virudhachalam",
-        "Srivilliputhur",
-        "Tindivanam",
-        "Virudhunagar",
-        "Karur",
-        "Valparai",
-        "Sankarankovil",
-        "Tenkasi",
-        "Palani",
-        "Pattukkottai",
-        "Tirupathur",
-        "Ramanathapuram",
-        "Udumalaipettai",
-        "Gobichettipalayam",
-        "Thiruvarur",
-        "Thiruvallur",
-        "Panruti",
-        "Namakkal",
-        "Thirumangalam",
-        "Vikramasingapuram",
-        "Nellikuppam",
-        "Rasipuram",
-        "Tiruttani",
-        "Nandivaram-Guduvancheri",
-        "Periyakulam",
-        "Pernampattu",
-        "Vellakoil",
-        "Sivaganga",
-        "Vadalur",
-        "Rameshwaram",
-        "Tiruvethipuram",
-        "Perambalur",
-        "Usilampatti",
-        "Vedaranyam",
-        "Sathyamangalam",
-        "Puliyankudi",
-        "Nanjikottai",
-        "Thuraiyur",
-        "Sirkali",
-        "Tiruchendur",
-        "Periyasemur",
-        "Sattur",
-        "Vandavasi",
-        "Tharamangalam",
-        "Tirukkoyilur",
-        "Oddanchatram",
-        "Palladam",
-        "Vadakkuvalliyur",
-        "Tirukalukundram",
-        "Uthamapalayam",
-        "Surandai",
-        "Sankari",
-        "Shenkottai",
-        "Vadipatti",
-        "Sholingur",
-        "Tirupathur",
-        "Manachanallur",
-        "Viswanatham",
-        "Polur",
-        "Panagudi",
-        "Uthiramerur",
-        "Thiruthuraipoondi",
-        "Pallapatti",
-        "Ponneri",
-        "Lalgudi",
-        "Natham",
-        "Unnamalaikadai",
-        "P.N.Patti",
-        "Tharangambadi",
-        "Tittakudi",
-        "Pacode",
-        "O' Valley",
-        "Suriyampalayam",
-        "Sholavandan",
-        "Thammampatti",
-        "Namagiripettai",
-        "Peravurani",
-        "Parangipettai",
-        "Pudupattinam",
-        "Pallikonda",
-        "Sivagiri",
-        "Punjaipugalur",
-        "Padmanabhapuram",
-        "Thirupuvanam"
-    ],
-
-    "Madhya Pradesh": [
-        "Indore",
-        "Bhopal",
-        "Jabalpur",
-        "Gwalior",
-        "Ujjain",
-        "Sagar",
-        "Ratlam",
-        "Satna",
-        "Murwara (Katni)",
-        "Morena",
-        "Singrauli",
-        "Rewa",
-        "Vidisha",
-        "Ganjbasoda",
-        "Shivpuri",
-        "Mandsaur",
-        "Neemuch",
-        "Nagda",
-        "Itarsi",
-        "Sarni",
-        "Sehore",
-        "Mhow Cantonment",
-        "Seoni",
-        "Balaghat",
-        "Ashok Nagar",
-        "Tikamgarh",
-        "Shahdol",
-        "Pithampur",
-        "Alirajpur",
-        "Mandla",
-        "Sheopur",
-        "Shajapur",
-        "Panna",
-        "Raghogarh-Vijaypur",
-        "Sendhwa",
-        "Sidhi",
-        "Pipariya",
-        "Shujalpur",
-        "Sironj",
-        "Pandhurna",
-        "Nowgong",
-        "Mandideep",
-        "Sihora",
-        "Raisen",
-        "Lahar",
-        "Maihar",
-        "Sanawad",
-        "Sabalgarh",
-        "Umaria",
-        "Porsa",
-        "Narsinghgarh",
-        "Malaj Khand",
-        "Sarangpur",
-        "Mundi",
-        "Nepanagar",
-        "Pasan",
-        "Mahidpur",
-        "Seoni-Malwa",
-        "Rehli",
-        "Manawar",
-        "Rahatgarh",
-        "Panagar",
-        "Wara Seoni",
-        "Tarana",
-        "Sausar",
-        "Rajgarh",
-        "Niwari",
-        "Mauganj",
-        "Manasa",
-        "Nainpur",
-        "Prithvipur",
-        "Sohagpur",
-        "Nowrozabad (Khodargama)",
-        "Shamgarh",
-        "Maharajpur",
-        "Multai",
-        "Pali",
-        "Pachore",
-        "Rau",
-        "Mhowgaon",
-        "Vijaypur",
-        "Narsinghgarh"
-    ],
-
-    "Jharkhand": [
-        "Dhanbad",
-        "Ranchi",
-        "Jamshedpur",
-        "Bokaro Steel City",
-        "Deoghar",
-        "Phusro",
-        "Adityapur",
-        "Hazaribag",
-        "Giridih",
-        "Ramgarh",
-        "Jhumri Tilaiya",
-        "Saunda",
-        "Sahibganj",
-        "Medininagar (Daltonganj)",
-        "Chaibasa",
-        "Chatra",
-        "Gumia",
-        "Dumka",
-        "Madhupur",
-        "Chirkunda",
-        "Pakaur",
-        "Simdega",
-        "Musabani",
-        "Mihijam",
-        "Patratu",
-        "Lohardaga",
-        "Tenu dam-cum-Kathhara"
-    ],
-
-    "Mizoram": [
-        "Aizawl",
-        "Lunglei",
-        "Saiha"
-    ],
-
-    "Nagaland": [
-        "Dimapur",
-        "Kohima",
-        "Zunheboto",
-        "Tuensang",
-        "Wokha",
-        "Mokokchung"
-    ],
-
-    "Himachal Pradesh": [
-        "Shimla",
-        "Mandi",
-        "Solan",
-        "Nahan",
-        "Sundarnagar",
-        "Palampur",
-        "Kullu"
-    ],
-
-    "Tripura": [
-        "Agartala",
-        "Udaipur",
-        "Dharmanagar",
-        "Pratapgarh",
-        "Kailasahar",
-        "Belonia",
-        "Khowai"
-    ],
-
-    "Andhra Pradesh": [
-        "Visakhapatnam",
-        "Vijayawada",
-        "Guntur",
-        "Nellore",
-        "Kurnool",
-        "Rajahmundry",
-        "Kakinada",
-        "Tirupati",
-        "Anantapur",
-        "Kadapa",
-        "Vizianagaram",
-        "Eluru",
-        "Ongole",
-        "Nandyal",
-        "Machilipatnam",
-        "Adoni",
-        "Tenali",
-        "Chittoor",
-        "Hindupur",
-        "Proddatur",
-        "Bhimavaram",
-        "Madanapalle",
-        "Guntakal",
-        "Dharmavaram",
-        "Gudivada",
-        "Srikakulam",
-        "Narasaraopet",
-        "Rajampet",
-        "Tadpatri",
-        "Tadepalligudem",
-        "Chilakaluripet",
-        "Yemmiganur",
-        "Kadiri",
-        "Chirala",
-        "Anakapalle",
-        "Kavali",
-        "Palacole",
-        "Sullurpeta",
-        "Tanuku",
-        "Rayachoti",
-        "Srikalahasti",
-        "Bapatla",
-        "Naidupet",
-        "Nagari",
-        "Gudur",
-        "Vinukonda",
-        "Narasapuram",
-        "Nuzvid",
-        "Markapur",
-        "Ponnur",
-        "Kandukur",
-        "Bobbili",
-        "Rayadurg",
-        "Samalkot",
-        "Jaggaiahpet",
-        "Tuni",
-        "Amalapuram",
-        "Bheemunipatnam",
-        "Venkatagiri",
-        "Sattenapalle",
-        "Pithapuram",
-        "Palasa Kasibugga",
-        "Parvathipuram",
-        "Macherla",
-        "Gooty",
-        "Salur",
-        "Mandapeta",
-        "Jammalamadugu",
-        "Peddapuram",
-        "Punganur",
-        "Nidadavole",
-        "Repalle",
-        "Ramachandrapuram",
-        "Kovvur",
-        "Tiruvuru",
-        "Uravakonda",
-        "Narsipatnam",
-        "Yerraguntla",
-        "Pedana",
-        "Puttur",
-        "Renigunta",
-        "Rajam",
-        "Srisailam Project (Right Flank Colony) Township"
-    ],
-
-    "Punjab": [
-        "Ludhiana",
-        "Patiala",
-        "Amritsar",
-        "Jalandhar",
-        "Bathinda",
-        "Pathankot",
-        "Hoshiarpur",
-        "Batala",
-        "Moga",
-        "Malerkotla",
-        "Khanna",
-        "Mohali",
-        "Barnala",
-        "Firozpur",
-        "Phagwara",
-        "Kapurthala",
-        "Zirakpur",
-        "Kot Kapura",
-        "Faridkot",
-        "Muktsar",
-        "Rajpura",
-        "Sangrur",
-        "Fazilka",
-        "Gurdaspur",
-        "Kharar",
-        "Gobindgarh",
-        "Mansa",
-        "Malout",
-        "Nabha",
-        "Tarn Taran",
-        "Jagraon",
-        "Sunam",
-        "Dhuri",
-        "Firozpur Cantt.",
-        "Sirhind Fatehgarh Sahib",
-        "Rupnagar",
-        "Jalandhar Cantt.",
-        "Samana",
-        "Nawanshahr",
-        "Rampura Phul",
-        "Nangal",
-        "Nakodar",
-        "Zira",
-        "Patti",
-        "Raikot",
-        "Longowal",
-        "Urmar Tanda",
-        "Morinda, India",
-        "Phillaur",
-        "Pattran",
-        "Qadian",
-        "Sujanpur",
-        "Mukerian",
-        "Talwara"
-    ],
-
-    "Chandigarh": [
-        "Chandigarh"
-    ],
-
-    "Rajasthan": [
-        "Jaipur",
-        "Jodhpur",
-        "Bikaner",
-        "Udaipur",
-        "Ajmer",
-        "Bhilwara",
-        "Alwar",
-        "Bharatpur",
-        "Pali",
-        "Barmer",
-        "Sikar",
-        "Tonk",
-        "Sadulpur",
-        "Sawai Madhopur",
-        "Nagaur",
-        "Makrana",
-        "Sujangarh",
-        "Sardarshahar",
-        "Ladnu",
-        "Ratangarh",
-        "Nokha",
-        "Nimbahera",
-        "Suratgarh",
-        "Rajsamand",
-        "Lachhmangarh",
-        "Rajgarh (Churu)",
-        "Nasirabad",
-        "Nohar",
-        "Phalodi",
-        "Nathdwara",
-        "Pilani",
-        "Merta City",
-        "Sojat",
-        "Neem-Ka-Thana",
-        "Sirohi",
-        "Pratapgarh",
-        "Rawatbhata",
-        "Sangaria",
-        "Lalsot",
-        "Pilibanga",
-        "Pipar City",
-        "Taranagar",
-        "Vijainagar, Ajmer",
-        "Sumerpur",
-        "Sagwara",
-        "Ramganj Mandi",
-        "Lakheri",
-        "Udaipurwati",
-        "Losal",
-        "Sri Madhopur",
-        "Ramngarh",
-        "Rawatsar",
-        "Rajakhera",
-        "Shahpura",
-        "Shahpura",
-        "Raisinghnagar",
-        "Malpura",
-        "Nadbai",
-        "Sanchore",
-        "Nagar",
-        "Rajgarh (Alwar)",
-        "Sheoganj",
-        "Sadri",
-        "Todaraisingh",
-        "Todabhim",
-        "Reengus",
-        "Rajaldesar",
-        "Sadulshahar",
-        "Sambhar",
-        "Prantij",
-        "Mount Abu",
-        "Mangrol",
-        "Phulera",
-        "Mandawa",
-        "Pindwara",
-        "Mandalgarh",
-        "Takhatgarh"
-    ],
-
-    "Assam": [
-        "Guwahati",
-        "Silchar",
-        "Dibrugarh",
-        "Nagaon",
-        "Tinsukia",
-        "Jorhat",
-        "Bongaigaon City",
-        "Dhubri",
-        "Diphu",
-        "North Lakhimpur",
-        "Tezpur",
-        "Karimganj",
-        "Sibsagar",
-        "Goalpara",
-        "Barpeta",
-        "Lanka",
-        "Lumding",
-        "Mankachar",
-        "Nalbari",
-        "Rangia",
-        "Margherita",
-        "Mangaldoi",
-        "Silapathar",
-        "Mariani",
-        "Marigaon"
-    ],
-
-    "Odisha": [
-        "Bhubaneswar",
-        "Cuttack",
-        "Raurkela",
-        "Brahmapur",
-        "Sambalpur",
-        "Puri",
-        "Baleshwar Town",
-        "Baripada Town",
-        "Bhadrak",
-        "Balangir",
-        "Jharsuguda",
-        "Bargarh",
-        "Paradip",
-        "Bhawanipatna",
-        "Dhenkanal",
-        "Barbil",
-        "Kendujhar",
-        "Sunabeda",
-        "Rayagada",
-        "Jatani",
-        "Byasanagar",
-        "Kendrapara",
-        "Rajagangapur",
-        "Parlakhemundi",
-        "Talcher",
-        "Sundargarh",
-        "Phulabani",
-        "Pattamundai",
-        "Titlagarh",
-        "Nabarangapur",
-        "Soro",
-        "Malkangiri",
-        "Rairangpur",
-        "Tarbha"
-    ],
-
-    "Chhattisgarh": [
-        "Raipur",
-        "Bhilai Nagar",
-        "Korba",
-        "Bilaspur",
-        "Durg",
-        "Rajnandgaon",
-        "Jagdalpur",
-        "Raigarh",
-        "Ambikapur",
-        "Mahasamund",
-        "Dhamtari",
-        "Chirmiri",
-        "Bhatapara",
-        "Dalli-Rajhara",
-        "Naila Janjgir",
-        "Tilda Newra",
-        "Mungeli",
-        "Manendragarh",
-        "Sakti"
-    ],
-
-    "Jammu and Kashmir": [
-        "Srinagar",
-        "Jammu",
-        "Baramula",
-        "Anantnag",
-        "Sopore",
-        "KathUrban Agglomeration",
-        "Rajauri",
-        "Punch",
-        "Udhampur"
-    ],
-
-    "Karnataka": [
-        "Bengaluru",
-        "Hubli-Dharwad",
-        "Belagavi",
-        "Mangaluru",
-        "Davanagere",
-        "Ballari",
-        "Mysore",
-        "Tumkur",
-        "Shivamogga",
-        "Raayachuru",
-        "Robertson Pet",
-        "Kolar",
-        "Mandya",
-        "Udupi",
-        "Chikkamagaluru",
-        "Karwar",
-        "Ranebennuru",
-        "Ranibennur",
-        "Ramanagaram",
-        "Gokak",
-        "Yadgir",
-        "Rabkavi Banhatti",
-        "Shahabad",
-        "Sirsi",
-        "Sindhnur",
-        "Tiptur",
-        "Arsikere",
-        "Nanjangud",
-        "Sagara",
-        "Sira",
-        "Puttur",
-        "Athni",
-        "Mulbagal",
-        "Surapura",
-        "Siruguppa",
-        "Mudhol",
-        "Sidlaghatta",
-        "Shahpur",
-        "Saundatti-Yellamma",
-        "Wadi",
-        "Manvi",
-        "Nelamangala",
-        "Lakshmeshwar",
-        "Ramdurg",
-        "Nargund",
-        "Tarikere",
-        "Malavalli",
-        "Savanur",
-        "Lingsugur",
-        "Vijayapura",
-        "Sankeshwara",
-        "Madikeri",
-        "Talikota",
-        "Sedam",
-        "Shikaripur",
-        "Mahalingapura",
-        "Mudalagi",
-        "Muddebihal",
-        "Pavagada",
-        "Malur",
-        "Sindhagi",
-        "Sanduru",
-        "Afzalpur",
-        "Maddur",
-        "Madhugiri",
-        "Tekkalakote",
-        "Terdal",
-        "Mudabidri",
-        "Magadi",
-        "Navalgund",
-        "Shiggaon",
-        "Shrirangapattana",
-        "Sindagi",
-        "Sakaleshapura",
-        "Srinivaspur",
-        "Ron",
-        "Mundargi",
-        "Sadalagi",
-        "Piriyapatna",
-        "Adyar"
-    ],
-
-    "Manipur": [
-        "Imphal",
-        "Thoubal",
-        "Lilong",
-        "Mayang Imphal"
-    ],
-
-    "Kerala": [
-        "Thiruvananthapuram",
-        "Kochi",
-        "Kozhikode",
-        "Kollam",
-        "Thrissur",
-        "Palakkad",
-        "Alappuzha",
-        "Malappuram",
-        "Ponnani",
-        "Vatakara",
-        "Kanhangad",
-        "Taliparamba",
-        "Koyilandy",
-        "Neyyattinkara",
-        "Kayamkulam",
-        "Nedumangad",
-        "Kannur",
-        "Tirur",
-        "Kottayam",
-        "Kasaragod",
-        "Kunnamkulam",
-        "Ottappalam",
-        "Thiruvalla",
-        "Thodupuzha",
-        "Chalakudy",
-        "Changanassery",
-        "Punalur",
-        "Nilambur",
-        "Cherthala",
-        "Perinthalmanna",
-        "Mattannur",
-        "Shoranur",
-        "Varkala",
-        "Paravoor",
-        "Pathanamthitta",
-        "Peringathur",
-        "Attingal",
-        "Kodungallur",
-        "Pappinisseri",
-        "Chittur-Thathamangalam",
-        "Muvattupuzha",
-        "Adoor",
-        "Mavelikkara",
-        "Mavoor",
-        "Perumbavoor",
-        "Vaikom",
-        "Palai",
-        "Panniyannur",
-        "Guruvayoor",
-        "Puthuppally",
-        "Panamattom"
-    ],
-
-    "Delhi": [
-        "Delhi",
-        "New Delhi"
-    ],
-
-    "Dadra and Nagar Haveli": [
-        "Silvassa"
-    ],
-
-    "Puducherry": [
-        "Pondicherry",
-        "Karaikal",
-        "Yanam",
-        "Mahe"
-    ],
-
-    "Uttarakhand": [
-        "Dehradun",
-        "Hardwar",
-        "Haldwani-cum-Kathgodam",
-        "Srinagar",
-        "Kashipur",
-        "Roorkee",
-        "Rudrapur",
-        "Rishikesh",
-        "Ramnagar",
-        "Pithoragarh",
-        "Manglaur",
-        "Nainital",
-        "Mussoorie",
-        "Tehri",
-        "Pauri",
-        "Nagla",
-        "Sitarganj",
-        "Bageshwar"
-    ],
-
-    "Uttar Pradesh": [
-        "Lucknow",
-        "Kanpur",
-        "Firozabad",
-        "Agra",
-        "Meerut",
-        "Varanasi",
-        "Allahabad",
-        "Amroha",
-        "Moradabad",
-        "Aligarh",
-        "Saharanpur",
-        "Noida",
-        "Loni",
-        "Jhansi",
-        "Shahjahanpur",
-        "Rampur",
-        "Modinagar",
-        "Hapur",
-        "Etawah",
-        "Sambhal",
-        "Orai",
-        "Bahraich",
-        "Unnao",
-        "Rae Bareli",
-        "Lakhimpur",
-        "Sitapur",
-        "Lalitpur",
-        "Pilibhit",
-        "Chandausi",
-        "Hardoi",
-        "Azamgarh",
-        "Khair",
-        "Sultanpur",
-        "Tanda",
-        "Nagina",
-        "Shamli",
-        "Najibabad",
-        "Shikohabad",
-        "Sikandrabad",
-        "Shahabad, Hardoi",
-        "Pilkhuwa",
-        "Renukoot",
-        "Vrindavan",
-        "Ujhani",
-        "Laharpur",
-        "Tilhar",
-        "Sahaswan",
-        "Rath",
-        "Sherkot",
-        "Kalpi",
-        "Tundla",
-        "Sandila",
-        "Nanpara",
-        "Sardhana",
-        "Nehtaur",
-        "Seohara",
-        "Padrauna",
-        "Mathura",
-        "Thakurdwara",
-        "Nawabganj",
-        "Siana",
-        "Noorpur",
-        "Sikandra Rao",
-        "Puranpur",
-        "Rudauli",
-        "Thana Bhawan",
-        "Palia Kalan",
-        "Zaidpur",
-        "Nautanwa",
-        "Zamania",
-        "Shikarpur, Bulandshahr",
-        "Naugawan Sadat",
-        "Fatehpur Sikri",
-        "Shahabad, Rampur",
-        "Robertsganj",
-        "Utraula",
-        "Sadabad",
-        "Rasra",
-        "Lar",
-        "Lal Gopalganj Nindaura",
-        "Sirsaganj",
-        "Pihani",
-        "Shamsabad, Agra",
-        "Rudrapur",
-        "Soron",
-        "SUrban Agglomerationr",
-        "Samdhan",
-        "Sahjanwa",
-        "Rampur Maniharan",
-        "Sumerpur",
-        "Shahganj",
-        "Tulsipur",
-        "Tirwaganj",
-        "PurqUrban Agglomerationzi",
-        "Shamsabad, Farrukhabad",
-        "Warhapur",
-        "Powayan",
-        "Sandi",
-        "Achhnera",
-        "Naraura",
-        "Nakur",
-        "Sahaspur",
-        "Safipur",
-        "Reoti",
-        "Sikanderpur",
-        "Saidpur",
-        "Sirsi",
-        "Purwa",
-        "Parasi",
-        "Lalganj",
-        "Phulpur",
-        "Shishgarh",
-        "Sahawar",
-        "Samthar",
-        "Pukhrayan",
-        "Obra",
-        "Niwai",
-        "Mirzapur"
-    ],
-
-    "Bihar": [
-        "Patna",
-        "Gaya",
-        "Bhagalpur",
-        "Muzaffarpur",
-        "Darbhanga",
-        "Arrah",
-        "Begusarai",
-        "Chhapra",
-        "Katihar",
-        "Munger",
-        "Purnia",
-        "Saharsa",
-        "Sasaram",
-        "Hajipur",
-        "Dehri-on-Sone",
-        "Bettiah",
-        "Motihari",
-        "Bagaha",
-        "Siwan",
-        "Kishanganj",
-        "Jamalpur",
-        "Buxar",
-        "Jehanabad",
-        "Aurangabad",
-        "Lakhisarai",
-        "Nawada",
-        "Jamui",
-        "Sitamarhi",
-        "Araria",
-        "Gopalganj",
-        "Madhubani",
-        "Masaurhi",
-        "Samastipur",
-        "Mokameh",
-        "Supaul",
-        "Dumraon",
-        "Arwal",
-        "Forbesganj",
-        "BhabUrban Agglomeration",
-        "Narkatiaganj",
-        "Naugachhia",
-        "Madhepura",
-        "Sheikhpura",
-        "Sultanganj",
-        "Raxaul Bazar",
-        "Ramnagar",
-        "Mahnar Bazar",
-        "Warisaliganj",
-        "Revelganj",
-        "Rajgir",
-        "Sonepur",
-        "Sherghati",
-        "Sugauli",
-        "Makhdumpur",
-        "Maner",
-        "Rosera",
-        "Nokha",
-        "Piro",
-        "Rafiganj",
-        "Marhaura",
-        "Mirganj",
-        "Lalganj",
-        "Murliganj",
-        "Motipur",
-        "Manihari",
-        "Sheohar",
-        "Maharajganj",
-        "Silao",
-        "Barh",
-        "Asarganj"
-    ],
-
-    "Gujarat": [
-        "Ahmedabad",
-        "Surat",
-        "Vadodara",
-        "Rajkot",
-        "Bhavnagar",
-        "Jamnagar",
-        "Nadiad",
-        "Porbandar",
-        "Anand",
-        "Morvi",
-        "Mahesana",
-        "Bharuch",
-        "Vapi",
-        "Navsari",
-        "Veraval",
-        "Bhuj",
-        "Godhra",
-        "Palanpur",
-        "Valsad",
-        "Patan",
-        "Deesa",
-        "Amreli",
-        "Anjar",
-        "Dhoraji",
-        "Khambhat",
-        "Mahuva",
-        "Keshod",
-        "Wadhwan",
-        "Ankleshwar",
-        "Savarkundla",
-        "Kadi",
-        "Visnagar",
-        "Upleta",
-        "Una",
-        "Sidhpur",
-        "Unjha",
-        "Mangrol",
-        "Viramgam",
-        "Modasa",
-        "Palitana",
-        "Petlad",
-        "Kapadvanj",
-        "Sihor",
-        "Wankaner",
-        "Limbdi",
-        "Mandvi",
-        "Thangadh",
-        "Vyara",
-        "Padra",
-        "Lunawada",
-        "Rajpipla",
-        "Vapi",
-        "Umreth",
-        "Sanand",
-        "Rajula",
-        "Radhanpur",
-        "Mahemdabad",
-        "Ranavav",
-        "Tharad",
-        "Mansa",
-        "Umbergaon",
-        "Talaja",
-        "Vadnagar",
-        "Manavadar",
-        "Salaya",
-        "Vijapur",
-        "Pardi",
-        "Rapar",
-        "Songadh",
-        "Lathi",
-        "Adalaj",
-        "Chhapra",
-        "Gandhinagar"
-    ],
-
-    "Telangana": [
-        "Hyderabad",
-        "Warangal",
-        "Nizamabad",
-        "Karimnagar",
-        "Ramagundam",
-        "Khammam",
-        "Mahbubnagar",
-        "Mancherial",
-        "Adilabad",
-        "Suryapet",
-        "Jagtial",
-        "Miryalaguda",
-        "Nirmal",
-        "Kamareddy",
-        "Kothagudem",
-        "Bodhan",
-        "Palwancha",
-        "Mandamarri",
-        "Koratla",
-        "Sircilla",
-        "Tandur",
-        "Siddipet",
-        "Wanaparthy",
-        "Kagaznagar",
-        "Gadwal",
-        "Sangareddy",
-        "Bellampalle",
-        "Bhongir",
-        "Vikarabad",
-        "Jangaon",
-        "Bhadrachalam",
-        "Bhainsa",
-        "Farooqnagar",
-        "Medak",
-        "Narayanpet",
-        "Sadasivpet",
-        "Yellandu",
-        "Manuguru",
-        "Kyathampalle",
-        "Nagarkurnool"
-    ],
-
-    "Meghalaya": [
-        "Shillong",
-        "Tura",
-        "Nongstoin"
-    ],
-
-    "Himachal Praddesh": [
-        "Manali"
-    ],
-
-    "Arunachal Pradesh": [
-        "Naharlagun",
-        "Pasighat"
-    ],
-
-    "Maharashtra": [
-        "Mumbai",
-        "Pune",
-        "Nagpur",
-        "Thane",
-        "Nashik",
-        "Kalyan-Dombivali",
-        "Vasai-Virar",
-        "Solapur",
-        "Mira-Bhayandar",
-        "Bhiwandi",
-        "Amravati",
-        "Nanded-Waghala",
-        "Sangli",
-        "Malegaon",
-        "Akola",
-        "Latur",
-        "Dhule",
-        "Ahmednagar",
-        "Ichalkaranji",
-        "Parbhani",
-        "Panvel",
-        "Yavatmal",
-        "Achalpur",
-        "Osmanabad",
-        "Nandurbar",
-        "Satara",
-        "Wardha",
-        "Udgir",
-        "Aurangabad",
-        "Amalner",
-        "Akot",
-        "Pandharpur",
-        "Shrirampur",
-        "Parli",
-        "Washim",
-        "Ambejogai",
-        "Manmad",
-        "Ratnagiri",
-        "Uran Islampur",
-        "Pusad",
-        "Sangamner",
-        "Shirpur-Warwade",
-        "Malkapur",
-        "Wani",
-        "Lonavla",
-        "Talegaon Dabhade",
-        "Anjangaon",
-        "Umred",
-        "Palghar",
-        "Shegaon",
-        "Ozar",
-        "Phaltan",
-        "Yevla",
-        "Shahade",
-        "Vita",
-        "Umarkhed",
-        "Warora",
-        "Pachora",
-        "Tumsar",
-        "Manjlegaon",
-        "Sillod",
-        "Arvi",
-        "Nandura",
-        "Vaijapur",
-        "Wadgaon Road",
-        "Sailu",
-        "Murtijapur",
-        "Tasgaon",
-        "Mehkar",
-        "Yawal",
-        "Pulgaon",
-        "Nilanga",
-        "Wai",
-        "Umarga",
-        "Paithan",
-        "Rahuri",
-        "Nawapur",
-        "Tuljapur",
-        "Morshi",
-        "Purna",
-        "Satana",
-        "Pathri",
-        "Sinnar",
-        "Uchgaon",
-        "Uran",
-        "Pen",
-        "Karjat",
-        "Manwath",
-        "Partur",
-        "Sangole",
-        "Mangrulpir",
-        "Risod",
-        "Shirur",
-        "Savner",
-        "Sasvad",
-        "Pandharkaoda",
-        "Talode",
-        "Shrigonda",
-        "Shirdi",
-        "Raver",
-        "Mukhed",
-        "Rajura",
-        "Vadgaon Kasba",
-        "Tirora",
-        "Mahad",
-        "Lonar",
-        "Sawantwadi",
-        "Pathardi",
-        "Pauni",
-        "Ramtek",
-        "Mul",
-        "Soyagaon",
-        "Mangalvedhe",
-        "Narkhed",
-        "Shendurjana",
-        "Patur",
-        "Mhaswad",
-        "Loha",
-        "Nandgaon",
-        "Warud"
-    ],
-
-    "Goa": [
-        "Marmagao",
-        "Panaji",
-        "Margao",
-        "Mapusa"
-    ],
-
-    "West Bengal": [
-        "Kolkata",
-        "Siliguri",
-        "Asansol",
-        "Raghunathganj",
-        "Kharagpur",
-        "Naihati",
-        "English Bazar",
-        "Baharampur",
-        "Hugli-Chinsurah",
-        "Raiganj",
-        "Jalpaiguri",
-        "Santipur",
-        "Balurghat",
-        "Medinipur",
-        "Habra",
-        "Ranaghat",
-        "Bankura",
-        "Nabadwip",
-        "Darjiling",
-        "Purulia",
-        "Arambagh",
-        "Tamluk",
-        "AlipurdUrban Agglomerationr",
-        "Suri",
-        "Jhargram",
-        "Gangarampur",
-        "Rampurhat",
-        "Kalimpong",
-        "Sainthia",
-        "Taki",
-        "Murshidabad",
-        "Memari",
-        "Paschim Punropara",
-        "Tarakeswar",
-        "Sonamukhi",
-        "PandUrban Agglomeration",
-        "Mainaguri",
-        "Malda",
-        "Panchla",
-        "Raghunathpur",
-        "Mathabhanga",
-        "Monoharpur",
-        "Srirampore",
-        "Adra"
-    ]
-};
-
+                const stateCities = @json($states);
 
                 const oldState = @json($businessInfo?->state ?? '');
-                const oldCity  = @json($businessInfo?->city ?? '');
+                const oldCity = @json($businessInfo?->city ?? '');
 
                 // State dropdown
-                $.each(stateCities, function(state, cities) {
+                $.each(stateCities, function(index, value) {
                     $('#state').append(
                         $('<option>', {
-                            value: state,
-                            text: state
+                            value: value.state_name,
+                            text: value.state_name
                         })
                     );
                 });
@@ -5167,13 +4010,12 @@ verified';
                     loadCities(oldState, oldCity);
                 }
 
-                // State change
+                // State change event
                 $('#state').on('change', function() {
                     loadCities($(this).val());
                 });
 
                 function loadCities(state, selectedCity = '') {
-
                     const $city = $('#city');
 
                     $city.empty().append(
@@ -5183,22 +4025,34 @@ verified';
                         })
                     );
 
-                    if (!state || !stateCities[state]) {
+                    if (!state) {
                         $city.trigger('change');
                         return;
                     }
 
-                    $.each(stateCities[state], function(index, city) {
-                        $city.append(
-                            $('<option>', {
-                                value: city,
-                                text: city,
-                                selected: city === selectedCity
-                            })
-                        );
+                    // Fetch cities dynamically via AJAX
+                    $.ajax({
+                        url: "{{ route('get_city') }}",
+                        type: 'GET',
+                        data: {
+                            state_name: state
+                        },
+                        success: function(cities) {
+                            $.each(cities, function(index, city) {
+                                $city.append(
+                                    $('<option>', {
+                                        value: city,
+                                        text: city,
+                                        selected: city === selectedCity
+                                    })
+                                );
+                            });
+                            $city.trigger('change');
+                        },
+                        error: function(xhr) {
+                            console.error('Error fetching cities:', xhr.responseText);
+                        }
                     });
-
-                    $city.trigger('change');
                 }
             });
         </script>
