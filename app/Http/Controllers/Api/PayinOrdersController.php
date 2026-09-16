@@ -327,7 +327,8 @@ class PayinOrdersController extends Controller
                     // dd($result);
 
                     Log::info('Easebuzz Payin Response', [
-                        'response' => $result,
+                        'response' => $response,
+                        'jsonResponse' => $result,
                     ]);
 
                     if ($response->successful() && ($result['status'] ?? false) === true) {
