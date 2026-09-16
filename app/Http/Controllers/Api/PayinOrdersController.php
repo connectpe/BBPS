@@ -280,7 +280,7 @@ class PayinOrdersController extends Controller
                 try {
 
                     $validator->addRules([
-                        'amount' => 'required|numeric|min:1',
+                        'amount' => 'required|numeric|min:100',
                     ]);
 
                     $this->validateError($validator);
