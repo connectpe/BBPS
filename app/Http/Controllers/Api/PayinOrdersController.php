@@ -48,6 +48,12 @@ class PayinOrdersController extends Controller
 
             $userId = $userIdAndServiceId['user_id'] ?? null;
             $serviceId = $userIdAndServiceId['service_id'] ?? null;
+            $key = $userIdAndServiceId['key'] ?? null;
+            $salt = $userIdAndServiceId['salt'] ?? null;
+
+            if (!$key || !$salt) {
+                throw new Exception("Key and Salt is not set");
+            }
 
             $activeUser = User::where('id', $userId)->where('status', '1')->first();
             $isKyc = BusinessInfo::where('user_id', $userId)->where('is_kyc', '1')->first();
@@ -281,7 +287,7 @@ class PayinOrdersController extends Controller
                 try {
 
                     $validator->addRules([
-                        'amount' => 'required|numeric|min:100',
+                        'amount' => 'required|numeric|min:10',
                     ]);
 
                     $this->validateError($validator);
@@ -295,6 +301,8 @@ class PayinOrdersController extends Controller
                         'phone'          => $request->mobile_number,
                         'email'          => $request->email,
                         'transaction_id' => $request->transaction_id ?? null,
+                        'key' => $key,
+                        'salt' => $salt,
                     ]);
 
                     Log::info('accessKeyResponse', [
@@ -409,7 +417,6 @@ class PayinOrdersController extends Controller
                     }
 
                     throw new Exception("Unable to generate UPI deeplink", 404);
-
                 } catch (\Exception $e) {
                     return response()->json([
                         'status'  => false,
