@@ -13,18 +13,8 @@ class SeamlessPayinHelper
     {
         try {
 
-            // $key  = env('EASEBUZZ_KEY');
-            // $salt = env('EASEBUZZ_SALT');
-            // $baseurl = env('EASEBUZZ_BASE_URL');
-            // dd($key, $salt, $baseurl);
-
-            $key = 'XIH4IP6A3F';
-            $salt = 'FJ99A4834P';
-
-            // Redwell credentials key and salt
-            // $key = 'ZBCLPSC4KY';
-            // $salt = 'QZBZ8QDCP1';
-
+            $key = config('app.easebuzz.EASEBUZZ_KEY');
+            $salt = config('app.easebuzz.EASEBUZZ_SALT');
 
             $txnid = $data['transaction_id'] ?? 'TXN_' . strtoupper(Str::random(15));
 
