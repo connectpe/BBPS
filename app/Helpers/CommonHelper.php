@@ -136,6 +136,8 @@ class CommonHelper
             'status' => true,
             'user_id' => $OauthClient->user_id ?? null,
             'service_id' => $OauthClient->service_id ?? null,
+            'key' => $OauthClient->client_id,
+            'salt' => $OauthClient->client_secret,
         ];
     }
 
