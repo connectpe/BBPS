@@ -63,6 +63,7 @@ class PayinOrdersController extends Controller
             CommonHelper::isUserServiceActiveUsingUserIdAndServiceId($userId, $serviceId);
             CommonHelper::isGlobalServiceActive($serviceId);
             $getProviderSlug = CommonHelper::getProviderSlug($userId, $serviceId);
+            // dd($getProviderSlug);
             $providerSlug = $getProviderSlug['provider_slug'] ?? null;
         } catch (\Exception $e) {
             return response()->json([
@@ -367,11 +368,32 @@ class PayinOrdersController extends Controller
                             'updated_at' => now(),
                         ]);
 
+                        DB::table('upi_collections')->insert([
+                            'cust_name' => $request->name,
+                            'cust_mobile' => $request->mobile_number,
+                            'cust_email' => $request->email,
+                            'cust_txn_id' =>  $request->transaction_id,
+                            'connectpe_order_id' => $connectpeOrderId,
+                            'amount' => $request->amount,
+                            'fee' => $feeData['fee'],
+                            'tax' => $feeData['tax'],
+                            'net_amount' => $feeData['netAmount'],
+                            'user_id' => $userId,
+                            'txn_order_id' => 'null',
+                            'qr_intent' => $intentUrl,
+                            'res_message' => $result['msg_desc'] ?? null,
+                            'response' => json_encode($result),
+                            'status' => 'initiated',
+                            'type'    => $providerSlug,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+
                         return response()->json([
                             'status'  => true,
                             'message' => 'Payment initiated successfully',
                             'data' => [
-                                'status' => 'pending',
+                                'status' => 'initiated',
                                 'amount' => $request->amount,
                                 'intent_url' => $intentUrl,
                                 'qr_url' => $ourQrUrl,
@@ -384,6 +406,7 @@ class PayinOrdersController extends Controller
                     }
 
                     throw new Exception("Unable to generate UPI deeplink", 404);
+
                 } catch (\Exception $e) {
                     return response()->json([
                         'status'  => false,

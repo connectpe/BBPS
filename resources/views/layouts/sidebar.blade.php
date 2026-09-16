@@ -395,9 +395,9 @@
                             class="nav-link {{ Route::currentRouteName() == 'upi_initiation' ? 'active' : '' }}"><i
                                 class="bi bi-arrow-up-right-circle"></i><span class="menu-text">UPI
                                 Initiation</span></a>
-                        {{-- <a href="{{ route('upi_collection') }}"
+                        <a href="{{ route('upi_collection') }}"
                             class="nav-link {{ Route::currentRouteName() == 'upi_collection' ? 'active' : '' }}"><i
-                                class="bi bi-plus-circle"></i><span class="menu-text">UPI Collection</span></a> --}}
+                                class="bi bi-plus-circle"></i><span class="menu-text">UPI Collection</span></a>
                         <a href="{{ route('all_upi_transactions') }}"
                             class="nav-link {{ Route::currentRouteName() == 'all_upi_transactions' ? 'active' : '' }}"><i
                                 class="bi bi-list-check"></i><span class="menu-text">All Transactions</span></a>
