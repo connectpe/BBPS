@@ -30,7 +30,7 @@ Route::get('test-redis', function () {
 });
 Route::get('/', [HomeController::class, 'loginRedirect'])->name('home');
 Route::get('/dashboard', [AdminController::class, 'dashboard'])->middleware('auth')->name('dashboard');
-
+Route::get('/get-cities', [UserController::class, 'getCityByStateName'])->name('get_city')->middleware('auth');
 Route::post('/clear-cache', [AdminController::class, 'clearCache'])->name('clear_cache');
 
 
@@ -295,11 +295,11 @@ Route::group(['middleware' => ['logs', 'auth'], 'prefix' => 'document'], functio
 
     Route::post('individual-verify-pan', [DocumentVerificationController::class, 'individualPanVerify'])->name('individual.pan.verify');
     Route::post('business-verify-pan', [DocumentVerificationController::class, 'businessPanVerify'])->name('business.pan.verify');
-    Route::post('verify-account', [DocumentVerificationController::class, 'VerifyAccountDetails'])->name('bank.account.verify');
     Route::post('verify-cin', [DocumentVerificationController::class, 'verifyCinNumber'])->name('cin.verify');
     Route::post('verify-gstin', [DocumentVerificationController::class, 'verifyGstinNumber'])->name('gstin.verify');
-    Route::post('verify-ifsc', [DocumentVerificationController::class, 'verifyIfsc'])->name('ifsc.verify');
+    Route::post('verify-ifsc', [DocumentVerificationController::class, 'verifyBankDetails'])->name('ifsc.verify');
     Route::post('verify-aadhaar', [DocumentVerificationController::class, 'verifyAadhaar'])->name('verify.aadhaar');
+    Route::post('verify-aadhaar-otp', [DocumentVerificationController::class, 'submitOTPVerifyAadhaar'])->name('verify.aadhaar.otp');
     Route::post('initiate-video-link', [DocumentVerificationController::class, 'initiateVideoKyc'])->name('videokyc.verify');
 });
 

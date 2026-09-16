@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Facades\FileUpload;
 use App\Models\BusinessInfo;
+use App\Models\DocumentVerificationResponse;
 use App\Models\UsersBank;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class DocumentVerificationController extends Controller
 {
@@ -20,6 +23,12 @@ class DocumentVerificationController extends Controller
     private $user;
     private $completeProfileMessage;
 
+    // Quick Ekyc
+    private $docVerifyBaseUrl;
+    private $docVerifyTestKey;
+    private $docVerifyProductionKey;
+
+
     public function __construct()
     {
         $this->clientID = env('CASHFREE_CLIENT_ID');
@@ -28,6 +37,10 @@ class DocumentVerificationController extends Controller
         $this->userId = Auth::id();
         $this->user = Auth::user();
         $this->completeProfileMessage = 'Please complete your profile';
+
+        $this->docVerifyBaseUrl =  config('app.document_verification.DOCUMENT_VERIFY_BASEURL') ?? null;
+        $this->docVerifyTestKey =  config('app.document_verification.DOCUMENT_VERIFY_TEST_APIKEY') ?? null;
+        $this->docVerifyProductionKey =  config('app.document_verification.DOCUMENT_VERIFY_PRODUTION_APIKEY') ?? null;
     }
 
     // Function for getting the businessDetails
@@ -61,7 +74,7 @@ class DocumentVerificationController extends Controller
 
             $user = Auth::user();
             $businessInfo = $user->business;
-            $businessInfo = BusinessInfo::select('address', 'pan_number', 'business_pan_number', 'aadhar_number', 'business_pan_name', 'is_pan_verify', 'gst_number', 'is_gstin_verify', 'cin_no', 'is_cin_verify', 'is_bank_details_verify', 'is_aadhaar_verified')->where('user_id', $this->userId)->first();
+            $businessInfo = BusinessInfo::select('address', 'pan_number', 'business_pan_number', 'aadhar_number', 'business_pan_name', 'is_pan_verify', 'is_business_pan_verified', 'gst_number', 'is_gstin_verify', 'cin_no', 'is_cin_verify', 'is_bank_details_verify', 'is_aadhaar_verified')->where('user_id', $this->userId)->first();
 
             if (!$businessInfo) {
                 return response()->json([
@@ -115,190 +128,99 @@ class DocumentVerificationController extends Controller
         }
     }
 
-    protected function getAuthToken(Request $request)
-    {
-        try {
-
-            $response = Http::withHeaders([
-                'x-api-version' => $this->apiVersion,
-                'x-partner-api-key' => $this->clientID,
-                'x-partner-merchantid' => '',
-
-
-            ])->get('https://api.cashfree.com/gc/authorize', []);
-
-
-            return $response['data']->token;
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => false,
-                'message' => $e->getMessage()
-            ]);
-        }
-    }
-
-    public function VerifyAccountDetails(Request $request)
-    {
-
-        try {
-            $request->validate([
-                'name' => 'required|string',
-                'bankAccount' => 'required|string',
-                'ifsc' => 'required|string',
-                'phone' => 'required|string',
-                'remarks' => 'required|string'
-
-            ]);
-            $token = $this->getAuthToken();
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $token,
-                'Content-Type' => 'application/json',
-            ])->get('https://api.cashfree.com/payout/v1.2/validation/bankDetails', [
-                'bankAccount' => $request->bankAccount,
-                'ifsc' => $request->ifsc,
-                'name' => $request->name,
-            ]);
-
-            dd($response->json());
-
-            return $response->json();
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => false,
-                'messgae' => $e->getMessage()
-            ]);
-        }
-    }
-
-
-    public function verifyCinNumber(Request $request)
-    {
-        DB::beginTransaction();
-        try {
-
-            $businessInfo = $this->getBusinessDetails();
-
-            if (!$businessInfo) {
-                return $this->returnResponse(false, "Business details are not complete. $this->completeProfileMessage");
-            }
-
-            if (!$businessInfo->cin_no) {
-                return $this->returnResponse(false, 'Your CIN number doesn\'t exist.');
-            }
-
-            $verificationId = 'CIN' . time();
-
-            $response = Http::withHeaders([
-                'Content-Type' => 'application/json',
-                'x-client-id' => $this->clientID,
-                'x-client-secret' => $this->clientSecret
-            ])->post('https://api.cashfree.com/verification/cin', [
-                'verification_id' => $verificationId,
-                'cin' => $businessInfo->cin_no,
-
-            ]);
-
-            dd($response->json());
-
-            if (isset($response['status'], $response['data']['valid']) && $response['status'] === true && $response['data']['valid'] === true) {
-                $businessInfo->is_cin_verify = '1';
-                $businessInfo->save();
-            }
-
-            DB::commit();
-            return $this->returnResponse(true, 'CIN verification completed');
-        } catch (\Exception $e) {
-            DB::rollback();
-            return response()->json([
-                'status' => false,
-                'message' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    public function verifyGstinNumber(Request $request)
-    {
-        DB::beginTransaction();
-        try {
-
-            $businessInfo = $this->getBusinessDetails();
-
-            if (!$businessInfo) {
-                return $this->returnResponse(false, "Business details are not complete. $this->completeProfileMessage");
-            }
-
-            if (!$businessInfo->gst_number) {
-                return $this->returnResponse(false, 'Your GST number doesn\'t exist.');
-            }
-
-            $response = Http::withHeaders([
-                'Content-Type' => 'application/json',
-                'x-client-id' => $this->clientID,
-                'x-client-secret' => $this->clientSecret,
-            ])->post('https://api.cashfree.com/verification/gstin', [
-                "GSTIN" => $businessInfo->gst_number,
-            ]);
-
-            if (isset($response['status'], $response['data']['valid']) && $response['status'] === true && $response['data']['valid'] === true) {
-                $businessInfo->is_gstin_verify = '1';
-                $businessInfo->save();
-            }
-
-            dd($response->json());
-            DB::commit();
-            return $this->returnResponse(true, $response['data']['message'] ?? 'GSTIN verification completed');
-        } catch (\Exception $e) {
-            DB::rollback();
-            return response()->json([
-                'status' => false,
-                'message' => $e->getMessage()
-            ], 500);
-        }
-    }
-
     public function individualPanVerify(Request $request)
     {
-
-        DB::beginTransaction();
         try {
 
             $businessInfo = $this->getBusinessDetails();
 
             if (!$businessInfo) {
-                return $this->returnResponse(false, "Business details are not complete. $this->completeProfileMessage");
+                return $this->returnResponse(
+                    false,
+                    "Business details are not complete. $this->completeProfileMessage"
+                );
             }
 
             if (!$businessInfo->pan_number) {
-                return $this->returnResponse(false, 'Individual Pan number doesn\'t exist.');
+                return $this->returnResponse(
+                    false,
+                    "Individual PAN number doesn't exist."
+                );
             }
 
             if (!$businessInfo->pan_owner_name) {
-                return $this->returnResponse(false, 'Individual Pan name doesn\'t exist.');
+                return $this->returnResponse(
+                    false,
+                    "Individual PAN name doesn't exist."
+                );
             }
 
-            $payload = [
-                'pan'  => $businessInfo->pan_number,
-                'name' => $businessInfo->pan_owner_name,
-            ];
+            $endpoint  =  $this->docVerifyBaseUrl . "pan/pan";
+            // $apiKey  =  $this->docVerifyTestKey;  
+            $apiKey  = $this->docVerifyProductionKey;
 
-            $endpoint = "https://api.cashfree.com/verification/pan";
-            // $endpoint = "https://sandbox.cashfree.com/verification/pan";
+            $payload = [
+                'key' => $apiKey,
+                'id_number' => $businessInfo->pan_number,
+            ];
 
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
-                'x-client-id' => $this->clientID,
-                'x-client-secret' => $this->clientSecret,
             ])->post($endpoint, $payload);
 
-            if (isset($response['status'], $response['data']['valid']) && $response['status'] === true && $response['data']['valid'] === true) {
-                $businessInfo->is_pan_verify = '1';
-                $businessInfo->save();
+            $data = $response->json();
+
+            Log::info('Owner Pan Verification', [
+                'response' => $data,
+                'endPoint' => $endpoint,
+                'http_status' => $response->status(),
+            ]);
+
+            if (!$response->successful()) {
+                return $this->returnResponse(
+                    false,
+                    $data['message'] ?? 'Individual PAN verification failed.'
+                );
             }
-            dd($response->json());
-            DB::commit();
-            return $this->returnResponse(true, $response['data']['message'] ?? 'Individual PAN verification completed');
-        } catch (\Exception $e) {
-            DB::rollback();
+
+            if (
+                ($data['status_code'] ?? null) === 200 &&
+                ($data['status'] ?? null) === 'success'
+            ) {
+                DB::beginTransaction();
+
+                try {
+                    $businessInfo->is_pan_verify = '1';
+                    $businessInfo->save();
+
+                    DocumentVerificationResponse::create([
+                        'user_id' => $businessInfo->user_id,
+                        'document_type' => 'owner_pan',
+                        'verification_response' => $data,
+                    ]);
+
+                    DB::commit();
+
+                    return $this->returnResponse(
+                        true,
+                        $data['message'] ?? 'Individual PAN verification completed.'
+                    );
+                } catch (\Throwable $e) {
+                    DB::rollBack();
+                    throw $e;
+                }
+            }
+
+            return $this->returnResponse(
+                false,
+                $data['message'] ?? 'Individual PAN verification failed.'
+            );
+        } catch (\Throwable $e) {
+            Log::error('Individual PAN verification error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -309,7 +231,6 @@ class DocumentVerificationController extends Controller
     public function businessPanVerify(Request $request)
     {
 
-        DB::beginTransaction();
         try {
 
             $businessInfo = $this->getBusinessDetails();
@@ -326,28 +247,342 @@ class DocumentVerificationController extends Controller
                 return $this->returnResponse(false, 'Your Business Pan name doesn\'t exist.');
             }
 
-            $payload = [
-                'pan'  => $businessInfo->business_pan_number,
-                'name' => $businessInfo->business_pan_name,
-            ];
+            $endpoint  =  $this->docVerifyBaseUrl . "pan/pan";
+            // $apiKey  =  $this->docVerifyTestKey;  
+            $apiKey  = $this->docVerifyProductionKey;
 
-            $endpoint = "https://api.cashfree.com/verification/pan";
+            $payload = [
+                'key' => $apiKey,
+                'id_number' => $businessInfo->business_pan_number,
+            ];
 
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
-                'x-client-id' => $this->clientID,
-                'x-client-secret' => $this->clientSecret,
             ])->post($endpoint, $payload);
 
-            if (isset($response['status'], $response['data']['valid']) && $response['status'] === true && $response['data']['valid'] === true) {
-                $businessInfo->is_business_pan_verified = '1';
-                $businessInfo->save();
+            $data = $response->json();
+
+            Log::info('Business Pan Verification', [
+                'response' => $data,
+                'endPoint' => $endpoint,
+                'http_status' => $response->status(),
+            ]);
+
+            if (!$response->successful()) {
+                return $this->returnResponse(
+                    false,
+                    $data['message'] ?? 'Business PAN verification failed.'
+                );
             }
-            dd($response->json());
-            DB::commit();
-            return $this->returnResponse(true, $response['data']['message'] ?? 'Business PAN verification completed');
-        } catch (\Exception $e) {
-            DB::rollback();
+
+            if (
+                ($data['status_code'] ?? null) === 200 &&
+                ($data['status'] ?? null) === 'success'
+            ) {
+                DB::beginTransaction();
+
+                try {
+                    $businessInfo->is_business_pan_verified = '1';
+                    $businessInfo->save();
+
+                    DocumentVerificationResponse::create([
+                        'user_id' => $businessInfo->user_id,
+                        'document_type' => 'business_pan',
+                        'verification_response' =>  $data,
+                    ]);
+
+                    DB::commit();
+
+                    return $this->returnResponse(
+                        true,
+                        $data['message'] ?? 'Business PAN verification completed.'
+                    );
+                } catch (\Throwable $e) {
+                    DB::rollBack();
+                    throw $e;
+                }
+            }
+
+            return $this->returnResponse(
+                false,
+                $data['message'] ?? 'Business PAN verification failed.'
+            );
+        } catch (\Throwable $e) {
+            Log::error('Business PAN verification error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function verifyGstinNumber(Request $request)
+    {
+
+        try {
+
+            $businessInfo = $this->getBusinessDetails();
+
+            if (!$businessInfo) {
+                return $this->returnResponse(false, "Business details are not complete. $this->completeProfileMessage");
+            }
+
+            if (!$businessInfo->gst_number) {
+                return $this->returnResponse(false, 'Your GST number doesn\'t exist.');
+            }
+
+            $endpoint  =  $this->docVerifyBaseUrl . "corporate/gstin";
+            // $apiKey  =  $this->docVerifyTestKey;  
+            $apiKey  = $this->docVerifyProductionKey;
+
+            $payload = [
+                'key' => $apiKey,
+                'id_number' => $businessInfo->gst_number,
+                'filing_status_get' => true
+            ];
+
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+            ])->post($endpoint, $payload);
+
+            $data = $response->json();
+
+            Log::info('GST Verification', [
+                'response' => $data,
+                'endPoint' => $endpoint,
+                'http_status' => $response->status(),
+            ]);
+
+            if (!$response->successful()) {
+                return $this->returnResponse(
+                    false,
+                    $data['message'] ?? 'GST verification failed.'
+                );
+            }
+
+            if (
+                ($data['status_code'] ?? null) === 200 &&
+                ($data['status'] ?? null) === 'success'
+            ) {
+                DB::beginTransaction();
+
+                try {
+                    $businessInfo->is_gstin_verify = '1';
+                    $businessInfo->save();
+
+                    DocumentVerificationResponse::create([
+                        'user_id' => $businessInfo->user_id,
+                        'document_type' => 'gst',
+                        'verification_response' =>  $data,
+                    ]);
+
+                    DB::commit();
+
+                    return $this->returnResponse(
+                        true,
+                        $data['message'] ?? 'GST verification completed.'
+                    );
+                } catch (\Throwable $e) {
+                    DB::rollBack();
+                    throw $e;
+                }
+            }
+
+            return $this->returnResponse(
+                false,
+                $data['message'] ?? 'GST verification failed.'
+            );
+        } catch (\Throwable $e) {
+
+            Log::error('GST verification error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function verifyCinNumber(Request $request)
+    {
+
+        try {
+
+            $businessInfo = $this->getBusinessDetails();
+
+            if (!$businessInfo) {
+                return $this->returnResponse(false, "Business details are not complete. $this->completeProfileMessage");
+            }
+
+            if (!$businessInfo->cin_no) {
+                return $this->returnResponse(false, 'Your CIN number doesn\'t exist.');
+            }
+
+            $endpoint  =  $this->docVerifyBaseUrl . "corporate/company-details";
+            // $apiKey  =  $this->docVerifyTestKey;  
+            $apiKey  = $this->docVerifyProductionKey;
+
+            $payload = [
+                'key' => $apiKey,
+                'id_number' => $businessInfo->cin_no,
+            ];
+
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+            ])->post($endpoint, $payload);
+
+            $data = $response->json();
+
+            Log::info('CIN Verification', [
+                'response' => $data,
+                'endPoint' => $endpoint,
+                'http_status' => $response->status(),
+            ]);
+
+            if (!$response->successful()) {
+                return $this->returnResponse(
+                    false,
+                    $data['message'] ?? 'CIN verification failed.'
+                );
+            }
+
+            if (
+                ($data['status_code'] ?? null) === 200 &&
+                ($data['status'] ?? null) === 'success'
+            ) {
+                DB::beginTransaction();
+
+                try {
+                    $businessInfo->is_cin_verify = '1';
+                    $businessInfo->save();
+
+                    DocumentVerificationResponse::create([
+                        'user_id' => $businessInfo->user_id,
+                        'document_type' => 'cin',
+                        'verification_response' =>  $data,
+                    ]);
+
+                    DB::commit();
+
+                    return $this->returnResponse(
+                        true,
+                        $data['message'] ?? 'CIN verification completed.'
+                    );
+                } catch (\Throwable $e) {
+                    DB::rollBack();
+                    throw $e;
+                }
+            }
+
+            return $this->returnResponse(
+                false,
+                $data['message'] ?? 'CIN verification failed.'
+            );
+        } catch (\Throwable $e) {
+
+            Log::error('CIN verification error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function verifyAadhaar(Request $request)
+    {
+
+        try {
+
+            $businessInfo = $this->getBusinessDetails();
+
+            if (!$businessInfo) {
+                return $this->returnResponse(false, "Business details are not complete. $this->completeProfileMessage");
+            }
+
+            if (!$businessInfo->aadhar_front_image) {
+                return $this->returnResponse(false, 'Aadhaar front image is not uploaded');
+            }
+
+            if (!$businessInfo->aadhar_back_image) {
+                return $this->returnResponse(false, 'Aadhaar back image is not uploaded');
+            }
+
+            if (!$businessInfo->aadhar_name) {
+                return $this->returnResponse(false, 'Owner Aadhar name not found');
+            }
+
+            if (!$businessInfo->aadhar_number) {
+                return $this->returnResponse(false, 'Owner Aadhar number not found');
+            }
+
+            $endpoint  =  $this->docVerifyBaseUrl . "aadhaar-v2/generate-otp";
+            // $apiKey  =  $this->docVerifyTestKey;  
+            $apiKey  = $this->docVerifyProductionKey;
+
+            $payload = [
+                'key' => $apiKey,
+                'id_number' => $businessInfo->aadhar_number,
+            ];
+
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+            ])->post($endpoint, $payload);
+
+            $data = $response->json();
+
+            Log::info('Aadhar Verification OTP Generation', [
+                'response' => $data,
+                'endPoint' => $endpoint,
+                'http_status' => $response->status(),
+            ]);
+
+            if (!$response->successful()) {
+                return $this->returnResponse(
+                    false,
+                    $data['message'] ?? 'Aadhar Verification OTP Generation failed.'
+                );
+            }
+
+            if (($data['status_code'] ?? null) === 200 && ($data['status'] ?? null) === 'success' && !empty($data['request_id']) && $data['data']['otp_sent']) {
+                DB::beginTransaction();
+
+                try {
+                    $businessInfo->adhaar_request_id = $data['request_id'] ?? NULL;
+                    $businessInfo->save();
+                    DB::commit();
+                    return response()->json([
+                        'status' => true,
+                        'otp' => true,
+                        'message' => $data['message'] ?? 'Aadhar Verification OTP Send Successfully.'
+                    ]);
+                } catch (\Throwable $e) {
+                    DB::rollBack();
+                    throw $e;
+                }
+            }
+
+            return $this->returnResponse(
+                false,
+                $data['message'] ?? 'Aadhar Verification OTP failed.'
+            );
+        } catch (\Throwable $e) {
+
+            Log::error('Aadhar Verification OTP error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -356,12 +591,111 @@ class DocumentVerificationController extends Controller
     }
 
 
-    public function verifyIfsc(Request $request)
+    public function submitOTPVerifyAadhaar(Request $request)
     {
-        DB::beginTransaction();
+
         try {
 
+            $validator = Validator::make($request->all(), [
+                'otp' => 'required|numeric|digits:6',
+            ]);
+
+            if ($validator->fails()) {
+                $message = $validator->errors()->first();
+                return $this->returnResponse(false, $message);
+            }
+
+            $businessInfo = $this->getBusinessDetails();
+
+            if (!$businessInfo->adhaar_request_id) {
+                return $this->returnResponse(false, 'Initiate aadhar verification from starting');
+            }
+
+            $endpoint  =  $this->docVerifyBaseUrl . "aadhaar-v2/submit-otp";
+            // $apiKey  =  $this->docVerifyTestKey;  
+            $apiKey  = $this->docVerifyProductionKey;
+
+            $payload = [
+                'key' => $apiKey,
+                'request_id' => $businessInfo->adhaar_request_id,
+                'otp' => $request->otp
+            ];
+
+
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+            ])->post($endpoint, $payload);
+
+            $data = $response->json();
+
+            Log::info('Aadhar Verification OTP', [
+                'response' => $data,
+                'endPoint' => $endpoint,
+                'http_status' => $response->status(),
+            ]);
+
+            if (!$response->successful()) {
+                return $this->returnResponse(
+                    false,
+                    $data['message'] ?? 'Aadhar Verification failed.'
+                );
+            }
+
+            if (($data['status_code'] ?? null) === 200 && ($data['status'] ?? null) === 'success') {
+                DB::beginTransaction();
+
+                try {
+
+                    $businessInfo->adhaar_request_id = NULL;
+                    $businessInfo->is_aadhaar_verified = '1';
+                    $businessInfo->save();
+
+                    DocumentVerificationResponse::create([
+                        'user_id' => $businessInfo->user_id,
+                        'document_type' => 'aadhaar',
+                        'verification_response' =>  $data,
+                    ]);
+
+                    DB::commit();
+                    return $this->returnResponse(
+                        true,
+                        $data['message'] ?? 'Aadhar Verification Completed Successfully.'
+                    );
+                } catch (\Throwable $e) {
+                    DB::rollBack();
+                    throw $e;
+                }
+            }
+
+            return $this->returnResponse(
+                false,
+                $data['message'] ?? 'Aadhar Verification OTP failed.'
+            );
+        } catch (\Throwable $e) {
+
+            Log::error('Aadhar Verification OTP error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function verifyBankDetails(Request $request)
+    {
+
+        try {
+
+            $businessInfo = $this->getBusinessDetails();
             $bankDetails = $this->getBankDetails();
+
+            if (!$businessInfo) {
+                return $this->returnResponse(false, "Business details are not complete. $this->completeProfileMessage");
+            }
 
             if (!$bankDetails) {
                 return $this->returnResponse(false, "Bank details are not complete. $this->completeProfileMessage");
@@ -383,94 +717,80 @@ class DocumentVerificationController extends Controller
                 return $this->returnResponse(false, 'Bank registered mobile number doesn\'t exist.');
             }
 
-            $payload = [
-                "bank_account" => $bankDetails->account_number ?? null,
-                "ifsc"  => $bankDetails->ifsc_code ?? null,
-                "name" => $bankDetails->benificiary_name ?? null,
-                "phone" => $bankDetails->account_mobile_number ?? null,
-            ];
+            $endpoint  =  $this->docVerifyBaseUrl . "bank-verification";
+            // $apiKey  =  $this->docVerifyTestKey;  
+            $apiKey  = $this->docVerifyProductionKey;
 
-            // $endpoint = "https://api.cashfree.com/verification/bank-account/sync";
-            $endpoint = "https://sandbox.cashfree.com/verification/bank-account/sync";
+            $payload = [
+                'key' => $apiKey,
+                'id_number' => $bankDetails->account_number,
+                'ifsc' => $bankDetails->ifsc_code,
+            ];
 
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
-                'x-client-id' => $this->clientID,
-                'x-client-secret' => $this->clientSecret,
             ])->post($endpoint, $payload);
-            dd($response->json());
 
-            if (isset($response['status'], $response['data']['valid']) && $response['status'] === true && $response['data']['valid'] === true) {
-                $bankDetails->is_pan_verify = '1';
-                $bankDetails->save();
-            }
+            $data = $response->json();
 
-            DB::commit();
-            return $this->returnResponse(true, $response['data']['message'] ?? 'IFSC verification completed');
-        } catch (\Exception $e) {
-            DB::rollback();
-            return response()->json([
-                'status' => false,
-                'message' => $e->getMessage(),
-            ], 500);
-        }
-    }
-
-    public function verifyAadhaar(Request $request)
-    {
-        DB::beginTransaction();
-        try {
-
-            $businessInfo = $this->getBusinessDetails();
-
-            if (!$businessInfo) {
-                return $this->returnResponse(false, "Business details are not complete. $this->completeProfileMessage");
-            }
-
-            if (!$businessInfo->aadhar_front_image) {
-                return $this->returnResponse(false, 'Aadhaar image is not uploaded');
-            }
-
-            $relativePath = $businessInfo->aadhar_front_image;
-            $path = storage_path('app/public/' . $relativePath);
-
-            $imageContent = file_get_contents($path);
-
-            if ($imageContent === false) {
-                return $this->returnResponse(false, 'Unable to read Aadhaar image');
-            }
-
-            $verificationId = 'AADHAAR_' . time();
-            $endpoint = "https://api.cashfree.com/verification/aadhaar-masking";
-
-
-            $response = Http::withHeaders([
-                'x-client-id' => $this->clientID,
-                'x-client-secret' => $this->clientSecret,
-            ])->attach(
-                'image',
-                $imageContent,
-                'aadhaar.jpg'
-            )->post($endpoint, [
-                'verification_id' => $verificationId,
+            Log::info('Bank Verification', [
+                'response' => $data,
+                'endPoint' => $endpoint,
+                'http_status' => $response->status(),
             ]);
 
-            if (isset($response['status'], $response['data']['valid']) && $response['status'] === true && $response['data']['valid'] === true) {
-                $businessInfo->is_aadhaar_verified = '1';
-                $businessInfo->save();
+            if (!$response->successful()) {
+                return $this->returnResponse(
+                    false,
+                    $data['message'] ?? 'Bank verification failed.'
+                );
             }
-            dd($response->json());
-            DB::commit();
-            return $this->returnResponse(true, $response['data']['message'] ?? 'Aadhaar verification completed');
-        } catch (\Exception $e) {
-            DB::commit();
+
+            if (
+                ($data['status_code'] ?? null) === 200 &&
+                ($data['status'] ?? null) === 'success'
+            ) {
+                DB::beginTransaction();
+
+                try {
+                    $businessInfo->is_bank_details_verify = '1';
+                    $businessInfo->save();
+
+                    DocumentVerificationResponse::create([
+                        'user_id' => $bankDetails->user_id,
+                        'document_type' => 'bank_account',
+                        'verification_response' =>  $data,
+                    ]);
+
+                    DB::commit();
+
+                    return $this->returnResponse(
+                        true,
+                        $data['message'] ?? 'Bank verification completed.'
+                    );
+                } catch (\Throwable $e) {
+                    DB::rollBack();
+                    throw $e;
+                }
+            }
+
+            return $this->returnResponse(
+                false,
+                $data['message'] ?? 'Bank verification failed.'
+            );
+        } catch (\Throwable $e) {
+
+            Log::error('Bank verification error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
             ], 500);
         }
     }
-
 
     public function initiateVideoKyc(Request $request)
     {
@@ -503,52 +823,6 @@ class DocumentVerificationController extends Controller
                 'message' => 'Kyc link generated successfully',
                 'data' => $apiResponse->json()
             ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => false,
-                'message' => $e->getMessage()
-            ]);
-        }
-    }
-
-    public function createUserToCashFree(Request $request)
-    {
-        try {
-
-            $user_id = 'USER' . $this->userId;
-            $date = '2024-12-01';
-            $payload = [
-                'name' => $this->user->name ?? '-',
-                'email' => $this->user->email ?? '-',
-                'phone' => $this->user->mobile ?? '-',
-                'address' => $businessInfo->address ?? '-',
-                'user_id' => $user_id
-            ];
-
-            $endpoint = 'https://api.cashfree.com/verification/user';
-            $response = Http::withHeaders([
-                'Content-Type' => 'application/json',
-                'x-client-id' => $this->clientID,
-                'x-client-secret' => $this->clientSecret,
-                'x-api-version' => $date
-            ])->post($endpoint, $payload);
-
-            $finalResponse = $response->json();
-            $data = [];
-            if ($finalResponse['code'] == 'user_id_already_exists') {
-                $data = [
-                    'user_id' => $user_id,
-
-                ];
-            } else {
-                $data = [
-                    'user_id' => $finalResponse['user_id'],
-                    'user_reference_id' => $finalResponse['user_reference_id'] ?? null,
-
-                ];
-            }
-
-            return $data;
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,

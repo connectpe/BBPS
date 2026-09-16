@@ -281,7 +281,7 @@ class PayinOrdersController extends Controller
                 try {
 
                     $validator->addRules([
-                        'amount' => 'required|numeric|min:1',
+                        'amount' => 'required|numeric|min:100',
                     ]);
 
                     $this->validateError($validator);
@@ -301,8 +301,10 @@ class PayinOrdersController extends Controller
                         'accessKeyResponse' => $accessKeyResponse
                     ]);
 
-                    if (!($accessKeyResponse['status'] ?? false) || empty($accessKeyResponse['access_key'] ?? null)) {
-                        throw new Exception("Unable to generate Payment Gateway access key", 400);
+
+                    if (!($accessKeyResponse['status'] ?? false) || !($accessKeyResponse['response']['status'] ?? false) || empty($accessKeyResponse['access_key'] ?? null)) {
+                        $errorMessage = $accessKeyResponse['response']['error_desc'] ?? $accessKeyResponse['response']['data'] ?? 'Unable to generate Payment Gateway access key';
+                        throw new Exception($errorMessage, 400);
                     }
 
                     $accessKey = $accessKeyResponse['access_key'] ?? null;

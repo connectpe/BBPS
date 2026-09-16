@@ -8,6 +8,7 @@ use App\Models\Agreement;
 use App\Models\AssociatedPartner;
 use App\Models\BusinessCategory;
 use App\Models\BusinessInfo;
+use App\Models\City;
 use App\Models\ComplaintsCategory;
 use App\Models\DefaultProvider;
 use App\Models\GlobalService;
@@ -19,6 +20,7 @@ use App\Models\PaymentMode;
 use App\Models\Provider;
 use App\Models\Scheme;
 use App\Models\SchemeRule;
+use App\Models\State;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\UserAssignedToSupport;
@@ -187,6 +189,8 @@ class AdminController extends Controller
                     ->where('is_active', '1')
                     ->get();
             });
+
+            $data['states'] = State::select('state_name')->orderBy('state_name','asc')->get();
 
             $data['webhookUrl'] = Cache::remember("{$cachePrefix}webhookUrl", 18000, function () use ($userId) {
                 return WebHookUrl::with('service')->select('id', 'url', 'service_id', 'service_slug', 'created_at')->where('user_id', $userId)->orderBy('id', 'desc')->get();
