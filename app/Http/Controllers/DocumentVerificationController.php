@@ -243,9 +243,9 @@ class DocumentVerificationController extends Controller
                 return $this->returnResponse(false, 'Your Business Pan number doesn\'t exist.');
             }
 
-            if (!$businessInfo->business_pan_name) {
-                return $this->returnResponse(false, 'Your Business Pan name doesn\'t exist.');
-            }
+            // if (!$businessInfo->business_pan_name) {
+            //     return $this->returnResponse(false, 'Your Business Pan name doesn\'t exist.');
+            // }
 
             $endpoint  =  $this->docVerifyBaseUrl . "pan/pan";
             // $apiKey  =  $this->docVerifyTestKey;  
