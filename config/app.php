@@ -137,4 +137,10 @@ return [
     ],
 
 
+    'easebuzz'  => [
+        'EASEBUZZ_KEY' =>  env('EASEBUZZ_KEY'),
+        'EASEBUZZ_SALT' =>  env('EASEBUZZ_SALT'),
+    ],
+
+
 ];
