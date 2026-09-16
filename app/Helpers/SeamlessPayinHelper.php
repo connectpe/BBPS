@@ -13,8 +13,8 @@ class SeamlessPayinHelper
     {
         try {
 
-            $key = config('app.easebuzz.EASEBUZZ_KEY');
-            $salt = config('app.easebuzz.EASEBUZZ_SALT');
+            $key = $data['key'];
+            $salt = $data['salt'];
 
             $txnid = $data['transaction_id'] ?? 'TXN_' . strtoupper(Str::random(15));
 
