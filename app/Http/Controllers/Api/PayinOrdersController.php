@@ -382,7 +382,7 @@ class PayinOrdersController extends Controller
                             'tax' => $feeData['tax'],
                             'net_amount' => $feeData['netAmount'],
                             'user_id' => $userId,
-                            'txn_order_id' => 'null',
+                            'txn_order_id' => $connectpeOrderId,
                             'qr_intent' => $intentUrl,
                             'res_message' => $result['msg_desc'] ?? null,
                             'response' => json_encode($result),
