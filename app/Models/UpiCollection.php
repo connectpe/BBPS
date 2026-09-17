@@ -29,6 +29,7 @@ class UpiCollection extends Model
         'utr',
         'status',
         'is_auto_settlement',
+        'is_webhook_received',
         'is_webhook_sent',
         'webhook_sent_at',
         'is_txn_credited',
