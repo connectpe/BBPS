@@ -120,9 +120,9 @@ class CommonHelper
         }
 
         $key = $header['php-auth-user'][0];
-        $password = hash('sha512', $header['php-auth-pw'][0]);
+        $password = $header['php-auth-pw'][0];
 
-        $OauthClient = OauthUser::select('user_id', 'service_id')
+        $OauthClient = OauthUser::select('user_id', 'service_id','client_id','client_secret')
             ->where([
                 'client_id' => $key,
                 'client_secret' => $password,
