@@ -2583,7 +2583,9 @@ class AdminController extends Controller
 
 
 
-    public function seamlessUpiCollection(){
-        return view('UpiServices.seamless-upi-collection');
+    public function seamlessUpiCollection()
+    {
+        $users = User::select('id', 'name', 'email')->where('role_id', 2)->orderBy('name')->get();
+        return view('UpiServices.seamless-upi-collection', compact('users'));
     }
 }

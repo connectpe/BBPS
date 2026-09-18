@@ -116,6 +116,11 @@ class User extends Authenticatable
         return $this->hasMany(\App\Models\LoadMoneyRequest::class, 'user_id');
     }
 
+    public function seamlessUpiCollections()
+    {
+        return $this->hasMany(\App\Models\SeamlessUpiCollection::class, 'user_id');
+    }
+
 
     // Masked email 
     public function getMaskedEmailAttribute()

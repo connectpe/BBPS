@@ -3,23 +3,28 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class PayinCheckStatusController extends Controller
 {
-    public function checkStatus($clientTxnId = null)
+    public function checkStatus($custTxnId = null)
     {
         //   dd($clientTxnId);
-        $type = DB::table('kavach_payins')->where('client_txn_id', $clientTxnId)->first();
+        $type = DB::table('seamless_upi_collections')->where('cust_txn_id', $custTxnId)->first();
+        $userid = $type->user_id;
         // dd($type->type);
-        switch ($type->type) {
+        switch ($type->route) {
             case 'cgpey':
                 try {
 
                     $url =  $this->cgpeyCheckStatusUrl;
 
                     $payload = [
-                        'transaction_id' => $clientTxnId ?? NULL,
+                        'transaction_id' => $custTxnId ?? NULL,
                     ];
 
                     $header = [
@@ -67,6 +72,113 @@ class PayinCheckStatusController extends Controller
                 } catch (\Exception $e) {
                     return response()->json([
                         'status' => 'error',
+                        'message' => $e->getMessage(),
+                    ], 500);
+                }
+                break;
+
+            case 'easebuzz':
+                try {
+
+                    $transaction = DB::table('seamless_upi_collections')
+                        ->where('cust_txn_id', $custTxnId)
+                        ->first();
+
+                    if (!$transaction) {
+                        return response()->json([
+                            'status' => false,
+                            'message' => 'Transaction not found',
+                        ], 404);
+                    }
+
+                    if (in_array(strtolower($transaction->status), ['success', 'failed'])) {
+
+                        return response()->json([
+                            'status' => true,
+                            'message' => 'Transaction status already finalized',
+                            'data' => [
+                                'transaction_id' => $transaction->cust_txn_id,
+                                'order_id'       => $transaction->connectpe_order_id,
+                                'amount'         => $transaction->amount,
+                                'status'         => $transaction->status,
+                                'utr'            => $transaction->utr,
+                            ],
+                        ]);
+                    }
+
+                    $oauthUser = DB::table('oauth_users')->where('user_id', $userid)->first();
+
+                    $key  = $oauthUser->client_id == '31ZZC7TRU' ? 'ZBCLPSC4KY' : $oauthUser->client_id;
+                    $salt = $oauthUser->client_secret == 'SUO1H846U' ? 'QZBZ8QDCP1' : $oauthUser->client_secret;
+
+                    $url = 'https://dashboard.easebuzz.in/transaction/v2.1/retrieve';
+
+                    $txnid = $custTxnId;
+
+                    // Hash sequence:
+                    // key|txnid|salt
+                    $hashString = $key . '|' . $txnid . '|' . $salt;
+
+                    $hash = hash('sha512', $hashString);
+
+                    Log::info('Easebuzz Check Status Request', [
+                        'txnid' => $txnid,
+                        'hash_string' => $hashString,
+                        'url' => $url,
+                    ]);
+
+                    // Send request
+                    $response = Http::asForm()
+                        ->acceptJson()
+                        ->post($url, [
+                            'key'   => $key,
+                            'txnid' => $txnid,
+                            'hash'  => $hash,
+                        ]);
+
+                    $result = $response->json();
+
+                    Log::info('Easebuzz Check Status Response', [
+                        'txnid' => $txnid,
+                        'http_status' => $response->status(),
+                        'response' => $result,
+                    ]);
+
+                    if (!$response->successful()) {
+                        return response()->json([
+                            'status' => false,
+                            'message' => 'Easebuzz API request failed',
+                            'data' => $result,
+                        ], $response->status());
+                    }
+
+                    DB::table('seamless_upi_collections')
+                        ->where('cust_txn_id', $custTxnId)
+                        ->update([
+                            'status' => $result['msg']['status'] ?? null,
+                            'utr'    => $result['msg']['bank_ref_num'] ?? null,
+                        ]);
+
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'Transaction status fetched successfully',
+                        'data' => [
+                            'transaction_id' => $custTxnId,
+                            'order_id' => $result['msg']['order_id'] ?? null,
+                            'amount' => $result['msg']['amount'] ?? null,
+                            'status' => $result['msg']['status'] ?? null,
+                            'utr'    => $result['msg']['bank_ref_num'] ?? null,
+                        ],
+                    ]);
+                } catch (\Exception $e) {
+
+                    Log::error('Easebuzz Check Status Error', [
+                        'txnid' => $custTxnId,
+                        'error' => $e->getMessage(),
+                    ]);
+
+                    return response()->json([
+                        'status' => false,
                         'message' => $e->getMessage(),
                     ], 500);
                 }

@@ -379,26 +379,26 @@ class PayinOrdersController extends Controller
                             'updated_at' => now(),
                         ]);
 
-                        DB::table('upi_collections')->insert([
-                            'cust_name' => $request->name,
-                            'cust_mobile' => $request->mobile_number,
-                            'cust_email' => $request->email,
-                            'cust_txn_id' =>  $request->transaction_id,
-                            'connectpe_order_id' => $connectpeOrderId,
-                            'amount' => $request->amount,
-                            'fee' => $feeData['fee'],
-                            'tax' => $feeData['tax'],
-                            'net_amount' => $feeData['netAmount'],
-                            'user_id' => $userId,
-                            'txn_order_id' => $connectpeOrderId,
-                            'qr_intent' => $intentUrl,
-                            'res_message' => $result['msg_desc'] ?? null,
-                            'response' => json_encode($result),
-                            'status' => 'initiated',
-                            'type'    => $providerSlug,
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ]);
+                        // DB::table('upi_collections')->insert([
+                        //     'cust_name' => $request->name,
+                        //     'cust_mobile' => $request->mobile_number,
+                        //     'cust_email' => $request->email,
+                        //     'cust_txn_id' =>  $request->transaction_id,
+                        //     'connectpe_order_id' => $connectpeOrderId,
+                        //     'amount' => $request->amount,
+                        //     'fee' => $feeData['fee'],
+                        //     'tax' => $feeData['tax'],
+                        //     'net_amount' => $feeData['netAmount'],
+                        //     'user_id' => $userId,
+                        //     'txn_order_id' => $connectpeOrderId,
+                        //     'qr_intent' => $intentUrl,
+                        //     'res_message' => $result['msg_desc'] ?? null,
+                        //     'response' => json_encode($result),
+                        //     'status' => 'initiated',
+                        //     'type'    => $providerSlug,
+                        //     'created_at' => now(),
+                        //     'updated_at' => now(),
+                        // ]);
 
                         return response()->json([
                             'status'  => true,
@@ -600,8 +600,9 @@ class PayinOrdersController extends Controller
 
             case 'easebuzz':
 
-                $key = 'XIH4IP6A3F';
-                $salt = 'FJ99A4834P';
+                $oauthUser = DB::table('oauth_users')->where('user_id', $transaction->user_id)->first();
+                $key  = $oauthUser->client_id == '31ZZC7TRU' ? 'ZBCLPSC4KY' : $oauthUser->client_id;
+                $salt = $oauthUser->client_secret == 'SUO1H846U' ? 'QZBZ8QDCP1' : $oauthUser->client_secret;
                 $txnid = $clientRefId;
 
                 $hash = $key . '|' . $txnid . '|' . $salt;
