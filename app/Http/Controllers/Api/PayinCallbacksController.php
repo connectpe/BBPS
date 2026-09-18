@@ -256,8 +256,24 @@ class PayinCallbacksController extends Controller
                         ], 404);
                     }
 
+                    if ($collection->is_webhook_received == 1) {
+
+                        Log::info('Callback', [
+                            'Duplicate Callback' => $data
+                        ]);
+
+                        return response()->json([
+                            'success' => true,
+                            'message' => 'Duplicate Callback received'
+                        ], 200);
+                    }
+
                     // Normalize status
                     $status = strtolower($data['status'] ?? 'pending');
+
+                    if ($status == 'failure') {
+                        $status = 'failed';
+                    }
 
                     if (! in_array($status, ['success', 'failed', 'pending'])) {
                         $status = 'pending';
@@ -270,6 +286,7 @@ class PayinCallbacksController extends Controller
                             'status'   => $status,
                             'utr'      => $data['bank_ref_num'] ?? null,
                             'txn_order_id' => $data['easepayid'] ?? null,
+                            'is_webhook_received' => 1,
                             'route'     => $type,
                             'updated_at' => now()
                         ]);

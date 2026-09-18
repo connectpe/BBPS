@@ -27,6 +27,7 @@ class SeamlessUpiCollection extends Model
         'response',
         'utr',
         'is_auto_settlement',
+        'is_webhook_received',
         'is_webhook_send',
         'status',
         'webhook_send_at'

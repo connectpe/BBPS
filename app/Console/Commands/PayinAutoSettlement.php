@@ -1,28 +1,23 @@
-<?php
 
-namespace App\Console\Commands;
+<?php
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Carbon\Carbon;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class PayinAutoSettlement extends Command
 {
     /**
      * The name and signature of the console command.
-     *
-     * @var string
      */
     protected $signature = 'payin:auto-settlement';
 
     /**
      * The console command description.
-     *
-     * @var string
      */
-    protected $description = 'Auto settlement Payin Orders';
+    protected $description = 'Auto settle all successful Payin transactions';
 
     /**
      * Execute the console command.
@@ -31,84 +26,64 @@ class PayinAutoSettlement extends Command
     {
         $this->info('Auto Settlement Started...');
 
-        Log::info("Auto Settlement started");
-
-        // dd(1);
-
+        Log::info('Payin Auto Settlement Started');
 
         try {
-            $time = 30;
-            $eligibleUsers = DB::table('upi_collections')
+
+            $today = Carbon::today();
+
+            $eligibleUsers = DB::table('seamless_upi_collections')
                 ->select('user_id')
-                ->where('is_auto_settlement', '0')
                 ->where('status', 'success')
+                ->where('is_auto_settlement', '0')
+                ->whereNotNull('user_id')
                 ->where('user_id', '!=', '')
-                ->where('created_at', '<', now()->subHours(4))
+                ->where('created_at', '<', $today)
                 ->distinct()
                 ->get();
 
-            // dd($eligibleUsers);
-            $count = 0;
-
             if ($eligibleUsers->isEmpty()) {
+
                 $this->info('No pending settlements found.');
+
+                Log::info('Payin Auto Settlement: No pending settlements found.');
+
                 return 0;
             }
-            // dd($eligibleUsers);
 
-            foreach ($eligibleUsers as $user) {
-                // dd($user);
-                $userId = $user->user_id;
-                $cutoffTime = Carbon::now()->subMinutes($time);
+            $count = 0;
 
-                $alreadySettled = DB::table('user_settlements')
-                    ->where('user_id', $userId)
-                    ->where('created_at', '>', $cutoffTime)
-                    ->exists();
+            foreach ($eligibleUsers as $eligibleUser) {
 
-                if ($alreadySettled) {
-                    continue;
-                }
+                $userId = $eligibleUser->user_id;
 
-
-                $totalAmount = DB::table('upi_collections')
+                $transactions = DB::table('seamless_upi_collections')
                     ->where('user_id', $userId)
                     ->where('status', 'success')
                     ->where('is_auto_settlement', '0')
-                    ->where('created_at', '<', now()->subHours(4))
-                    ->sum('net_amount');
+                    ->where('created_at', '<', $today);
 
-                $totalPaidAmount = DB::table('upi_collections')
-                    ->where('user_id', $userId)
-                    ->where('status', 'success')
-                    ->where('is_auto_settlement', '0')
-                    ->where('created_at', '<', now()->subHours(4))
-                    ->sum('amount');
+                $totalPaidAmount = (float) $transactions->sum('amount');
 
-                // dd($totalAmount);
-                $fee = DB::table('upi_collections')
-                    ->where('user_id', $userId)
-                    ->where('status', 'success')
-                    ->where('is_auto_settlement', '0')
-                    ->where('created_at', '<', now()->subHours(4))
-                    ->sum('fee');
+                $fee = (float) $transactions->sum('fee');
 
-                $tax = DB::table('upi_collections')
-                    ->where('user_id', $userId)
-                    ->where('status', 'success')
-                    ->where('is_auto_settlement', '0')
-                    ->where('created_at', '<', now()->subHours(4))
-                    ->sum('tax');
+                $tax = (float) $transactions->sum('tax');
 
-                // dd($totalAmount);
+                $totalAmount = (float) $transactions->sum('net_amount');
 
                 if ($totalAmount <= 0) {
                     continue;
                 }
 
-                $user = DB::table('users')->where('id', $userId)->first();
+                $user = DB::table('users')
+                    ->where('id', $userId)
+                    ->first();
 
                 if (!$user) {
+                    Log::warning('Auto Settlement: User not found', [
+                        'user_id' => $userId,
+                    ]);
+
                     continue;
                 }
 
@@ -116,92 +91,148 @@ class PayinAutoSettlement extends Command
 
                 try {
 
-                    $newPayingBalance = $user->payin_wallet_amount - $totalAmount;
-                    // dd($newPayingBalance);
-                    if ($newPayingBalance < 0) $newPayingBalance = 0;
+                    $openingPayinBalance = (float) $user->payin_wallet_amount;
 
+                    $openingPrimaryBalance = (float) $user->transaction_amount;
 
-                    $newPrimaryBalance = $user->transaction_amount + $totalAmount;
-                    // dd($newPrimaryBalance);
+                    $newPayinBalance = $openingPayinBalance - $totalAmount;
 
+                    if ($newPayinBalance < 0) {
 
-                    DB::table('users')->where('id', $userId)->update([
-                        'payin_wallet_amount' => $newPayingBalance,
-                        'transaction_amount' => $newPrimaryBalance,
-                        'updated_at' => now(),
-                    ]);
-
-                    DB::table('upi_collections')
-                        ->where('user_id', $userId)
-                        ->where('status', 'success')
-                        ->where('is_auto_settlement', '0')
-                        ->where('created_at', '<', now()->subHours(4))
-                        ->update([
-                            'is_auto_settlement' => '1',
-                            'updated_at' => now(),
+                        Log::warning('Payin wallet balance is insufficient for settlement', [
+                            'user_id' => $userId,
+                            'payin_balance' => $openingPayinBalance,
+                            'settlement_amount' => $totalAmount,
+                            'shortfall_amount' => $openingPayinBalance - $totalAmount,
                         ]);
 
+                        $newPayinBalance = 0;
+                    }
+
+                    $newPrimaryBalance = $openingPrimaryBalance + $totalAmount;
+
+                    DB::table('users')
+                        ->where('id', $userId)
+                        ->update([
+                            'payin_wallet_amount' => $newPayinBalance,
+                            'transaction_amount' => $newPrimaryBalance,
+                            'updated_at' => now(),
+                        ]);
 
                     $settleID = 'SET' . time() . rand(10000, 99999);
 
                     DB::table('user_settlements')->insert([
                         'user_id' => $userId,
-                        'connectpe_id' => '',
                         'settlement_ref_id' => $settleID,
                         'tax' => $tax,
-                        'status' => 'success',
                         'fee' => $fee,
                         'amount' => $totalPaidAmount,
                         'net_amount' => $totalAmount,
+                        'status' => 'success',
                         'from_wallet' => 'paying_wallet',
                         'to_wallet' => 'primary_wallet',
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);
 
-                    $transaction_id = $this->generateUniqueTxnId();
-
-                    // dd($transaction_id);
+                    $transactionId = $this->generateUniqueTxnId();
 
                     DB::table('ladgers')->insert([
-                        'request_id' => $transaction_id,
-                        'connectpe_id' => '',
+                        'request_id' => $transactionId,
                         'reference_no' => $settleID,
                         'user_id' => $userId,
                         'total_txn_amount' => '+' . $totalAmount,
-                        'txn_amount' =>  $totalAmount,
+                        'txn_amount' => $totalAmount,
                         'txn_type' => 'cr',
                         'tr_date' => now(),
-                        'remarks' => $totalAmount . ' credited against ' . $user->transaction_amount,
-                        'opening_balance' => $user->transaction_amount,
+                        'remarks' => $totalAmount . ' credited from payin wallet',
+                        'opening_balance' => $openingPrimaryBalance,
                         'closing_balanace' => $newPrimaryBalance,
                     ]);
 
+
+                    DB::table('seamless_upi_collections')
+                        ->where('user_id', $userId)
+                        ->where('status', 'success')
+                        ->where('is_auto_settlement', '0')
+                        ->where('created_at', '<', $today)
+                        ->update([
+                            'is_auto_settlement' => '1',
+                            'updated_at' => now(),
+                        ]);
+
                     DB::commit();
+
                     $count++;
-                } catch (\Exception $e) {
+
+                    $this->info(
+                        "User {$userId} settled successfully. " .
+                            "Amount: {$totalAmount}"
+                    );
+
+                    Log::info('Payin Auto Settlement Successful', [
+                        'user_id' => $userId,
+                        'settlement_ref_id' => $settleID,
+                        'amount' => $totalAmount,
+                        'gross_amount' => $totalPaidAmount,
+                        'fee' => $fee,
+                        'tax' => $tax,
+                    ]);
+                } catch (\Throwable $e) {
+
                     DB::rollBack();
-                    $this->error("Error settling user {$userId}: " . $e->getMessage());
+
+                    $this->error(
+                        "Error settling user {$userId}: " .
+                            $e->getMessage()
+                    );
+
+                    Log::error('Payin Auto Settlement Failed', [
+                        'user_id' => $userId,
+                        'error' => $e->getMessage(),
+                    ]);
                 }
             }
 
-            Log::info("$count} user(s) settled successfully.");
+            Log::info('Payin Auto Settlement Completed', [
+                'users_settled' => $count,
+            ]);
 
-            $this->info("$count} user(s) settled successfully.");
+            $this->info(
+                "{$count} user(s) settled successfully."
+            );
+
             return 0;
-        } catch (\Exception $e) {
-            $this->error("Auto Settlement Fail: " . $e->getMessage());
+        } catch (\Throwable $e) {
+
+            Log::error('Payin Auto Settlement Failed', [
+                'error' => $e->getMessage(),
+            ]);
+
+            $this->error(
+                'Auto Settlement Failed: ' .
+                    $e->getMessage()
+            );
+
             return 1;
         }
     }
 
+    /**
+     * Generate unique transaction ID.
+     */
     private function generateUniqueTxnId(): string
     {
         do {
             $txnId = 'TXN' . strtoupper(Str::random(8)) . time();
         } while (
-            DB::table('transactions')->where('txn_id', $txnId)->exists() ||
-            DB::table('transactions')->where('txn_ref_id', $txnId)->exists()
+            DB::table('transactions')
+            ->where('txn_id', $txnId)
+            ->exists()
+            ||
+            DB::table('transactions')
+            ->where('txn_ref_id', $txnId)
+            ->exists()
         );
 
         return $txnId;

@@ -92,7 +92,7 @@
                         @endif
                         <th>Status</th>
                         <th>Created At</th>
-                        <th>Action</th>
+                        <!-- <th>Action</th> -->
                     </tr>
                 </thead>
             </table>
@@ -175,26 +175,24 @@
                     render: function(data) {
                         return formatDateTime(data);
                     }
-                },
-                {
-                    data: 'id',
-                    orderable: false,
-                    searchable: false,
-                    render: function(data, type, row) {
-                        return `
-            <button type="button"
-                class="btn btn-sm btn-primary check-status"
-                data-id="${data}"
-                title="Check Status">
-                <i class="bi bi-patch-check"></i>
-            </button>
-        `;
-                    }
                 }
+        //         {
+        //             data: 'id',
+        //             orderable: false,
+        //             searchable: false,
+        //             render: function(data, type, row) {
+        //                 return `
+        //     <button type="button"
+        //         class="btn btn-sm btn-primary check-status"
+        //         data-cust-txn-id="${row.cust_txn_id}"
+        //         title="Check Status">
+        //         <i class="bi bi-patch-check"></i>
+        //     </button>
+        // `;
+        //             }
+        //         }
             ],
-            order: [
-                [0, 'DESC']
-            ]
+            order: [ ]
         });
 
         $('#applyFilter').click(function() {
@@ -208,6 +206,34 @@
             $('#filterDateFrom').val('');
             $('#filterDateTo').val('');
             table.draw();
+        });
+
+    });
+
+
+
+    // check status button click event
+    $(document).on('click', '.check-status', function() {
+
+        let custTxnId = $(this).data('cust-txn-id');
+        console.log('Customer Transaction ID:', custTxnId);
+
+        let url = "{{ url('/api/payin/checkStatus') }}/" + custTxnId;
+        console.log('Check Status URL:', url);
+
+        $.ajax({
+            // url: `/api/payin/checkStatus/${custTxnId}`,
+            url: url,
+            type: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                console.log('Check Status Response:', response);
+            },
+            error: function(xhr) {
+                console.log('Error:', xhr.responseText);
+            }
         });
 
     });

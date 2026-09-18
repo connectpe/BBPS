@@ -43,7 +43,7 @@ Route::group(['middleware' => ['logs', 'basicAuth']], function () {
 Route::prefix('payin')->group(function () {
     Route::post('/orders', [PayinOrdersController::class, 'createOrders']);
     Route::post('/callbacks/{type}', [PayinCallbacksController::class, 'callbacks']);
-    Route::post('/checkStatus', [PayinCheckStatusController::class, 'checkStatus']);
+    Route::post('/checkStatus/{custTxnId}', [PayinCheckStatusController::class, 'checkStatus'])->name('payin.checkStatus');
 });
 
 Route::group(['middleware' => ['logs', 'basicAuth']], function () {
