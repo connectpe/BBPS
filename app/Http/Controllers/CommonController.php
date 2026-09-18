@@ -920,13 +920,31 @@ class CommonController extends Controller
                 } else {
                     $request['order'] = ['id', 'DESC'];
                 }
-                if (! isset($request['where']) || ! is_array($request['where'])) {
-                    $request['where'] = [];
+                $where = [];
+
+                if (is_array($request->input('where'))) {
+                    $where = $request->input('where');
                 }
+
+                if ($request->filled('user_id')) {
+                    $where[] = ['user_id', '=', $request->user_id];
+                }
+
+                $request->merge([
+                    'where' => $where,
+                ]);
+
+                $request['whereIn'] = 'user_id';
+
                 if (Auth::user()->role_id == '1') {
-                    $request['parentData'] = 'all';
+
+                    if ($request->filled('user_id')) {
+                        $request['parentData'] = [(int)$request->user_id];
+                    } else {
+                        $request['parentData'] = 'all';
+                    }
+
                 } else {
-                    $request['whereIn'] = 'user_id';
                     $request['parentData'] = [Auth::user()->id];
                 }
                 break;
@@ -1194,6 +1212,7 @@ class CommonController extends Controller
                             $q->where('connectpe_id', 'LIKE', "%{$value}%")
                                 ->orWhere('order_ref_id', 'LIKE', "%{$value}%")
                                 ->orWhere('client_ref_id', 'LIKE', "%{$value}%");
+
                             return;
                         }
 
