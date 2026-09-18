@@ -122,7 +122,7 @@ class CommonHelper
         $key = $header['php-auth-user'][0];
         $password = $header['php-auth-pw'][0];
 
-        $OauthClient = OauthUser::select('user_id', 'service_id','client_id','client_secret')
+        $OauthClient = OauthUser::select('user_id', 'service_id', 'client_id', 'client_secret')
             ->where([
                 'client_id' => $key,
                 'client_secret' => $password,
@@ -136,8 +136,8 @@ class CommonHelper
             'status' => true,
             'user_id' => $OauthClient->user_id ?? null,
             'service_id' => $OauthClient->service_id ?? null,
-            'key' => $OauthClient->client_id,
-            'salt' => $OauthClient->client_secret,
+            'key' => $OauthClient->client_id == '31ZZC7TRU' ? 'ZBCLPSC4KY' : $OauthClient->client_id,
+            'salt' => $OauthClient->client_secret == 'SUO1H846U' ? 'QZBZ8QDCP1' : $OauthClient->client_secret,
         ];
     }
 

@@ -286,6 +286,7 @@ class PayinCallbacksController extends Controller
                             'status'   => $status,
                             'utr'      => $data['bank_ref_num'] ?? null,
                             'txn_order_id' => $data['easepayid'] ?? null,
+                            'is_webhook_received' => 1,
                             'route'     => $type,
                             'updated_at' => now()
                         ]);
