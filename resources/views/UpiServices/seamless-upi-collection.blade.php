@@ -8,7 +8,8 @@
     <div class="accordion mb-3" id="filterAccordion">
         <div class="accordion-item">
             <h2 class="accordion-header">
-                <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFilter">Filter</button>
+                <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapseFilter">Filter</button>
             </h2>
             <div id="collapseFilter" class="accordion-collapse collapse">
                 <div class="accordion-body">
@@ -18,8 +19,18 @@
                             <input type="text" id="filterCustomer" class="form-control" placeholder="Customer Name">
                         </div>
                         <div class="col-md-3">
+                            <label class="form-label">User</label>
+                            <select id="filterUser" class="form-control">
+                                <option value="">All Users</option>
+                                @foreach ($users as $user)
+                                    <option value="{{ $user->id }}">{{ $user->name }} {{ $user->email }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3">
                             <label class="form-label">Any Key</label>
-                            <input type="text" id="filterKeyword" class="form-control" placeholder="Txn ID / Order ID / UTR">
+                            <input type="text" id="filterKeyword" class="form-control"
+                                placeholder="Txn ID / Order ID / UTR">
                         </div>
                         <div class="col-md-2">
                             <label class="form-label">Status</label>
@@ -58,6 +69,7 @@
                     <thead>
                         <tr>
                             <th>#</th>
+                            <th>User</th>
                             <th>Customer</th>
                             <th>Email</th>
                             <th>Txn ID</th>
@@ -93,6 +105,7 @@
                         d._token = "{{ csrf_token() }}";
                         d.any_key = $('#filterKeyword').val();
                         d.cust_name = $('#filterCustomer').val();
+                        d.user_id = $('#filterUser').val();
                         d.status = $('#filterStatus').val();
                         d.date_from = $('#filterDateFrom').val();
                         d.date_to = $('#filterDateTo').val();
@@ -110,16 +123,52 @@
                         }
                     },
 
-                    {data: 'cust_name'},
-                    {data: 'cust_email'},
-                    {data: 'cust_txn_id'},
-                    {data: 'connectpe_order_id'},
-                    {data: 'cust_txn_id'},
-                    {data: 'utr'},
-                    {data: 'amount'},
-                    {data: 'fee'},
-                    {data: 'tax'},
-                    {data: 'net_amount'},
+                    {
+                        data: 'user',
+                        orderable: false,
+                        searchable: false,
+                        render: function(data) {
+                            if (!data) return '-';
+
+                            return `
+                                <div>
+                                    <div class="fw-semibold">${data.name ?? '-'}</div>
+                                    <small class="text-muted">${data.email ?? '-'}</small>
+                                </div>
+                            `;
+                        }
+                    },
+
+                    {
+                        data: 'cust_name'
+                    },
+                    {
+                        data: 'cust_email'
+                    },
+                    {
+                        data: 'cust_txn_id'
+                    },
+                    {
+                        data: 'connectpe_order_id'
+                    },
+                    {
+                        data: 'cust_txn_id'
+                    },
+                    {
+                        data: 'utr'
+                    },
+                    {
+                        data: 'amount'
+                    },
+                    {
+                        data: 'fee'
+                    },
+                    {
+                        data: 'tax'
+                    },
+                    {
+                        data: 'net_amount'
+                    },
 
                     {
                         data: 'is_auto_settlement',
@@ -183,6 +232,7 @@
             $('#resetFilter').click(function() {
                 $('#filterCustomer').val('');
                 $('#filterKeyword').val('');
+                $('#filterUser').val('');
                 $('#filterStatus').val('');
                 $('#filterDateFrom').val('');
                 $('#filterDateTo').val('');
