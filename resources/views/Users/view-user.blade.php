@@ -276,6 +276,89 @@
                         </span>
                     </div>
 
+                    <!-- Divider -->
+                    <hr class="my-3">
+
+                    <!-- Transaction Section -->
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-briefcase text-primary fs-4 me-2"></i>
+                        <h6 class="fw-bold mb-0">Main to Bank Account</h6>
+                    </div>
+
+                    <div>
+                        <form action="{{ route('main_to_bank_account') }}" id="bankTransferForm" method="post"
+                            class="border border-primary rounded"
+                            style="max-width: 500px; margin: 20px auto; padding: 20px;  font-family: Arial, sans-serif;">
+
+                            <!-- UTR No -->
+                            <div style="margin-bottom: 15px;">
+                                <label for="utr_no" style="display: block; margin-bottom: 5px; font-weight: bold;">
+                                    UTR No *
+                                </label>
+                                <input class="form-control" placeholder="UTR" name="utr_no" id="utr_no"
+                                    type="number" required style="width: 100%; padding: 8px; box-sizing: border-box; " />
+                            </div>
+
+                            <input type="hidden" name="user_id" id="user_id" value="{{ $businessInfo?->user_id }}">
+
+                            <!-- Amount -->
+                            <div style="margin-bottom: 15px;">
+                                <label for="transfer_amount"
+                                    style="display: block; margin-bottom: 5px; font-weight: bold;">
+                                    Amount *
+                                </label>
+                                <input class="form-control" placeholder="Amount" name="transfer_amount"
+                                    id="transfer_amount" type="number" required
+                                    style="width: 100%; padding: 8px; box-sizing: border-box; " />
+                            </div>
+
+                            <!-- Mode -->
+                            <div style="margin-bottom: 15px;">
+                                <label for="txn_mode" style="display: block; margin-bottom: 5px; font-weight: bold;">
+                                    Mode *
+                                </label>
+                                <select class="form-control" name="txn_mode" id="txn_mode" required
+                                    style="width: 100%; padding: 8px; box-sizing: border-box;  background: #fff;">
+                                    <option value="">-- Select Transaction Mode --</option>
+                                    <option value="UPI">UPI</option>
+                                    <option value="IMPS">IMPS</option>
+                                    <option value="NEFT">NEFT</option>
+                                    <option value="RTGS">RTGS</option>
+                                    <option value="BANK_TRANSFER">Bank Transfer</option>
+                                    <option value="CASH">Cash</option>
+                                    <option value="CHEQUE">Cheque</option>
+                                    <option value="CARD">Card</option>
+                                    <option value="NET_BANKING">Net Banking</option>
+                                    <option value="WALLET">Wallet</option>
+                                    <option value="AEPS">AEPS</option>
+                                    <option value="PAYMENT_LINK">Payment Link</option>
+                                    <option value="QR_CODE">QR Code</option>
+                                </select>
+                            </div>
+
+
+                            <!-- Remarks -->
+                            <div style="margin-bottom: 20px;">
+                                <label for="remarks" style="display: block; margin-bottom: 5px; font-weight: bold;">
+                                    Remarks *
+                                </label>
+                                <textarea class="form-control" name="remarks" id="remarks" required
+                                    style="width: 100%; padding: 8px; box-sizing: border-box;  height: 80px;" placeholder="Enter Remark"></textarea>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div style="text-align: center;">
+                                <button type="submit" id="submitBtn"
+                                    style="padding: 10px 20px; cursor: pointer; font-weight: bold;"
+                                    class="btn btn-primary">
+                                    Send
+                                </button>
+                            </div>
+
+                        </form>
+                    </div>
+
+
                 </div>
             </div>
         </div>
@@ -1016,5 +1099,60 @@
 
             });
         }
+    </script>
+
+    <script>
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        $('#bankTransferForm').on('submit', function(e) {
+            e.preventDefault();
+
+            let $submitBtn = $('#submitBtn');
+            let formData = new FormData(this);
+            $submitBtn.prop('disabled', true).text('Transferring ...');
+
+            $.ajax({
+                url: $(this).attr('action'),
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(response) {
+                    if (response.status) {
+                        $('#bankTransferForm')[0].reset();
+                        Swal.fire({
+                            icon: "success",
+                            title: "Success",
+                            text: response.message,
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: response.message ?? 'Some Error occured',
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    let errorMsg = 'Something went wrong';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMsg = xhr.responseJSON.message;
+                    }
+
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error",
+                        text: errorMsg,
+                    });
+                },
+                complete: function() {
+                    $submitBtn.prop('disabled', false).text('Send');
+                }
+            });
+        });
     </script>
 @endsection
