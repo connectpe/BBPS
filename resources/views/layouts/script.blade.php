@@ -146,36 +146,36 @@
 </script>
 
 
-@if(session('success'))
-<script>
-    Swal.fire({
-        icon: 'success',
-        title: 'Success',
-        text: "{{ session('success') }}",
-        timer: 3000,
-        showConfirmButton: false
-    });
-</script>
+@if (session('success'))
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: "{{ session('success') }}",
+            timer: 3000,
+            showConfirmButton: false
+        });
+    </script>
 @endif
 
-@if(session('error'))
-<script>
-    Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: "{{ session('error') }}",
-    });
-</script>
+@if (session('error'))
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: "{{ session('error') }}",
+        });
+    </script>
 @endif
 
-@if(session('info'))
-<script>
-    Swal.fire({
-        icon: 'info',
-        title: 'Info',
-        text: "{{ session('info') }}",
-    });
-</script>
+@if (session('info'))
+    <script>
+        Swal.fire({
+            icon: 'info',
+            title: 'Info',
+            text: "{{ session('info') }}",
+        });
+    </script>
 @endif
 
 
@@ -293,5 +293,48 @@
 
 
         return `${month}-${day}-${year}`;
+    }
+
+
+    function enableTablePolling(tableSelector, modelType, intervalMs = 1000) {
+        let table = $(tableSelector).DataTable();
+        let highestId = 0;
+
+        // Dynamically track the highest ID present in the current data payload
+        $(tableSelector).on('xhr.dt', function(e, settings, json, xhr) {
+            if (json && json.data && json.data.length > 0) {
+                json.data.forEach(row => {
+                    if (row.id > highestId) {
+                        highestId = row.id;
+                    }
+                });
+            }
+        });
+
+        // Start polling loop
+        setInterval(function() {
+            if (document.hidden) return;
+            $.ajax({
+                url: "{{ route('fetch_latest_records') }}",
+                type: "GET",
+                data: {
+                    type: modelType,
+                    last_id: highestId
+                },
+                success: function(response) {
+                    if (response.records && response.records.length > 0) {
+                        response.records.forEach(function(record) {
+                            // Append new row and redraw table without resetting pagination
+                            table.row.add(record).draw(false);
+
+                            // Update highest ID tracker
+                            if (record.id > highestId) {
+                                highestId = record.id;
+                            }
+                        });
+                    }
+                }
+            });
+        }, intervalMs);
     }
 </script>
