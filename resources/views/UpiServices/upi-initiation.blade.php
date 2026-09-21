@@ -77,6 +77,11 @@
                             <th>Created At</th>
                         </tr>
                     </thead>
+                    <tfoot>
+                        <tr style="font-weight: bold; background-color: #f8f9fa;">
+                            <!-- Footer cells will be injected dynamically via footerCallback -->
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
         </div>
@@ -89,6 +94,10 @@
             var table = $('#paymentTable').DataTable({
                 processing: true,
                 serverSide: true,
+                lengthMenu: [
+                    [10, 25, 50, 100, -1],
+                    [10, 25, 50, 100, "All"]
+                ],
                 ajax: {
                     url: "{{ url('fetch/upi-collection') }}",
                     type: "POST",
@@ -138,7 +147,10 @@
                     },
                     @if (auth()->user()->role_id != 2)
                         {
-                            data: 'type'
+                            data: 'route',
+                            render: function(data, type, row) {
+                                return '<b>' + (data ?? '') + '</b>';
+                            }
                         },
                     @endif {
                         data: 'status',
@@ -147,9 +159,9 @@
 
                             if (data === 'success') badge = 'success';
                             else if (data === 'failed') badge = 'danger';
-                            else if (data === 'initiated') badge = 'warning';
+                            else if (data === 'pending') badge = 'warning';
 
-                            return `<span class="badge bg-${badge}">${data}</span>`;
+                            return `<span class="badge bg-${badge}">${data.toUpperCase()}</span>`;
                         }
                     },
                     {
@@ -161,7 +173,47 @@
                 ],
                 order: [
                     [0, 'DESC']
-                ]
+                ],
+                footerCallback: function(row, data, start, end, display) {
+                    let api = this.api();
+
+                    let sumColumn = function(index) {
+                        let columnData = api.column(index, {
+                            page: 'current'
+                        }).data();
+                        return columnData.reduce(function(a, b) {
+                            let x = parseFloat(a) || 0;
+                            let y = parseFloat(b) || 0;
+                            return x + y;
+                        }, 0);
+                    };
+
+                    let amountSum = sumColumn(6);
+                    let feeSum = sumColumn(7);
+                    let taxSum = sumColumn(8);
+                    let netAmountSum = sumColumn(9);
+
+                    // Align the "Total:" text under the 'UTR' column (Index 5)
+                    let labelColSpan = 6;
+
+                    let footerHtml =
+                        `<td colspan="${labelColSpan}" style="text-align: right;"><strong>Total:</strong></td>` +
+                        `<td><strong>${amountSum.toFixed(2)}</strong></td>` +
+                        `<td><strong>${feeSum.toFixed(2)}</strong></td>` +
+                        `<td><strong>${taxSum.toFixed(2)}</strong></td>` +
+                        `<td><strong>${netAmountSum.toFixed(2)}</strong></td>`;
+
+                    // Fill the remaining tail columns to keep table row structure valid
+                    let totalColumns = api.columns().header().length;
+                    let filledColumns = labelColSpan + 4; // label span + 4 numerical sum columns
+                    let remainingCols = totalColumns - filledColumns;
+
+                    for (let i = 0; i < remainingCols; i++) {
+                        footerHtml += `<td></td>`;
+                    }
+
+                    $(api.table().footer()).find('tr').html(footerHtml);
+                }
             });
 
             $('#applyFilter').click(function() {
