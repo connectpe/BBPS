@@ -171,11 +171,32 @@ class PayinCheckStatusController extends Controller
                         ], $response->status());
                     }
 
+                    // Get Easebuzz response values
+                    $easebuzzStatus = $result['msg']['status'] ?? null;
+                    $easebuzzUtr    = $result['msg']['bank_ref_num'] ?? null;
+
+
+                    // Status missing
+                    if (empty($easebuzzStatus)) {
+
+                        Log::warning('Easebuzz status missing', [
+                            'txnid' => $custTxnId,
+                            'response' => $result,
+                        ]);
+
+                        return response()->json([
+                            'status' => false,
+                            'message' => 'Unable to fetch the transaction status. Please try again later.',
+                            'data' => $result,
+                        ], 422);
+                    }
+
+
                     DB::table('seamless_upi_collections')
                         ->where('cust_txn_id', $custTxnId)
                         ->update([
-                            'status' => $result['msg']['status'] ?? null,
-                            'utr'    => $result['msg']['bank_ref_num'] ?? null,
+                            'status' => $easebuzzStatus ?? null,
+                            'utr'    => $easebuzzUtr ?? null,
                         ]);
 
                     return response()->json([
@@ -185,8 +206,8 @@ class PayinCheckStatusController extends Controller
                             'transaction_id' => $custTxnId,
                             'order_id' => $result['msg']['order_id'] ?? null,
                             'amount' => $result['msg']['amount'] ?? null,
-                            'status' => $result['msg']['status'] ?? null,
-                            'utr'    => $result['msg']['bank_ref_num'] ?? null,
+                            'status' => $easebuzzStatus ?? null,
+                            'utr'    => $easebuzzUtr ?? null,
                         ],
                     ]);
                 } catch (\Exception $e) {
