@@ -1,11 +1,13 @@
-
 <?php
+
+namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+
 
 class PayinAutoSettlement extends Command
 {
@@ -144,7 +146,7 @@ class PayinAutoSettlement extends Command
                         'total_txn_amount' => '+' . $totalAmount,
                         'txn_amount' => $totalAmount,
                         'txn_type' => 'cr',
-                        'tr_date' => now(),
+                        'txn_date' => now(),
                         'remarks' => $totalAmount . ' credited from payin wallet',
                         'opening_balance' => $openingPrimaryBalance,
                         'closing_balanace' => $newPrimaryBalance,
@@ -226,12 +228,12 @@ class PayinAutoSettlement extends Command
         do {
             $txnId = 'TXN' . strtoupper(Str::random(8)) . time();
         } while (
-            DB::table('transactions')
-            ->where('txn_id', $txnId)
+            DB::table('ladgers')
+            ->where('reference_no', $txnId)
             ->exists()
             ||
-            DB::table('transactions')
-            ->where('txn_ref_id', $txnId)
+            DB::table('ladgers')
+            ->where('request_id', $txnId)
             ->exists()
         );
 

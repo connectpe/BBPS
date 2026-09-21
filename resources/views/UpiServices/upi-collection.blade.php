@@ -60,11 +60,11 @@
                 <div class="accordion-body">
                     <div class="row g-3 align-items-end">
                         <div class="col-md-3">
-                            <label class="form-label">Customer Name</label>
-                            <select id="filterUser" class="form-control form-select2">
-                                <option value="">All Customers</option>
-                                @foreach ($customers as $cust)
-                                    <option value="{{ $cust }}">{{ $cust }}</option>
+                            <label class="form-label">User</label>
+                            <select id="filterUser" class="form-control">
+                                <option value="">All Users</option>
+                                @foreach ($users as $user)
+                                    <option value="{{ $user->id }}">{{ $user->name }} {{ $user->email }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -102,6 +102,7 @@
                     <thead>
                         <tr>
                             <th>#</th>
+                            <th>User</th>
                             <th>Customer Name</th>
                             <th>Email</th>
                             <th>Cust Txn ID</th>
@@ -149,8 +150,8 @@
                         d._token = "{{ csrf_token() }}";
                         d.page_type = 'collection';
                         d.any_key = $('#filterKeyword').val();
-                        d.cust_name = $('#filterUser').val();
-                        // d.status = $('#filterStatus').val();
+                        // d.cust_name = $('#filterUser').val();
+                        d.user_id = $('#filterUser').val();
                         d.date_from = $('#filterDateFrom').val();
                         d.date_to = $('#filterDateTo').val();
                     }
@@ -161,6 +162,21 @@
                         searchable: false,
                         render: function(data, type, row, meta) {
                             return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    },
+                    {
+                        data: 'user',
+                        orderable: false,
+                        searchable: false,
+                        render: function(data) {
+                            if (!data) return '-';
+
+                            return `
+                                <div>
+                                    <div class="fw-semibold">${data.name ?? '-'}</div>
+                                    <small class="text-muted">${data.email ?? '-'}</small>
+                                </div>
+                            `;
                         }
                     },
                     {
@@ -242,13 +258,13 @@
                         }, 0);
                     };
 
-                    let amountSum = sumColumn(6);
-                    let feeSum = sumColumn(7);
-                    let taxSum = sumColumn(8);
-                    let netAmountSum = sumColumn(9);
+                    let amountSum = sumColumn(7);
+                    let feeSum = sumColumn(8);
+                    let taxSum = sumColumn(9);
+                    let netAmountSum = sumColumn(10);
 
                     // Align the "Total:" text under the 'UTR' column (Index 5)
-                    let labelColSpan = 6;
+                    let labelColSpan = 7;
 
                     let footerHtml =
                         `<td colspan="${labelColSpan}" style="text-align: right;"><strong>Total:</strong></td>` +
@@ -270,6 +286,9 @@
                 }
             });
 
+            @if (auth()->user()->role_id != 2)
+                enableTablePolling(paymentTable, 'upi-collection', intervalMs = 5000);
+            @endif
             $('#applyFilter').click(function() {
                 table.draw();
             });
@@ -277,7 +296,7 @@
             $('#resetFilter').click(function() {
                 $('#filterUser').val(null).trigger('change');
                 $('#filterKeyword').val('');
-                // $('#filterStatus').val('');
+                $('#filterUser').val('');
                 $('#filterDateFrom').val('');
                 $('#filterDateTo').val('');
                 table.draw();

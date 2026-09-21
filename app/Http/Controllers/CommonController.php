@@ -943,7 +943,6 @@ class CommonController extends Controller
                     } else {
                         $request['parentData'] = 'all';
                     }
-
                 } else {
                     $request['parentData'] = [Auth::user()->id];
                 }
@@ -1354,4 +1353,34 @@ class CommonController extends Controller
      * @param [type] $returnType
      * @return void
      */
+
+
+    // Fetch latest records.
+    public function fetchLatestRecords(Request $request)
+    {
+        $type = $request->input('type');
+        $lastId = $request->input('last_id', 0);
+
+        $allowedModels = [
+            'upi-collection' => \App\Models\SeamlessUpiCollection::class,
+            'seamless-upi-collection' => \App\Models\SeamlessUpiCollection::class,
+            'global-service' => \App\Models\GlobalService::class,
+        ];
+
+        if (!isset($allowedModels[$type])) {
+            return response()->json(['error' => 'Invalid model type'], 400);
+        }
+
+        $modelClass = $allowedModels[$type];
+
+        // Fetch records newer than the last known ID
+        $newRecords = $modelClass::query()
+            ->where('id', '>', $lastId)
+            ->orderBy('id', 'asc')
+            ->get();
+
+        return response()->json([
+            'records' => $newRecords
+        ]);
+    }
 }
