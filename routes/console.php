@@ -9,7 +9,7 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote')->hourly();
 
 Schedule::command('payin:auto-settlement')
-    ->dailyAt('04:00');
+    ->dailyAt('13:00');
 
-Schedule::command('update-payin-wallet')
-    ->everyMinute();    
+Schedule::command('app:update-payin-wallet')
+    ->everyMinute();   
