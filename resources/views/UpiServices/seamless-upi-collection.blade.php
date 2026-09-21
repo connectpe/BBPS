@@ -234,8 +234,9 @@
                         return `
             <button type="button"
                     class="btn btn-sm btn-primary check-status"
-                    data-cust-txn-id="${data}">
-                View
+                    data-cust-txn-id="${data}"
+                    title="Check Status">
+                <i class="bi bi-arrow-repeat"></i>
             </button>
         `;
                     }
@@ -304,6 +305,7 @@
         });
     });
 
+    // check status button click
     $(document).on('click', '.check-status', function() {
 
         let custTxnId = $(this).data('cust-txn-id');
@@ -351,40 +353,210 @@
                         title = 'Transaction Pending';
                     }
 
+                    // Status badge
+                    let statusBadge = '';
+
+                    if (status === 'success') {
+                        statusBadge = `
+                        <span style="
+                            display:inline-block;
+                            padding:5px 14px;
+                            border-radius:20px;
+                            background:#d1e7dd;
+                            color:#0f5132;
+                            font-weight:600;
+                            font-size:13px;
+                        ">
+                            SUCCESS
+                        </span>
+                    `;
+                    } else if (status === 'failed') {
+                        statusBadge = `
+                        <span style="
+                            display:inline-block;
+                            padding:5px 14px;
+                            border-radius:20px;
+                            background:#f8d7da;
+                            color:#842029;
+                            font-weight:600;
+                            font-size:13px;
+                        ">
+                            FAILED
+                        </span>
+                    `;
+                    } else {
+                        statusBadge = `
+                        <span style="
+                            display:inline-block;
+                            padding:5px 14px;
+                            border-radius:20px;
+                            background:#fff3cd;
+                            color:#664d03;
+                            font-weight:600;
+                            font-size:13px;
+                        ">
+                            ${(data.status ?? 'PENDING').toUpperCase()}
+                        </span>
+                    `;
+                    }
+
                     Swal.fire({
+
                         icon: icon,
                         title: title,
+                        width: '470px',
+
                         html: `
-                        <div style="text-align:left;">
 
-                            <div class="mb-2">
-                                <strong>Transaction ID:</strong>
-                                <span>${data.transaction_id ?? '-'}</span>
+                        <!-- Amount -->
+                        <div style="
+                            text-align:center;
+                            margin:5px 0 20px;
+                            padding:14px;
+                            border-radius:10px;
+                            background:#f8f9fa;
+                        ">
+
+                            <div style="
+                                font-size:12px;
+                                color:#6c757d;
+                                margin-bottom:3px;
+                            ">
+                                Transaction Amount
                             </div>
 
-                            <div class="mb-2">
-                                <strong>Order ID:</strong>
-                                <span>${data.order_id ?? '-'}</span>
-                            </div>
-
-                            <div class="mb-2">
-                                <strong>Amount:</strong>
-                                <span>₹${data.amount ?? '-'}</span>
-                            </div>
-
-                            <div class="mb-2">
-                                <strong>Status:</strong>
-                                <span>${(data.status ?? '-').toUpperCase()}</span>
-                            </div>
-
-                            <div class="mb-2">
-                                <strong>UTR:</strong>
-                                <span>${data.utr ?? '-'}</span>
+                            <div style="
+                                font-size:28px;
+                                font-weight:700;
+                            ">
+                                ₹${data.amount ?? '-'}
                             </div>
 
                         </div>
+
+
+                        <!-- Transaction / Order -->
+                        <div style="
+                            display:grid;
+                            grid-template-columns:1fr 1fr;
+                            gap:10px;
+                            margin-bottom:10px;
+                        ">
+
+                            <!-- Transaction ID -->
+                            <div style="
+                                padding:11px;
+                                border:1px solid #eee;
+                                border-radius:8px;
+                                text-align:center;
+                            ">
+
+                                <div style="
+                                    font-size:11px;
+                                    color:#6c757d;
+                                    margin-bottom:5px;
+                                ">
+                                    Transaction ID
+                                </div>
+
+                                <div style="
+                                    font-size:13px;
+                                    font-weight:600;
+                                    word-break:break-all;
+                                ">
+                                    ${data.transaction_id ?? '-'}
+                                </div>
+
+                            </div>
+
+
+                            <!-- Order ID -->
+                            <div style="
+                                padding:11px;
+                                border:1px solid #eee;
+                                border-radius:8px;
+                                text-align:center;
+                            ">
+
+                                <div style="
+                                    font-size:11px;
+                                    color:#6c757d;
+                                    margin-bottom:5px;
+                                ">
+                                    Order ID
+                                </div>
+
+                                <div style="
+                                    font-size:13px;
+                                    font-weight:600;
+                                    word-break:break-all;
+                                ">
+                                    ${data.order_id ?? '-'}
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Status -->
+                        <div style="
+                            display:flex;
+                            align-items:center;
+                            justify-content:space-between;
+                            padding:12px 14px;
+                            border:1px solid #eee;
+                            border-radius:8px;
+                            margin-bottom:10px;
+                        ">
+
+                            <span style="
+                                font-size:13px;
+                                color:#6c757d;
+                            ">
+                                Transaction Status
+                            </span>
+
+                            ${statusBadge}
+
+                        </div>
+
+
+                        <!-- UTR -->
+                        <div style="
+                            padding:12px;
+                            border:1px solid #eee;
+                            border-radius:8px;
+                            text-align:center;
+                        ">
+
+                            <div style="
+                                font-size:11px;
+                                color:#6c757d;
+                                margin-bottom:5px;
+                            ">
+                                UTR / Bank Reference
+                            </div>
+
+                            <div style="
+                                font-size:14px;
+                                font-weight:600;
+                                word-break:break-all;
+                            ">
+                                ${data.utr ?? '-'}
+                            </div>
+
+                        </div>
+
                     `,
-                        confirmButtonText: 'OK'
+
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#0d6efd',
+
+                        customClass: {
+                            popup: 'transaction-status-popup'
+                        }
+
                     });
 
                 } else {

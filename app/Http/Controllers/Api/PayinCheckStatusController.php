@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\RateLimiter;
 
 class PayinCheckStatusController extends Controller
 {
@@ -105,6 +106,22 @@ class PayinCheckStatusController extends Controller
                             ],
                         ]);
                     }
+
+                    // Rate limit: same transaction maximum 3 checks per minute
+                    $rateLimitKey = 'easebuzz-check-status:' . $custTxnId;
+
+                    if (RateLimiter::tooManyAttempts($rateLimitKey, 3)) {
+
+                        $seconds = RateLimiter::availableIn($rateLimitKey);
+
+                        return response()->json([
+                            'status' => false,
+                            'message' => "Status check limit reached. Please try again after {$seconds} seconds.",
+                        ], 429);
+                    }
+
+                    // Count this request
+                    RateLimiter::hit($rateLimitKey, 60);
 
                     $oauthUser = DB::table('oauth_users')->where('user_id', $userid)->first();
 
