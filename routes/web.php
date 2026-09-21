@@ -162,7 +162,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/impersonate/{user}', [AdminController::class, 'enterImpersonate'])->name('enter.impersonate');
 
         Route::get('/admin/seamless-upi-collection', [AdminController::class, 'seamlessUpiCollection'])->name('seamless_upi_collection');
-        Route::post('main-to-bank-account',[AdminController::class,'mainWalletToBankTransfer'])->name('main_to_bank_account');
+        Route::post('main-to-bank-account', [AdminController::class, 'mainWalletToBankTransfer'])->name('main_to_bank_account');
     });
 });
 
@@ -289,6 +289,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/download-slip/{id}', [AdminController::class, 'downloadSlip']);
 
     Route::get('/get-billers/{categoryId}', [ServiceController::class, 'getBillers']);
+    Route::get('/fetch/latest-records', [CommonController::class, 'fetchLatestRecords'])->name('fetch_latest_records');
 });
 
 Route::group(['middleware' => ['logs', 'auth'], 'prefix' => 'document'], function () {
