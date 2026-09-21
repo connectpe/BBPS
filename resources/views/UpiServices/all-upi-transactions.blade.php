@@ -20,11 +20,11 @@
 
                         <!-- Customer Dropdown -->
                         <div class="col-md-3">
-                            <label class="form-label">Customer Name</label>
-                            <select id="filterUser" class="form-control form-select2">
-                                <option value="">All Customers</option>
-                                @foreach ($customers as $cust)
-                                    <option value="{{ $cust }}">{{ $cust }}</option>
+                            <label class="form-label">User</label>
+                            <select id="filterUser" class="form-control">
+                                <option value="">All Users</option>
+                                @foreach ($users as $user)
+                                    <option value="{{ $user->id }}">{{ $user->name }} {{ $user->email }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -77,6 +77,7 @@
                     <thead>
                         <tr>
                             <th>#</th>
+                            <th>User</th>
                             <th>Customer Name</th>
                             <th>Email</th>
                             <th>Cust Txn ID</th>
@@ -124,7 +125,7 @@
                         d._token = "{{ csrf_token() }}";
                         d.page_type = 'all';
                         d.any_key = $('#filterKeyword').val();
-                        d.cust_name = $('#filterUser').val();
+                        d.user_id = $('#filterUser').val();
                         d.status = $('#filterStatus').val();
                         d.date_from = $('#filterDateFrom').val();
                         d.date_to = $('#filterDateTo').val();
@@ -136,6 +137,21 @@
                         searchable: false,
                         render: function(data, type, row, meta) {
                             return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    },
+                    {
+                        data: 'user',
+                        orderable: false,
+                        searchable: false,
+                        render: function(data) {
+                            if (!data) return '-';
+
+                            return `
+                                <div>
+                                    <div class="fw-semibold">${data.name ?? '-'}</div>
+                                    <small class="text-muted">${data.email ?? '-'}</small>
+                                </div>
+                            `;
                         }
                     },
                     {
@@ -258,6 +274,7 @@
                 $('#filterKeyword').val('');
                 $('#filterStatus').val('');
                 $('#filterDateFrom').val('');
+                $('#filterUser').val('');
                 $('#filterDateTo').val('');
                 table.draw();
             });
