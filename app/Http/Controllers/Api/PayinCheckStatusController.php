@@ -95,7 +95,7 @@ class PayinCheckStatusController extends Controller
 
                         return response()->json([
                             'status' => true,
-                            'message' => 'Transaction status already finalized',
+                            'message' => 'Transaction status fetched successfully',
                             'data' => [
                                 'transaction_id' => $transaction->cust_txn_id,
                                 'order_id'       => $transaction->connectpe_order_id,
@@ -137,6 +137,8 @@ class PayinCheckStatusController extends Controller
                         ]);
 
                     $result = $response->json();
+
+                    // dd($result);
 
                     Log::info('Easebuzz Check Status Response', [
                         'txnid' => $txnid,
