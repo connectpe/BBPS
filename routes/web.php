@@ -162,6 +162,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/impersonate/{user}', [AdminController::class, 'enterImpersonate'])->name('enter.impersonate');
 
         Route::get('/admin/seamless-upi-collection', [AdminController::class, 'seamlessUpiCollection'])->name('seamless_upi_collection');
+        Route::post('main-to-bank-account',[AdminController::class,'mainWalletToBankTransfer'])->name('main_to_bank_account');
     });
 });
 

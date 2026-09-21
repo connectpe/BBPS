@@ -87,6 +87,10 @@
                             <th>Updated At</th>
                         </tr>
                     </thead>
+                    <tfoot>
+                        <tr style="font-weight: bold; background-color: #f8f9fa;">
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
         </div>
@@ -98,6 +102,10 @@
             let table = $('#seamlessTable').DataTable({
                 processing: true,
                 serverSide: true,
+                lengthMenu: [
+                    [10, 25, 50, 100, -1],
+                    [10, 25, 50, 100, "All"]
+                ],
                 ajax: {
                     url: "{{ url('fetch/seamless-upi-collection') }}",
                     type: "POST",
@@ -199,7 +207,7 @@
                             if (data == 'success') badge = 'success';
                             else if (data == 'failed') badge = 'danger';
                             else if (data == 'pending') badge = 'warning';
-                            return `<span class="badge bg-${badge}">${data}</span>`;
+                            return `<span class="badge bg-${badge}">${data.toUpperCase()}</span>`;
 
                         }
 
@@ -222,7 +230,48 @@
 
                 order: [
                     [0, 'DESC']
-                ]
+                ],
+                footerCallback: function(row, data, start, end, display) {
+                    let api = this.api();
+
+                    let sumColumn = function(index) {
+                        let columnData = api.column(index, {
+                            page: 'current'
+                        }).data();
+                        return columnData.reduce(function(a, b) {
+                            let x = parseFloat(a) || 0;
+                            let y = parseFloat(b) || 0;
+                            return x + y;
+                        }, 0);
+                    };
+
+                    // Updated column indices based on your columns array
+                    let amountSum = sumColumn(8);
+                    let feeSum = sumColumn(9);
+                    let taxSum = sumColumn(10);
+                    let netAmountSum = sumColumn(11);
+
+                    // Align the "Total:" text right before the Amount column (spans columns 0 to 7: # up to UTR)
+                    let labelColSpan = 8;
+
+                    let footerHtml =
+                        `<td colspan="${labelColSpan}" style="text-align: right;"><strong>Total:</strong></td>` +
+                        `<td><strong>${amountSum.toFixed(2)}</strong></td>` +
+                        `<td><strong>${feeSum.toFixed(2)}</strong></td>` +
+                        `<td><strong>${taxSum.toFixed(2)}</strong></td>` +
+                        `<td><strong>${netAmountSum.toFixed(2)}</strong></td>`;
+
+                    // Fill the remaining tail columns to keep table row structure valid (17 total columns)
+                    let totalColumns = api.columns().header().length;
+                    let filledColumns = labelColSpan + 4; // label span + 4 numerical sum columns
+                    let remainingCols = totalColumns - filledColumns;
+
+                    for (let i = 0; i < remainingCols; i++) {
+                        footerHtml += `<td></td>`;
+                    }
+
+                    $(api.table().footer()).find('tr').html(footerHtml);
+                }
 
             });
             $('#applyFilter').click(function() {

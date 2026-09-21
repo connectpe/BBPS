@@ -12,6 +12,7 @@ use App\Models\City;
 use App\Models\ComplaintsCategory;
 use App\Models\DefaultProvider;
 use App\Models\GlobalService;
+use App\Models\Ladger;
 use App\Models\LoadMoneyRequest;
 use App\Models\Maintenance;
 use App\Models\OauthUser;
@@ -190,7 +191,7 @@ class AdminController extends Controller
                     ->get();
             });
 
-            $data['states'] = State::select('state_name')->orderBy('state_name','asc')->get();
+            $data['states'] = State::select('state_name')->orderBy('state_name', 'asc')->get();
 
             $data['webhookUrl'] = Cache::remember("{$cachePrefix}webhookUrl", 18000, function () use ($userId) {
                 return WebHookUrl::with('service')->select('id', 'url', 'service_id', 'service_slug', 'created_at')->where('user_id', $userId)->orderBy('id', 'desc')->get();
@@ -2587,5 +2588,83 @@ class AdminController extends Controller
     {
         $users = User::select('id', 'name', 'email')->where('role_id', 2)->orderBy('name')->get();
         return view('UpiServices.seamless-upi-collection', compact('users'));
+    }
+
+
+    public function mainWalletToBankTransfer(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id'          => 'required|integer', // Ensure user ID is passed
+            'utr_no'           => 'required|numeric|unique:ladgers,transaction_no',
+            'transfer_amount'  => 'required|numeric|min:1',
+            'txn_mode'         => 'required|string|in:UPI,IMPS,NEFT,RTGS,BANK_TRANSFER,CASH,CHEQUE,CARD,NET_BANKING,WALLET,AEPS,PAYMENT_LINK,QR_CODE',
+            'remarks'          => 'required|string|max:500',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first()
+            ], 422);
+        }
+
+        try {
+
+            $connectPeId = CommonHelper::generateConnectPeTransactionId();
+            $reqId = CommonHelper::generateTransactionId();
+            $paymentRefId = CommonHelper::generatePaymentRefId();
+
+            // Call the stored procedure to debit the wallet
+            $result = DB::select(
+                "CALL debitAmountFromUserWallet(?, ?, ?, ?)",
+                [
+                    $request->user_id,
+                    $request->transfer_amount ?? 0,
+                    null,
+                    false
+                ]
+            );
+
+            if (empty($result) || empty($result[0]->response)) {
+                throw new \Exception("Invalid response from wallet debit procedure");
+            }
+
+            $walletResponse = json_decode($result[0]->response, true);
+
+            if (!$walletResponse || ($walletResponse['success'] ?? false) == false) {
+                throw new \Exception($walletResponse['message'] ?? 'Internal Wallet Error');
+            }
+
+            // Prepare data for ledger insertion
+            $dataToInsert = [
+                'reference_no' => $paymentRefId,
+                'request_id' => $reqId,
+                'connectpe_id' => $connectPeId,
+                'transaction_no' => $request->utr_no,
+                'user_id' => $request->user_id,
+                'txn_amount' => $request->transfer_amount,
+                'total_txn_amount' => $request->transfer_amount,
+                'fee' => 0,
+                'tax' => 0,
+                'txn_date' => now(),
+                'txn_type' => 'dr',
+                'opening_balance'   => $walletResponse['opening_balance'],
+                'closing_balanace'   => $walletResponse['remaining_balance'],
+                'remarks' => $request->remarks,
+                'narration' => $request->remarks ?? "Transferred into user\'s bank account via mode $request->txn_mode, UTR $request->utr_no",
+            ];
+
+            Ladger::create($dataToInsert);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Transaction details saved successfully!'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

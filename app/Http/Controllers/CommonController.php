@@ -950,7 +950,7 @@ class CommonController extends Controller
                 break;
 
             case 'upi-collection':
-                $request['table'] = '\App\Models\UpiCollection';
+                $request['table'] = '\App\Models\SeamlessUpiCollection';
                 $request['searchData'] = ['cust_txn_id', 'connectpe_order_id', 'cust_name', 'cust_email', 'amount', 'utr', 'status', 'created_at'];
                 $request['select'] = 'all';
                 $request['with'] = ['user'];
@@ -978,7 +978,7 @@ class CommonController extends Controller
                 if ($request->has('page_type') && $request->page_type == 'collection') {
                     $where[] = ['status', '=', 'success'];
                 } elseif ($request->has('page_type') && $request->page_type == 'initiation') {
-                    $where[] = ['status', '=', 'initiated'];
+                    $where[] = ['status', '=', 'pending'];
                 }
                 $request->merge(['where' => $where]);
                 if (Auth::user()->role_id == '1') {
