@@ -237,13 +237,13 @@
                         }, 0);
                     };
 
-                    let amountSum = sumColumn(6);
-                    let feeSum = sumColumn(7);
-                    let taxSum = sumColumn(8);
-                    let netAmountSum = sumColumn(9);
+                    let amountSum = sumColumn(7);
+                    let feeSum = sumColumn(8);
+                    let taxSum = sumColumn(9);
+                    let netAmountSum = sumColumn(10);
 
                     // Align the "Total:" text under the 'UTR' column (Index 5)
-                    let labelColSpan = 6;
+                    let labelColSpan = 7;
 
                     let footerHtml =
                         `<td colspan="${labelColSpan}" style="text-align: right;"><strong>Total:</strong></td>` +
@@ -265,6 +265,9 @@
                 }
             });
 
+            @if (auth()->user()->role_id != 2)
+                enableTablePolling(paymentTable, 'upi-collection', intervalMs = 5000);
+            @endif
             $('#applyFilter').click(function() {
                 table.draw();
             });
